@@ -1,0 +1,239 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html dir="ltr">
+    
+<head>
+<meta name="viewport"
+  content="width=device-width,
+  minimum-scale=1.0, maximum-scale=1.0" />
+<style type="text/css">
+	body, html { font-family:helvetica,arial,sans-serif; font-size:90%; background-color:black; }
+</style>
+<style type="text/css">
+    html, body { width: 100%; margin: 0; }
+    button.incdec { width: 100%; }
+    text.spacer { width: 30%; }
+    td.valuelabel { width: 15%; text-align: center}
+    td.valuevalue { width: 15%; text-align: center}
+    td.bigbutton { height: 25px; width: 100px; text-align: center}
+</style>
+
+<script src="dojo/dojo.js" djConfig="parseOnLoad: true"> </script>
+<script type="text/javascript">
+
+function format_error(meth,err) {
+	var estr = "" + err;
+	if ( estr.match(/xmlhttprequest exception 101/i) ) {
+		return "Unable to connect to MMTT - is it running?";
+	} else {
+		return "Method: "+meth+"  Error:" + err;
+	}
+}
+
+function doaction(instancenum,meth,params) {
+
+	// The value of params should include the curly braces
+	params = (typeof params === "undefined") ? "{ }" : params;
+
+	var baseport = 4445;  // This is the port# for Frame1
+	var hostname = document.location.hostname;
+
+	var reverseit = false;
+	if ( reverseit ) {
+		instancenum = 3 - instancenum;
+	}
+	var port = baseport - 1 + instancenum;
+	var url = "http://"+hostname+":"+port+"/dojo.txt";
+
+	var id = "12345";
+
+	var def = dojo.xhrPost( {
+		url: url,
+		handleAs: "json",
+		sync: true,
+		postData: "{ \"jsonrpc\": \"2.0\", \"method\": \""+meth+"\", \"params\": "+params+", \"id\":\""+id+"\" }\n"
+	});
+
+	var place = dojo.byId("status");
+	place.innerHTML = "Sending meth="+meth
+
+	def.then( function(r) {
+		if ( r == null ) {
+			place.innerHTML = ("Method: "+meth+"  Error! r is null");
+		} else if ( r.error ) {
+			place.innerHTML = ("Method: "+meth+"  Error! id:" + r.id + " msg="+r.error.message);
+		} else {
+			place.innerHTML = ("Status: OK");
+		}
+		},
+		function(err) {
+			place.innerHTML = format_error(meth,err);
+	});
+
+}
+
+// This is the map of button names to the soundset values
+//
+//    LL1 -> 0
+//    LL2 -> 1
+//    LL3 -> 2
+//    UL1 -> 3
+//    UL2 -> 4
+//    UL3 -> 5
+//    LR1 -> 6
+//    LR2 -> 7
+//    LR3 -> 8
+//    UR1 -> 9
+//    UR2 -> 10
+//    UR3 -> 11
+
+var ButtonNames = [
+	["Oozing<br>Color", "UL1"],
+	["Square<br>Swirls", "UL2"],
+	["Organic<br>Outlines", "UL3"],
+	["Slow<br>Growth", "LL1"],
+	["Mirrored<br>Waves", "LL2"],
+	["Feathered<br>Flute", "LL3"],
+	["Diagonal<br>Mystery", "UR1"],
+	["Glowy<br>Outlines", "UR2"],
+	["Rippled<br>Drums", "UR3"],
+	["Triangular<br>Logic", "LR1"],
+	["Perky<br>Circles", "LR2"],
+	["Dimensional<br>Mirrors", "LR3"]
+	];
+//var ButtonNames = [
+//	["Oozing<br>Color", "UL1"],
+//	["Faded<br>Swirls", "UL2"],
+//	["Organic<br>Outlines", "UL3"],
+//	["Ribbon<br>Dance", "LL1"],
+//	["Mirrored<br>Waves", "LL2"],
+//	["Sacred<br>Circles", "LL3"],
+//	["Smooth<br>Moves", "UR1"],
+//	["Dancing<br>Lines", "UR2"],
+//	["Rippled<br>Shadows", "UR3"],
+//	["Fuzzy<br>Logic", "LR1"],
+//	["Perky<br>Shapes", "LR2"],
+//	["Time<br>Ripples", "LR3"]
+//	];
+
+var OtherButtons = [ 
+	// [ "Slowest", "tempo_slowest" ],
+	// [ "Slow", "tempo_slow" ],
+	// [ "Normal", "tempo_normal" ],
+	// [ "Fast", "tempo_fast" ],
+	// [ "Fastest", "tempo_fastest" ],
+	[ "Kill Stuck Notes", "ANO" ]
+	];
+
+function do_help() {
+	alert("Wave your hands within the holes of the frames.  Musically, each hole is like a two-octave keyboard.  Graphically, each hole is like a three-dimensional mousepad.  The depth of your hands affects both the sound and graphics.")
+}
+function do_button(instancenum,name) {
+	doaction(instancenum,'button','{ "name" : "'+name+'" }');
+}
+function do_method(instancenum,name,meth) {
+	doaction(instancenum,meth);
+}
+function toggle(el){
+    if(el.className!="pause")
+    {
+        el.src='pause.png';
+        el.className="pause";
+    }
+    else if(el.className=="pause")
+    {
+        el.src='play.png';
+        el.className="play";
+    }
+
+    return false;
+}  
+
+function setup() {
+
+	var title = dojo.byId("title");
+
+	// title.innerHTML = "<h2>Multi-Frame Palette Selection</h2>"
+	title.innerHTML = ""
+
+	var buttons = dojo.byId("buttons");
+	var html = "";
+	var cnt = 0;
+	html += "<table width=100%>";  // for the left/right sides of the page
+	html += "<tr><td width=40%><h2><center><font color=white>Palette 1</center></td>";
+	// html += "<td><button style=\"width:100%;height:30pix;background-color:grey;color:white\" onClick=\"do_help();\">Help</font></button></td>";
+	html += "<td><center><a href=help.html><font size=+2>Help</font></a></td>";
+	html += "<td width=40%><h2><center><font color=white>Palette 2</center></td></tr>";
+	html += "<tr><td align=center>";
+
+	html += "<table width=100%><tr><td>&nbsp;</td>";  // for the buttons
+	for ( n in ButtonNames ) {
+		if ( cnt >= 3 ) {
+			cnt = 0;
+			html += "</tr><tr><td>&nbsp;</td>";
+		}
+		cnt++;
+		var nm = ButtonNames[n][0];
+		var tag = ButtonNames[n][1];
+		var b = "<td><button style=\"width:100%;height:100%;background-color:grey;color:white\" onClick=\"do_button(1,'"+tag+"');\"><br><font size=+2>"+nm+"</font><br>&nbsp;</button></td>";
+		html += b;
+	}
+	html += "</tr></table>";
+	html += "</td><td width=6%></td><td>";
+	cnt = 0;
+	html += "<table width=100%><tr><td>&nbsp;</td>";  // for the buttons
+	for ( n in ButtonNames ) {
+		if ( cnt >= 3 ) {
+			cnt = 0;
+			html += "</tr><tr><td>&nbsp;</td>";
+		}
+		cnt++;
+		var nm = ButtonNames[n][0];
+		var tag = ButtonNames[n][1];
+		var b = "<td><button style=\"width:100%;height:100%;background-color:grey;color:white\" onClick=\"do_button(2,'"+tag+"');\"><br><font size=+2>"+nm+"</font><br>&nbsp;</button></td>";
+		html += b;
+	}
+	html += "<td>&nbsp;</td></tr></table>";
+
+	html += "</td></tr>";
+	html += "<tr><td height=15pix>&nbsp;</td></tr>";
+
+	// These are the buttons below the palette selections
+	html += "<tr>";
+	html += "<td height=100% valign=center><center>";
+	for ( i in OtherButtons ) {
+		nm = OtherButtons[i][0];
+		meth = OtherButtons[i][1];
+		html += "<button style=\"width:25%;background-color:grey;color:white\" onClick=\"do_method(1,'"+nm+"','"+meth+"');\"><br>"+nm+"</font><br>&nbsp;</button>&nbsp;";
+	}
+	html += "</td><td></td><td valign=center><center>";
+	for ( i in OtherButtons ) {
+		nm = OtherButtons[i][0];
+		meth = OtherButtons[i][1];
+		html += "<button style=\"width:25%;background-color:grey;color:white\" onClick=\"do_method(2,'"+nm+"','"+meth+"');\"><br>"+nm+"</font><br>&nbsp;</button>&nbsp;";
+	}
+	html += "</td></tr>";
+
+	html += "</table>";
+	buttons.innerHTML = html;
+}
+
+dojo.addOnLoad(setup);
+
+</script>
+</head>
+    
+<body class="claro">
+
+<center>
+<div id="title">&nbsp;</div>
+<p>
+<div id="buttons"></div>
+<p>
+<div id="status">&nbsp;</div>
+</center>
+<p>
+	
+</body>
+
+</html>
+

@@ -1,0 +1,19 @@
+# This is a config file for MMTT
+
+{
+  "port": 4440,
+  "camera": "kinect",
+  "patch": "oval",
+  "patchdir": "mmtt",
+  "tempdir": "c:/windows/temp",
+  "sharedmem": 1,
+  "sharedmemname": "mmtt_outlines_1",
+  "errorpopup": 1,
+  "tuio": 0,
+  "tuio.25d.clientlist": "127.0.0.1:3333",
+  "initialalign": 1,
+  "python": 0,
+  "debugtoconsole": 1,
+  "debugtolog": 1,
+  "debuglogfile": "debug.txt"
+}

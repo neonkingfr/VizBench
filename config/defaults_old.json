@@ -1,0 +1,7 @@
+{
+  "mmttport": 4444,
+  "mmttpatch": "oval",
+  "debugtoconsole": 1,
+  "debugtolog": 1,
+  "debuglogfile": "debug.txt"
+}

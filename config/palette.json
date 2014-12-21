@@ -1,0 +1,176 @@
+{
+  "vizserver_osc_port": 3333,
+  "midioutput": "loopMidi Port 1",
+  "midiinput": "loopMidi Port 2",
+  "midiconfig": "absynth_mellow",
+  "defaultpatch": "ribbondance2",
+  "alleffects": "twisted,wavewarp,kaleidoscope,blur,goo,fragment,posterize,displace,iterate,edgedetection,bendoscope,mirror,trails",
+
+#  "tonicchange": 1,
+#  "tonicchangeclients": "3334@127.0.0.1",
+
+  "errorpopup": 0,
+  "debugtoconsole": 1,
+  "debugtolog": 1,
+
+  "regions": {
+	"LOWER": {"sid":"11000"},
+	"LEFT":  {"sid":"12000"},
+	"RIGHT": {"sid":"13000"},
+	"UPPER": {"sid":"14000}"}
+  },
+  "buttons": {
+	"LL1": {"sid":"21000", "patch":"ribbondance2"},
+	"LL2": {"sid":"22000", "patch":"mirroredwaves2"},
+	"LL3": {"sid":"23000", "patch":"sacredcircles2"},
+	"UL1": {"sid":"31000", "patch":"oozingcolor2"},
+	"UL2": {"sid":"32000", "patch":"fadedswirls2"},
+	"UL3": {"sid":"33000", "patch":"organicoutlines2"},
+	"LR1": {"sid":"41000", "patch":"fuzzylogic2"},
+	"LR2": {"sid":"42000", "patch":"perkyshapes2"},
+	"LR3": {"sid":"43000", "patch":"timeripples2"},
+	"UR1": {"sid":"51000", "patch":"smoothmoves2"},
+	"UR2": {"sid":"52000", "patch":"dancinglines2"},
+	"UR3": {"sid":"53000", "patch":"rippledshadows2"}
+        },
+  "patches": {
+ 	"ribbondance2" : {
+		"regions": {
+			"LOWER": "ribbondance2_1,ribbondance2_o",
+			"LEFT":  "ribbondance2_2,ribbondance2_o",
+			"RIGHT": "ribbondance2_3,ribbondance2_o",
+			"UPPER": "ribbondance2_4,ribbondance2_o"
+		},
+# MIDI channels - just thinking about it
+		"channels": {
+			"1": "mirroredwaves2_1",
+			"2": "mirroredwaves2_2"
+		},
+ 		"label": "Ribbon Dance",
+		"labelpos": [ 290, 350],
+ 		"effects": "twisted"
+ 	},
+ 	"mirroredwaves2" : {
+		"regions": {
+			"LOWER": "mirroredwaves2_1,mirroredwaves2_o",
+			"LEFT":  "mirroredwaves2_2,mirroredwaves2_o",
+			"RIGHT": "mirroredwaves2_3,mirroredwaves2_o",
+			"UPPER": "mirroredwaves2_4,mirroredwaves2_o"
+		},
+ 		"label": "Mirrored Waves",
+		"labelpos": [ 290, 350],
+ 		"effects": "twisted,wavewarp,edgedetect"
+ 	},
+ 	"sacredcircles2" : {
+		"regions": {
+			"LOWER": "sacredcircles2_1,sacredcircles2_o",
+			"LEFT":  "sacredcircles2_2,sacredcircles2_o",
+			"RIGHT": "sacredcircles2_3,sacredcircles2_o",
+			"UPPER": "sacredcircles2_4,sacredcircles2_o"
+		},
+ 		"label": "Sacred Circles",
+		"labelpos": [ 290, 350],
+ 		"effects": "iterate,edgedetect,trails"
+ 	},
+ 	"oozingcolor2" : {
+		"regions": {
+			"LOWER": "oozingcolor2_1,oozingcolor2_o",
+			"LEFT":  "oozingcolor2_2,oozingcolor2_o",
+			"RIGHT": "oozingcolor2_3,oozingcolor2_o",
+			"UPPER": "oozingcolor2_4,oozingcolor2_o"
+		},
+ 		"label": "Oozing Color",
+		"labelpos": [ 310, 350],
+ 		"effects": "twisted,blur,displace,trails"
+ 	},
+ 	"fadedswirls2" : {
+		"regions": {
+			"LOWER": "fadedswirls2_1,fadedswirls2_o",
+			"LEFT":  "fadedswirls2_2,fadedswirls2_o",
+			"RIGHT": "fadedswirls2_3,fadedswirls2_o",
+			"UPPER": "fadedswirls2_4,fadedswirls2_o"
+		},
+ 		"label": "Faded Swirls",
+		"labelpos": [ 300, 350],
+ 		"effects": "twisted,wavewarp"
+ 	},
+ 	"organicoutlines2" : {
+		"regions": {
+			"LOWER": "organicoutlines2_1,organicoutlines2_o",
+			"LEFT":  "organicoutlines2_2,organicoutlines2_o",
+			"RIGHT": "organicoutlines2_3,organicoutlines2_o",
+			"UPPER": "organicoutlines2_4,organicoutlines2_o"
+		},
+ 		"label": "Organic Outlines",
+		"labelpos": [ 270, 350],
+ 		"effects": "twisted,blur,posterize,edgedetect,trails"
+ 	},
+ 	"fuzzylogic2" : {
+		"regions": {
+			"LOWER": "fuzzylogic2_1,fuzzylogic2_o",
+			"LEFT":  "fuzzylogic2_2,fuzzylogic2_o",
+			"RIGHT": "fuzzylogic2_3,fuzzylogic2_o",
+			"UPPER": "fuzzylogic2_4,fuzzylogic2_o"
+		},
+ 		"label": "Fuzzy Logic",
+		"labelpos": [ 310, 350],
+ 		"effects": "goo"
+ 	},
+ 	"perkyshapes2" : {
+		"regions": {
+			"LOWER": "perkyshapes2_1,perkyshapes2_o",
+			"LEFT":  "perkyshapes2_2,perkyshapes2_o",
+			"RIGHT": "perkyshapes2_3,perkyshapes2_o",
+			"UPPER": "perkyshapes2_4,perkyshapes2_o"
+		},
+ 		"label": "Perky Shapes",
+		"labelpos": [ 280, 350],
+ 		"effects": "fragment,edgedetect"
+ 	},
+ 	"timeripples2" : {
+		"regions": {
+			"LOWER": "timeripples2_1,timeripples2_o",
+			"LEFT":  "timeripples2_2,timeripples2_o",
+			"RIGHT": "timeripples2_3,timeripples2_o",
+			"UPPER": "timeripples2_4,timeripples2_o"
+		},
+ 		"label": "Time Ripples",
+		"labelpos": [ 280, 350],
+ 		"effects": "twisted,blur,iterate,bendoscope,mirror,trails"
+ 	},
+ 	"smoothmoves2" : {
+		"regions": {
+			"LOWER": "smoothmoves2_1,smoothmoves2_o",
+			"LEFT":  "smoothmoves2_2,smoothmoves2_o",
+			"RIGHT": "smoothmoves2_3,smoothmoves2_o",
+			"UPPER": "smoothmoves2_4,smoothmoves2_o"
+		},
+ 		"label": "Smooth Moves",
+		"labelpos": [ 310, 350],
+ 		"effects": "twisted,kaleidoscope,trails"
+ 	},
+ 	"dancinglines2" : {
+		"regions": {
+			"LOWER": "dancinglines2_1,dancinglines2_o",
+			"LEFT":  "dancinglines2_2,dancinglines2_o",
+			"RIGHT": "dancinglines2_3,dancinglines2_o",
+			"UPPER": "dancinglines2_4,dancinglines2_o"
+		},
+ 		"label": "Dancing Lines",
+		"labelpos": [ 300, 350],
+ 		"effects": "blur,fragment,edgedetect"
+ 	},
+ 	"rippledshadows2" : {
+		"regions": {
+			"LOWER": "rippledshadows2_1,rippledshadows2_o",
+			"LEFT":  "rippledshadows2_2,rippledshadows2_o",
+			"RIGHT": "rippledshadows2_3,rippledshadows2_o",
+			"UPPER": "rippledshadows2_4,rippledshadows2_o"
+		},
+ 		"label": "Rippled Shadows",
+		"labelpos": [ 280, 350],
+ 		"effects": "goo,trails"
+ 	}
+  }
+
+}

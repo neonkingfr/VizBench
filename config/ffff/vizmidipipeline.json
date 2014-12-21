@@ -1,0 +1,24 @@
+{
+"pipeline": [
+	{
+		"plugin": "VizMidi",
+		"params": {
+		}
+	},
+	{
+		"plugin": "Edge Detection",
+		"params": {
+		}
+	},
+	{
+		"plugin": "Blur",
+		"params": {
+		}
+	},
+	{
+		"plugin": "Trails",
+		"params": {
+		}
+	}
+]
+}

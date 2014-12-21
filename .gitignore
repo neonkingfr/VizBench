@@ -1,28 +1,73 @@
-# Compiled Object files
-*.slo
-*.lo
-*.o
+patches
+vstplugins
+src/opencv
+src/freeglut-2.6.0
+src/bonjour
+vs2010/ipch
+*.debug
+*.tlog
+#ignore thumbnails created by windows
+Thumbs.db
+#Ignore files build by Visual Studio
 *.obj
-
-# Precompiled Headers
-*.gch
+*.pdb
+*.user
+*.aps
 *.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
+*.vspscc
+*_i.c
+*_p.c
+*.ncb
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.cache
+*.ilk
+*.log
 *.lib
+*.sbr
+obj/
+[Rr]elease*/
+_ReSharper*/
+[Tt]est[Rr]esult*
+patches/alchemy
+*~
+src/oscutil/build
+src/oscutil/dist
+patches/kontakt
+patches/bidule
+patches/touchdesigner
+src/cvblobslib/doc
+vstplugins
+src/pthreads-win32-2.8.0
+src/zlib/contrib
+*.msi
+*.sdf
+*.opensdf
+*.ipch
+*.debug
+*.tlog
+*.idb
+src/*/Debug/*
+vs2013/*/Debug/*
+bin/pd
+bin/pd
+*.lastbuildstate
+*.unsuccessfulbuild
+*.exp
+*.manifest
+*.res
+vs2010/VizDll/Debug/VizDll_manifest.rc
+log/debug.txt
+log/*.debug
+src/pthreads-w32-2-9-1-release
+vs2012/winsocktest
+other
+*.swo
+*.swp
+vs2012/*/Debug/*.dll
+*.swp
+html/polymer-tutorial
+other.zip
 
-# Executables
-*.exe
-*.out
-*.app

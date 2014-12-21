@@ -1,0 +1,272 @@
+
+C:\local\manifold\bin>c:\python27\python.exe m.py 
+Before sleep
+ff= Edge_Enhance
+   param= Horizontal  type= standard
+   param= Vertical  type= standard
+   param= Enhance  type= standard
+ff= Glow
+   param= Inner Radius  type= standard
+   param= Outer Radius  type= standard
+   param= Passes  type= standard
+   param= Floor  type= standard
+   param= Ceiling  type= standard
+   param= Aspect Ratio  type= standard
+ff= TimeBlur
+   param= Time  type= standard
+ff= Vectorize
+   param= Pre-Filter Size  type= standard
+   param= Resolution  type= standard
+   param= Monochrome  type= boolean
+   param= Colour Count  type= standard
+   param= Palette Persiste  type= standard
+   param= Difference Thres  type= standard
+ffgl= Flip
+   param= {u'default': 1.0, u'num': 0, u'type': u'boolean', u'name': u'Horizontal', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 1, u'type': u'boolean', u'name': u'Vertical', u'value': 0.0}
+ffgl= Shift RGB
+   param= {u'default': 1.0, u'num': 0, u'type': u'standard', u'name': u'Distance', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 1, u'type': u'standard', u'name': u'Mode', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 2, u'type': u'standard', u'name': u'R', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 3, u'type': u'standard', u'name': u'G', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 4, u'type': u'standard', u'name': u'B', u'value': 0.0}
+ffgl= Trails
+   param= {u'default': 0.9, u'num': 0, u'type': u'standard', u'name': u'Feedback', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 1, u'type': u'standard', u'name': u'Mode', u'value': 0.0}
+ffgl= EmptyA
+ffgl= EmptyB
+ffgl= Blur
+   param= {u'default': 0.05, u'num': 0, u'type': u'standard', u'name': u'Blur X Distance', u'value': 0.0}
+   param= {u'default': 0.05, u'num': 1, u'type': u'standard', u'name': u'Blur Y Distance', u'value': 0.0}
+   param= {u'default': 0.15, u'num': 2, u'type': u'standard', u'name': u'Quality', u'value': 0.0}
+   param= {u'default': 0.2, u'num': 3, u'type': u'standard', u'name': u'Gaussian', u'value': 0.0}
+ffgl= Edge Detection
+   param= {u'default': 1.0, u'num': 0, u'type': u'standard', u'name': u'Mode', u'value': 0.0}
+   param= {u'default': 0.2, u'num': 1, u'type': u'standard', u'name': u'Multiplier', u'value': 0.0}
+ffgl= Bendoscope
+   param= {u'default': 0.1, u'num': 0, u'type': u'standard', u'name': u'Divisions', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 1, u'type': u'boolean', u'name': u'Black BG', u'value': 0.0}
+ffgl= Displace
+   param= {u'default': 0.5, u'num': 0, u'type': u'standard', u'name': u'X factor', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 1, u'type': u'standard', u'name': u'Y factor', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 2, u'type': u'boolean', u'name': u'Black BG', u'value': 0.0}
+ffgl= Mirror
+   param= {u'default': 0.0, u'num': 0, u'type': u'standard', u'name': u'X', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 1, u'type': u'standard', u'name': u'Y', u'value': 0.0}
+   param= {u'default': 1.0, u'num': 2, u'type': u'standard', u'name': u'In / Out', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 3, u'type': u'boolean', u'name': u'Black BG', u'value': 0.0}
+ffgl= Posterize
+   param= {u'default': 0.5, u'num': 0, u'type': u'standard', u'name': u'Posterize', u'value': 0.0}
+ffgl= Twisted
+   param= {u'default': 0.6, u'num': 0, u'type': u'standard', u'name': u'Twirl', u'value': 0.0}
+   param= {u'default': 0.25, u'num': 1, u'type': u'standard', u'name': u'Radius', u'value': 0.0}
+ffgl= Wave Warp
+   param= {u'default': 0.0, u'num': 0, u'type': u'standard', u'name': u'Mode', u'value': 0.0}
+   param= {u'default': 0.2, u'num': 1, u'type': u'standard', u'name': u'Height', u'value': 0.0}
+   param= {u'default': 0.2, u'num': 2, u'type': u'standard', u'name': u'Width', u'value': 0.0}
+   param= {u'default': 1.0, u'num': 3, u'type': u'standard', u'name': u'Angle', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 4, u'type': u'standard', u'name': u'Speed', u'value': 0.0}
+   param= {u'default': 1.0, u'num': 5, u'type': u'boolean', u'name': u'Pin edges?', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 6, u'type': u'boolean', u'name': u'Black BG', u'value': 0.0}
+ffgl= Lines
+   param= {u'default': 0.1, u'num': 0, u'type': u'standard', u'name': u'Fuzzyness', u'value': 0.0}
+   param= {u'default': 0.15, u'num': 1, u'type': u'standard', u'name': u'Line Width', u'value': 0.0}
+   param= {u'default': 0.040404, u'num': 2, u'type': u'standard', u'name': u'Num Lines', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 3, u'type': u'standard', u'name': u'Rotation', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 4, u'type': u'standard', u'name': u'Line Pos', u'value': 0.0}
+ffgl= Line Scape
+   param= {u'default': 0.0, u'num': 0, u'type': u'standard', u'name': u'Tilt', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 1, u'type': u'standard', u'name': u'Direction', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 2, u'type': u'standard', u'name': u'Position Y', u'value': 0.0}
+   param= {u'default': 0.666667, u'num': 3, u'type': u'standard', u'name': u'Speed', u'value': 0.0}
+   param= {u'default': 0.652174, u'num': 4, u'type': u'standard', u'name': u'Height', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 5, u'type': u'standard', u'name': u'Jagginess', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 6, u'type': u'standard', u'name': u'Wobble', u'value': 0.0}
+   param= {u'default': 0.310345, u'num': 7, u'type': u'standard', u'name': u'Attenuation', u'value': 0.0}
+   param= {u'default': 0.051282, u'num': 8, u'type': u'standard', u'name': u'Line Width', u'value': 0.0}
+ffgl= Palette
+ffgl= Palette_1
+ffgl= Palette_2
+ffgl= Palette_kinect
+ffgl= Pyffle_default
+ffgl= Fragment
+   param= {u'default': 0.3, u'num': 0, u'type': u'standard', u'name': u'Fragments', u'value': 0.0}
+   param= {u'default': 0.33, u'num': 1, u'type': u'standard', u'name': u'Distance', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 2, u'type': u'standard', u'name': u'Rotation', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 3, u'type': u'standard', u'name': u'FragRotationX', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 4, u'type': u'standard', u'name': u'FragRotationY', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 5, u'type': u'standard', u'name': u'FragRotationZ', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 6, u'type': u'standard', u'name': u'FragScale', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 7, u'type': u'standard', u'name': u'CompositeOpacity', u'value': 0.0}
+ffgl= Goo
+   param= {u'default': 0.14, u'num': 0, u'type': u'standard', u'name': u'Speed', u'value': 0.0}
+   param= {u'default': 0.14, u'num': 1, u'type': u'standard', u'name': u'MaxDistortionX', u'value': 0.0}
+   param= {u'default': 0.14, u'num': 2, u'type': u'standard', u'name': u'MaxDistortionY', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 3, u'type': u'standard', u'name': u'MaxDistortionZ', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 4, u'type': u'boolean', u'name': u'Black BG', u'value': 0.0}
+ffgl= Iterate
+   param= {u'default': 1.0, u'num': 0, u'type': u'standard', u'name': u'TransformStrengt', u'value': 0.0}
+   param= {u'default': 0.3, u'num': 1, u'type': u'standard', u'name': u'Iterations', u'value': 0.0}
+   param= {u'default': 1.0, u'num': 2, u'type': u'standard', u'name': u'StartOpacity', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 3, u'type': u'standard', u'name': u'OpacityChange', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 4, u'type': u'standard', u'name': u'TranslateX', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 5, u'type': u'standard', u'name': u'TranslateY', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 6, u'type': u'standard', u'name': u'TranslateZ', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 7, u'type': u'standard', u'name': u'RotateX ', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 8, u'type': u'standard', u'name': u'RotateY ', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 9, u'type': u'standard', u'name': u'RotateZ ', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 10, u'type': u'standard', u'name': u'Scale', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 11, u'type': u'standard', u'name': u'DOpacityChange', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 12, u'type': u'standard', u'name': u'DTranslateX', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 13, u'type': u'standard', u'name': u'DTranslateY', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 14, u'type': u'standard', u'name': u'DTranslateZ', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 15, u'type': u'standard', u'name': u'DRotateX ', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 16, u'type': u'standard', u'name': u'DRotateY ', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 17, u'type': u'standard', u'name': u'DRotateZ ', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 18, u'type': u'standard', u'name': u'DScale ', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 19, u'type': u'standard', u'name': u'BlendMode', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 20, u'type': u'standard', u'name': u'GRotateX', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 21, u'type': u'standard', u'name': u'GRotateY', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 22, u'type': u'standard', u'name': u'GRotateZ', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 23, u'type': u'boolean', u'name': u'Black BG', u'value': 0.0}
+ffgl= Kaleidoscope
+   param= {u'default': 0.3, u'num': 0, u'type': u'standard', u'name': u'Angles', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 1, u'type': u'standard', u'name': u'Rotation', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 2, u'type': u'standard', u'name': u'Zoom', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 3, u'type': u'standard', u'name': u'Input Rotation', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 4, u'type': u'boolean', u'name': u'Black BG', u'value': 0.0}
+CHANGING Divisions to 1
+ff= Edge_Enhance
+   param= Horizontal  type= standard
+   param= Vertical  type= standard
+   param= Enhance  type= standard
+ff= Glow
+   param= Inner Radius  type= standard
+   param= Outer Radius  type= standard
+   param= Passes  type= standard
+   param= Floor  type= standard
+   param= Ceiling  type= standard
+   param= Aspect Ratio  type= standard
+ff= TimeBlur
+   param= Time  type= standard
+ff= Vectorize
+   param= Pre-Filter Size  type= standard
+   param= Resolution  type= standard
+   param= Monochrome  type= boolean
+   param= Colour Count  type= standard
+   param= Palette Persiste  type= standard
+   param= Difference Thres  type= standard
+ffgl= Flip
+   param= {u'default': 1.0, u'num': 0, u'type': u'boolean', u'name': u'Horizontal', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 1, u'type': u'boolean', u'name': u'Vertical', u'value': 0.0}
+ffgl= Shift RGB
+   param= {u'default': 1.0, u'num': 0, u'type': u'standard', u'name': u'Distance', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 1, u'type': u'standard', u'name': u'Mode', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 2, u'type': u'standard', u'name': u'R', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 3, u'type': u'standard', u'name': u'G', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 4, u'type': u'standard', u'name': u'B', u'value': 0.0}
+ffgl= Trails
+   param= {u'default': 0.9, u'num': 0, u'type': u'standard', u'name': u'Feedback', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 1, u'type': u'standard', u'name': u'Mode', u'value': 0.0}
+ffgl= EmptyA
+ffgl= EmptyB
+ffgl= Blur
+   param= {u'default': 0.05, u'num': 0, u'type': u'standard', u'name': u'Blur X Distance', u'value': 0.0}
+   param= {u'default': 0.05, u'num': 1, u'type': u'standard', u'name': u'Blur Y Distance', u'value': 0.0}
+   param= {u'default': 0.15, u'num': 2, u'type': u'standard', u'name': u'Quality', u'value': 0.0}
+   param= {u'default': 0.2, u'num': 3, u'type': u'standard', u'name': u'Gaussian', u'value': 0.0}
+ffgl= Edge Detection
+   param= {u'default': 1.0, u'num': 0, u'type': u'standard', u'name': u'Mode', u'value': 0.0}
+   param= {u'default': 0.2, u'num': 1, u'type': u'standard', u'name': u'Multiplier', u'value': 0.0}
+ffgl= Bendoscope
+   param= {u'default': 0.1, u'num': 0, u'type': u'standard', u'name': u'Divisions', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 1, u'type': u'boolean', u'name': u'Black BG', u'value': 0.0}
+ffgl= Displace
+   param= {u'default': 0.5, u'num': 0, u'type': u'standard', u'name': u'X factor', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 1, u'type': u'standard', u'name': u'Y factor', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 2, u'type': u'boolean', u'name': u'Black BG', u'value': 0.0}
+ffgl= Mirror
+   param= {u'default': 0.0, u'num': 0, u'type': u'standard', u'name': u'X', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 1, u'type': u'standard', u'name': u'Y', u'value': 0.0}
+   param= {u'default': 1.0, u'num': 2, u'type': u'standard', u'name': u'In / Out', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 3, u'type': u'boolean', u'name': u'Black BG', u'value': 0.0}
+ffgl= Posterize
+   param= {u'default': 0.5, u'num': 0, u'type': u'standard', u'name': u'Posterize', u'value': 0.0}
+ffgl= Twisted
+   param= {u'default': 0.6, u'num': 0, u'type': u'standard', u'name': u'Twirl', u'value': 0.0}
+   param= {u'default': 0.25, u'num': 1, u'type': u'standard', u'name': u'Radius', u'value': 0.0}
+ffgl= Wave Warp
+   param= {u'default': 0.0, u'num': 0, u'type': u'standard', u'name': u'Mode', u'value': 0.0}
+   param= {u'default': 0.2, u'num': 1, u'type': u'standard', u'name': u'Height', u'value': 0.0}
+   param= {u'default': 0.2, u'num': 2, u'type': u'standard', u'name': u'Width', u'value': 0.0}
+   param= {u'default': 1.0, u'num': 3, u'type': u'standard', u'name': u'Angle', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 4, u'type': u'standard', u'name': u'Speed', u'value': 0.0}
+   param= {u'default': 1.0, u'num': 5, u'type': u'boolean', u'name': u'Pin edges?', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 6, u'type': u'boolean', u'name': u'Black BG', u'value': 0.0}
+ffgl= Lines
+   param= {u'default': 0.1, u'num': 0, u'type': u'standard', u'name': u'Fuzzyness', u'value': 0.0}
+   param= {u'default': 0.15, u'num': 1, u'type': u'standard', u'name': u'Line Width', u'value': 0.0}
+   param= {u'default': 0.040404, u'num': 2, u'type': u'standard', u'name': u'Num Lines', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 3, u'type': u'standard', u'name': u'Rotation', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 4, u'type': u'standard', u'name': u'Line Pos', u'value': 0.0}
+ffgl= Line Scape
+   param= {u'default': 0.0, u'num': 0, u'type': u'standard', u'name': u'Tilt', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 1, u'type': u'standard', u'name': u'Direction', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 2, u'type': u'standard', u'name': u'Position Y', u'value': 0.0}
+   param= {u'default': 0.666667, u'num': 3, u'type': u'standard', u'name': u'Speed', u'value': 0.0}
+   param= {u'default': 0.652174, u'num': 4, u'type': u'standard', u'name': u'Height', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 5, u'type': u'standard', u'name': u'Jagginess', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 6, u'type': u'standard', u'name': u'Wobble', u'value': 0.0}
+   param= {u'default': 0.310345, u'num': 7, u'type': u'standard', u'name': u'Attenuation', u'value': 0.0}
+   param= {u'default': 0.051282, u'num': 8, u'type': u'standard', u'name': u'Line Width', u'value': 0.0}
+ffgl= Palette
+ffgl= Palette_1
+ffgl= Palette_2
+ffgl= Palette_kinect
+ffgl= Pyffle_default
+ffgl= Fragment
+   param= {u'default': 0.3, u'num': 0, u'type': u'standard', u'name': u'Fragments', u'value': 0.0}
+   param= {u'default': 0.33, u'num': 1, u'type': u'standard', u'name': u'Distance', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 2, u'type': u'standard', u'name': u'Rotation', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 3, u'type': u'standard', u'name': u'FragRotationX', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 4, u'type': u'standard', u'name': u'FragRotationY', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 5, u'type': u'standard', u'name': u'FragRotationZ', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 6, u'type': u'standard', u'name': u'FragScale', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 7, u'type': u'standard', u'name': u'CompositeOpacity', u'value': 0.0}
+ffgl= Goo
+   param= {u'default': 0.14, u'num': 0, u'type': u'standard', u'name': u'Speed', u'value': 0.0}
+   param= {u'default': 0.14, u'num': 1, u'type': u'standard', u'name': u'MaxDistortionX', u'value': 0.0}
+   param= {u'default': 0.14, u'num': 2, u'type': u'standard', u'name': u'MaxDistortionY', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 3, u'type': u'standard', u'name': u'MaxDistortionZ', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 4, u'type': u'boolean', u'name': u'Black BG', u'value': 0.0}
+ffgl= Iterate
+   param= {u'default': 1.0, u'num': 0, u'type': u'standard', u'name': u'TransformStrengt', u'value': 0.0}
+   param= {u'default': 0.3, u'num': 1, u'type': u'standard', u'name': u'Iterations', u'value': 0.0}
+   param= {u'default': 1.0, u'num': 2, u'type': u'standard', u'name': u'StartOpacity', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 3, u'type': u'standard', u'name': u'OpacityChange', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 4, u'type': u'standard', u'name': u'TranslateX', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 5, u'type': u'standard', u'name': u'TranslateY', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 6, u'type': u'standard', u'name': u'TranslateZ', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 7, u'type': u'standard', u'name': u'RotateX ', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 8, u'type': u'standard', u'name': u'RotateY ', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 9, u'type': u'standard', u'name': u'RotateZ ', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 10, u'type': u'standard', u'name': u'Scale', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 11, u'type': u'standard', u'name': u'DOpacityChange', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 12, u'type': u'standard', u'name': u'DTranslateX', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 13, u'type': u'standard', u'name': u'DTranslateY', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 14, u'type': u'standard', u'name': u'DTranslateZ', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 15, u'type': u'standard', u'name': u'DRotateX ', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 16, u'type': u'standard', u'name': u'DRotateY ', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 17, u'type': u'standard', u'name': u'DRotateZ ', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 18, u'type': u'standard', u'name': u'DScale ', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 19, u'type': u'standard', u'name': u'BlendMode', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 20, u'type': u'standard', u'name': u'GRotateX', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 21, u'type': u'standard', u'name': u'GRotateY', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 22, u'type': u'standard', u'name': u'GRotateZ', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 23, u'type': u'boolean', u'name': u'Black BG', u'value': 0.0}
+ffgl= Kaleidoscope
+   param= {u'default': 0.3, u'num': 0, u'type': u'standard', u'name': u'Angles', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 1, u'type': u'standard', u'name': u'Rotation', u'value': 0.0}
+   param= {u'default': 0.5, u'num': 2, u'type': u'standard', u'name': u'Zoom', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 3, u'type': u'standard', u'name': u'Input Rotation', u'value': 0.0}
+   param= {u'default': 0.0, u'num': 4, u'type': u'boolean', u'name': u'Black BG', u'value': 0.0}

@@ -1,0 +1,19 @@
+{
+    "alphafinal": 0.0,
+    "alphainitial": 0.7,
+    "alphatime": 1.009,
+    "filled": true,
+    "huefilltime": 1.71329,
+    "lifetime": 6.0,
+    "mirror": "none",
+    "movedir": 0.0, "movefollowcursor": true,
+    "noisevertex": 0.0,
+    "nsprites": 148,
+    "rotdirrandom": true,
+    "rotangspeed": 7.200146,
+    "sizefinal": 6.0,
+    "sizeinitial": 2.4989,
+    "sizetime": 2.578,
+    "speedinitial": 0.1,
+    "thickness": 10.0
+}

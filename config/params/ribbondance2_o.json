@@ -1,0 +1,13 @@
+{
+    "lifetime": 4.0,
+    "mirror": "none",
+    "movedir": 0.0, "movedirrandom": true,
+    "noisevertex": 0.0,
+    "nsprites": 198,
+    "rotdirrandom": false,
+    "rotanginit": 90.000008,
+    "rotangspeed": 36.000049,
+    "sizetime": 1.792,
+    "speedinitial": 0.001,
+    "thickness": 10.0
+}

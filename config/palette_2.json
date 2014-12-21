@@ -1,0 +1,42 @@
+{
+  "httpport": 4446,
+  "tuioport": 3334,
+  # tuiohost=="" means it'll be listening on all local IP addresses
+  "tuiohost": "",
+  "resolumeport": 7000,
+  "resolumelayer": 2,
+  "midioutput": "loopMidi Port 3",
+  "midiinput": "loopMidi Port 4",
+  "synthconfig": "absynth_mellow",
+  "surfaces": {
+		"LOWER": "211000",
+		"LEFT":  "212000",
+		"RIGHT": "213000",
+		"UPPER": "214000"
+	},
+  "buttons": {
+		"LL1": "221000",
+		"LL2": "222000",
+		"LL3": "223000",
+		"UL1": "231000",
+		"UL2": "232000",
+		"UL3": "233000",
+		"LR1": "241000",
+		"LR2": "242000",
+		"LR3": "243000",
+		"UR1": "251000",
+		"UR2": "252000",
+		"UR3": "253000"
+	},
+  "graphicbehaviour": "2013",
+  "musicbehaviour": "2013",
+  # "patch": "new2",
+  "tonicchange": 0,
+  "sharedmem": 0,
+  "sharedmemname": "mmtt_outlines_1",
+  "errorpopup": 1,
+  # "tuio": 1,
+  "debugtoconsole": 1,
+  "debugtolog": 1,
+  "debuglogfile": "debug.txt"
+}

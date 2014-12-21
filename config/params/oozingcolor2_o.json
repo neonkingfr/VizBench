@@ -1,0 +1,13 @@
+{
+    "bounce": false,
+    "filled": false,
+    "mirror": "none",
+    "noisevertex": 0.0,
+    "nsprites": 197,
+    "rotdirrandom": true,
+    "rotangspeed": 9.00015,
+    "rotauto": true,
+    "sizefinal": 0.01,
+    "speedinitial": 0.13,
+    "thickness": 10.0
+}

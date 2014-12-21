@@ -1,0 +1,29 @@
+{
+  "httpport": 4448,
+  "htmldir": "html",   # $VIZBENCH gets prepended to this
+
+  ### When tuioport is not set, we don't listen for OSC at all.
+  ### If MMTT is being used on the same machine,
+  ### we typically do NOT use TUIO over OSC, and instead
+  ### use the shared memory interface (see sharedmem below).
+  # "tuioport": 3333,
+
+  ### The default for tuiohost is "", which means
+  ### it'll be listening on all local IP addresses.
+  ### Set it to a specific host to only listen on one IP address.
+  "tuiohost": "",
+
+  "midioutput": "loopMidi Port 1",
+  "midiinput": "loopMidi Port 2",
+  "midimerge": 1,
+  "periodicANO": 0,
+  "sharedmem": 1,
+  "sharedmemname": "mmtt_outlines",
+  "errorpopup": 0,
+  "debuglevel": 1,
+  "debugtoconsole": 1,
+  "debugtolog": 1,
+  "debugmidinotes": 0,
+  "debugmidiall": 0,
+  "debuglogfile": "vizserver.debug"
+}

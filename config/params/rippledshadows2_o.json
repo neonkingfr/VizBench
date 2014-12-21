@@ -1,0 +1,15 @@
+{
+    "alphatime": 0.13987,
+    "bounce": false,
+    "filled": true,
+    "huefilltime": 0.11489,
+    "mirror": "none",
+    "noisevertex": 0.0,
+    "nsprites": 603,
+    "rotdirrandom": true,
+    "rotangspeed": 1.80015,
+    "shape": "square",
+    "sizetime": 0.46954,
+    "speedinitial": 0.53,
+    "thickness": 10.0
+}

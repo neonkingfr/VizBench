@@ -1,0 +1,233 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1A5433B8-B646-404F-8B96-DB5E5A0C29BC}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>VizDll</RootNamespace>
+    <ProjectName>VizDll</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;VIZDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(VIZBENCH)\src\mmtt;$(VIZBENCH)\src\misclib;$(VIZBENCH)\other\freeframe;$(VIZBENCH)\src\Vizlet1;$(VIZBENCH)\other\cvblobslib\src;$(VIZBENCH)\src\vizlet1;$(VIZBENCH)\other\cJSON;$(VIZBENCH)\other\osc\include;$(VIZBENCH)\other\opencv\build\include;$(VIZBENCH)\src\Viz;$(VIZBENCH)\src\nosuch;$(VIZBENCH)\other\portmidi\porttime;$(VIZBENCH)\other\portmidi\pm_common;$(VIZBENCH)\other\pthreads-w32-2-9-1-release\Pre-built.2\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>Async</ExceptionHandling>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(VIZBENCH)\other\opencv\build\x86\vc10\staticlib;$(VIZBENCH)\other\pthreads-win32-2.8.0\Pre-built.2\lib;$(VIZBENCH)\other\glfw\src\Debug;..\misclib\Debug;..\nosuch\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>pthreadVC2.lib;winmm.lib;OpenGL32.lib;Glu32.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
+      <OutputFile>Debug\VizDll.dll</OutputFile>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy Debug\VizDll.dll ..\..\..\bin\VizDll.dll</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;VIZDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(VIZBENCH)\src\mmtt;$(VIZBENCH)\src\misclib;$(VIZBENCH)\src\freeframe;$(VIZBENCH)\src\Vizlet1;$(VIZBENCH)\src\cvblobslib\src;$(VIZBENCH)\src\vizlet1;$(VIZBENCH)\src\cJSON;$(VIZBENCH)\src\osc\include;$(VIZBENCH)\src\opencv\build\include;$(VIZBENCH)\src\Viz;$(VIZBENCH)\src\nosuch;$(VIZBENCH)\src\portmidi\porttime;$(VIZBENCH)\src\portmidi\pm_common;$(VIZBENCH)\src\pthreads-win32-2.8.0\Pre-built.2\include;C:\Python26\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>Async</ExceptionHandling>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(VIZBENCH)\src\opencv\build\x86\vc10\staticlib;$(VIZBENCH)\src\pthreads-win32-2.8.0\Pre-built.2\lib;$(VIZBENCH)\src\glfw\src\Debug;..\misclib\Debug;..\nosuch\Debug;$(VIZBENCH)\src\zeromq\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>pthreadVC2.lib;winmm.lib;OpenGL32.lib;Glu32.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy Debug\VizDll.dll ..\..\..\bin\VizDll.dll</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;VIZUTIL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;VIZUTIL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\misclib\sha1.h" />
+    <ClInclude Include="..\..\..\src\misclib\UT_Mutex.h" />
+    <ClInclude Include="..\..\..\src\misclib\UT_SharedMem.h" />
+    <ClInclude Include="..\..\..\src\nosuch\NosuchDaemon.h" />
+    <ClInclude Include="..\..\..\src\nosuch\NosuchHttpServer.h" />
+    <ClInclude Include="..\..\..\src\nosuch\NosuchLooper.h" />
+    <ClInclude Include="..\..\..\src\nosuch\NosuchOscInput.h" />
+    <ClInclude Include="..\..\..\src\nosuch\NosuchOscManager.h" />
+    <ClInclude Include="..\..\..\src\nosuch\NosuchOscTcpInput.h" />
+    <ClInclude Include="..\..\..\src\nosuch\NosuchOscUdpInput.h" />
+    <ClInclude Include="..\..\..\src\nosuch\NosuchScheduler.h" />
+    <ClInclude Include="..\..\..\src\nosuch\NosuchSocket.h" />
+    <ClInclude Include="..\..\..\src\Viz\VizServer.h" />
+    <ClInclude Include="..\..\..\src\Viz\stdafx.h" />
+    <ClInclude Include="..\..\..\src\Viz\targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\other\cJSON\cJSON.cpp" />
+    <ClCompile Include="..\..\..\other\freeframe\FFGL.cpp" />
+    <ClCompile Include="..\..\..\other\freeframe\FFGLExtensions.cpp" />
+    <ClCompile Include="..\..\..\other\freeframe\FFGLFBO.cpp" />
+    <ClCompile Include="..\..\..\other\freeframe\FFGLPlugin.cpp" />
+    <ClCompile Include="..\..\..\other\freeframe\FFGLPluginInfo.cpp" />
+    <ClCompile Include="..\..\..\other\freeframe\FFGLPluginManager.cpp" />
+    <ClCompile Include="..\..\..\other\freeframe\FFGLPluginSDK.cpp" />
+    <ClCompile Include="..\..\..\other\freeframe\FFPlugin.cpp" />
+    <ClCompile Include="..\..\..\other\freeframe\WinPluginInstance.cpp" />
+    <ClCompile Include="..\..\..\other\oscpack\ip\IpEndpointName.cpp" />
+    <ClCompile Include="..\..\..\other\oscpack\ip\win32\NetworkingUtils.cpp" />
+    <ClCompile Include="..\..\..\other\oscpack\ip\win32\UdpSocket.cpp" />
+    <ClCompile Include="..\..\..\other\oscpack\osc\OscOutboundPacketStream.cpp" />
+    <ClCompile Include="..\..\..\other\oscpack\osc\OscPrintReceivedElements.cpp" />
+    <ClCompile Include="..\..\..\other\oscpack\osc\OscReceivedElements.cpp" />
+    <ClCompile Include="..\..\..\other\oscpack\osc\OscTypes.cpp" />
+    <ClCompile Include="..\..\..\other\osc\src\OscBundle.cpp" />
+    <ClCompile Include="..\..\..\other\osc\src\OscMessage.cpp" />
+    <ClCompile Include="..\..\..\other\osc\src\OscSender.cpp" />
+    <ClCompile Include="..\..\..\other\portmidi\pm_common\pmutil.c" />
+    <ClCompile Include="..\..\..\other\portmidi\pm_common\portmidi.c" />
+    <ClCompile Include="..\..\..\other\portmidi\pm_win\pmwin.c" />
+    <ClCompile Include="..\..\..\other\portmidi\pm_win\pmwinmm.c" />
+    <ClCompile Include="..\..\..\other\portmidi\porttime\ptwinmm.c" />
+    <ClCompile Include="..\..\..\src\misclib\ffutil.cpp" />
+    <ClCompile Include="..\..\..\src\misclib\sha1.c" />
+    <ClCompile Include="..\..\..\src\misclib\UT_Mutex.cpp" />
+    <ClCompile Include="..\..\..\src\misclib\UT_SharedMem.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\midifile.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\NosuchDaemon.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\NosuchDebug.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\NosuchException.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\NosuchHttpServer.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\NosuchJSON.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\NosuchLooper.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\NosuchMidi.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\NosuchOsc.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\NosuchOscInput.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\NosuchOscManager.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\NosuchOscTcpInput.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\NosuchOscUdpInput.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\NosuchScheduler.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\NosuchSocket.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\NosuchUtil.cpp" />
+    <ClCompile Include="..\..\..\src\Viz\VizDll.cpp" />
+    <ClCompile Include="..\..\..\src\Viz\VizServer.cpp" />
+    <ClCompile Include="..\..\..\src\Viz\stdafx.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
