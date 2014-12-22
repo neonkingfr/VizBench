@@ -184,6 +184,7 @@ private:
 class VIZDLL_API VizServer {
 public:
 	static VizServer* GetServer();
+	static void DeleteServer();
 
 	// Some utilities
 	int MilliNow();
@@ -267,6 +268,9 @@ private:
 	VizServer();
 	virtual ~VizServer();
 
+	void _setMidiFile(const char* file) { _midifile = file; }
+	const char* _getMidiFile() { return _midifile; }
+
 	void _processServerConfig(cJSON* json);
 	cJSON* _readconfig(const char* fname);
 	void _setMaxCallbacks();
@@ -305,6 +309,7 @@ private:
 	const char *_sharedmemname;
 	bool _do_errorpopup;
 	bool _do_ano;
+	const char* _midifile;
 
 	int _osc_input_port;
 	const char * _osc_input_host;

@@ -69,6 +69,7 @@ other
 vs2012/*/Debug/*.dll
 *.swp
 html/polymer-tutorial
+html/palette
 other.zip
 ffglplugins_resolume
 

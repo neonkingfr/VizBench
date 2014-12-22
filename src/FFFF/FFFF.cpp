@@ -118,6 +118,7 @@ FFFF::StartStuff() {
 void
 FFFF::StopStuff() {
 	_vizserver->Stop();
+	VizServer::DeleteServer();
 }
 
 void
@@ -208,11 +209,11 @@ std::string FFFF::executeJsonAndCatchExceptions(std::string meth, cJSON *params,
 		r = executeJson(meth,params,id);
 	} catch (NosuchException& e) {
 		std::string s = NosuchSnprintf("Exception in '%s' API - %s",meth.c_str(),e.message());
-		r = jsonError(-32000,s.c_str(),id);
+		r = jsonError(-32000,s,id);
 	} catch (...) {
 		// This doesn't seem to work - it doesn't seem to catch other exceptions...
 		std::string s = NosuchSnprintf("Other exception in '%s' API",meth.c_str());
-		r = jsonError(-32000,s.c_str(),id);
+		r = jsonError(-32000,s,id);
 	}
 	return r;
 }
@@ -805,7 +806,7 @@ std::string FFFF::saveFfffPatch(std::string nm, const char* id)
 	cJSON* j = cJSON_Parse("{}");
 	if ( ! jsonWriteFile(nm,j,err) ) {
 		std::string e = NosuchSnprintf("Unable to save patch (name=%s, err=%s)",nm.c_str(),err.c_str());
-		return jsonError(-32000,e.c_str(),id);
+		return jsonError(-32000,e,id);
 	}
 	return jsonOK(id);
 }

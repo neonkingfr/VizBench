@@ -81,11 +81,11 @@ function setup() {
 	}
 	title.innerHTML = "<h2>Viz Control</h2>"
 
-	var server = dojo.byId("vizserver");
-
 	var html = "";
-	html += "<b>VizServer</b>";
-	server.innerHTML = html;
+
+	// var server = dojo.byId("vizserver");
+	// html += "<b>VizServer</b>";
+	// server.innerHTML = html;
 
 	html = "";
 
@@ -102,7 +102,7 @@ function setup() {
 	var r;
 	for ( var i=0; i<tags.length; i++ ) {
 		tag = tags[i];
-		html += "<p>"+tags+"\n";
+		html += "<p>"+tag+"\n";
 
 		var desc = doapi(tag+'.description').result;
 		html += "<p>Description: "+desc + "\n";
@@ -123,12 +123,13 @@ function setup() {
 				var w = a[n].split(/[\(\)]/);
 				// We expect the length of w to be either 1 (just an api name) or
 				// 3 (api name + argument)
+				var api = w[0];
+				var fullapiname = tag + "." + api;
 				if ( w.length <= 1 ) {
-					html += "<td><input type=\"button\" style=\"width:100px\" value=\""+a[n]+"\" onClick=\"doapi('VizLife."+a[n]+"');\"></td>";
+					html += "<td><input type=\"button\" style=\"width:100px\" value=\""+a[n]+"\" onClick=\"doapi('"+fullapiname+"');\"></td>";
 				} else if ( w.length != 3 ) {
 					alert("Hey, too many arguments on api="+w[0]+" length="+w.length+" an="+a[n]);
 				} else {
-					var api = w[0];
 					var args = w[1].split(",");
 
 					var argname = args[0];
@@ -137,7 +138,7 @@ function setup() {
 						+ "&quot;'+document.getElementById(&quot;" + inputid + "&quot;).value+'&quot;";
 
 					html += "<td><input type=\"button\" style=\"width:100px\" value=\""
-						+api+"\" onClick=\"doapi('VizLife."+api+"','{"+argstr+"}');\"></td>";
+						+api+"\" onClick=\"doapi('"+fullapiname+"','{"+argstr+"}');\"></td>";
 
 					html += "<td width=10></td><td align=right>"
 						+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" id=\""+inputid+"\" size=8></td>";

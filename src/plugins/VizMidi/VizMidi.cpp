@@ -65,16 +65,26 @@ void VizMidi::processCursor(VizCursor* c, int downdragup) {
 	// NO OpenGL calls here
 }
 
-std::string VizMidi::processJson(std::string meth, cJSON *params, const char *id) {
+std::string VizMidi::processJson(std::string meth, cJSON *json, const char *id) {
 	// NO OpenGL calls here
-	if ( meth == "circle" ) {
-		_midiparams->shape.set("circle");
+
+	if (meth == "apis") {
+		return jsonStringResult("set_shape(shape)",id);
+	}
+
+	// PARAMETER "shape"
+	if (meth == "set_shape") {
+		std::string val = jsonNeedString(json, "shape", "");
+		if (val == "") {
+			return jsonError(-32000, "Bad shape value", id);
+		}
+		_midiparams->shape.set(val);
 		return jsonOK(id);
 	}
-	if ( meth == "line" ) {
-		_midiparams->shape.set("line");
-		return jsonOK(id);
+	if (meth == "get_shape") {
+		return jsonStringResult(_midiparams->shape.get(), id);
 	}
+
 	throw NosuchException("VizMidi - Unrecognized method '%s'",meth.c_str());
 }
 

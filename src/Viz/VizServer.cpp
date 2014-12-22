@@ -140,15 +140,13 @@ public:
 	const char* VizTags() {
 		static std::string s;
 
-		s = "";
+		s = "VizServer";
 		std::map<void*,VizServerApiCallback*>::iterator it;
-		std::string sep = "";
 		for ( it=this->begin(); it!=this->end(); it++ ) {
 			VizServerApiCallback* sscb = it->second;
 			std::string tag = std::string(sscb->_af.prefix);
 			if ( tag != "UNTAGGED" && tag != "ffff" ) {
-				s += (sep+tag);
-				sep = ",";
+				s += (","+tag);
 			}
 		}
 		return s.c_str();
@@ -276,34 +274,7 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 
 	if ( fullmethod == "viztags" || fullmethod == "apitags" ) {
 		const char *p = ss->VizTags();
-		std::string val = std::string(p);
-		return jsonStringResult(val,id);
-	}
-	if ( fullmethod == "play_midifile" ) {
-		std::string filename = jsonNeedString(params,"file");
-		std::string fpath = ManifoldPath("midifiles/"+filename);
-		MidiPhrase* ph = newMidiPhraseFromFile(fpath);
-		if ( ph == NULL ) {
-			std::string err = NosuchSnprintf("Error reading phrase from file: %s",fpath.c_str());
-			return jsonError(-32000,err,id);
-		}
-		ss->ScheduleMidiPhrase(ph,ss->CurrentClick(),0);
-		// DO NOT free ph - scheduleMidiPhrase takes it over.
-		return jsonOK(id);
-	}
-	if ( fullmethod == "clickspersecond" ) {
-		int nclicks = jsonNeedInt(params,"clicks");
-		ss->SetClicksPerSecond(nclicks);
-		return jsonOK(id);
-	}
-	if ( fullmethod == "clear" ) {
-		ss->ScheduleClear();
-		return jsonOK(id);
-	}
-	if ( fullmethod == "ano" ) {
-		ss->ANO();
-		ss->ClearNotesDown();
-		return jsonOK(id);
+		return jsonStringResult(std::string(p),id);
 	}
 #if 0
 	{ static _CrtMemState s1, s2, s3;
@@ -326,10 +297,76 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 #endif
 
 	methodPrefixProcess(fullmethod, prefix, api);
+
+	if (prefix == "VizServer") {
+		if (api == "apis") {
+			return jsonStringResult("clearmidi;allnotesoff;playmidifile;set_midifile(file);set_clickspersecond(clicks)", id);
+		}
+		if (api == "description") {
+			return jsonStringResult("Server which distributes things to Viz plugins", id);
+		}
+		if (api == "about") {
+			return jsonStringResult("by Tim Thompson - me@timthompson.com", id);
+		}
+		if ( api == "clearmidi" ) {
+			ss->ANO();
+			ss->ScheduleClear();
+			ss->ClearNotesDown();
+			return jsonOK(id);
+		}
+		if ( api == "allnotesoff" ) {
+			ss->ANO();
+			ss->ClearNotesDown();
+			return jsonOK(id);
+		}
+		if ( api == "playmidifile" ) {
+			std::string filename = ss->_getMidiFile();
+			std::string fpath = ManifoldPath("midifiles/"+filename);
+			MidiPhrase* ph = newMidiPhraseFromFile(fpath);
+			if ( ph == NULL ) {
+				std::string err = NosuchSnprintf("Error reading phrase from file: %s",fpath.c_str());
+				return jsonError(-32000,err,id);
+			}
+			ss->ScheduleMidiPhrase(ph,ss->CurrentClick(),0);
+			// DO NOT free ph - scheduleMidiPhrase takes it over.
+			return jsonOK(id);
+		}
+
+		// PARAMETER clickspersecond
+		if ( api == "set_clickspersecond" ) {
+			int nclicks = jsonNeedInt(params,"clicks",-1);
+			if (nclicks > 0) {
+				ss->SetClicksPerSecond(nclicks);
+			}
+			return jsonOK(id);
+		}
+		if ( api == "get_clickspersecond" ) {
+			return jsonIntResult(ss->GetClicksPerSecond(), id);
+		}
+
+		// PARAMETER midifile
+		if (api == "set_midifile") {
+			// static so c_str() is persistent
+			static std::string file;
+			file = jsonNeedString(params, "file", "");
+			if (file != "") {
+				ss->_setMidiFile(file.c_str());
+			}
+			return jsonOK(id);
+		}
+		if (api == "get_midifile") {
+			std::string file = ss->_getMidiFile();
+			return jsonStringResult(file, id);
+		}
+
+		std::string err = NosuchSnprintf("VizServer - Unrecognized method '%s'",api.c_str());
+		return jsonError(-32000,err,id);
+	}
+
 	VizServerApiCallback* cb = _callbacks.findprefix(prefix);
 	if ( cb == NULL ) {
 		std::string err = NosuchSnprintf("Unable to find Json API match for prefix=%s",prefix.c_str());
-		return jsonError(-32000,err.c_str(),id);
+		return jsonError(-32000,err,id);
 	}
 
 	jsoncallback_t jsoncb = (jsoncallback_t)(cb->_cb);
@@ -566,6 +603,7 @@ VizServer::VizServer() {
 	_started = false;
 	_frameseq = 0;
 	_htmldir = "html";
+	_midifile = "";
 	_jsonprocessor = NULL;
 	_oscprocessor = NULL;
 	_midiinputprocessor = NULL;
@@ -1005,6 +1043,9 @@ VizServer::Stop() {
 	}
 	_started = false;
 	if ( _scheduler ) {
+		ANO();
+		ScheduleClear();
+		ClearNotesDown();
 		_scheduler->Stop();
 		delete _scheduler;
 		_scheduler = NULL;
@@ -1145,6 +1186,14 @@ VizServer::GetServer() {
 		DEBUGPRINT1(("NEW VizServer!  Setting OneServer"));
 	}
 	return OneServer;
+}
+
+void
+VizServer::DeleteServer() {
+	if (OneServer) {
+		delete OneServer;
+	}
+	OneServer = NULL;
 }
 
 void
