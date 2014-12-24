@@ -114,7 +114,7 @@ int ffffMain(std::string config)
 	std::string initialconfig = jsonNeedString(j,"initialconfig");
 	if (config != "" ) {
 		if (initialconfig != "") {
-			DEBUGPRINT(("command-line config (%s) is overriding initialconfig in config file", config.c_str()));
+			DEBUGPRINT(("command-line config (%s) is overriding initialconfig (%s) in config file", config.c_str(),initialconfig.c_str()));
 		}
 		initialconfig = config;
 	}

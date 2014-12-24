@@ -8,5 +8,5 @@ Version=9016
 Default=1033
 
 [Configs]
-VizBench=00010041|130636196575636551|Build failed|VizBench\VizBench\VizBench-Setup.exe|1.1
+VizBench=00010041|130638637510573179|Build failed|VizBench\VizBench\VizBench-Setup.exe|1.1
 

@@ -1,10 +1,10 @@
 ﻿2014-11-18 02:17:16|       9.22.0.5436|      291328|-R-S|C:\Program Files\InstallMate 9\Stubs80\Tsu32u.dll
-2014-12-23 18:36:55|                  |       98252|-R-S|C:\Users\tjt\Documents\GitHub\VizBench\src\installer\VizBench\VizBench\VizBench-Setup.dat
-2014-12-23 18:36:55|                  |       85504|-R-S|C:\Users\tjt\Documents\GitHub\VizBench\src\installer\VizBench\VizBench\VizBench-Setup32.dll
+2014-12-23 19:02:22|                  |       97858|-R-S|C:\Users\tjt\Documents\GitHub\VizBench\src\installer\VizBench\VizBench\VizBench-Setup.dat
+2014-12-23 19:02:22|                  |       85504|-R-S|C:\Users\tjt\Documents\GitHub\VizBench\src\installer\VizBench\VizBench\VizBench-Setup32.dll
 2013-11-23 16:15:11|                  |        4846|-R-S|C:\Program Files\InstallMate 9\Data\Resources\Generic.ico
-2014-12-23 18:36:55|                  |        2061|-R-S|C:\Users\tjt\Documents\GitHub\VizBench\src\installer\VizBench\VizBench\Readme.txt
+2014-12-23 19:02:22|                  |        2061|-R-S|C:\Users\tjt\Documents\GitHub\VizBench\src\installer\VizBench\VizBench\Readme.txt
 2014-11-18 02:17:12|       9.22.0.5436|       16896|-R-S|C:\Program Files\InstallMate 9\Stubs80\Setup.Administrator\Setup32u.exe
-2014-12-23 18:33:21|                  |     8843776|----|C:\Users\tjt\Documents\GitHub\VizBench\bin\FFFF.exe
+2014-12-23 18:41:45|                  |     8843776|----|C:\Users\tjt\Documents\GitHub\VizBench\bin\FFFF.exe
 2014-12-07 16:18:32|     2.7.6150.1013|     2449920|----|C:\Users\tjt\Documents\GitHub\VizBench\bin\python27.dll
 2014-12-07 16:18:27|      10.0.40219.1|     1505104|----|C:\Users\tjt\Documents\GitHub\VizBench\bin\msvcr100d.dll
 2014-12-23 18:25:56|                  |     1301504|----|C:\Users\tjt\Documents\GitHub\VizBench\ffglplugins\EmptyA.dll
@@ -107,8 +107,6 @@
 2014-12-15 15:02:53|                  |          80|----|C:\Users\tjt\Documents\GitHub\VizBench\config\ffff\pyffle.json
 2014-12-15 15:02:59|                  |          77|----|C:\Users\tjt\Documents\GitHub\VizBench\config\ffff\vizbox2d.json
 2014-12-15 15:03:02|                  |          76|----|C:\Users\tjt\Documents\GitHub\VizBench\config\ffff\vizdraw.json
-2014-12-07 16:18:27|                  |          67|----|C:\Users\tjt\Documents\GitHub\VizBench\config\vizlet1.json
-2014-12-07 16:18:27|                  |          67|----|C:\Users\tjt\Documents\GitHub\VizBench\config\vizlet2.json
 2014-12-23 17:46:38|                  |          65|----|C:\Users\tjt\Documents\GitHub\VizBench\config\ffff\vizmidi.json
 2014-12-07 16:18:26|                  |          48|----|C:\Users\tjt\Documents\GitHub\VizBench\bin\api.bat
 2014-12-21 21:45:20|                  |        5221|----|C:\Users\tjt\Documents\GitHub\VizBench\html\index.html

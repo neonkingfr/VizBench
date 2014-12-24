@@ -285,10 +285,10 @@ project Flags=0x20 {
 			str Value: Default="VizBench-Setup";
 		}
 		var BuildDate: Flags=0x5, Type=0, Description="Build date as YYYYMMDD" {
-			str Value: Default=20141220;
+			str Value: Default=20141223;
 		}
 		var BuildDayNo: Flags=0x5, Type=0, Description="Build day number, starting from 1 January 2000" {
-			str Value: Default=5468;
+			str Value: Default=5471;
 		}
 		var BuildFolder: Flags=0x5, Type=1, Description="Folder containing the build target" {
 			str Value: Default="C:\\Users\\tjt\\Documents\\GitHub\\VizBench\\src\\installer\\VizBench\\VizBench";
@@ -303,7 +303,7 @@ project Flags=0x20 {
 			str Value: Default="C:\\Users\\tjt\\Documents\\GitHub\\VizBench\\src\\installer\\VizBench\\VizBench\\VizBench-Setup.exe";
 		}
 		var BuildTime: Flags=0x5, Type=0, Description="Build time as HHMMSS" {
-			str Value: Default=231331;
+			str Value: Default=190158;
 		}
 		var BuildType: Flags=0x5, Type=0, Description="Build type: always TSU" {
 			str Value: Default=TSU;
@@ -610,7 +610,7 @@ project Flags=0x20 {
 			str Value: Default="<MSOfficeDir14=MSOfficeDir12=MSOfficeDir11=MSOfficeDir10=MSOfficeDir9=MSOfficeDir8=!<ProgramFilesFolder>\\Microsoft Office\\Office>";
 		}
 		var PackageCode: Flags=0x205, Type=0, Description="Distribution package GUID" {
-			str Value: Default="{8FCDB3DB-F6D5-4411-59FA-0A2E79B5245D}";
+			str Value: Default="{57E8FC05-002F-415A-5CB1-FCD4A1906B83}";
 		}
 		var PersonalFolder: Flags=0x244, Type=1, Description="Current User Documents folder" {
 			str Value: Default="<$shpath(5)=@<ShellFoldersCU>\\Personal=_LocPersonalFolder>";
@@ -768,7 +768,7 @@ project Flags=0x20 {
 			str Value: Default="<$sysval(4)>";
 		}
 		var SessionID: Flags=0x204, Type=0, Description="Pseudo-random 8-character session identifier" {
-			str Value: Default="8FC1D009";
+			str Value: Default=B91AF06C;
 		}
 		var ShellFoldersCU: Flags=0x20C, Type=2, Description="Current User Shell folders registry key" {
 			str Value: Default="<HKCU>\\<WinCurVer>\\Explorer\\Shell Folders";
@@ -2705,12 +2705,6 @@ project Flags=0x20 {
 									file timeripples2_o.json_16060A0EAD92ED65: Flags=0x0, Component=_Publisher__8F8D3E5A05FD448E, Path="..\\..\\config\\params\\timeripples2_o.json", Attributes=0x0, InstallAction=4, RemoveAction=2, Registration=0, RegOrder=0, Packaging=0 {
 										str Name: Default=timeripples2_o.json;
 									}
-								}
-								file vizlet1.json_B2FDCF05224E5313: Flags=0x0, Component=_Publisher__8F8D3E5A05FD448E, Path="..\\..\\config\\vizlet1.json", Attributes=0x0, InstallAction=4, RemoveAction=2, Registration=0, RegOrder=0, Packaging=0 {
-									str Name: Default=vizlet1.json;
-								}
-								file vizlet2.json_19C342EB49CAC3A8: Flags=0x0, Component=_Publisher__8F8D3E5A05FD448E, Path="..\\..\\config\\vizlet2.json", Attributes=0x0, InstallAction=4, RemoveAction=2, Registration=0, RegOrder=0, Packaging=0 {
-									str Name: Default=vizlet2.json;
 								}
 								file vizserver.json_52DE05E97BEB129E: Flags=0x0, Component=_Publisher__8F8D3E5A05FD448E, Path="..\\..\\config\\vizserver.json", Attributes=0x0, InstallAction=4, RemoveAction=2, Registration=0, RegOrder=0, Packaging=0 {
 									str Name: Default=vizserver.json;
