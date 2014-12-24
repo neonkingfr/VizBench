@@ -99,13 +99,11 @@ void VizMidi::processMidiOutput(MidiMsg* m) {
 }
 
 bool VizMidi::processDraw() {
-
-	// OpenGL calls here
-	glColor4f(1.0,0.0,0.0,0.5);
-	glLineWidth((GLfloat)2.0f);
-
 	// OpenGL calls here	
 
+#if 0
+	glColor4f(1.0,0.0,0.0,0.5);
+	glLineWidth((GLfloat)2.0f);
 	// Draw a rectangle just to show that we're alive.
 	glBegin(GL_LINE_LOOP);
 	glVertex3f(0.2f, 0.2f, 0.0f);	// Top Left
@@ -113,6 +111,7 @@ bool VizMidi::processDraw() {
 	glVertex3f(0.8f, 0.8f, 0.0f);	// Bottom Right
 	glVertex3f(0.8f, 0.2f, 0.0f);	// Bottom Left
 	glEnd();
+#endif
 
 	DrawVizSprites();
 	return true;

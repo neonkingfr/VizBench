@@ -6,7 +6,7 @@
   ### If MMTT is being used on the same machine,
   ### we typically do NOT use TUIO over OSC, and instead
   ### use the shared memory interface (see sharedmem below).
-  # "tuioport": 3333,
+  "tuioport": 3333,
 
   ### The default for tuiohost is "", which means
   ### it'll be listening on all local IP addresses.

@@ -63,13 +63,14 @@ log/debug.txt
 log/*.debug
 src/pthreads-w32-2-9-1-release
 vs2012/winsocktest
-other
+other_all
+other.7z
+other.zip
 *.swo
 *.swp
 vs2012/*/Debug/*.dll
 *.swp
 html/polymer-tutorial
 html/palette
-other.zip
 ffglplugins_resolume
 

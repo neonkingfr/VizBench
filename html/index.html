@@ -102,7 +102,7 @@ function setup() {
 	var r;
 	for ( var i=0; i<tags.length; i++ ) {
 		tag = tags[i];
-		html += "<p>"+tag+"\n";
+		html += "<p><hr>"+tag+"\n";
 
 		var desc = doapi(tag+'.description').result;
 		html += "<p>Description: "+desc + "\n";

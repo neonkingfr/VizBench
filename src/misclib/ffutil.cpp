@@ -27,13 +27,14 @@
 
 #include <functional> 
 #include <cctype>
+#include <algorithm>
 
 #include "NosuchDebug.h"
 #include "NosuchUtil.h"
 #include "ffutil.h"
 
-#include <opencv/cv.h>
-#include <opencv/highgui.h>
+// #include <opencv/cv.h>
+// #include <opencv/highgui.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 

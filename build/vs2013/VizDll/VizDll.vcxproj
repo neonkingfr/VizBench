@@ -92,7 +92,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(VIZBENCH)\other\opencv\build\x86\vc10\staticlib;$(VIZBENCH)\other\pthreads-win32-2.8.0\Pre-built.2\lib;$(VIZBENCH)\other\glfw\src\Debug;..\misclib\Debug;..\nosuch\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(VIZBENCH)\other\opencv\build\x86\vc10\staticlib;$(VIZBENCH)\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;$(VIZBENCH)\other\glfw\src\Debug;..\misclib\Debug;..\nosuch\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>pthreadVC2.lib;winmm.lib;OpenGL32.lib;Glu32.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ModuleDefinitionFile>

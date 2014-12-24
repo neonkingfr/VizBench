@@ -96,7 +96,7 @@
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>misclib.lib;opencv_highgui2410d.lib;opencv_core2410d.lib;opencv_flann2410d.lib;opencv_ml2410d.lib;opencv_imgproc2410d.lib;libjpegd.lib;libpngd.lib;libtiffd.lib;libjasperd.lib;IlmImfd.lib;pthreadVC2.lib;winmm.lib;VizDll.lib;vfw32.lib;Ws2_32.lib;glfw3.lib;Rpcrt4.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Debug\FFFF.exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\other\opencv\build\x86\vc12\staticlib;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\glfw\src\Debug;..\Palette\Debug;..\misclib\Debug;..\VizDll\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\other\opencv\build\x86\vc12\staticlib;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\glfw\src\Debug;..\Palette\Debug;..\misclib\Debug;..\VizDll\Debug;c:\Python27\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>

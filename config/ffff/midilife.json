@@ -1,0 +1,9 @@
+{
+"pipeline": [
+	{ "plugin": "VizMidi", "params": { } }
+,
+	{ "plugin": "VizLife", "params": { } }
+,
+	{ "plugin": "Trails", "params": { } }
+]
+}

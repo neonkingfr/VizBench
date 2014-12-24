@@ -1,15 +1,16 @@
-manifold
+VizBench
 ========
 
-Space Manifold - a host and framework for FFGL plugins that involve
+A host (FFFF) and framework for FFGL plugins that involve
 OSC/TUIO and HTTP listeners and MIDI I/O.
 
-It's a work in progress, I'm putting this out in barely-usable form
-so people on the FreeFrame developers mailing list can take a look.
+The FFGL plugins here have been tested in Resolume (4.1.11) and FFFF.
+
+This is a work in progress.
 
 Here are the steps to exercise the things that work:
 
-   - Clone the Github repository http://github.com/nosuchtim/manifold
+   - Clone the Github repository http://github.com/nosuchtim/VizBench
 
    - Install Visual Studio 2013 Community edition
 

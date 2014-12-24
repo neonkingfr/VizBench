@@ -48,6 +48,8 @@
 #include "FFGLPlugin.h"
 #include "Timer.h"
 
+#include "Python.h"
+
 FFFF* F;
 
 int CV_interp = CV_INTER_NN;  // or CV_INTER_LINEAR
@@ -85,7 +87,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	}
 }
 
-int ffffMain()
+int ffffMain(std::string config)
 {
 	NosuchDebugInit();
    	NosuchDebugSetLogDirFile(ManifoldLogDir(),"ffff.debug");
@@ -110,6 +112,12 @@ int ffffMain()
 
 	// int httpport = jsonNeedInt(j,"httpport");
 	std::string initialconfig = jsonNeedString(j,"initialconfig");
+	if (config != "" ) {
+		if (initialconfig != "") {
+			DEBUGPRINT(("command-line config (%s) is overriding initialconfig in config file", config.c_str()));
+		}
+		initialconfig = config;
+	}
 
 	// Allow the config to override the default paths for these
 	std::string ffpath = jsonNeedString(j,"ffpath",ManifoldPath("ffplugins"));
@@ -182,8 +190,10 @@ int ffffMain()
 	}
 
 #ifdef _DEBUG
+#ifdef DUMPOBJECTS
 	_CrtMemState s0;
 	_CrtMemCheckpoint(&s0);
+#endif
 #endif
 
 	glfwSetWindowPos(F->window, window_x, window_y);
@@ -210,13 +220,17 @@ int ffffMain()
 		F->CheckFPS();
     }
 
+	F->clearPipeline();
+
 	F->StopStuff();
 
 #ifdef _DEBUG
+#ifdef DUMPOBJECTS
 	_CrtMemDumpAllObjectsSince( &s0 );
 #endif
+#endif
 
-	F->clearPipeline();
+	// F->clearPipeline();
 
     glfwDestroyWindow(F->window);
 
@@ -233,9 +247,13 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLin
 {
 	int r = -1;
 	
+	std::string config = "";
+	if (__argc > 1) {
+		config = __argv[1];
+	}
 	try {
 		CATCH_NULL_POINTERS;
-		r = ffffMain();
+		r = ffffMain(config);
 	} catch (NosuchException& e) {
 		NosuchErrorOutput("NosuchException in ffffMain!! - %s",e.message());
 	} catch (...) {
