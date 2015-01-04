@@ -1,7 +1,7 @@
 default:
 	nmake PYTHON=c:\python27 install
 	c:\python27\python setup.py py2exe
-	copy dist\*.* ..\..\bin
+	copy dist\jsonrpc.exe ..\..\bin
 
 justinstall:
 	nmake PYTHON=c:\python27 install

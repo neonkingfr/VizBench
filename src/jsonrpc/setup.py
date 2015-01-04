@@ -1,4 +1,4 @@
 from distutils.core import setup
 import py2exe
 
-setup(console=['jsonrpc.py'])
+setup(console=['jsonrpc.py'],zipfile=None)
