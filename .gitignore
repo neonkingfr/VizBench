@@ -45,12 +45,8 @@ src/zlib/contrib
 *.sdf
 *.opensdf
 *.ipch
-*.debug
 *.tlog
 *.idb
-src/*/Debug/*
-vs2013/*/Debug/*
-bin/pd
 bin/pd
 *.lastbuildstate
 *.unsuccessfulbuild
@@ -67,9 +63,7 @@ other.7z
 other.zip
 *.swo
 *.swp
-vs2012/*/Debug/*.dll
 *.swp
 html/polymer-tutorial
 html/palette
 ffglplugins_resolume
-
