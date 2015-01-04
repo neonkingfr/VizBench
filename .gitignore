@@ -25,7 +25,6 @@ Thumbs.db
 *.cache
 *.ilk
 *.log
-*.lib
 *.sbr
 obj/
 [Rr]elease*/
