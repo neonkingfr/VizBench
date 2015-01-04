@@ -105,10 +105,10 @@ DWORD EmptyA::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 	glColor4f(1.0,1.0,0.0,0.5);
 	glLineWidth((GLfloat)10.0f);
 	glBegin(GL_LINE_LOOP);
-	glVertex3f(-0.8f, 0.8f, 0.0f);	// Top Left
-	glVertex3f( 0.8f, 0.8f, 0.0f);	// Top Right
-	glVertex3f( 0.8f,-0.8f, 0.0f);	// Bottom Right
-	glVertex3f(-0.8f,-0.8f, 0.0f);	// Bottom Left
+	glVertex3f(0.1f, 0.9f, 0.0f);	// Top Left
+	glVertex3f( 0.9f, 0.9f, 0.0f);	// Top Right
+	glVertex3f( 0.9f,0.1f, 0.0f);	// Bottom Right
+	glVertex3f(0.1f,0.1f, 0.0f);	// Bottom Left
 	glEnd();
 
 	//disable texturemapping

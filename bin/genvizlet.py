@@ -44,7 +44,7 @@ force = args.force
 builddir = args.builddir
 
 if not builddir:
-	builddir = "vs2013"
+	builddir = "build/vs2013"
 
 if not nm[0].isupper():
 	print("The plugin name needs to start with an uppercase letter!")
