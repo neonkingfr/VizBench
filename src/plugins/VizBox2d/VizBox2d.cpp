@@ -168,148 +168,56 @@ void VizBox2d::processKeystroke(int key, int downup) {
 }
 
 void VizBox2d::processCursor(VizCursor* c, int downdragup) {
-
 	// NO OpenGL calls here
-
-	if ( downdragup == CURSOR_UP ) {
-		return;
-	}
-
-	OutlineMem* outline = c->outline;
-	buff_index b = c->hdr->buff_to_display;
-	
-#define ONE_OUTLINE_SPRITE
-#ifdef ONE_OUTLINE_SPRITE
-	if ( c->outline != NULL ) {
-		_params->shape.set("outline");
-	} else {
-		_params->shape.set("square");
-	}
-	_params->zable.set(false);			// The z value should NOT control size
-	_params->filled.set(false);
-	_params->sizeinitial.set(0.5);
-	_params->sizefinal.set(0.5);
-	_params->sizetime.set(2.0);
-	_params->alphainitial.set(0.5);
-	_params->alphafinal.set(0.0);
-	_params->alphatime.set(3.0);
-	VizSprite* s = makeAndAddVizSprite(_params, c->pos);
-	DEBUGPRINT1(("Adding VizSprite at %.4f,%.4f with frame=%d",c->pos.x,c->pos.y,s->frame));
-	VizSpriteOutline* so = (VizSpriteOutline*)s;
-	if ( so ) {
-		so->setOutline(c->outline,c->hdr);
-	}
-#endif
-
-#ifdef SPRITES_FROM_OUTLINE
-	if ( outline ) {
-		// DEBUGPRINT(("processCursor! downdragup=%d outline->npoints=%d\n", downdragup,outline->npoints));
-		int npoints = outline->npoints;
-		// NosuchDebug("Drawing outline from buff=%d, outline=%d npoints=%d",b,n,npoints);
-		if ( outline->npoints > 20000 ) {
-			NosuchDebug("Corruption in Cursor outline!?  npoints=%d",outline->npoints);
-			return;
-		}
-		int pn0 = outline->index_of_firstpoint;
-		int sparseness = npoints/10;  // or something higher
-
-		int pn;
-		for ( pn=0; pn<npoints; pn++ ) {
-			PointMem* p = c->hdr->point(b,pn+pn0);
-			if ( (pn % sparseness)==0 ) {
-				// NosuchDebug("POINT= %.4f %.4f",p->x,p->y);
-				AllVizParams* rp = defaultParams();
-				rp->shape.set("outline");
-				rp->movedir.set(rand()%360);
-				makeAndAddVizSprite(rp, NosuchPos(c->pos.x+p->x,c->pos.y+p->y,c->pos.z));
-			}
-		}
-	}
-#endif
 }
 
 std::string VizBox2d::processJson(std::string meth, cJSON *json, const char *id) {
 	// NO OpenGL calls here
+
+	if (meth == "apis") {
+		return jsonStringResult("randomize;push", id);
+	}
+
+	if (meth == "randomize") {
+		// Add some random bodies
+		for (int n = 0; n < 10; n++) {
+			float32 x = (rand() % 1000) / 1000.0f;
+			float32 y = (rand() % 1000) / 1000.0f;
+			b2Body* b = _makeDynamicBody(b2Vec2(x, y));
+			_bodies.push_back(b);
+		}
+		return jsonOK(id);
+	}
+	if (meth == "push") {
+		for ( b2Body* b: _bodies ) {
+			float32 fx = (rand() % 1000 - 500) / 10000000.0f;
+			float32 fy = (rand() % 1000 - 500) / 10000000.0f;
+			b->ApplyLinearImpulse(b2Vec2(fx,fy),b2Vec2(0.0f,0.0f),true);
+		}
+		return jsonOK(id);
+	}
+
 	throw NosuchException("VizBox2d - Unrecognized method '%s'",meth.c_str());
 }
 
 void VizBox2d::processMidiInput(MidiMsg* m) {
 	// NO OpenGL calls here
-	defaultMidiVizSprite(m);
 }
 
 void VizBox2d::processMidiOutput(MidiMsg* m) {
 	// NO OpenGL calls here
-	VizSprite* s = defaultMidiVizSprite(m);
-	if ( s ) {
-		// create and attach box2d body
-		DEBUGPRINT(("Should be creating/attaching body"));
-
-		// Define the dynamic body. We set its position and call the body factory.
-		b2BodyDef bodyDef;
-		bodyDef.type = b2_dynamicBody;
-		bodyDef.position.Set(0.0f, 4.0f);
-
-		b2Body* b = _world->CreateBody(&bodyDef);
-
-		// Define another box shape for our dynamic body.
-		b2PolygonShape shape;
-		shape.SetAsBox(1.0f, 1.0f);
-
-		// Define the dynamic body fixture.
-		b2FixtureDef fixtureDef;
-		fixtureDef.shape = &shape;
-
-		// Set the box density to be non-zero, so it will be dynamic.
-		fixtureDef.density = 0.1f;
-		fixtureDef.friction = 1.0f;
-		fixtureDef.restitution = 1.0f;
-
-		// Add the shape to the body.
-		b->CreateFixture(&fixtureDef);
-
-		// Add the body to the VizSprite
-		s->body = b;
-	}
 }
 
 bool VizBox2d::processDraw() {
 
-	DEBUGPRINT1(("VizBox2d::processDraw start"));
-
 	box2d_step();
-
 	glColor4f(1.0,1.0,0.0,0.5);
 	glLineWidth((GLfloat)1.0f);
-
-	// OpenGL calls here	
-	glBegin(GL_LINE_LOOP);
-	glVertex3f(0.2f, 0.2f, 0.0f);	// Top Left
-	glVertex3f(0.2f, 0.8f, 0.0f);	// Top Right
-	glVertex3f(0.8f, 0.8f, 0.0f);	// Bottom Right
-	glVertex3f(0.8f, 0.2f, 0.0f);	// Bottom Left
-	glEnd();
-
-#ifdef TJT2
-	float vertsCoords[] = {-0.1f, 0.1f, //V1
-                            0.1f, 0.1f, //V2
-                            0.0f, 0.0f //V3
-                            };
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(2, GL_FLOAT, 0, vertsCoords);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glDisableClientState(GL_VERTEX_ARRAY);
-#endif
-
-	// _drawBody(_body);
-
 	glEnableClientState(GL_VERTEX_ARRAY);
 	_world->DrawDebugData();
 	glDisableClientState(GL_VERTEX_ARRAY);
 
 	DrawVizSprites();
-
-	DEBUGPRINT1(("VizBox2d::processDraw end"));
 
 	return true;
 }
@@ -326,10 +234,6 @@ void VizBox2d::_drawBody(b2Body* b) {
 	glVertex3f(x+0.2f, y-0.2f, 0.0f);	// Bottom Right
 	glVertex3f(x-0.2f, y-0.2f, 0.0f);	// Bottom Left
 	glEnd();
-}
-
-void VizBox2d::processDrawNote(MidiMsg* m) {
-	// OpenGL calls here
 }
 
 #include <Box2D/Box2D.h>
@@ -357,11 +261,13 @@ void VizBox2d::box2d_setup()
 	groundBox.SetAsBox(0.5f, 0.01f);
 	groundBody->CreateFixture(&groundBox, 1.0f);
 
+#if 0
 	// Add a couple of balls to the simulation
 	b2Body* b = _makeDynamicBody(b2Vec2(0.40f, 0.9f));
 	_bodies.push_back(b);
 	b = _makeDynamicBody(b2Vec2(0.5f, 0.8f));
 	_bodies.push_back(b);
+#endif
 
 	// Prepare for simulation. Typically we use a time step of 1/60 of a
 	// second (60Hz) and 10 iterations. This provides a high quality simulation

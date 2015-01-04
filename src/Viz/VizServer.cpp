@@ -300,7 +300,7 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 
 	if (prefix == "VizServer") {
 		if (api == "apis") {
-			return jsonStringResult("clearmidi;allnotesoff;playmidifile;set_midifile(file);set_clickspersecond(clicks)", id);
+			return jsonStringResult("clearmidi;allnotesoff;play_midifile;set_midifile(file);set_clickspersecond(clicks)", id);
 		}
 		if (api == "description") {
 			return jsonStringResult("Server which distributes things to Viz plugins", id);
@@ -319,8 +319,12 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 			ss->ClearNotesDown();
 			return jsonOK(id);
 		}
-		if ( api == "playmidifile" ) {
+		if ( api == "play_midifile" ) {
 			std::string filename = ss->_getMidiFile();
+			if ( filename == "" ) {
+				std::string err = NosuchSnprintf("play_midifile called with no midifile set, use set_midifile first");
+				return jsonError(-32000,err,id);
+			}
 			std::string fpath = ManifoldPath("midifiles/"+filename);
 			MidiPhrase* ph = newMidiPhraseFromFile(fpath);
 			if ( ph == NULL ) {

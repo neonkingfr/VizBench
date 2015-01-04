@@ -48,7 +48,7 @@
 #include "FFGLPlugin.h"
 #include "Timer.h"
 
-#include "Python.h"
+// #include "Python.h"
 
 FFFF* F;
 
@@ -109,15 +109,6 @@ int ffffMain(std::string config)
 	}
 
 	jsonSetDebugConfig(j);
-
-	// int httpport = jsonNeedInt(j,"httpport");
-	std::string initialconfig = jsonNeedString(j,"initialconfig");
-	if (config != "" ) {
-		if (initialconfig != "") {
-			DEBUGPRINT(("command-line config (%s) is overriding initialconfig (%s) in config file", config.c_str(),initialconfig.c_str()));
-		}
-		initialconfig = config;
-	}
 
 	// Allow the config to override the default paths for these
 	std::string ffpath = jsonNeedString(j,"ffpath",ManifoldPath("ffplugins"));
@@ -181,7 +172,7 @@ int ffffMain(std::string config)
 
 	try {
 		CATCH_NULL_POINTERS;
-		F->loadPipeline(initialconfig);
+		F->loadPipeline(config);
 	} catch (NosuchException& e) {
 		NosuchErrorOutput("NosuchException while loading Pipeline!! - %s",e.message());
 	} catch (...) {
@@ -250,6 +241,11 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLin
 	std::string config = "";
 	if (__argc > 1) {
 		config = __argv[1];
+	}
+	else {
+		std::string msg = NosuchSnprintf("Usage: %s {configname}\n",__argv[0]);
+		MessageBoxA(NULL,msg.c_str(),"FFFF",MB_OK);
+		return r;
 	}
 	try {
 		CATCH_NULL_POINTERS;

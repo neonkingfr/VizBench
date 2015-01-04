@@ -1,58 +1,90 @@
 VizBench
 ========
 
-A host (FFFF) and framework for FFGL plugins that involve
+A framework for creating FreeFrame 1.5 (FFGL) plugins that involve
 OSC/TUIO and HTTP listeners and MIDI I/O.
 
-The FFGL plugins here have been tested in Resolume (4.1.11) and FFFF.
+Also included is a FreeFrame host (FFFF) for testing and simple uses.
 
-This is a work in progress.
+The FFGL plugins here have been tested in Resolume (4.1.11).
 
-Here are the steps to exercise the things that work:
+This is a work in progress, but if anything in the instructions below
+doesn't work as advertized (on Window 8 or Windows 7), please send
+email to me@timthompson.com and let me know.
 
-   - Clone the Github repository http://github.com/nosuchtim/VizBench
+    ...Tim...
 
-   - Install Visual Studio 2013 Community edition
+============================================================================
+Here are the steps to obtain and build it:
+
+   - Clone the Github repository http://github.com/nosuchtim/VizBench.
+     It should end up in c:/users/YOURLOGIN/documents/github/VizBench,
+     where YOURLOGIN is your windows login name.
 
    - Set environment variable VIZBENCH to
-        c:/users/YOURLOGIN/documents/github/manifold
-     replacing YOURLOGIN with your Windows login name.
+        c:/users/YOURLOGIN/documents/github/VizBench
+     replacing YOURLOGIN with your Windows login name.  You can do this in
+     the Control Panel, under System->Advanced System Settings->Advanced
+     ->Environment Variables.
 
-   - Add $VIZBENCH/bin to your PATH
+   - Install Visual Studio 2013 Community edition (it's free)
 
-At this point you should have enough to able to execute these commands:
+   - Add %VIZBENCH%/bin to your PATH
 
-    cd $VIZBENCH/bin
-    FFFF.exe
-    p fourcircles.osc
+   - Start Visual Studio, loading the build/vs2013/VizBench.sln solution.
+
+   - Make sure Visual Studio is set to compile the Debug Win32 version.
+
+   - Compile the entire solution.
+
+============================================================================
+At this point you should have enough to execute this first example:
+
+    cd %VIZBENCH%/bin
+    FFFF.exe vizdraw
+    p.bat fourcircles.osc
 
 and see some graphics appear in the FFFF window.  FFFF.exe is an FFGL
 host that can be configured to load a pipeline of FFGL plugins.
-FFFF.exe is configured with the config/ffff.json file,
-and the "initialconfig" value in ffff.json points to a file in
-the config/ffff directory.  An "initialconfig" of "vizdraw" will
-load the config/ffff/vizdraw.json file - a single FFGL plugin that listens
-for TUIO/OSC messages to draw graphics.  The "p fourcircles.osc" command
-(see above) replays some TUIO/OSC messages to draw things.
-See src/plugins/VizDraw/VizDraw.cpp for the source.
+The command-line argument to FFFF.exe is the initial configuration to load,
+which should be the name of a file in the config/ffff directory.
+In the example above, the file config/ffff/vizdraw.json is used, which
+loads the single FFGL plugin named VizDraw, which listens for TUIO/OSC
+messages to draw graphics.  The "p.bat fourcircles.osc" command 
+replays some TUIO/OSC messages stored in the fourcircles.osc file.
 
-You can set the "initialconfig" to "vizbox2d".  VizBox2d is a plugin that
-uses the Box2D physics engine, and you can interact with it using keyboard
-commands.  After invoking FFFF.exe, press 't' or 'r' a few times
-to add some circles to the screen, and then press 'f' or 'g' to push
-them around.  See src/plugins/VizBox2d/VizBox2d.cpp for the source.
+============================================================================
+Second example: vizmidi
 
-You can set the "initialconfig" to "vizmidi".  VizMidi is a plugin that
-listens for MIDI input and draws graphics.  It is also capable of playing
-MIDI files.  See config/spaceserver.json to set the MIDI input/output devices.
-See src/plugins/VizMidi/VizMidi.cpp for the source.
+    FFFF.exe vizmidi
+    mf.bat prelude.mid
 
+This example will "play" the midifiles/prelude.mid, and draw
+sprites corresponding to the notes.  It will also send the MIDI notes to
+the MIDI output device specified in the config/vizserver.json file.
 
-To recompile everything from scratch:
+============================================================================
+Third example: vizlife
 
-   - Download http://blueparticles.com/particles/other.zip and
-     unzip it into the manifold directory.  This file contains lots
-     of things that are needed to recompile everything successfully
+    FFFF.exe vizlife
+    api VizLife.randomize
 
-   - Start Visual Studio 2013 on $VIZBENCH/vs2013/SpaceManifold.sln
-     and build the entire solution.
+This example loads the VizLife plugin, which plays Conway's Game of Life.
+Invoking the "VizLife.randomize" api, as shown, will randomly fill cells.
+You'll notice that when cells are "born", they cause sprites to be created.
+Invoking the "VizLife.clear" api will clear the grid.
+
+============================================================================
+Fourth example: vizbox2d
+
+    FFFF.exe vizbox2d
+    api VizBox2d.randomize
+    api VizBox2d.push
+
+The VizBox2d.randomize api will randomly place some objects, and
+VizBox2d.push will push them around under the control of the Box2D engine.
+============================================================================
+
+All of the source code for the plugins is in src/plugins.
+
+Questions: email me@timthompson.com

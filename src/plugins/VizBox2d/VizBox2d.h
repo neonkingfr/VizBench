@@ -19,7 +19,6 @@ public:
 	void processCursor(VizCursor* c, int downdragup);
 	void processKeystroke(int key, int downup);
 	bool processDraw();
-	void processDrawNote(MidiMsg* m);
 	void OutlineToBody(VizSpriteOutline* so);
 
 private:

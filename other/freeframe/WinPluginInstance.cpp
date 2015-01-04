@@ -25,38 +25,8 @@ WinPluginDef::WinPluginDef()
     :m_ffModule(NULL)
 {}
 
-#if 0
-#define TJTHACK
-extern "C" {
-
-typedef __declspec(dllimport) int (__stdcall *SchedClicksFuncPtr)();
-
-#ifdef TJTHACK
-void
-tjthack() {
-
-// __declspec(dllexport) int __stdcall SchedClicks();
-
-	DEBUGPRINT(("Hi from TJTHACK"));
-	HMODULE mainmod;
-	HMODULE WINAPI GetModuleHandle( _In_opt_  LPCTSTR lpModuleName );
-	mainmod = GetModuleHandle(NULL);
-	DEBUGPRINT(("mainmod=%ld",(long)mainmod));
-    SchedClicksFuncPtr schedclicks = (SchedClicksFuncPtr)GetProcAddress(mainmod, "SchedClicks");
-	DEBUGPRINT(("schedclicksfuncptr = %ld",(long)schedclicks));
-}
-}
-#endif
-#endif
-
 DWORD WinPluginDef::Load(const char *fname)
 {
-#if 0
-	void tjthack();
-
-	tjthack();
-#endif
-
     //warning_printf("FreeFrame Plugin Load Failed: %s", fname);
     if (fname==NULL || fname[0]==0)
         return FF_FAIL;

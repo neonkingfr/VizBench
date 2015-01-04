@@ -50,6 +50,9 @@ VizMidi::VizMidi() : Vizlet() {
 
 	_midiparams->gravity.set(true);
 	_midiparams->mass.set(0.01);
+
+	_spriteparams = "";
+
 }
 
 VizMidi::~VizMidi() {
@@ -61,7 +64,6 @@ DWORD __stdcall VizMidi::CreateInstance(CFreeFrameGLPlugin **ppInstance) {
 }
 
 void VizMidi::processCursor(VizCursor* c, int downdragup) {
-	DEBUGPRINT(("processCursor!  c->pos= %.3f %.3f",c->pos.x,c->pos.y));
 	// NO OpenGL calls here
 }
 
@@ -69,7 +71,7 @@ std::string VizMidi::processJson(std::string meth, cJSON *json, const char *id) 
 	// NO OpenGL calls here
 
 	if (meth == "apis") {
-		return jsonStringResult("set_shape(shape)",id);
+		return jsonStringResult("set_shape(shape);set_spriteparams(file)",id);
 	}
 
 	// PARAMETER "shape"
@@ -83,6 +85,23 @@ std::string VizMidi::processJson(std::string meth, cJSON *json, const char *id) 
 	}
 	if (meth == "get_shape") {
 		return jsonStringResult(_midiparams->shape.get(), id);
+	}
+
+	// PARAMETER "spriteparams"
+	if (meth == "set_spriteparams") {
+		std::string file = jsonNeedString(json, "file", "");
+		if (file == "") {
+			return jsonError(-32000, "Bad file value", id);
+		}
+		AllVizParams* p = getAllVizParams(file);
+		if (p) {
+			_spriteparams = file;
+			_midiparams = p;
+		}
+		return jsonOK(id);
+	}
+	if (meth == "get_spriteparams") {
+		return jsonStringResult(_spriteparams, id);
 	}
 
 	throw NosuchException("VizMidi - Unrecognized method '%s'",meth.c_str());

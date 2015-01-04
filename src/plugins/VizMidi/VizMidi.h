@@ -21,6 +21,7 @@ private:
 
 	void _midiVizSprite(MidiMsg* m);
 	AllVizParams* _midiparams;
+	std::string _spriteparams;
 };
 
 #endif

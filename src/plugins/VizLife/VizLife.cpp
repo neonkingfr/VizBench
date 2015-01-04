@@ -404,7 +404,7 @@ void VizLife::processCursor(VizCursor* c, int downdragup) {
 #else
 	_params->shape.set("square");
 #endif
-	_params->filled.set(false);
+	_params->filled.set(true);
 	_params->sizeinitial.set(1.0);
 	_params->sizefinal.set(0.1);
 	_params->sizetime.set(0.5);
@@ -464,6 +464,10 @@ std::string VizLife::processJson(std::string meth, cJSON *json, const char *id) 
 
 	// NO OpenGL calls here
 
+	if (meth == "apis") {
+		return jsonStringResult("randomize;clear;set_sparseness(amount);set_size(size);set_wrap(onoff);set_sprites(onoff)", id);
+	}
+
 	if (meth == "randomize") {
 		RandomAddEvery(_sparseness);
 		return jsonOK(id);
@@ -472,10 +476,6 @@ std::string VizLife::processJson(std::string meth, cJSON *json, const char *id) 
 	if ( meth == "clear" ) {
 		Clear();
 		return jsonOK(id);
-	}
-
-	if (meth == "apis") {
-		return jsonStringResult("randomize;clear;set_sparseness(amount);set_size(size);set_wrap(onoff);set_sprites(onoff)", id);
 	}
 
 	//  PARAMETER "wrap"

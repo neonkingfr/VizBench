@@ -67,13 +67,14 @@ double scale_z(double z, double zexp, double zmult) {
 }
 
 void VizSprite::draw(NosuchGraphics* p) {
+	double scalehack = 0.5f;
 	if ( params->zable ) {
 		double zmultiply = 4.0f;
 		double zexponential = 2.0f;
 		double scaled_z = scale_z(state.pos.z,zexponential,zmultiply);
-		draw(p,scaled_z);
+		draw(p,scaled_z*scalehack);
 	} else {
-		draw(p,1.0);
+		draw(p,1.0*scalehack);
 	}
 }
 
@@ -83,7 +84,7 @@ void VizSprite::draw(NosuchGraphics* graphics, double scaled_z) {
 		return;
 	}
 	// double hue = state.hueoffset + params->hueinitial;
-	// double huefill = state.hueoffset + params->huefill;
+	// double huefill = state.hueoffset + params->huefillinitial;
 	
 	NosuchColor color = NosuchColor(state.hue, params->luminance, params->saturation);
 	NosuchColor colorfill = NosuchColor(state.huefill, params->luminance, params->saturation);
