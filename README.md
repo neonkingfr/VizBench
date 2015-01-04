@@ -29,6 +29,9 @@ Here are the steps to obtain and build it:
 
    - Install Visual Studio 2013 Community edition (it's free)
 
+   - Install Python 2.7 from https://www.python.org/download/releases/2.7/
+     and leave it in the default location - C:\Python27.
+
    - Add %VIZBENCH%/bin to your PATH
 
    - Start Visual Studio, loading the build/vs2013/VizBench.sln solution.
@@ -85,6 +88,20 @@ The VizBox2d.randomize api will randomly place some objects, and
 VizBox2d.push will push them around under the control of the Box2D engine.
 ============================================================================
 
-All of the source code for the plugins is in src/plugins.
+To create your own Vizlet-based FFGL plugin (we'll call it MyViz), execute:
+
+    genvizlet MyViz
+
+which will generate all of the source and build files needed.  You should
+add it to the Visual Studio solution by right-clicking on the "plugins"
+folder (in Visual Studio), using "Add->Existing Project...", and selecting
+the build/vs2013/MyViz/MyViz.vcxproj file.  The source code for the plugin
+will be in src/plugins/MyViz.  Compiling the solution should then result
+in creating this FFGL plugin:
+
+    ffglplugins\MyViz.dll
+
+which you can use like any of the other Vizlet-based plugins.
+============================================================================
 
 Questions: email me@timthompson.com
