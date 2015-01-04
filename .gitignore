@@ -34,6 +34,8 @@ patches/alchemy
 *~
 src/oscutil/build
 src/oscutil/dist
+src/jsonrpc/build
+src/jsonrpc/dist
 patches/kontakt
 patches/bidule
 patches/touchdesigner
