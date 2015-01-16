@@ -46,6 +46,14 @@ MidiMsg* MidiMsg::make(int msg) {
 		return MidiController::make(chan,byte1,byte2);
 	case MIDI_PROGRAM:
 		return MidiProgramChange::make(chan,byte1);
+	case MIDI_CHANNEL_AT:
+		return MidiChanPressure::make(chan, byte1);
+	case MIDI_POLY_AT:
+		return MidiPressure::make(chan, byte1, byte2);
+	case MIDI_PITCHBEND: {
+		int v = byte1 | (byte2<<7);		// 7 bits from lsb, 7 bits from msb
+		return MidiPitchBend::make(chan,v);
+		}
 	default:
 		DEBUGPRINT(("Unhandled command in MidiMsg::make!  cmd=0x%02x",command));
 		return NULL;

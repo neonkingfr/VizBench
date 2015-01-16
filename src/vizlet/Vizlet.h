@@ -64,14 +64,34 @@ public:
 	void QueueMidiPhrase(MidiPhrase* ph, click_t clk);
 	void QueueClear();
 
-	DWORD ProcessOpenGL(ProcessOpenGLStruct *pGL);
+	std::string MidiInputName(size_t n) { return _vizserver->MidiInputName(n);  }
+	std::string MidiOutputName(size_t n) { return _vizserver->MidiOutputName(n);  }
 
-	// FFGL things
-	virtual DWORD InitGL(const FFGLViewportStruct *vp);
-	virtual DWORD DeInitGL();
-	virtual DWORD SetParameter(const SetParameterStruct* pParam);
-	virtual DWORD GetParameter(DWORD dwIndex);
-	virtual char* GetParameterDisplay(DWORD dwIndex);
+	int MidiInputNumberOf(std::string name) {
+		for (size_t n = 0; ; n++) {
+			const char* nm = _vizserver->MidiInputName(n);
+			if (nm == NULL) {
+				break;
+			}
+			if ( std::string(nm) == name) {
+				return (int)n;
+			}
+		}
+		return -1;
+	}
+
+	int MidiOutputNumberOf(std::string name) {
+		for (size_t n = 0; ; n++) {
+			const char* nm = _vizserver->MidiOutputName(n);
+			if (nm == NULL) {
+				break;
+			}
+			if ( std::string(nm) == name) {
+				return (int)n;
+			}
+		}
+		return -1;
+	}
 
 	void AddVizSprite(VizSprite* s);
 	void DrawVizSprites();
@@ -99,16 +119,40 @@ public:
 	// These are the things that a Vizlet should override/define.
 	/////////////////////////////////////////////////////
 
+	/////////////////////////////////////////////////////
+	// methods for NosuchJsonListener
 	virtual std::string processJson(std::string meth, cJSON *params, const char *id) {
 		throw NosuchException("Vizlet - Unrecognized method '%s'",meth.c_str());
 	}
+	/////////////////////////////////////////////////////
+
+	/////////////////////////////////////////////////////
+	// methods for NosuchOscListener
 	virtual void processOsc(const char *source, const osc::ReceivedMessage& m) { }
-	virtual void processCursor(VizCursor* c, int downdragup) { }
-	virtual void processKeystroke(int key, int downup) { }
-	// NOTE: processMidi gets called from low-level things,
-	// and should NOT call any OpenGL things or do things that take a long time.
+	/////////////////////////////////////////////////////
+
+	/////////////////////////////////////////////////////
+	// methods for NosuchMidiInputListener
+	// called from low-level things, NO OpenGL or time-intensive calls should be made
 	virtual void processMidiInput(MidiMsg* mm) { }
+	/////////////////////////////////////////////////////
+
+	/////////////////////////////////////////////////////
+	// methods for NosuchMidiInputListener
+	// called from low-level things, NO OpenGL or time-intensive calls should be made
 	virtual void processMidiOutput(MidiMsg* mm) { }
+	/////////////////////////////////////////////////////
+
+	/////////////////////////////////////////////////////
+	// methods for CursorListener
+	virtual void processCursor(VizCursor* c, int downdragup) { }
+	/////////////////////////////////////////////////////
+
+	/////////////////////////////////////////////////////
+	// methods for KeystrokeListener
+	virtual void processKeystroke(int key, int downup) { }
+	/////////////////////////////////////////////////////
+
 	virtual bool processDraw() = 0;
 	virtual void processDrawNote(MidiMsg* m) { }
 	virtual void processAdvanceClickTo(int click) { }
@@ -149,6 +193,16 @@ protected:
 	NosuchColor channelColor(int ch);
 
 private:
+
+	/////////////////////////////////////////////////////
+	// methods for CFreeFrameGLPlugin
+	virtual DWORD ProcessOpenGL(ProcessOpenGLStruct *pGL);
+	virtual DWORD InitGL(const FFGLViewportStruct *vp);
+	virtual DWORD DeInitGL();
+	virtual DWORD SetParameter(const SetParameterStruct* pParam);
+	virtual DWORD GetParameter(DWORD dwIndex);
+	virtual char* GetParameterDisplay(DWORD dwIndex);
+	/////////////////////////////////////////////////////
 
 	void _stopstuff();
 	void _stopCallbacks();

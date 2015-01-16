@@ -49,6 +49,11 @@ public:
 		_server = ss;
 	}
 	void AdvanceClickTo(int current_click, NosuchScheduler* sched) {
+		static int lastclick = -1;
+		if (current_click > (lastclick + 1)) {
+			DEBUGPRINT(("advanced click by %d", current_click-lastclick));
+		}
+		lastclick = current_click;
 		_server->_advanceClickTo(current_click,sched);
 	}
 private:
@@ -300,7 +305,7 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 
 	if (prefix == "VizServer") {
 		if (api == "apis") {
-			return jsonStringResult("clearmidi;allnotesoff;play_midifile;set_midifile(file);set_clickspersecond(clicks)", id);
+			return jsonStringResult("clearmidi;allnotesoff;play_midifile;set_midifile(file);set_clickspersecond(clicks);set_midioutput(index)", id);
 		}
 		if (api == "description") {
 			return jsonStringResult("Server which distributes things to Viz plugins", id);
@@ -310,7 +315,7 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 		}
 		if ( api == "clearmidi" ) {
 			ss->ANO();
-			ss->ScheduleClear();
+			ss->_scheduleClear();
 			ss->ClearNotesDown();
 			return jsonOK(id);
 		}
@@ -331,7 +336,7 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 				std::string err = NosuchSnprintf("Error reading phrase from file: %s",fpath.c_str());
 				return jsonError(-32000,err,id);
 			}
-			ss->ScheduleMidiPhrase(ph,ss->CurrentClick(),0);
+			ss->_scheduleMidiPhrase(ph,ss->CurrentClick(),0);
 			// DO NOT free ph - scheduleMidiPhrase takes it over.
 			return jsonOK(id);
 		}
@@ -359,8 +364,19 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 			return jsonOK(id);
 		}
 		if (api == "get_midifile") {
-			std::string file = ss->_getMidiFile();
-			return jsonStringResult(file, id);
+			return jsonStringResult(ss->_getMidiFile(), id);
+		}
+
+		// PARAMETER midioutput
+		if (api == "set_midioutput") {
+			int i = jsonNeedInt(params, "index", -1);
+			if (i >= 0) {
+				ss->_setMidiOutput(i);
+			}
+			return jsonOK(id);
+		}
+		if (api == "get_midioutput") {
+			return jsonIntResult(ss->_getMidiOutput(), id);
 		}
 
 		std::string err = NosuchSnprintf("VizServer - Unrecognized method '%s'",api.c_str());
@@ -608,6 +624,7 @@ VizServer::VizServer() {
 	_frameseq = 0;
 	_htmldir = "html";
 	_midifile = "";
+	_midioutput = -1;
 	_jsonprocessor = NULL;
 	_oscprocessor = NULL;
 	_midiinputprocessor = NULL;
@@ -619,8 +636,8 @@ VizServer::VizServer() {
 	_cursors = new std::list<VizCursor*>();
 	NosuchLockInit(&_cursors_mutex,"cursors");
 
-	_midi_input_name = NULL;
-	_midi_output_name = NULL;
+	_midi_input_list = "";
+	_midi_output_list = "";
 	_do_midimerge = false;
 	_do_sharedmem = false;
 	_sharedmem_outlines = NULL;
@@ -725,7 +742,7 @@ void VizServer::_processCursorsFromBuff(MMTT_SharedMemHeader* hdr) {
 	}
 }
 
-void VizServer::ErrorPopup(const char* msg) {
+void VizServer::_errorPopup(const char* msg) {
 		MessageBoxA(NULL,msg,"Palette",MB_OK);
 }
 
@@ -799,19 +816,19 @@ VizServer::IncomingMidiMsg(MidiMsg* m, click_t clk, void* handle) {
 }
 
 void
-VizServer::ScheduleMidiPhrase(MidiPhrase* ph, click_t clk, void* handle) {
+VizServer::_scheduleMidiPhrase(MidiPhrase* ph, click_t clk, void* handle) {
 	NosuchAssert(_scheduler);
 	_scheduler->ScheduleMidiPhrase(ph,clk,handle);
 }
 
 void
-VizServer::ScheduleMidiMsg(MidiMsg* m, click_t clk, void* handle) {
+VizServer::_scheduleMidiMsg(MidiMsg* m, click_t clk, void* handle) {
 	NosuchAssert(_scheduler);
 	_scheduler->ScheduleMidiMsg(m,clk,handle);
 }
 
 void
-VizServer::ScheduleClear() {
+VizServer::_scheduleClear() {
 	NosuchAssert(_scheduler);
 	_scheduler->ScheduleClear();
 }
@@ -872,7 +889,7 @@ VizServer::Start() {
 	DEBUGPRINT(("VizServer::Start"));
 
 	if ( _do_errorpopup ) {
-		NosuchErrorPopup = VizServer::ErrorPopup;
+		NosuchErrorPopup = VizServer::_errorPopup;
 	} else {
 		NosuchErrorPopup = NULL;
 	}
@@ -909,15 +926,15 @@ VizServer::Start() {
 
 		_openSharedMemOutlines();
 
-		if ( _midi_output_name == NULL ) {
+		if ( _midi_output_list == NULL ) {
 			DEBUGPRINT(("Warning: MIDI output wasn't defined in configuration!"));
-			_midi_output_name = "Midi Yoke:  1";
+			_midi_output_list = "loopMIDI Port 1";
 		}
-		if ( _midi_input_name == NULL ) {
+		if ( _midi_input_list == NULL ) {
 			DEBUGPRINT(("Warning: MIDI input wasn't defined in configuration!"));
-			_midi_input_name = "Midi Yoke:  2";
+			_midi_input_list = "loopMIDI Port";
 		}
-		_scheduler->StartMidi(_midi_input_name,_midi_output_name);
+		_scheduler->StartMidi(_midi_input_list,_midi_output_list);
 
 		_clickprocessor = new VizServerClickProcessor(this);
 		_scheduler->SetClickProcessor(_clickprocessor);
@@ -1048,7 +1065,7 @@ VizServer::Stop() {
 	_started = false;
 	if ( _scheduler ) {
 		ANO();
-		ScheduleClear();
+		_scheduleClear();
 		ClearNotesDown();
 		_scheduler->Stop();
 		delete _scheduler;
@@ -1123,13 +1140,13 @@ VizServer::_processServerConfig(cJSON* json) {
 		_sharedmemname = j->valuestring;
 	}
 	if ( (j=jsonGetString(json,"midiinput")) != NULL ) {
-		_midi_input_name = j->valuestring;
+		_midi_input_list = j->valuestring;
 	}
 	if ( (j=jsonGetNumber(json,"midimerge")) != NULL ) {
 		_do_midimerge = (j->valueint != 0);
 	}
 	if ( (j=jsonGetString(json,"midioutput")) != NULL ) {
-		_midi_output_name = j->valuestring;
+		_midi_output_list = j->valuestring;
 	}
 	if ( (j=jsonGetNumber(json,"errorpopup")) != NULL ) {
 		_do_errorpopup = (j->valueint != 0);

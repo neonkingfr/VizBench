@@ -6,18 +6,23 @@
   ### If MMTT is being used on the same machine,
   ### we typically do NOT use TUIO over OSC, and instead
   ### use the shared memory interface (see sharedmem below).
-  "tuioport": 3333,
+  # "tuioport": 3333,
 
   ### The default for tuiohost is "", which means
   ### it'll be listening on all local IP addresses.
   ### Set it to a specific host to only listen on one IP address.
   "tuiohost": "",
 
-  "midioutput": "loopMidi Port 1",
-  "midiinput": "loopMidi Port 2",
-  "midimerge": 1,
+  ### These are values for using loopMIDI
+  # "midiinput": "loopMIDI Port",
+  # "midioutput": "loopMIDI Port 1;loopMIDI Port 2;loopMIDI Port 3;loopMIDI Port 4",
+
+  ### These are values for using LoopBe30
+  "midiinput": "09. Internal MIDI;LinnStrument MIDI",
+  "midioutput": "01. Internal MIDI;02. Internal MIDI;03. Internal MIDI;04. Internal MIDI",
+
   "periodicANO": 0,
-  "sharedmem": 1,
+  "sharedmem": 0,
   "sharedmemname": "mmtt_outlines",
   "errorpopup": 0,
   "debuglevel": 1,

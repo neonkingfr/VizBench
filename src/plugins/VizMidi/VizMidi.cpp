@@ -109,7 +109,6 @@ std::string VizMidi::processJson(std::string meth, cJSON *json, const char *id) 
 
 void VizMidi::processMidiInput(MidiMsg* m) {
 	// NO OpenGL calls here
-	_midiVizSprite(m);
 }
 
 void VizMidi::processMidiOutput(MidiMsg* m) {
@@ -134,10 +133,6 @@ bool VizMidi::processDraw() {
 
 	DrawVizSprites();
 	return true;
-}
-
-void VizMidi::processDrawNote(MidiMsg* m) {
-	// OpenGL calls here
 }
 
 void VizMidi::_midiVizSprite(MidiMsg* m) {

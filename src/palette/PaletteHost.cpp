@@ -264,10 +264,10 @@ PaletteHost::LoadPaletteConfig(std::string jstr)
 		_sharedmemname = std::string(j->valuestring);
 	}
 	if ( (j=getString(json,"midiinput")) != NULL ) {
-		_midi_input_name = std::string(j->valuestring);
+		_midi_input_list = std::string(j->valuestring);
 	}
 	if ( (j=getString(json,"midioutput")) != NULL ) {
-		_midi_output_name = std::string(j->valuestring);
+		_midi_output_list = std::string(j->valuestring);
 	}
 	if ( (j=getNumber(json,"tonicchange")) != NULL ) {
 		_do_tonicchange = (j->valueint != 0);

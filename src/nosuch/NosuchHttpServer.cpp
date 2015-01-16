@@ -513,9 +513,9 @@ NosuchHttpServer::InitializeWebSocket(NosuchSocketConnection* conn) {
 	_WebSocket_Clients.push_back(conn);
 }
 
-void NosuchHttpServer::AddWebSocketClient(NosuchSocketConnection* conn) {
-	_WebSocket_Clients.push_back(conn);
-}
+// void NosuchHttpServer::AddWebSocketClient(NosuchSocketConnection* conn) {
+// 	_WebSocket_Clients.push_back(conn);
+// }
 
 void
 NosuchHttpServer::WebSocketMessage(NosuchSocketConnection *conn, std::string msg) {

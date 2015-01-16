@@ -180,6 +180,7 @@ int ffffMain(std::string config)
 		NosuchErrorOutput("Some other kind of exception occured while loading Pipeline!?");
 	}
 
+// #define DUMPOBJECTS
 #ifdef _DEBUG
 #ifdef DUMPOBJECTS
 	_CrtMemState s0;

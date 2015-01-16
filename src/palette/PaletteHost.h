@@ -165,8 +165,8 @@ private:
 	bool _dotest;
 	void readMidiConfig(std::ifstream& f);
 	void initMidiConfig();
-	std::string _midi_input_name;
-	std::string _midi_output_name;
+	std::string _midi_input_list;
+	std::string _midi_output_list;
 
 	// int _osc_input_port;
 	// std::string _osc_input_host;
