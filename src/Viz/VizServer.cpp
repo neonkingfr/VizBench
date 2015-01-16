@@ -324,6 +324,14 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 			ss->ClearNotesDown();
 			return jsonOK(id);
 		}
+		if (api == "read_paramfile") {
+			file = jsonNeedString(params, "file", "");
+			if (file != "") {
+				std::string contents = 
+			} else {
+				return jsonError(-32000,"No file parameter specified on read_paramfile?",id);
+			}
+		}
 		if ( api == "play_midifile" ) {
 			std::string filename = ss->_getMidiFile();
 			if ( filename == "" ) {
@@ -360,6 +368,8 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 			file = jsonNeedString(params, "file", "");
 			if (file != "") {
 				ss->_setMidiFile(file.c_str());
+			} else {
+				return jsonError(-32000,"No file parameter specified on set_midifile?",id);
 			}
 			return jsonOK(id);
 		}
