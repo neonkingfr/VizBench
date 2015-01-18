@@ -26,7 +26,9 @@
 */
 
 #include "NosuchUtil.h"
+#include "ffutil.h"
 #include <VizServer.h>
+#include <AllVizParams.h>
 #include <NosuchUtil.h>
 #include <NosuchJSON.h>
 #include <NosuchException.h>
@@ -277,9 +279,22 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 	std::string api;
 	VizServer* ss = VizServer::GetServer();
 
-	if ( fullmethod == "viztags" || fullmethod == "apitags" ) {
+	static AllVizParams* allparams = NULL;
+	if (allparams == NULL) {
+		allparams = new AllVizParams(true);
+	}
+
+	if ( fullmethod == "viztags" || fullmethod == "apitags" ) {  // apitags is deprecated, retained for compatibility
 		const char *p = ss->VizTags();
 		return jsonStringResult(std::string(p),id);
+	}
+	if ( fullmethod == "vizparamvals" ) {
+		std::string s = allparams->JsonListOfValues();
+		return jsonStringResult(s,id);
+	}
+	if ( fullmethod == "vizparamtypes" ) {
+		std::string s = allparams->JsonListOfTypes();
+		return jsonStringResult(s,id);
 	}
 #if 0
 	{ static _CrtMemState s1, s2, s3;
@@ -325,12 +340,37 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 			return jsonOK(id);
 		}
 		if (api == "read_paramfile") {
-			file = jsonNeedString(params, "file", "");
+			std::string file = jsonNeedString(params, "file", "");
 			if (file != "") {
-				std::string contents = 
+				if (!ends_with(file, ".json")) {
+					file = file + ".json";
+				}
+				std::string fpath = NosuchConfigPath("params/" + file);
+
+				std::string err;
+				cJSON* json = jsonReadFile(fpath, err);
+				if (!json){
+					throw NosuchException("Unable to read json from paramfile=%s err=%s", file.c_str(),err.c_str());
+				}
+				// std::string r = cJSON_escapestring(cJSON_PrintUnformatted(json));
+				std::string r = cJSON_PrintUnformatted(json);
+				return jsonStringResult(r, id);
 			} else {
 				return jsonError(-32000,"No file parameter specified on read_paramfile?",id);
 			}
+		}
+		if (api == "write_paramfile") {
+			std::string file = jsonNeedString(params, "file", "");
+			if (file == "") {
+				return jsonError(-32000,"No file parameter specified on read_paramfile?",id);
+			}
+			if (!ends_with(file, ".json")) {
+				file = file + ".json";
+			}
+			cJSON* j = jsonNeedJSON(params, "contents");
+			std::string fpath = NosuchConfigPath("params/" + file);
+			// DEBUGPRINT(("contents = %s", cJSON_PrintUnformatted(j)));
+			return jsonOK(id);
 		}
 		if ( api == "play_midifile" ) {
 			std::string filename = ss->_getMidiFile();

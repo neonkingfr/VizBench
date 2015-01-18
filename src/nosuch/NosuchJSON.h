@@ -42,6 +42,7 @@ std::string jsonStringResult(std::string r, const char *id);
 std::string jsonMethError(std::string e, const char *id);
 std::string jsonError(int code, std::string e, const char* id);
 
+#define DFLT_JSON_THROW_EXCEPTION NULL
 #define DFLT_STR_THROW_EXCEPTION "!THROW_EXCEPTION!"
 #define DFLT_INT_THROW_EXCEPTION INT_MIN
 #define DFLT_DOUBLE_THROW_EXCEPTION DBL_MIN
@@ -59,6 +60,7 @@ int methodNeedInt(std::string meth,cJSON *params,std::string nm);
 double methodNeedDouble(std::string meth,cJSON *params,std::string nm);
 void methodNeedParams(std::string meth, cJSON* params);
 
+cJSON* jsonNeedJSON(cJSON *params,std::string nm,cJSON* dflt=DFLT_JSON_THROW_EXCEPTION);
 std::string jsonNeedString(cJSON *params,std::string nm,std::string dflt=DFLT_STR_THROW_EXCEPTION);
 int jsonNeedInt(cJSON *params,std::string nm,int dflt=DFLT_INT_THROW_EXCEPTION);
 double jsonNeedDouble(cJSON *params,std::string nm,double dflt=DFLT_DOUBLE_THROW_EXCEPTION,bool allowstring=true);

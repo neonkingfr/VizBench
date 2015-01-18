@@ -33,8 +33,8 @@
 #include <fstream>
 
 std::string jsonResult(std::string r, const char *id) {
-	// We assume r has already been escaped if necessary
-	return NosuchSnprintf("{ \"jsonrpc\": \"2.0\", \"result\": %s, \"id\": \"%s\" }\r\n",r.c_str(),id);
+	// We assume r has already been escaped if necessary.
+	return NosuchSnprintf("{ \"jsonrpc\": \"2.0\", \"result\": %s, \"id\": \"%s\" }\r\n", r.c_str(), id);
 }
 
 std::string jsonDoubleResult(double r, const char *id) {
@@ -47,6 +47,15 @@ std::string jsonIntResult(int r, const char *id) {
 
 std::string jsonStringResult(std::string s, const char *id) {
 	char *escaped = cJSON_escapestring(s.c_str());
+	// Note - escaped now has quotes around it
+	std::string r = jsonResult(escaped,id);
+	cJSON_free(escaped);
+	return r;
+}
+
+std::string jsonJSONResult(cJSON* j, const char *id) {
+	char *s = cJSON_PrintUnformatted(j);
+	char *escaped = cJSON_escapestring(s);
 	// Note - escaped now has quotes around it
 	std::string r = jsonResult(escaped,id);
 	cJSON_free(escaped);
@@ -111,6 +120,23 @@ std::string jsonNeedString(cJSON *j,std::string nm, std::string dflt) {
 		throw NosuchException("Unexpected type for %s value, expecting string",nm.c_str());
 	}
 	return c->valuestring;
+}
+
+cJSON* jsonNeedJSON(cJSON *j,std::string nm, cJSON* dflt) {
+	if ( j == NULL ) {
+		throw NosuchException("j is NULL in jsonNeedJSON");
+	}
+	cJSON *c = cJSON_GetObjectItem(j,nm.c_str());
+	if ( ! c ) {
+		if ( dflt == DFLT_JSON_THROW_EXCEPTION ) {
+			throw NosuchException("Missing '%s' value in JSON",nm.c_str());
+		}
+		return dflt;
+	}
+	if ( c->type != cJSON_Object ) {
+		throw NosuchException("Unexpected type for %s value, expecting JSON",nm.c_str());
+	}
+	return c;
 }
 
 int jsonNeedInt(cJSON *j,std::string nm, int dflt) {

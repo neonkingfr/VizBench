@@ -38,6 +38,7 @@
 #include "NosuchDaemon.h"
 #include "NosuchSocket.h"
 #include "NosuchHttpServer.h"
+#include "NosuchException.h"
 
 NosuchHttpServer::NosuchHttpServer(NosuchJsonListener* jproc, int port, std::string htmldir, int timeout, int idletime)
 {
@@ -420,8 +421,8 @@ NosuchHttpServer::RespondToGetOrPost(NosuchSocketConnection *conn) {
 		}
 		const char *datastr = conn->_data.c_str();
 		cJSON *request = cJSON_Parse(datastr);
+		std::string ret;
 		if ( request ) {
-			std::string ret;
 			std::string i;
 			cJSON *c_jsonrpc = cJSON_GetObjectItem(request,"jsonrpc");
 			if ( ! c_jsonrpc ) {
@@ -450,16 +451,27 @@ NosuchHttpServer::RespondToGetOrPost(NosuchSocketConnection *conn) {
 				goto getout;
 			}
 			const char *id = i.c_str();
-			ret = _json_processor->processJson(method,c_params,id);
+			try {
+				CATCH_NULL_POINTERS;
+				ret = _json_processor->processJson(method,c_params,id);
+			} catch (NosuchException& e) {
+				std::string s = NosuchSnprintf("Exception in '%s' API - %s",method,e.message());
+				ret = jsonError(-32000,s,id);
+			} catch (...) {
+				// This doesn't seem to work - it doesn't seem to catch other exceptions...
+				std::string s = NosuchSnprintf("Other exception in '%s' API",method);
+				ret = jsonError(-32000,s,id);
+			}
 
 getout:
 			cJSON_Delete(request);
-
-			DEBUGPRINT1(("POST response: %s\n",ret.c_str()));
-			makeresult("application/json",ret,memblock,memsize);
 		} else {
-			httperror("Did not find jsonrpc input in POST!\n",memblock,memsize);
+			// httperror("Did not find jsonrpc input in POST!\n",memblock,memsize);
+			std::string s = NosuchSnprintf("Unable to parse JSON data in POST!");
+			ret = jsonError(-32000,s,"12345");
 		}
+		DEBUGPRINT1(("POST response: %s\n",ret.c_str()));
+		makeresult("application/json",ret,memblock,memsize);
 	} else {
 		httperror("Did not find GET or POST in header?\n",memblock,memsize);
 	}

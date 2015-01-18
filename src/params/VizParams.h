@@ -5,6 +5,9 @@
 #include <map>
 #include "NosuchException.h"
 
+std::string JsonAllValues();
+std::string JsonAllTypes();
+
 #define IntString(x) NosuchSnprintf("%d",x)
 #define DoubleString(x) NosuchSnprintf("%f",x)
 #define BoolString(x) NosuchSnprintf("%s",x?"on":"off")
@@ -122,6 +125,11 @@ public:
 		rotangdirTypes.push_back("random");
 	}
 
+	virtual std::string GetAsString(std::string) = 0;
+	virtual std::string GetType(std::string) = 0;
+	virtual std::string MinValue(std::string) = 0;
+	virtual std::string MaxValue(std::string) = 0;
+
 	double adjust(double v, double amount, double vmin, double vmax) {
 		v += amount*(vmax-vmin);
 		if ( v < vmin )
@@ -178,15 +186,31 @@ public:
 		}
 		return vals[i];
 	}
-	virtual std::string GetAsString(std::string) = 0;
-	std::string JsonList(char* names[], std::string pre, std::string indent, std::string post) {
-		std::string s = pre;
-		std::string sep = indent;
+	std::string _JsonListOfValues(char* names[]) {
+		std::string s = "{";
+		std::string sep = "";
 		for ( char** nm=names; *nm; nm++ ) {
 			s += (sep + "\"" + *nm + "\": \"" + GetAsString(*nm) + "\"");
-			sep = ",\n"+indent;
+			sep = ",";
 		}
-		s += post;
+		s += "}";
+		return s;
+	}
+	std::string _JsonListOfTypes(char* names[]) {
+
+		std::string s = "{ ";
+		std::string sep = "";
+		int n = 0;
+		for ( char** pnm=names; *pnm; pnm++ ) {
+			char* nm = *pnm;
+			std::string t = GetType(nm);
+			std::string mn = MinValue(nm);
+			std::string mx = MaxValue(nm);
+			s += (sep + "\"" + nm + "\": ");
+			s += "{ \"type\": \"" + t + "\", \"min\": \"" + mn + "\", \"max\": \"" + mx + "\" }";
+			sep = ",";
+		}
+		s += "}";
 		return s;
 	}
 };

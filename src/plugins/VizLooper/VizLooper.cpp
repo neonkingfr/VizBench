@@ -55,7 +55,6 @@ VizLooper::VizLooper() : Vizlet() {
 	_midiparams->gravity.set(false);
 	_midiparams->mass.set(0.01);
 #endif
-
 	_spriteparams = "default";
 	_midiparams = getAllVizParams(_spriteparams);
 }

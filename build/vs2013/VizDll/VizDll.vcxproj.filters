@@ -64,6 +64,9 @@
     <Filter Include="Header Files\Viz">
       <UniqueIdentifier>{f51641a9-67c2-4f8f-9edd-126d0d21b647}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\params">
+      <UniqueIdentifier>{39fc717c-b954-4a05-9c2a-7f7e5b39944f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -260,5 +263,19 @@
     <ClCompile Include="..\..\..\src\Viz\VizServer.cpp">
       <Filter>Source Files\Viz</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\params\VizParams.cpp">
+      <Filter>Source Files\params</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\params\AllVizParams.cpp">
+      <Filter>Source Files\params</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\bin\genparams.py">
+      <Filter>Source Files\params</Filter>
+    </Text>
+    <Text Include="..\..\..\src\params\AllVizParams.list">
+      <Filter>Source Files\params</Filter>
+    </Text>
   </ItemGroup>
 </Project>

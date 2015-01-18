@@ -6,7 +6,6 @@ import sys
 import os
 import re
 
-param_file_types = {"declare","get","increment","init","list","set","toggle"}
 types={"bool":"BOOL","int":"INT","double":"DBL","string":"STR"}
 realtypes={"bool":"bool","int":"int","double":"double","string":"std::string"}
 paramtypes={"bool":"BoolParam","int":"IntParam","double":"DoubleParam","string":"StringParam"}
@@ -18,28 +17,32 @@ def readparams(listfile):
 		print(sys.stderr,"Unable to open "+listfile)
 		sys.exit(1)
 
-	params = {}
 
 	lines = f.readlines()
 
+	params = []
 	for ln in lines:
 		if len(ln) > 0 and ln[0] == '#':
 			continue
 		vals = ln.split(None,5)
-
 		(name,typ,mn,mx,init,comment) = vals
+		params.append(
+			{ "name": name, "type": typ, "min": mn, "max": mx, "init": init, "comment": comment }
+			)
 
-		params[name] = {}
-		params[name]["type"] = typ
-		params[name]["min"] = mn
-		params[name]["max"] = mx
-		params[name]["init"] = init
-		params[name]["comment"] = comment
-
+	params = sorted(params, key=lambda dct: dct['name'])
 	return params
 
 def writeln(line):
 	sys.stdout.write(line+"\n")
+
+def write(line):
+	sys.stdout.write(line)
+
+def genparamcpp(paramclass):
+	writeln("#include \"VizParams.h\"")
+	writeln("#include \""+paramclass+".h\"")
+	writeln("char* "+paramclass+"Names[] = { "+paramclass+"Names_INIT };")
 
 def genparamheader(params,classname):
 
@@ -54,6 +57,20 @@ def genparamheader(params,classname):
 	writeln("#include \"VizParams.h\"")
 	writeln("#include \"NosuchJSON.h\"")
 
+	writeln("")
+	### Generate a declaration for the array of parameter names.
+	### The actual storage for it needs to be declared in a non-header file.
+	writeln("extern char* "+paramnames+"[];")
+	writeln("")
+
+	### Generate a macro which is all the parameter names, used to initialize that array
+	writeln("#define "+paramnames+"_INIT \\")
+	for p in params:
+		name = p["name"]
+		writeln(tab+"\"%s\",\\"%(name))
+	writeln(tab+"NULL")
+	writeln("")
+
 	### Start the class
 	writeln("class "+classname+" : public VizParams {")
 	writeln("public:")
@@ -67,11 +84,15 @@ def genparamheader(params,classname):
 	writeln(tab2+"}")
 	writeln(tab+"}")
 
+	writeln(tab+"std::string JsonListOfValues() { return _JsonListOfValues("+paramnames+"); }");
+	writeln(tab+"std::string JsonListOfTypes() { return _JsonListOfTypes("+paramnames+"); }");
+
 	### Generate the method that loads JSON
 	writeln(tab+"void loadJson(cJSON* json) {")
 	writeln(tab2+"cJSON* j;")
-	for name in params:
-		typ = params[name]["type"]
+	for p in params:
+		name = p["name"]
+		typ = p["type"]
 		writeln(tab2+"j = cJSON_GetObjectItem(json,\""+name+"\");")
 		if typ == "double":
 			writeln(tab2+"if (j) { "+name+".set(j->valuedouble); }")
@@ -85,37 +106,30 @@ def genparamheader(params,classname):
 
 	### Generate the method that loads default values
 	writeln(tab+"void loadDefaults() {")
-	for name in params:
-		typ = params[name]["type"]
-		defaultvalue = params[name]["init"]
+	for p in params:
+		name = p["name"]
+		typ = p["type"]
+		defaultvalue = p["init"]
 		writeln(tab2+name+".set("+defaultvalue+");")
 	writeln(tab+"}")
 
 	### Generate the method that applies one params to another
 	writeln(tab+"void applyVizParamsFrom("+classname+"* p) {")
 	writeln(tab2+"if ( ! p ) { return; }");
-	for name in params:
-		typ = params[name]["type"]
+	for p in params:
+		name = p["name"]
+		typ = p["type"]
 		writeln(tab2+"if ( p->"+name+".isset() ) { this->"+name+".set(p->"+name+".get()); }");
-	writeln(tab+"}")
-
-	### Generate the method that generates a JSON string
-	writeln(tab+"std::string JsonString(std::string pre, std::string indent, std::string post) {")
-	writeln(tab2+"char* names[] = {")
-	for name in params:
-		writeln(tab3+"\"%s\","%(name))
-	writeln(tab3+"NULL")
-	writeln(tab3+"};")
-	writeln(tab2+"return JsonList(names,pre,indent,post);")
 	writeln(tab+"}")
 
 	### Generate the Set method
 	writeln(tab+"void Set(std::string nm, std::string val) {")
 	writeln(tab2+"bool stringval = false;")
 	estr = ""
-	for name in params:
+	for p in params:
+		name = p["name"]
 		writeln(tab2+estr+"if ( nm == \""+name+"\" ) {")
-		typ = params[name]["type"]
+		typ = p["type"]
 		if typ == "double":
 			writeln(tab3+name+".set(string2double(val));")
 		elif typ == "int":
@@ -136,22 +150,20 @@ def genparamheader(params,classname):
 	### Generate the Increment method
 	writeln(tab+"void Increment(std::string nm, double amount) {")
 	estr = ""
-	for name in params:
-		typ = params[name]["type"]
-		mn = params[name]["min"]
-		mx = params[name]["max"]
+	for p in params:
+		name = p["name"]
+		typ = p["type"]
+		mn = p["min"]
+		mx = p["max"]
+		writeln(tab2+estr+"if ( nm == \""+name+"\" ) {")
 		if typ == "double":
-			writeln(tab2+estr+"if ( nm == \""+name+"\" ) {")
 			writeln(tab3+name+".set(adjust("+name+".get(),amount,"+mn+","+mx+"));")
 		elif typ == "int":
-			writeln(tab2+estr+"if ( nm == \""+name+"\" ) { ")
 			writeln(tab3+name+".set(adjust("+name+".get(),amount,"+mn+","+mx+"));")
 		elif typ == "bool":
-			writeln(tab2+estr+"if ( nm == \""+name+"\" ) { ")
 			writeln(tab3+name+".set(adjust("+name+".get(),amount));")
 		elif typ == "string":
-			writeln(tab2+estr+"if ( nm == \""+name+"\" ) { ")
-			vals = params[name]["min"]
+			vals = p["min"]
 			if vals == "*":
 				writeln(tab3+"// '*' means the value can be anything");
 			else:
@@ -161,12 +173,53 @@ def genparamheader(params,classname):
 	writeln("")
 	writeln(tab+"}")
 
+	### Generate the MinValue method
+	writeln(tab+"std::string MinValue(std::string nm) {")
+	estr = ""
+	for p in params:
+		name = p["name"]
+		typ = p["type"]
+		mn = p["min"]
+		write(tab2+estr+"if ( nm == \""+name+"\" ) { ")
+		if typ == "double":
+			write("return \""+mn+"\";");
+		elif typ == "int":
+			write("return \""+mn+"\";");
+		elif typ == "bool":
+			write("return \"false\";");
+		elif typ == "string":
+			write("return \""+mn+"\";");
+		writeln(" }");
+	writeln(tab2+"return \"\";");
+	writeln(tab+"}")
+
+	### Generate the MaxValue method
+	writeln(tab+"std::string MaxValue(std::string nm) {")
+	estr = ""
+	for p in params:
+		name = p["name"]
+		typ = p["type"]
+		mx = p["max"]
+		write(tab2+estr+"if ( nm == \""+name+"\" ) { ")
+		if typ == "double":
+			write("return \""+mx+"\";");
+		elif typ == "int":
+			write("return \""+mx+"\";");
+		elif typ == "bool":
+			write("return \"true\";");
+		elif typ == "string":
+			write("return \""+mx+"\";");
+		writeln(" }");
+	writeln(tab2+"return \"\";");
+	writeln(tab+"}")
+
 	### Generate the Toggle method
 	writeln(tab+"void Toggle(std::string nm) {")
 	writeln(tab2+"bool stringval = false;")
 	estr = ""
-	for name in params:
-		typ = params[name]["type"]
+	for p in params:
+		name = p["name"]
+		typ = p["type"]
 		if typ == "bool":
 			writeln(tab2+estr+"if ( nm == \""+name+"\" ) {")
 			writeln(tab3+name+".set( ! "+name+".get());")
@@ -177,29 +230,37 @@ def genparamheader(params,classname):
 	### Generate the Get method
 	writeln(tab+"std::string GetAsString(std::string nm) {")
 	estr = ""
-	for name in params:
-		typ = params[name]["type"]
+	for p in params:
+		name = p["name"]
+		typ = p["type"]
+		writeln(tab2+estr+"if ( nm == \""+name+"\" ) {")
 		if typ == "double":
-			writeln(tab2+estr+"if ( nm == \""+name+"\" ) {")
 			writeln(tab3+"return DoubleString("+name+".get());")
 		elif typ == "int":
-			writeln(tab2+estr+"if ( nm == \""+name+"\" ) { ")
 			writeln(tab3+"return IntString("+name+".get());")
 		elif typ == "bool":
-			writeln(tab2+estr+"if ( nm == \""+name+"\" ) { ")
 			writeln(tab3+"return BoolString("+name+".get());")
 		elif typ == "string":
-			writeln(tab2+estr+"if ( nm == \""+name+"\" ) { ")
 			writeln(tab3+"return "+name+".get();")
 		estr = "} else "
 	writeln(tab2+"}")
 	writeln(tab2+"return \"\";")
 	writeln(tab+"}")
 
+	### Generate the GetType method
+	writeln(tab+"std::string GetType(std::string nm) {")
+	for p in params:
+		name = p["name"]
+		typ = p["type"]
+		writeln(tab2+"if ( nm == \""+name+"\" ) { return \""+typ+"\"; }")
+	writeln(tab2+"return \"\";")
+	writeln(tab+"}")
+
 	### Generate the member declarations
 	writeln("")
-	for name in params:
-		typ = params[name]["type"]
+	for p in params:
+		name = p["name"]
+		typ = p["type"]
 		paramtype = paramtypes[typ]
 		writeln(tab+paramtype+" "+name+";")
 
@@ -233,6 +294,7 @@ parambase = sys.argv[1]
 paramclass = parambase+"VizParams"
 paramlist = parambase+"VizParams.list"
 paramtouch = parambase+"VizParams.touch"
+paramnames = parambase+"VizParamsNames"
 
 changed = (modtime(paramlist) > modtime(paramtouch) )
 changed = True
@@ -246,6 +308,12 @@ f = open(file,"w")
 sys.stdout = f
 params = readparams(paramlist)
 genparamheader(params,paramclass)
+f.close()
+
+file = parambase + "VizParams.cpp"
+f = open(file,"w")
+sys.stdout = f
+genparamcpp(paramclass)
 f.close()
 
 def touch(file):

@@ -90,7 +90,7 @@
       <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Lib>
     <PreBuildEvent>
-	    <Command>cd ../../../bin
+      <Command>cd ../../../bin
 python genparams.py All</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -191,6 +191,7 @@ python genparams.py All</Command>
     <ClCompile Include="..\..\..\src\palette\Region.cpp" />
     <ClCompile Include="..\..\..\src\palette\Scale.cpp" />
     <ClCompile Include="..\..\..\src\palette\Sound.cpp" />
+    <ClCompile Include="..\..\..\src\params\AllVizParams.cpp" />
     <ClCompile Include="..\..\..\src\params\VizParams.cpp" />
     <ClCompile Include="..\..\..\src\vizlet\VizSprite.cpp" />
     <ClCompile Include="..\..\..\src\vizlet\Vizlet.cpp" />
