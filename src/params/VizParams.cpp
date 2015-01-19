@@ -3,13 +3,6 @@
 #include "VizParams.h"
 #include "AllVizParams.h"
 
-// std::string JsonAllValues(AllVizParams* params) {
-// 	return params->JsonListOfValues(AllVizParamNames);
-// }
-// std::string JsonAllTypes(AllVizParams* params);
-// 	return params->JsonListOfTypes(AllVizParamNames);
-// }
-
 bool VizParams::Initialized = false;
 
 std::vector<std::string> VizParams::mirrorTypes;

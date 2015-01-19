@@ -129,6 +129,7 @@ public:
 	virtual std::string GetType(std::string) = 0;
 	virtual std::string MinValue(std::string) = 0;
 	virtual std::string MaxValue(std::string) = 0;
+	virtual std::string DefaultValue(std::string) = 0;
 
 	double adjust(double v, double amount, double vmin, double vmax) {
 		v += amount*(vmax-vmin);
@@ -196,7 +197,7 @@ public:
 		s += "}";
 		return s;
 	}
-	std::string _JsonListOfTypes(char* names[]) {
+	std::string _JsonListOfParams(char* names[]) {
 
 		std::string s = "{ ";
 		std::string sep = "";
@@ -206,8 +207,9 @@ public:
 			std::string t = GetType(nm);
 			std::string mn = MinValue(nm);
 			std::string mx = MaxValue(nm);
+			std::string dflt = DefaultValue(nm);
 			s += (sep + "\"" + nm + "\": ");
-			s += "{ \"type\": \"" + t + "\", \"min\": \"" + mn + "\", \"max\": \"" + mx + "\" }";
+			s += "{ \"type\": \"" + t + "\", \"min\": \"" + mn + "\", \"max\": \"" + mx + "\", \"default\": \"" + dflt + "\" }";
 			sep = ",";
 		}
 		s += "}";

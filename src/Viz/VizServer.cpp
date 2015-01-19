@@ -288,14 +288,6 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 		const char *p = ss->VizTags();
 		return jsonStringResult(std::string(p),id);
 	}
-	if ( fullmethod == "vizparamvals" ) {
-		std::string s = allparams->JsonListOfValues();
-		return jsonStringResult(s,id);
-	}
-	if ( fullmethod == "vizparamtypes" ) {
-		std::string s = allparams->JsonListOfTypes();
-		return jsonStringResult(s,id);
-	}
 #if 0
 	{ static _CrtMemState s1, s2, s3;
 
@@ -339,7 +331,15 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 			ss->ClearNotesDown();
 			return jsonOK(id);
 		}
-		if (api == "read_paramfile") {
+		if ( api == "param_vals" ) {
+			std::string s = allparams->JsonListOfValues();
+			return jsonStringResult(s,id);
+		}
+		if ( api == "param_list" ) {
+			std::string s = allparams->JsonListOfParams();
+			return jsonStringResult(s,id);
+		}
+		if (api == "param_readfile") {
 			std::string file = jsonNeedString(params, "file", "");
 			if (file != "") {
 				if (!ends_with(file, ".json")) {
@@ -356,21 +356,28 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 				std::string r = cJSON_PrintUnformatted(json);
 				return jsonStringResult(r, id);
 			} else {
-				return jsonError(-32000,"No file parameter specified on read_paramfile?",id);
+				return jsonError(-32000,"No file parameter specified on param_readfile?",id);
 			}
 		}
-		if (api == "write_paramfile") {
+		if (api == "param_writefile") {
 			std::string file = jsonNeedString(params, "file", "");
 			if (file == "") {
-				return jsonError(-32000,"No file parameter specified on read_paramfile?",id);
+				return jsonError(-32000,"No file parameter specified on param_readfile?",id);
 			}
 			if (!ends_with(file, ".json")) {
 				file = file + ".json";
 			}
 			cJSON* j = jsonNeedJSON(params, "contents");
 			std::string fpath = NosuchConfigPath("params/" + file);
-			// DEBUGPRINT(("contents = %s", cJSON_PrintUnformatted(j)));
-			return jsonOK(id);
+			DEBUGPRINT(("contents = %s", cJSON_PrintUnformatted(j)));
+			std::string err;
+			if (jsonWriteFile(fpath, j, err)) {
+				return jsonOK(id);
+			} else {
+				std::string msg = NosuchSnprintf("Unable to write file %s, err=%s",
+					fpath.c_str(), err.c_str());
+				return jsonError(-32000,msg.c_str(),id);
+			}
 		}
 		if ( api == "play_midifile" ) {
 			std::string filename = ss->_getMidiFile();

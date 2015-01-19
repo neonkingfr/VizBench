@@ -82,7 +82,7 @@ public:
 		}
 	}
 	std::string JsonListOfValues() { return _JsonListOfValues(AllVizParamsNames); }
-	std::string JsonListOfTypes() { return _JsonListOfTypes(AllVizParamsNames); }
+	std::string JsonListOfParams() { return _JsonListOfParams(AllVizParamsNames); }
 	void loadJson(cJSON* json) {
 		cJSON* j;
 		j = cJSON_GetObjectItem(json,"alphafinal");
@@ -264,7 +264,7 @@ public:
 		sizeinitial.set(1.0);
 		sizetime.set(1.0);
 		sound.set("Dummy");
-		speedinitial.set(0.0f);
+		speedinitial.set(0.0);
 		thickness.set(3.0);
 		timefret1q.set(1.0);
 		timefret1y.set(0.3);
@@ -619,6 +619,73 @@ public:
 			zcontroller.set(adjust(zcontroller.get(),amount,1,127));
 		}
 
+	}
+	std::string DefaultValue(std::string nm) {
+		if ( nm == "alphafinal" ) { return "0.0"; }
+		if ( nm == "alphainitial" ) { return "0.2"; }
+		if ( nm == "alphatime" ) { return "2.0"; }
+		if ( nm == "arpeggio" ) { return "false"; }
+		if ( nm == "aspect" ) { return "1.0"; }
+		if ( nm == "bounce" ) { return "false"; }
+		if ( nm == "controllerchan" ) { return "1"; }
+		if ( nm == "controllerstyle" ) { return "modulationonly"; }
+		if ( nm == "controllerzmax" ) { return "0.3"; }
+		if ( nm == "controllerzmin" ) { return "0.05"; }
+		if ( nm == "doquantize" ) { return "true"; }
+		if ( nm == "filled" ) { return "true"; }
+		if ( nm == "fullrange" ) { return "false"; }
+		if ( nm == "gravity" ) { return "false"; }
+		if ( nm == "huefillfinal" ) { return "0.0"; }
+		if ( nm == "huefillinitial" ) { return "360.0"; }
+		if ( nm == "huefilltime" ) { return "5.0"; }
+		if ( nm == "huefinal" ) { return "360.0"; }
+		if ( nm == "hueinitial" ) { return "0.0"; }
+		if ( nm == "huetime" ) { return "5.0"; }
+		if ( nm == "hvpos" ) { return "0.5"; }
+		if ( nm == "lifetime" ) { return "5.0"; }
+		if ( nm == "luminance" ) { return "0.5"; }
+		if ( nm == "mass" ) { return "0.5"; }
+		if ( nm == "minmove" ) { return "0.025"; }
+		if ( nm == "minmovedepth" ) { return "0.025"; }
+		if ( nm == "mirror" ) { return "none"; }
+		if ( nm == "movedir" ) { return "0.0"; }
+		if ( nm == "movedirrandom" ) { return "false"; }
+		if ( nm == "movefollowcursor" ) { return "false"; }
+		if ( nm == "noisevertex" ) { return "0.0"; }
+		if ( nm == "noteonlogic" ) { return "none"; }
+		if ( nm == "nsprites" ) { return "1000"; }
+		if ( nm == "pitchfactor" ) { return "1.0"; }
+		if ( nm == "pitchmax" ) { return "80"; }
+		if ( nm == "pitchmin" ) { return "33"; }
+		if ( nm == "pitchoffset" ) { return "33"; }
+		if ( nm == "quantfactor" ) { return "1.0"; }
+		if ( nm == "quantfixed" ) { return "false"; }
+		if ( nm == "rotanginit" ) { return "0.0"; }
+		if ( nm == "rotangspeed" ) { return "0.0"; }
+		if ( nm == "rotauto" ) { return "true"; }
+		if ( nm == "rotdirrandom" ) { return "false"; }
+		if ( nm == "saturation" ) { return "1.0"; }
+		if ( nm == "shape" ) { return "circle"; }
+		if ( nm == "sizefinal" ) { return "0.0"; }
+		if ( nm == "sizeinitial" ) { return "1.0"; }
+		if ( nm == "sizetime" ) { return "1.0"; }
+		if ( nm == "sound" ) { return "Dummy"; }
+		if ( nm == "speedinitial" ) { return "0.0"; }
+		if ( nm == "thickness" ) { return "3.0"; }
+		if ( nm == "timefret1q" ) { return "1.0"; }
+		if ( nm == "timefret1y" ) { return "0.3"; }
+		if ( nm == "timefret2q" ) { return "0.5"; }
+		if ( nm == "timefret2y" ) { return "0.60"; }
+		if ( nm == "timefret3q" ) { return "0.25"; }
+		if ( nm == "timefret3y" ) { return "0.95"; }
+		if ( nm == "timefret4q" ) { return "0.125"; }
+		if ( nm == "timefret4y" ) { return "1.0"; }
+		if ( nm == "tonicchange" ) { return "30*1000"; }
+		if ( nm == "xcontroller" ) { return "3"; }
+		if ( nm == "ycontroller" ) { return "2"; }
+		if ( nm == "zable" ) { return "true"; }
+		if ( nm == "zcontroller" ) { return "1"; }
+		return "";
 	}
 	std::string MinValue(std::string nm) {
 		if ( nm == "alphafinal" ) { return "0.0"; }

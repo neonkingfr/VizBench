@@ -25,9 +25,9 @@ def readparams(listfile):
 		if len(ln) > 0 and ln[0] == '#':
 			continue
 		vals = ln.split(None,5)
-		(name,typ,mn,mx,init,comment) = vals
+		(name,typ,mn,mx,default,comment) = vals
 		params.append(
-			{ "name": name, "type": typ, "min": mn, "max": mx, "init": init, "comment": comment }
+			{ "name": name, "type": typ, "min": mn, "max": mx, "default": default, "comment": comment }
 			)
 
 	params = sorted(params, key=lambda dct: dct['name'])
@@ -85,7 +85,7 @@ def genparamheader(params,classname):
 	writeln(tab+"}")
 
 	writeln(tab+"std::string JsonListOfValues() { return _JsonListOfValues("+paramnames+"); }");
-	writeln(tab+"std::string JsonListOfTypes() { return _JsonListOfTypes("+paramnames+"); }");
+	writeln(tab+"std::string JsonListOfParams() { return _JsonListOfParams("+paramnames+"); }");
 
 	### Generate the method that loads JSON
 	writeln(tab+"void loadJson(cJSON* json) {")
@@ -109,7 +109,7 @@ def genparamheader(params,classname):
 	for p in params:
 		name = p["name"]
 		typ = p["type"]
-		defaultvalue = p["init"]
+		defaultvalue = p["default"]
 		writeln(tab2+name+".set("+defaultvalue+");")
 	writeln(tab+"}")
 
@@ -171,6 +171,19 @@ def genparamheader(params,classname):
 		estr = "} else "
 	writeln(tab2+"}")
 	writeln("")
+	writeln(tab+"}")
+
+	### Generate the DefaultValue method
+	writeln(tab+"std::string DefaultValue(std::string nm) {")
+	estr = ""
+	for p in params:
+		name = p["name"]
+		typ = p["type"]
+		default = p["default"]
+		if default[0] != "\"":
+			default = "\"" + default + "\""
+		writeln(tab2+estr+"if ( nm == \""+name+"\" ) { return "+default+"; }");
+	writeln(tab2+"return \"\";");
 	writeln(tab+"}")
 
 	### Generate the MinValue method
