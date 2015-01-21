@@ -1,6 +1,8 @@
 #ifndef _VizLooper_H
 #define _VizLooper_H
 
+#include <ctime>
+
 class VizLooper : public Vizlet
 {
 public:
@@ -20,7 +22,10 @@ private:
 
 	void _midiVizSprite(MidiMsg* m);
 	AllVizParams* _midiparams;
-	std::string _spriteparams;
+	std::string _spriteparamspath;
+	bool _autoloadparams;
+	std::time_t _lastfileupdate;
+	std::time_t _lastfilecheck;
 
 	int _midiin;
 	int _midiout;

@@ -24,7 +24,7 @@ VizPalette::VizPalette() : Vizlet() {
 
 	for ( int ch=0; ch<16; ch++ ) {
 		// _midiparams[ch] = new AllVizParams(true);
-		_midiparams[ch] = getAllVizParams("oozingcolor2_1");
+		_midiparams[ch] = getAllVizParams(VizParamPath("oozingcolor2_1"));
 	}
 }
 

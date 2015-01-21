@@ -93,9 +93,10 @@ std::string VizMidi::processJson(std::string meth, cJSON *json, const char *id) 
 		if (file == "") {
 			return jsonError(-32000, "Bad file value", id);
 		}
-		AllVizParams* p = getAllVizParams(file);
+		std::string path = VizParamPath(file);
+		AllVizParams* p = getAllVizParams(path);
 		if (p) {
-			_spriteparams = file;
+			_spriteparams = path;
 			_midiparams = p;
 		}
 		return jsonOK(id);

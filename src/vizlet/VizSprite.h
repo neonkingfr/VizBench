@@ -37,7 +37,7 @@ public:
 		// direction = 0.0;
 		hue = 0.0f;
 		huefill = 0.0f;
-		pos = NosuchPos(0.0f,0.0f,0.0f);
+		pos = NosuchPos(0.0f, 0.0f, 0.0f);
 		size = 0.5;
 		alpha = 1.0;
 
@@ -79,13 +79,13 @@ public:
 	void* handle;
 	bool rotclockwise;
 
-	double getSpeed() { return sqrt(speedX*speedX+speedY*speedY); }
+	double getSpeed() { return sqrt(speedX*speedX + speedY*speedY); }
 };
 
 static double Grav = 1.0e-5;
 
 class VizSprite {
-	
+
 public:
 
 	VizSprite(AllVizParams* sp);
@@ -106,7 +106,7 @@ public:
 	}
 
 	void draw(NosuchGraphics* graphics);
-	void drawAt(NosuchGraphics* app, double x,double y, double w, double h, int xdir, int ydir);
+	void drawAt(NosuchGraphics* app, double x, double y, double w, double h, int xdir, int ydir);
 	NosuchPos deltaInDirection(double dt, double dir, double speed);
 	void advanceTo(int tm);
 
@@ -114,7 +114,7 @@ public:
 	virtual void startAccumulate(Cursor* c) { };
 	virtual void accumulate(Cursor* c) { }
 #endif
-	
+
 	AllVizParams* params;
 	VizSpriteState state;
 	b2Body* body;
@@ -192,6 +192,13 @@ private:
 	double noise_y0;
 	double noise_x1;
 	double noise_y1;
+};
+
+class VizSpriteNothing : public VizSprite {
+
+public:
+	VizSpriteNothing(AllVizParams* sp);
+	void drawShape(NosuchGraphics* app, int xdir, int ydir);
 };
 
 #endif

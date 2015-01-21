@@ -22,26 +22,49 @@
 <script type="text/javascript">
 
 ParamList = null;
+StringVals = {};
+
+function updateonevalue(name,value) {
+	var obj = ParamList[name];
+	var type = obj["type"];
+	var valueid = dojo.byId("value_"+name);
+	if ( valueid ) {
+		valueid.value = value;
+	}
+	if ( type == "double" || type == "int" ) {
+		var rangeid = dojo.byId("range_"+name);
+		if ( rangeid ) {
+			rangeid.value = value;
+		}
+	} else if ( type == "bool" ) {
+	} else if ( type == "string" ) {
+	}
+}
 
 function readfile() {
 	var paramfilename = dojo.byId("paramfilename");
 	var filename = paramfilename.value;
-	var api = doapi('VizServer.param_readfile','{ "file":"'+filename+'" }');
 	var status = dojo.byId("status");
+	if ( filename == "" ) {
+		status.innerHTML = "No Filename set, can't Load!"
+		return;
+	}
+	var api = doapi('VizServer.param_readfile','{ "file":"'+filename+'" }');
 	if ( api.result == "" ) {
 		status.innerHTML = "error="+api.error;
 	} else {
 		var j = JSON.parse(api.result);
 		if ( j ) {
 			for ( var name in j ) {
-				var valueid = dojo.byId("value_"+name);
-				if ( valueid ) {
-					valueid.value = j[name];
+				var value = j[name];
+				// Make sure it's a valid value, if a string
+				var type = ParamList[name]["type"];
+				if ( type=="string" && stringvalindex(name,value) < 0 ) {
+					// default to first value
+					alert("Invalid value \""+value+"\" for \""+name+"\" is being changed to \""+StringVals[name][0]+"\"");
+					value = StringVals[name][0];
 				}
-				var rangeid = dojo.byId("range_"+name);
-				if ( rangeid ) {
-					rangeid.value = j[name];
-				}
+				updateonevalue(name,value);
 			}
 			status.innerHTML = "OK";
 		} else {
@@ -58,17 +81,7 @@ function loaddefaults() {
 		return;
 	}
 	for ( var name in ParamList ) {
-		var obj = ParamList[name];
-		var type = obj["type"];
-		var dflt = obj["default"];
-		var valueid = dojo.byId("value_"+name);
-		if ( valueid ) {
-			valueid.value = dflt;
-		}
-		var rangeid = dojo.byId("range_"+name);
-		if ( rangeid ) {
-			rangeid.value = dflt;
-		}
+		updateonevalue(name,ParamList[name]["default"]);
 	}
 	status.innerHTML = "OK";
 }
@@ -85,7 +98,9 @@ function writefile() {
 	contents += " }";
 	var api = doapi('VizServer.param_writefile','{ "file":"'+paramfilename.value+'", "contents":'+contents+' }');
 	var status = dojo.byId("status");
-	if ( api.result == "" ) {
+	if ( paramfilename.value == "" ) {
+		status.innerHTML = "No Filename set, can't Save!"
+	} else if ( api.result == "" ) {
 		status.innerHTML = "File "+paramfilename.value+" has been updated";
 	} else {
 		status.innerHTML = api.error;
@@ -108,6 +123,48 @@ function browsefile() {
 	paramfile.click();
 }
 
+function togglebool(name) {
+	var valueid = dojo.byId("value_"+name);
+	if ( valueid.value == "true" || valueid.value == "True" || valueid.value == "1") {
+		valueid.value = "false";
+	} else {
+		valueid.value = "true";
+	}
+}
+
+function stringvalindex(name,val) {
+	var valarray = StringVals[name];
+	for ( var i=0; i<valarray.length; i++ ) {
+		if ( val == valarray[i] ) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+function nextvalue(name,increment) {
+	var valueid = dojo.byId("value_"+name);
+	var curr = valueid.value;
+	var valarray = StringVals[name];
+	var i = stringvalindex(name,curr);
+	if ( i<0 || i >= valarray.length ) {
+		// not found
+		curr = valarray[0];
+	} else {
+		i += increment;
+		if ( i < 0 ) {
+			i = valarray.length - 1;
+		} else if ( i >= valarray.length ) {
+			i = 0;
+		}
+		curr = valarray[i];
+	}
+	valueid.value = curr;
+	if ( autosave.checked ) {
+		writefile()
+	}
+}
+
 function changeval(name) {
 	var valueid = dojo.byId("value_"+name);
 	var rangeid = dojo.byId("range_"+name);
@@ -116,6 +173,20 @@ function changeval(name) {
 
 function updateval(name) {
 	changeval(name);
+
+	var autosave = dojo.byId("autosave");
+	var paramfilename = dojo.byId("paramfilename");
+	if ( autosave.checked && paramfilename.value != "" ) {
+		writefile()
+	}
+}
+
+// updateval2 propagate changes from value_ to range_ rather
+// than range_ to value_
+function updateval2(name) {
+	var valueid = dojo.byId("value_"+name);
+	var rangeid = dojo.byId("range_"+name);
+	rangeid.value = valueid.value;
 
 	var autosave = dojo.byId("autosave");
 	var paramfilename = dojo.byId("paramfilename");
@@ -138,6 +209,7 @@ function setup() {
 		instancenum = port - 4439;
 	}
 	title.innerHTML = "<h2>Params Editor</h2>"
+	title.innerHTML += "<a href=index.html>Viz Control</a>";
 
 	var html = "";
 
@@ -154,7 +226,7 @@ function setup() {
 	html += "&nbsp;&nbsp;";
 	html += "<input type=\"button\" style=\"width:100px\" value=\"Save\" onClick=\"writefile();\">";
 	html += "&nbsp;&nbsp;";
-	html += "AutoSave<input type=\"checkbox\" id=\"autosave\" value=\"AutoSave\" >";
+	html += "AutoSave<input type=\"checkbox\" checked=\"checked\" id=\"autosave\" value=\"AutoSave\" >";
 	html += "<p>";
 
 	var api = doapi('VizServer.param_list');
@@ -178,13 +250,15 @@ function setup() {
 			var type = obj["type"];
 			var mn = obj["min"];
 			var mx = obj["max"];
-			var stepsize = (mx-mn)/20.0;
+			var stepsize = (mx-mn)/200.0;
 
 			html += "<td>"+name+"</td>";
 			var valueid = "value_"+name;
 			if ( type == "int" || type == "double" ) {
-				html += "<td><input id=\""+valueid+"\" type=\"number\" min=\""+mn+"\" max=\""+mx+"\" ></td>";
-			} else {
+				html += "<td><input id=\""+valueid+"\" type=\"number\" min=\""+mn+"\" max=\""+mx+"\" onchange=\"updateval2('"+name+"');\" ></td>";
+			} else if (type == "bool" ) {
+				html += "<td><input id=\""+valueid+"\" type=\"text\" ></td>";
+			} else if ( type == "string" ) {
 				html += "<td><input id=\""+valueid+"\" type=\"text\" ></td>";
 			}
 			// html += "<td>"+mn+"</td><td>"+mx+"</td>";
@@ -196,8 +270,27 @@ function setup() {
 			} else if ( type == "double" ) {
 				html += "<input id=\""+rangeid+"\" type=\"range\" min=\""+mn+"\" max=\""+mx+"\" step=\""+stepsize+"\" oninput=\"changeval('"+name+"');\" onchange=\"updateval('"+name+"');\" >";
 			} else if ( type == "bool" ) {
-				html += "<input id=\""+rangeid+"\" type=\"range\" min=\"0\" max=\"1\" step=\"1\">";
+				html += "&nbsp;&nbsp;";
+				html += "<button onclick=\"togglebool('"+name+"');\" >Toggle</button>";
 			} else if ( type == "string" ) {
+				// For strings, the min/max values convey
+				// the string values type.
+				var valstype = mn;
+				var a = doapi('VizServer.param_stringvals','{ "type":"'+valstype+'" }');
+				if ( a.result != "" ) {
+					var j = JSON.parse(a.result);
+					if ( !j ) {
+						alert("Unable to parse param_stringvals output? result="+a.result);
+					} else {
+						StringVals[name] = j;
+					}
+					html += "<button onclick=\"nextvalue('"+name+"',-1);\" >Prev</button>";
+					html += "&nbsp;&nbsp;";
+					html += "<button onclick=\"nextvalue('"+name+"',1);\" >Next</button>";
+				} else {
+					status.innerHTML = a.error;
+					html += "<b>Error in param_stringvals</b>";
+				}
 			}
 			html += "</td>";
 			html += "</tr>";

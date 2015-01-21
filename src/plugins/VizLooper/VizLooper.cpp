@@ -55,8 +55,10 @@ VizLooper::VizLooper() : Vizlet() {
 	_midiparams->gravity.set(false);
 	_midiparams->mass.set(0.01);
 #endif
-	_spriteparams = "default";
-	_midiparams = getAllVizParams(_spriteparams);
+	_spriteparamspath = VizParamPath("default");
+	_midiparams = getAllVizParams(_spriteparamspath);
+	_lastfileupdate = 0;
+	_lastfilecheck = 0;
 }
 
 VizLooper::~VizLooper() {
@@ -74,7 +76,7 @@ void VizLooper::processCursor(VizCursor* c, int downdragup) {
 std::string VizLooper::processJson(std::string meth, cJSON *json, const char *id) {
 	// NO OpenGL calls here
 	if (meth == "apis") {
-		return jsonStringResult("set_spriteparams(file)", id);
+		return jsonStringResult("set_spriteparams(file);set_autoloadparams(onoff)", id);
 	}
 
 	// PARAMETER "spriteparams"
@@ -83,10 +85,11 @@ std::string VizLooper::processJson(std::string meth, cJSON *json, const char *id
 		if (file == "") {
 			return jsonError(-32000, "Bad file value", id);
 		}
-		AllVizParams* p = getAllVizParams(file);
+		std::string path = VizParamPath(file);
+		AllVizParams* p = getAllVizParams(path);
 		if (p) {
-			_spriteparams = file;
-			_midiparams = getAllVizParams(_spriteparams);
+			_spriteparamspath = path;
+			_midiparams = p;
 			return jsonOK(id);
 		}
 		else {
@@ -94,7 +97,16 @@ std::string VizLooper::processJson(std::string meth, cJSON *json, const char *id
 		}
 	}
 	if (meth == "get_spriteparams") {
-		return jsonStringResult(_spriteparams, id);
+		return jsonStringResult(VizPath2ConfigName(_spriteparamspath), id);
+	}
+
+	// PARAMETER "autoloadparams"
+	if (meth == "set_autoloadparams") {
+		_autoloadparams = jsonNeedBool(json, "onoff", false);
+		return jsonOK(id);
+	}
+	if (meth == "get_autoloadparams") {
+		return jsonIntResult(_autoloadparams?1:0, id);
 	}
 
 	throw NosuchException("VizLooper - Unrecognized method '%s'", meth.c_str());
@@ -122,6 +134,13 @@ void VizLooper::processMidiOutput(MidiMsg* m) {
 
 bool VizLooper::processDraw() {
 	// OpenGL calls here
+	if (_autoloadparams) {
+		AllVizParams* p = checkAndLoadIfModifiedSince(_spriteparamspath,
+								_lastfilecheck, _lastfileupdate);
+		if (p) {
+			_midiparams = p;
+		}
+	}
 	DrawVizSprites();
 	return true;
 }

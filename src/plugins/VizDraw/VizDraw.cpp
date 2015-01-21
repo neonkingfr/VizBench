@@ -9,7 +9,7 @@
 #include "VizSprite.h"
 #include "VizServer.h"
 
-static CFFGLPluginInfo PluginInfo ( 
+static CFFGLPluginInfo PluginInfo(
 	VizDraw::CreateInstance,	// Create method
 	"V510",		// Plugin unique ID
 	"VizDraw",	// Plugin name	
@@ -20,7 +20,7 @@ static CFFGLPluginInfo PluginInfo (
 	FF_EFFECT,	// Plugin type
 	"VizDraw: a sample visual synth",	// description
 	"by Tim Thompson - me@timthompson.com" 			// About
-);
+	);
 
 std::string vizlet_name() { return "VizDraw"; }
 CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
@@ -35,11 +35,11 @@ VizDraw::~VizDraw() {
 
 DWORD __stdcall VizDraw::CreateInstance(CFreeFrameGLPlugin **ppInstance) {
 	*ppInstance = new VizDraw();
-	return (*ppInstance != NULL)? FF_SUCCESS : FF_FAIL;
+	return (*ppInstance != NULL) ? FF_SUCCESS : FF_FAIL;
 }
 
 void VizDraw::processKeystroke(int key, int downup) {
-	DEBUGPRINT(("VizDraw::processKeystroke!!  key=%d downup=%d",key,downup));
+	DEBUGPRINT(("VizDraw::processKeystroke!!  key=%d downup=%d", key, downup));
 }
 
 void VizDraw::processCursor(VizCursor* c, int downdragup) {
@@ -55,8 +55,8 @@ void VizDraw::processCursor(VizCursor* c, int downdragup) {
 #endif
 	VizSprite* s = makeAndAddVizSprite(_params, c->pos);
 	VizSpriteOutline* so = (VizSpriteOutline*)s;
-	if ( so != NULL && c->outline != NULL ) {
-		so->setOutline(c->outline,c->hdr);
+	if (so != NULL && c->outline != NULL) {
+		so->setOutline(c->outline, c->hdr);
 	}
 	// NO OpenGL calls here
 }
@@ -73,9 +73,10 @@ std::string VizDraw::processJson(std::string meth, cJSON *json, const char *id) 
 		if (file == "") {
 			return jsonError(-32000, "Bad file value", id);
 		}
-		AllVizParams* p = getAllVizParams(file);
+		std::string path = VizParamPath(file);
+		AllVizParams* p = getAllVizParams(path);
 		if (p) {
-			_spriteparams = file;
+			_spriteparams = path;
 			_params = p;
 		}
 		return jsonOK(id);
@@ -84,7 +85,7 @@ std::string VizDraw::processJson(std::string meth, cJSON *json, const char *id) 
 		return jsonStringResult(_spriteparams, id);
 	}
 
-	throw NosuchException("VizDraw - Unrecognized method '%s'",meth.c_str());
+	throw NosuchException("VizDraw - Unrecognized method '%s'", meth.c_str());
 }
 
 void VizDraw::processMidiInput(MidiMsg* m) {

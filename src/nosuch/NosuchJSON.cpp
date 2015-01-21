@@ -32,6 +32,12 @@
 #include <sstream>
 #include <fstream>
 
+bool
+jsonIsTrueValue(std::string s)
+{
+	return(s == "true" || s == "True" || s == "1");
+}
+
 std::string jsonResult(std::string r, const char *id) {
 	// We assume r has already been escaped if necessary.
 	return NosuchSnprintf("{ \"jsonrpc\": \"2.0\", \"result\": %s, \"id\": \"%s\" }\r\n", r.c_str(), id);

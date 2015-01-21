@@ -15,6 +15,7 @@
 #include "VizSprite.h"
 #include "VizParams.h"
 #include "VizServer.h"
+#include <ctime>
 
 class Vizlet;
 class VizletHttpServer;
@@ -97,9 +98,11 @@ public:
 	void DrawVizSprites();
 	VizSpriteList* GetVizSpriteList() { return _spritelist; }
 	VizSprite* MakeVizSprite(AllVizParams* sp);
+	std::string VizParamPath(std::string configname);
+	std::string VizPath2ConfigName(std::string path);
 	AllVizParams* getAllVizParams(std::string path);
 	AllVizParams* findAllVizParams(std::string cachename);
-	void cacheAllVizParams(std::string name, AllVizParams* sp);
+	AllVizParams* checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, std::time_t& lastupdate);
 	VizSprite* defaultMidiVizSprite(MidiMsg* m);
 
 	AllVizParams* defaultParams() { return _defaultparams; }
@@ -226,6 +229,7 @@ private:
 	VizSpriteList* _spritelist;
 	AllVizParams* _defaultparams;
 	AllVizParams* _defaultmidiparams;
+	bool _useparamcache;
 	std::map<std::string, AllVizParams*> _paramcache;
 
 	void _drawnotes(std::list<MidiMsg*>& notes);

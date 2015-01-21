@@ -83,136 +83,137 @@ public:
 	}
 	std::string JsonListOfValues() { return _JsonListOfValues(AllVizParamsNames); }
 	std::string JsonListOfParams() { return _JsonListOfParams(AllVizParamsNames); }
+	std::string JsonListOfStringValues(std::string type) { return _JsonListOfStringValues(type); }
 	void loadJson(cJSON* json) {
 		cJSON* j;
 		j = cJSON_GetObjectItem(json,"alphafinal");
-		if (j) { alphafinal.set(j->valuedouble); }
+		if (j) { alphafinal.set(j); }
 		j = cJSON_GetObjectItem(json,"alphainitial");
-		if (j) { alphainitial.set(j->valuedouble); }
+		if (j) { alphainitial.set(j); }
 		j = cJSON_GetObjectItem(json,"alphatime");
-		if (j) { alphatime.set(j->valuedouble); }
+		if (j) { alphatime.set(j); }
 		j = cJSON_GetObjectItem(json,"arpeggio");
-		if (j) { arpeggio.set(j->valueint!=0); }
+		if (j) { arpeggio.set(j); }
 		j = cJSON_GetObjectItem(json,"aspect");
-		if (j) { aspect.set(j->valuedouble); }
+		if (j) { aspect.set(j); }
 		j = cJSON_GetObjectItem(json,"bounce");
-		if (j) { bounce.set(j->valueint!=0); }
+		if (j) { bounce.set(j); }
 		j = cJSON_GetObjectItem(json,"controllerchan");
-		if (j) { controllerchan.set(j->valueint); }
+		if (j) { controllerchan.set(j); }
 		j = cJSON_GetObjectItem(json,"controllerstyle");
-		if (j) { controllerstyle.set(j->valuestring); }
+		if (j) { controllerstyle.set(j); }
 		j = cJSON_GetObjectItem(json,"controllerzmax");
-		if (j) { controllerzmax.set(j->valuedouble); }
+		if (j) { controllerzmax.set(j); }
 		j = cJSON_GetObjectItem(json,"controllerzmin");
-		if (j) { controllerzmin.set(j->valuedouble); }
+		if (j) { controllerzmin.set(j); }
 		j = cJSON_GetObjectItem(json,"doquantize");
-		if (j) { doquantize.set(j->valueint!=0); }
+		if (j) { doquantize.set(j); }
 		j = cJSON_GetObjectItem(json,"filled");
-		if (j) { filled.set(j->valueint!=0); }
+		if (j) { filled.set(j); }
 		j = cJSON_GetObjectItem(json,"fullrange");
-		if (j) { fullrange.set(j->valueint!=0); }
+		if (j) { fullrange.set(j); }
 		j = cJSON_GetObjectItem(json,"gravity");
-		if (j) { gravity.set(j->valueint!=0); }
+		if (j) { gravity.set(j); }
 		j = cJSON_GetObjectItem(json,"huefillfinal");
-		if (j) { huefillfinal.set(j->valuedouble); }
+		if (j) { huefillfinal.set(j); }
 		j = cJSON_GetObjectItem(json,"huefillinitial");
-		if (j) { huefillinitial.set(j->valuedouble); }
+		if (j) { huefillinitial.set(j); }
 		j = cJSON_GetObjectItem(json,"huefilltime");
-		if (j) { huefilltime.set(j->valuedouble); }
+		if (j) { huefilltime.set(j); }
 		j = cJSON_GetObjectItem(json,"huefinal");
-		if (j) { huefinal.set(j->valuedouble); }
+		if (j) { huefinal.set(j); }
 		j = cJSON_GetObjectItem(json,"hueinitial");
-		if (j) { hueinitial.set(j->valuedouble); }
+		if (j) { hueinitial.set(j); }
 		j = cJSON_GetObjectItem(json,"huetime");
-		if (j) { huetime.set(j->valuedouble); }
+		if (j) { huetime.set(j); }
 		j = cJSON_GetObjectItem(json,"hvpos");
-		if (j) { hvpos.set(j->valuedouble); }
+		if (j) { hvpos.set(j); }
 		j = cJSON_GetObjectItem(json,"lifetime");
-		if (j) { lifetime.set(j->valuedouble); }
+		if (j) { lifetime.set(j); }
 		j = cJSON_GetObjectItem(json,"luminance");
-		if (j) { luminance.set(j->valuedouble); }
+		if (j) { luminance.set(j); }
 		j = cJSON_GetObjectItem(json,"mass");
-		if (j) { mass.set(j->valuedouble); }
+		if (j) { mass.set(j); }
 		j = cJSON_GetObjectItem(json,"minmove");
-		if (j) { minmove.set(j->valuedouble); }
+		if (j) { minmove.set(j); }
 		j = cJSON_GetObjectItem(json,"minmovedepth");
-		if (j) { minmovedepth.set(j->valuedouble); }
+		if (j) { minmovedepth.set(j); }
 		j = cJSON_GetObjectItem(json,"mirror");
-		if (j) { mirror.set(j->valuestring); }
+		if (j) { mirror.set(j); }
 		j = cJSON_GetObjectItem(json,"movedir");
-		if (j) { movedir.set(j->valuedouble); }
+		if (j) { movedir.set(j); }
 		j = cJSON_GetObjectItem(json,"movedirrandom");
-		if (j) { movedirrandom.set(j->valueint!=0); }
+		if (j) { movedirrandom.set(j); }
 		j = cJSON_GetObjectItem(json,"movefollowcursor");
-		if (j) { movefollowcursor.set(j->valueint!=0); }
+		if (j) { movefollowcursor.set(j); }
 		j = cJSON_GetObjectItem(json,"noisevertex");
-		if (j) { noisevertex.set(j->valuedouble); }
+		if (j) { noisevertex.set(j); }
 		j = cJSON_GetObjectItem(json,"noteonlogic");
-		if (j) { noteonlogic.set(j->valuestring); }
+		if (j) { noteonlogic.set(j); }
 		j = cJSON_GetObjectItem(json,"nsprites");
-		if (j) { nsprites.set(j->valueint); }
+		if (j) { nsprites.set(j); }
 		j = cJSON_GetObjectItem(json,"pitchfactor");
-		if (j) { pitchfactor.set(j->valuedouble); }
+		if (j) { pitchfactor.set(j); }
 		j = cJSON_GetObjectItem(json,"pitchmax");
-		if (j) { pitchmax.set(j->valueint); }
+		if (j) { pitchmax.set(j); }
 		j = cJSON_GetObjectItem(json,"pitchmin");
-		if (j) { pitchmin.set(j->valueint); }
+		if (j) { pitchmin.set(j); }
 		j = cJSON_GetObjectItem(json,"pitchoffset");
-		if (j) { pitchoffset.set(j->valueint); }
+		if (j) { pitchoffset.set(j); }
 		j = cJSON_GetObjectItem(json,"quantfactor");
-		if (j) { quantfactor.set(j->valuedouble); }
+		if (j) { quantfactor.set(j); }
 		j = cJSON_GetObjectItem(json,"quantfixed");
-		if (j) { quantfixed.set(j->valueint!=0); }
+		if (j) { quantfixed.set(j); }
 		j = cJSON_GetObjectItem(json,"rotanginit");
-		if (j) { rotanginit.set(j->valuedouble); }
+		if (j) { rotanginit.set(j); }
 		j = cJSON_GetObjectItem(json,"rotangspeed");
-		if (j) { rotangspeed.set(j->valuedouble); }
+		if (j) { rotangspeed.set(j); }
 		j = cJSON_GetObjectItem(json,"rotauto");
-		if (j) { rotauto.set(j->valueint!=0); }
+		if (j) { rotauto.set(j); }
 		j = cJSON_GetObjectItem(json,"rotdirrandom");
-		if (j) { rotdirrandom.set(j->valueint!=0); }
+		if (j) { rotdirrandom.set(j); }
 		j = cJSON_GetObjectItem(json,"saturation");
-		if (j) { saturation.set(j->valuedouble); }
+		if (j) { saturation.set(j); }
 		j = cJSON_GetObjectItem(json,"shape");
-		if (j) { shape.set(j->valuestring); }
+		if (j) { shape.set(j); }
 		j = cJSON_GetObjectItem(json,"sizefinal");
-		if (j) { sizefinal.set(j->valuedouble); }
+		if (j) { sizefinal.set(j); }
 		j = cJSON_GetObjectItem(json,"sizeinitial");
-		if (j) { sizeinitial.set(j->valuedouble); }
+		if (j) { sizeinitial.set(j); }
 		j = cJSON_GetObjectItem(json,"sizetime");
-		if (j) { sizetime.set(j->valuedouble); }
+		if (j) { sizetime.set(j); }
 		j = cJSON_GetObjectItem(json,"sound");
-		if (j) { sound.set(j->valuestring); }
+		if (j) { sound.set(j); }
 		j = cJSON_GetObjectItem(json,"speedinitial");
-		if (j) { speedinitial.set(j->valuedouble); }
+		if (j) { speedinitial.set(j); }
 		j = cJSON_GetObjectItem(json,"thickness");
-		if (j) { thickness.set(j->valuedouble); }
+		if (j) { thickness.set(j); }
 		j = cJSON_GetObjectItem(json,"timefret1q");
-		if (j) { timefret1q.set(j->valuedouble); }
+		if (j) { timefret1q.set(j); }
 		j = cJSON_GetObjectItem(json,"timefret1y");
-		if (j) { timefret1y.set(j->valuedouble); }
+		if (j) { timefret1y.set(j); }
 		j = cJSON_GetObjectItem(json,"timefret2q");
-		if (j) { timefret2q.set(j->valuedouble); }
+		if (j) { timefret2q.set(j); }
 		j = cJSON_GetObjectItem(json,"timefret2y");
-		if (j) { timefret2y.set(j->valuedouble); }
+		if (j) { timefret2y.set(j); }
 		j = cJSON_GetObjectItem(json,"timefret3q");
-		if (j) { timefret3q.set(j->valuedouble); }
+		if (j) { timefret3q.set(j); }
 		j = cJSON_GetObjectItem(json,"timefret3y");
-		if (j) { timefret3y.set(j->valuedouble); }
+		if (j) { timefret3y.set(j); }
 		j = cJSON_GetObjectItem(json,"timefret4q");
-		if (j) { timefret4q.set(j->valuedouble); }
+		if (j) { timefret4q.set(j); }
 		j = cJSON_GetObjectItem(json,"timefret4y");
-		if (j) { timefret4y.set(j->valuedouble); }
+		if (j) { timefret4y.set(j); }
 		j = cJSON_GetObjectItem(json,"tonicchange");
-		if (j) { tonicchange.set(j->valueint); }
+		if (j) { tonicchange.set(j); }
 		j = cJSON_GetObjectItem(json,"xcontroller");
-		if (j) { xcontroller.set(j->valueint); }
+		if (j) { xcontroller.set(j); }
 		j = cJSON_GetObjectItem(json,"ycontroller");
-		if (j) { ycontroller.set(j->valueint); }
+		if (j) { ycontroller.set(j); }
 		j = cJSON_GetObjectItem(json,"zable");
-		if (j) { zable.set(j->valueint!=0); }
+		if (j) { zable.set(j); }
 		j = cJSON_GetObjectItem(json,"zcontroller");
-		if (j) { zcontroller.set(j->valueint); }
+		if (j) { zcontroller.set(j); }
 	}
 	void loadDefaults() {
 		alphafinal.set(0.0);
@@ -504,7 +505,7 @@ public:
 		} else if ( nm == "controllerchan" ) {
 			controllerchan.set(adjust(controllerchan.get(),amount,1,16));
 		} else if ( nm == "controllerstyle" ) {
-			controllerstyle.set(adjust(controllerstyle.get(),amount,VizParams::controllerTypes));
+			controllerstyle.set(adjust(controllerstyle.get(),amount,VizParams::StringVals["controllerTypes"]));
 		} else if ( nm == "controllerzmax" ) {
 			controllerzmax.set(adjust(controllerzmax.get(),amount,0.0,1.0));
 		} else if ( nm == "controllerzmin" ) {
@@ -542,7 +543,7 @@ public:
 		} else if ( nm == "minmovedepth" ) {
 			minmovedepth.set(adjust(minmovedepth.get(),amount,0.0,0.3));
 		} else if ( nm == "mirror" ) {
-			mirror.set(adjust(mirror.get(),amount,VizParams::mirrorTypes));
+			mirror.set(adjust(mirror.get(),amount,VizParams::StringVals["mirrorTypes"]));
 		} else if ( nm == "movedir" ) {
 			movedir.set(adjust(movedir.get(),amount,0.0,360.0));
 		} else if ( nm == "movedirrandom" ) {
@@ -552,7 +553,7 @@ public:
 		} else if ( nm == "noisevertex" ) {
 			noisevertex.set(adjust(noisevertex.get(),amount,0.0,1.0));
 		} else if ( nm == "noteonlogic" ) {
-			noteonlogic.set(adjust(noteonlogic.get(),amount,VizParams::logicTypes));
+			noteonlogic.set(adjust(noteonlogic.get(),amount,VizParams::StringVals["logicTypes"]));
 		} else if ( nm == "nsprites" ) {
 			nsprites.set(adjust(nsprites.get(),amount,1,10000));
 		} else if ( nm == "pitchfactor" ) {
@@ -578,7 +579,7 @@ public:
 		} else if ( nm == "saturation" ) {
 			saturation.set(adjust(saturation.get(),amount,0.0,1.0));
 		} else if ( nm == "shape" ) {
-			shape.set(adjust(shape.get(),amount,VizParams::shapeTypes));
+			shape.set(adjust(shape.get(),amount,VizParams::StringVals["shapeTypes"]));
 		} else if ( nm == "sizefinal" ) {
 			sizefinal.set(adjust(sizefinal.get(),amount,0.0,10.0));
 		} else if ( nm == "sizeinitial" ) {
@@ -586,7 +587,7 @@ public:
 		} else if ( nm == "sizetime" ) {
 			sizetime.set(adjust(sizetime.get(),amount,0.01,10.0));
 		} else if ( nm == "sound" ) {
-			// '*' means the value can be anything
+			sound.set(adjust(sound.get(),amount,VizParams::StringVals["soundTypes"]));
 		} else if ( nm == "speedinitial" ) {
 			speedinitial.set(adjust(speedinitial.get(),amount,0.0,1.0));
 		} else if ( nm == "thickness" ) {
@@ -736,7 +737,7 @@ public:
 		if ( nm == "sizefinal" ) { return "0.0"; }
 		if ( nm == "sizeinitial" ) { return "0.01"; }
 		if ( nm == "sizetime" ) { return "0.01"; }
-		if ( nm == "sound" ) { return "*"; }
+		if ( nm == "sound" ) { return "soundTypes"; }
 		if ( nm == "speedinitial" ) { return "0.0"; }
 		if ( nm == "thickness" ) { return "0.01"; }
 		if ( nm == "timefret1q" ) { return "0.0"; }
@@ -803,7 +804,7 @@ public:
 		if ( nm == "sizefinal" ) { return "10.0"; }
 		if ( nm == "sizeinitial" ) { return "10.0"; }
 		if ( nm == "sizetime" ) { return "10.0"; }
-		if ( nm == "sound" ) { return "*"; }
+		if ( nm == "sound" ) { return "soundTypes"; }
 		if ( nm == "speedinitial" ) { return "1.0"; }
 		if ( nm == "thickness" ) { return "10.0"; }
 		if ( nm == "timefret1q" ) { return "1.0"; }

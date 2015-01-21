@@ -24,6 +24,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Vizlet1", "Vizlet1\Vizlet1.
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VizDll", "VizDll\VizDll.vcxproj", "{1A5433B8-B646-404F-8B96-DB5E5A0C29BC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A0901BA3-9B41-40B9-BE2E-1C62F48B3E14} = {A0901BA3-9B41-40B9-BE2E-1C62F48B3E14}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Vizlet2", "Vizlet2\Vizlet2.vcxproj", "{DDCAB382-BF4C-4D65-80B2-1E1BDACBBC6A}"
 	ProjectSection(ProjectDependencies) = postProject

@@ -22,8 +22,16 @@ def readparams(listfile):
 
 	params = []
 	for ln in lines:
-		if len(ln) > 0 and ln[0] == '#':
+		if len(ln) == 0:
 			continue
+		if ln[0] == '#':
+			continue
+		if ln[0] == ':':
+			# These lines are used to define string values
+			vals = ln.split(None,5)
+			(name,typ,mn,mx,default,comment) = vals
+			continue
+
 		vals = ln.split(None,5)
 		(name,typ,mn,mx,default,comment) = vals
 		params.append(
@@ -86,6 +94,7 @@ def genparamheader(params,classname):
 
 	writeln(tab+"std::string JsonListOfValues() { return _JsonListOfValues("+paramnames+"); }");
 	writeln(tab+"std::string JsonListOfParams() { return _JsonListOfParams("+paramnames+"); }");
+	writeln(tab+"std::string JsonListOfStringValues(std::string type) { return _JsonListOfStringValues(type); }");
 
 	### Generate the method that loads JSON
 	writeln(tab+"void loadJson(cJSON* json) {")
@@ -94,14 +103,7 @@ def genparamheader(params,classname):
 		name = p["name"]
 		typ = p["type"]
 		writeln(tab2+"j = cJSON_GetObjectItem(json,\""+name+"\");")
-		if typ == "double":
-			writeln(tab2+"if (j) { "+name+".set(j->valuedouble); }")
-		elif typ == "int":
-			writeln(tab2+"if (j) { "+name+".set(j->valueint); }")
-		elif typ == "bool":
-			writeln(tab2+"if (j) { "+name+".set(j->valueint!=0); }")
-		elif typ == "string":
-			writeln(tab2+"if (j) { "+name+".set(j->valuestring); }")
+		writeln(tab2+"if (j) { "+name+".set(j); }")
 	writeln(tab+"}")
 
 	### Generate the method that loads default values
@@ -167,7 +169,7 @@ def genparamheader(params,classname):
 			if vals == "*":
 				writeln(tab3+"// '*' means the value can be anything");
 			else:
-				writeln(tab3+name+".set(adjust("+name+".get(),amount,VizParams::"+vals+"));")
+				writeln(tab3+name+".set(adjust("+name+".get(),amount,VizParams::StringVals[\""+vals+"\"]));")
 		estr = "} else "
 	writeln(tab2+"}")
 	writeln("")

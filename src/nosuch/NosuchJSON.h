@@ -34,6 +34,7 @@
 #include "cJSON.h"
 #include <string>
 
+bool jsonIsTrueValue(std::string s);
 std::string jsonOK(const char *id);
 std::string jsonResult(std::string r, const char *id);
 std::string jsonDoubleResult(double r, const char *id);

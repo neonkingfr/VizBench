@@ -135,7 +135,7 @@ Palette::applyPatch(std::string patchname) {
 		std::vector<std::string> files = NosuchSplitOnString(parampath,",");
 		for ( size_t i=0; i<files.size(); i++ ) {
 			// Read region-specific params for the patch
-			AllVizParams* rparams = vizlet()->getAllVizParams(files[i]);
+			AllVizParams* rparams = vizlet()->getAllVizParams(vizlet()->VizParamPath(files[i]));
 			if ( rparams == NULL ) {
 				DEBUGPRINT(("Unable to retrieve params file: %s",files[i].c_str()));
 			} else {

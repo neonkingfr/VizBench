@@ -46,7 +46,7 @@ shape		string	shapeTypes	shapeTypes	"circle"	#
 sizefinal	double	0.0	10.0	0.0		#
 sizeinitial	double	0.01	10.0	1.0		#
 sizetime	double	0.01	10.0	1.0		# secs
-sound		string	*	*	"Dummy"	#
+sound		string	soundTypes	soundTypes	"Dummy"	#
 speedinitial		double	0.0	1.0	0.0		#
 thickness	double	0.01	10.0	3.0		#
 zable		bool	false	true	true		#

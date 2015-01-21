@@ -123,8 +123,9 @@ Vizlet::Vizlet() {
 	VizParams::Initialize();
 
 	_defaultparams = new AllVizParams(true);
+	_useparamcache = false;
 
-	AllVizParams* spdefault = getAllVizParams("default");
+	AllVizParams* spdefault = getAllVizParams(VizParamPath("default"));
 	if ( spdefault ) {
 		_defaultparams->applyVizParamsFrom(spdefault);
 	}
@@ -669,26 +670,82 @@ Vizlet::findAllVizParams(std::string cachename) {
 }
 
 AllVizParams*
-Vizlet::getAllVizParams(std::string configname) {
-	std::string path = NosuchConfigPath("params/"+configname+".json");
-	std::map<std::string,AllVizParams*>::iterator it = _paramcache.find(path);
-	if ( it == _paramcache.end() ) {
-		std::string err;
-		cJSON* json = jsonReadFile(path,err);
-		if ( !json ) {
-			DEBUGPRINT(("Unable to load vizlet params: path=%s, err=%s",
-				path.c_str(),err.c_str()));
-			return NULL;
+readVizParams(std::string path) {
+	std::string err;
+	cJSON* json = jsonReadFile(path,err);
+	if ( !json ) {
+		DEBUGPRINT(("Unable to load vizlet params: path=%s, err=%s",
+			path.c_str(),err.c_str()));
+		return NULL;
+	}
+	AllVizParams* s = new AllVizParams(false);
+	s->loadJson(json);
+	// XXX - should json be freed, here?
+	return s;
+}
+
+std::string
+Vizlet::VizPath2ConfigName(std::string path) {
+	size_t pos = path.find_last_of("/\\");
+	if (pos != path.npos) {
+		path = path.substr(pos+1);
+	}
+	pos = path.find_last_of(".");
+	if (pos != path.npos) {
+		path = path.substr(0,pos);
+	}
+	return(path);
+}
+
+std::string
+Vizlet::VizParamPath(std::string configname) {
+	if (!ends_with(configname, ".json")) {
+		configname += ".json";
+	}
+	return NosuchConfigPath("params/"+configname);
+}
+
+AllVizParams*
+Vizlet::getAllVizParams(std::string path) {
+	if (_useparamcache) {
+		std::map<std::string, AllVizParams*>::iterator it = _paramcache.find(path);
+		if (it == _paramcache.end()) {
+			_paramcache[path] = readVizParams(path);
+			return _paramcache[path];
 		}
-		AllVizParams* s = new AllVizParams(false);
-		s->loadJson(json);
-		// XXX - should json be freed, here?
-		_paramcache[path] = s;
-		return s;
-	} else {
-		return it->second;
+		else {
+			return it->second;
+		}
+	}
+	else {
+		return readVizParams(path);
 	}
 }
+
+AllVizParams*
+Vizlet::checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, std::time_t& lastupdate) {
+	std::time_t throttle = 1;  // don't check more often than this number of seconds
+	std::time_t tm = time(0);
+	if ((tm - lastcheck) < throttle) {
+		return NULL;
+	}
+	lastcheck = tm;
+	struct _stat statbuff;
+	int e = _stat(path.c_str(), &statbuff);
+	if (e != 0) {
+		throw NosuchException("Error in checkAndLoad - e=%d", e);
+	}
+	if (lastupdate == statbuff.st_mtime) {
+		return NULL;
+	}
+	AllVizParams* p = getAllVizParams(path);
+	if (!p) {
+		throw NosuchException("Bad params file? path=%s", path.c_str());
+	}
+	lastupdate = statbuff.st_mtime;
+	return p;
+}
+
 
 VizSprite*
 Vizlet::makeAndAddVizSprite(AllVizParams* p, NosuchPos pos) {
