@@ -181,6 +181,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\other\cJSON\cJSON.cpp" />
+    <ClCompile Include="..\..\..\other\flate\flate.c" />
     <ClCompile Include="..\..\..\other\freeframe\FFGL.cpp" />
     <ClCompile Include="..\..\..\other\freeframe\FFGLExtensions.cpp" />
     <ClCompile Include="..\..\..\other\freeframe\FFGLFBO.cpp" />

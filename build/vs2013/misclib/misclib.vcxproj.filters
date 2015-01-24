@@ -103,36 +103,6 @@
     <ClCompile Include="..\..\..\src\params\VizParams.cpp">
       <Filter>Source Files\params</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\palette\Behaviour.cpp">
-      <Filter>Source Files\palette</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\palette\GraphicBehaviour.cpp">
-      <Filter>Source Files\palette</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\palette\MusicBehaviour.cpp">
-      <Filter>Source Files\palette</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\palette\Palette.cpp">
-      <Filter>Source Files\palette</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\palette\Scale.cpp">
-      <Filter>Source Files\palette</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\palette\Sound.cpp">
-      <Filter>Source Files\palette</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\palette\PaletteHost.cpp">
-      <Filter>Source Files\palette</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\palette\Region.cpp">
-      <Filter>Source Files\palette</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\palette\MidiBehaviour.cpp">
-      <Filter>Source Files\palette</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\palette\Channel.cpp">
-      <Filter>Source Files\palette</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\nosuch\NosuchMidi.cpp">
       <Filter>Source Files\nosuch</Filter>
     </ClCompile>
@@ -141,6 +111,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\params\AllVizParams.cpp">
       <Filter>Source Files\params</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FFGLShader.cpp">
+      <Filter>Source Files\freeframe</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -200,12 +173,6 @@
     </Filter>
     <Filter Include="Header Files\vizlet">
       <UniqueIdentifier>{1712b254-95b3-4031-a407-b75c54abc565}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\palette">
-      <UniqueIdentifier>{eb64d772-241d-407f-8670-38a4aaff881e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\palette">
-      <UniqueIdentifier>{e89b6a16-12c0-488e-943c-6dc6b3c4ac7b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -268,9 +235,6 @@
     <ClInclude Include="..\..\..\src\nosuch\NosuchDaemon.h">
       <Filter>Header Files\nosuch</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchHttpServer.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\nosuch\NosuchLooper.h">
       <Filter>Header Files\nosuch</Filter>
     </ClInclude>
@@ -313,50 +277,17 @@
     <ClInclude Include="..\..\..\src\params\VizParams.h">
       <Filter>Header Files\params</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\palette\PaletteHost.h">
-      <Filter>Header Files\palette</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\palette\Behaviour.h">
-      <Filter>Header Files\palette</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\palette\GraphicBehaviour.h">
-      <Filter>Header Files\palette</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\palette\MusicBehaviour.h">
-      <Filter>Header Files\palette</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\palette\Palette.h">
-      <Filter>Header Files\palette</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\palette\PaletteUtil.h">
-      <Filter>Header Files\palette</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\palette\Region.h">
-      <Filter>Header Files\palette</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\palette\Scale.h">
-      <Filter>Header Files\palette</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\palette\Sound.h">
-      <Filter>Header Files\palette</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\params\AllVizParams.h">
       <Filter>Header Files\params</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\palette\Patch.h">
-      <Filter>Header Files\palette</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\palette\MidiBehaviour.h">
-      <Filter>Header Files\palette</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\palette\Channel.h">
-      <Filter>Header Files\palette</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\nosuch\NosuchMidi.h">
       <Filter>Header Files\nosuch</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\nosuch\NosuchLife.h">
       <Filter>Header Files\nosuch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\other\freeframe\FFGLShader.h">
+      <Filter>Header Files\freeframe</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

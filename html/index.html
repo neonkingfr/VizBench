@@ -21,6 +21,11 @@
 <script src="viz.js" djConfig="parseOnLoad: true"> </script>
 <script type="text/javascript">
 
+function editparams(inputid) {
+	var filename = dojo.byId(inputid);
+	window.location.href = "params.html?paramfile="+filename.value;
+}
+
 function setup() {
 
 	var title = dojo.byId("title");
@@ -95,6 +100,9 @@ function setup() {
 
 					html += "<td width=10></td><td align=right>"
 						+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" id=\""+inputid+"\" size=8></td>";
+					if ( argname == "paramfile" ) {
+						html += "<td><button onclick=\"editparams('"+inputid+"');\" >Edit Params</button>";
+					}
 				}
 				html += "</tr>";
 			}

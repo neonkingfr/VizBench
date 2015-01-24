@@ -144,9 +144,10 @@ public:
 		StringVals["shapeTypes"].push_back("outline");
 
 		StringVals["mirrorTypes"] = StringList();
-		StringVals["mirrorTypes"].push_back("default");
+		StringVals["mirrorTypes"].push_back("none");
 		StringVals["mirrorTypes"].push_back("vertical");
 		StringVals["mirrorTypes"].push_back("horizontal");
+		StringVals["mirrorTypes"].push_back("four");
 
 		StringVals["logicTypes"] = StringList();
 		StringVals["logicTypes"].push_back("none");

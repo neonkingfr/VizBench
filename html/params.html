@@ -49,7 +49,7 @@ function readfile() {
 		status.innerHTML = "No Filename set, can't Load!"
 		return;
 	}
-	var api = doapi('VizServer.param_readfile','{ "file":"'+filename+'" }');
+	var api = doapi('VizServer.param_readfile','{ "paramfile":"'+filename+'" }');
 	if ( api.result == "" ) {
 		status.innerHTML = "error="+api.error;
 	} else {
@@ -58,7 +58,12 @@ function readfile() {
 			for ( var name in j ) {
 				var value = j[name];
 				// Make sure it's a valid value, if a string
-				var type = ParamList[name]["type"];
+				var obj = ParamList[name];
+				if ( obj == null ) {
+					// alert("No attribute named "+name+"?");
+					continue;
+				}
+				var type = obj["type"];
 				if ( type=="string" && stringvalindex(name,value) < 0 ) {
 					// default to first value
 					alert("Invalid value \""+value+"\" for \""+name+"\" is being changed to \""+StringVals[name][0]+"\"");
@@ -72,6 +77,81 @@ function readfile() {
 		}
 	}
 }
+
+function randparams() {
+	for ( var name in ParamList ) {
+		var obj = ParamList[name];
+		var type = obj["type"];
+		var mn = obj["min"];
+		var mx = obj["max"];
+		var randableid = dojo.byId("randable_"+name);
+		var randminid = dojo.byId("randmin_"+name);
+		var randmaxid = dojo.byId("randmax_"+name);
+		if ( !randableid || !randminid || !randmaxid ) {
+			continue;
+		}
+		var rmn = randminid.value;
+		var rmx = randmaxid.value;
+		if ( rmn == "" ) {
+			rmn = mn;
+		}
+		if ( rmx == "" ) {
+			rmx = mx;
+		}
+		rmn = Number(rmn);
+		rmx = Number(rmx);
+		if ( randableid.checked ) {
+			var v = rmn + Math.random() * (rmx-rmn);
+			updateonevalue(name,v);
+		}
+	}
+	autowritefile();
+}
+
+function setallrandable(onoff) {
+	for ( var name in ParamList ) {
+		var randableid = dojo.byId("randable_"+name);
+		if ( !randableid ) {
+			continue;
+		}
+		randableid.checked = onoff;
+	}
+}
+
+// Not really useful at the moment, I've removed the button for this
+function randdefaults() {
+	for ( var name in ParamList ) {
+		var obj = ParamList[name];
+		var type = obj["type"];
+		var mn = obj["min"];
+		var mx = obj["max"];
+		var randableid = dojo.byId("randable_"+name);
+		var randminid = dojo.byId("randmin_"+name);
+		var randmaxid = dojo.byId("randmax_"+name);
+		if ( !randableid || !randminid || !randmaxid ) {
+			continue;
+		}
+		randminid.value = mn;
+		randmaxid.value = mx;
+		continue;
+
+		var rmn = randminid.value;
+		var rmx = randmaxid.value;
+		if ( rmn == "" ) {
+			rmn = mn;
+		}
+		if ( rmx == "" ) {
+			rmx = mx;
+		}
+		rmn = Number(rmn);
+		rmx = Number(rmx);
+		if ( randableid.checked ) {
+			var v = rmn + Math.random() * (rmx-rmn);
+			updateonevalue(name,v);
+		}
+	}
+}
+
 function loaddefaults() {
 	var paramfilename = dojo.byId("paramfilename");
 	var filename = paramfilename.value;
@@ -84,6 +164,7 @@ function loaddefaults() {
 		updateonevalue(name,ParamList[name]["default"]);
 	}
 	status.innerHTML = "OK";
+	autowritefile();
 }
 
 function writefile() {
@@ -96,7 +177,7 @@ function writefile() {
 		sep = ",";
 	}
 	contents += " }";
-	var api = doapi('VizServer.param_writefile','{ "file":"'+paramfilename.value+'", "contents":'+contents+' }');
+	var api = doapi('VizServer.param_writefile','{ "paramfile":"'+paramfilename.value+'", "contents":'+contents+' }');
 	var status = dojo.byId("status");
 	if ( paramfilename.value == "" ) {
 		status.innerHTML = "No Filename set, can't Save!"
@@ -142,6 +223,14 @@ function stringvalindex(name,val) {
 	return -1;
 }
 
+function autowritefile() {
+	var autosave = dojo.byId("autosave");
+	var paramfilename = dojo.byId("paramfilename");
+	if ( autosave.checked && paramfilename.value != "" ) {
+		writefile()
+	}
+}
+
 function nextvalue(name,increment) {
 	var valueid = dojo.byId("value_"+name);
 	var curr = valueid.value;
@@ -160,9 +249,7 @@ function nextvalue(name,increment) {
 		curr = valarray[i];
 	}
 	valueid.value = curr;
-	if ( autosave.checked ) {
-		writefile()
-	}
+	autowritefile();
 }
 
 function changeval(name) {
@@ -173,12 +260,7 @@ function changeval(name) {
 
 function updateval(name) {
 	changeval(name);
-
-	var autosave = dojo.byId("autosave");
-	var paramfilename = dojo.byId("paramfilename");
-	if ( autosave.checked && paramfilename.value != "" ) {
-		writefile()
-	}
+	autowritefile();
 }
 
 // updateval2 propagate changes from value_ to range_ rather
@@ -187,12 +269,7 @@ function updateval2(name) {
 	var valueid = dojo.byId("value_"+name);
 	var rangeid = dojo.byId("range_"+name);
 	rangeid.value = valueid.value;
-
-	var autosave = dojo.byId("autosave");
-	var paramfilename = dojo.byId("paramfilename");
-	if ( autosave.checked && paramfilename.value != "" ) {
-		writefile()
-	}
+	autowritefile();
 }
 
 function setup() {
@@ -224,6 +301,14 @@ function setup() {
 	html += "&nbsp;&nbsp;";
 	html += "<input type=\"button\" style=\"width:100px\" value=\"Defaults\" onClick=\"loaddefaults();\">";
 	html += "&nbsp;&nbsp;";
+	html += "<input type=\"button\" style=\"width:100px\" value=\"Randomize\" onClick=\"randparams();\">";
+	html += "&nbsp;&nbsp;";
+	html += "<input type=\"button\" style=\"width:100px\" value=\"Set ALL Randomize\" onClick=\"setallrandable(true);\">";
+	html += "&nbsp;&nbsp;";
+	html += "<input type=\"button\" style=\"width:100px\" value=\"Unset ALL Randomize\" onClick=\"setallrandable(false);\">";
+	// html += "&nbsp;&nbsp;";
+	// html += "<input type=\"button\" style=\"width:100px\" value=\"Rand Defaults\" onClick=\"randdefaults();\">";
+	html += "&nbsp;&nbsp;";
 	html += "<input type=\"button\" style=\"width:100px\" value=\"Save\" onClick=\"writefile();\">";
 	html += "&nbsp;&nbsp;";
 	html += "AutoSave<input type=\"checkbox\" checked=\"checked\" id=\"autosave\" value=\"AutoSave\" >";
@@ -234,7 +319,8 @@ function setup() {
 		status.innerHTML = api.error;
 	} else {
 		status.innerHTML = "OK";
-		html += "<table>";
+		html += "<table width=100% border=0>";
+		html += "<tr><td>Param</td><td colspan=2 align=center>Value</td><td>Rand?</td><td align=center>Rand Min</td><td align=center>Rand Max</td></tr>";
 		var j = JSON.parse(api.result);
 		if ( ! j ) {
 			status.innerHTML = "Unable to parse VizServer.param_list result as JSON?";
@@ -255,11 +341,11 @@ function setup() {
 			html += "<td>"+name+"</td>";
 			var valueid = "value_"+name;
 			if ( type == "int" || type == "double" ) {
-				html += "<td><input id=\""+valueid+"\" type=\"number\" min=\""+mn+"\" max=\""+mx+"\" onchange=\"updateval2('"+name+"');\" ></td>";
+				html += "<td><input style=\"width:98%\" id=\""+valueid+"\" type=\"number\" min=\""+mn+"\" max=\""+mx+"\" onchange=\"updateval2('"+name+"');\" ></td>";
 			} else if (type == "bool" ) {
-				html += "<td><input id=\""+valueid+"\" type=\"text\" ></td>";
+				html += "<td><input style=\"width:98%\" id=\""+valueid+"\" type=\"text\" ></td>";
 			} else if ( type == "string" ) {
-				html += "<td><input id=\""+valueid+"\" type=\"text\" ></td>";
+				html += "<td><input style=\"width:98%\" id=\""+valueid+"\" type=\"text\" ></td>";
 			}
 			// html += "<td>"+mn+"</td><td>"+mx+"</td>";
 			html += "<td>";
@@ -270,8 +356,7 @@ function setup() {
 			} else if ( type == "double" ) {
 				html += "<input id=\""+rangeid+"\" type=\"range\" min=\""+mn+"\" max=\""+mx+"\" step=\""+stepsize+"\" oninput=\"changeval('"+name+"');\" onchange=\"updateval('"+name+"');\" >";
 			} else if ( type == "bool" ) {
-				html += "&nbsp;&nbsp;";
-				html += "<button onclick=\"togglebool('"+name+"');\" >Toggle</button>";
+				html += "<button style=\"width:98%\" onclick=\"togglebool('"+name+"');\" >Toggle</button>";
 			} else if ( type == "string" ) {
 				// For strings, the min/max values convey
 				// the string values type.
@@ -284,15 +369,28 @@ function setup() {
 					} else {
 						StringVals[name] = j;
 					}
-					html += "<button onclick=\"nextvalue('"+name+"',-1);\" >Prev</button>";
-					html += "&nbsp;&nbsp;";
-					html += "<button onclick=\"nextvalue('"+name+"',1);\" >Next</button>";
+					html += "<button style=\"width:45%\" onclick=\"nextvalue('"+name+"',-1);\" >Prev</button>";
+					html += "&nbsp;";
+					html += "<button style=\"width:45%\" onclick=\"nextvalue('"+name+"',1);\" >Next</button>";
 				} else {
 					status.innerHTML = a.error;
 					html += "<b>Error in param_stringvals</b>";
 				}
 			}
 			html += "</td>";
+			var randableid = "randable_"+name;
+			html += "<td align=center><input type=\"checkbox\" id=\""+randableid+"\" ></td>";
+			var randminid = "randmin_"+name;
+			var randmaxid = "randmax_"+name;
+			if ( type == "int" ) {
+				html += "<td><input style=\"width:98%\" id=\""+randminid+"\" type=\"number\" min=\""+mn+"\" max=\""+mx+"\" ></td>";
+				html += "<td><input style=\"width:98%\" id=\""+randmaxid+"\" type=\"number\" min=\""+mn+"\" max=\""+mx+"\" ></td>";
+			} else if ( type == "double" ) {
+				html += "<td><input style=\"width:98%\" id=\""+randminid+"\" type=\"number\" min=\""+mn+"\" max=\""+mx+"\" ></td>";
+				html += "<td><input style=\"width:98%\" id=\""+randmaxid+"\" type=\"number\" min=\""+mn+"\" max=\""+mx+"\" ></td>";
+			} else if (type == "bool" ) {
+			} else if ( type == "string" ) {
+			}
 			html += "</tr>";
 		    }
 		}

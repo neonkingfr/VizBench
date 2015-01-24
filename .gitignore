@@ -67,5 +67,7 @@ other.zip
 *.swp
 html/polymer-tutorial
 html/palette
+src/palette
+src/oldpalette
 ffglplugins_resolume
 config/params_orig

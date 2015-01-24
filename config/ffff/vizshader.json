@@ -1,0 +1,9 @@
+{
+"pipeline": [
+	{
+		"plugin": "VizShader",
+		"params": {
+		}
+	}
+]
+}

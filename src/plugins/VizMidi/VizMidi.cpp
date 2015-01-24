@@ -71,7 +71,7 @@ std::string VizMidi::processJson(std::string meth, cJSON *json, const char *id) 
 	// NO OpenGL calls here
 
 	if (meth == "apis") {
-		return jsonStringResult("set_shape(shape);set_spriteparams(file)",id);
+		return jsonStringResult("set_shape(shape);set_spriteparams(paramfile)",id);
 	}
 
 	// PARAMETER "shape"
@@ -89,7 +89,7 @@ std::string VizMidi::processJson(std::string meth, cJSON *json, const char *id) 
 
 	// PARAMETER "spriteparams"
 	if (meth == "set_spriteparams") {
-		std::string file = jsonNeedString(json, "file", "");
+		std::string file = jsonNeedString(json, "paramfile", "");
 		if (file == "") {
 			return jsonError(-32000, "Bad file value", id);
 		}

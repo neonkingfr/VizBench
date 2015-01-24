@@ -299,7 +299,7 @@ jsonReadFile(std::string fname, std::string& err)
 
 bool
 jsonWriteFile(std::string fname, cJSON* json, std::string& err) {
-	DEBUGPRINT(("jsonWriteFile fname=%s",fname.c_str()));
+	DEBUGPRINT1(("jsonWriteFile fname=%s",fname.c_str()));
 	std::ofstream f;
 	f.open(fname.c_str(),std::ios::trunc);
 	if ( ! f.is_open() ) {

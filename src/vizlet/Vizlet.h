@@ -125,7 +125,8 @@ public:
 	/////////////////////////////////////////////////////
 	// methods for NosuchJsonListener
 	virtual std::string processJson(std::string meth, cJSON *params, const char *id) {
-		throw NosuchException("Vizlet - Unrecognized method '%s'",meth.c_str());
+		std::string err = NosuchSnprintf("Vizlet - Unrecognized method '%s'",meth.c_str());
+		return jsonError(-32000, err.c_str(), id);
 	}
 	/////////////////////////////////////////////////////
 
@@ -156,7 +157,8 @@ public:
 	virtual void processKeystroke(int key, int downup) { }
 	/////////////////////////////////////////////////////
 
-	virtual bool processDraw() = 0;
+	virtual DWORD RealProcessOpenGL(ProcessOpenGLStruct* pGL) { return FF_FAIL; }
+	virtual bool processDraw() { return false;  }
 	virtual void processDrawNote(MidiMsg* m) { }
 	virtual void processAdvanceClickTo(int click) { }
 	virtual void processAdvanceTimeTo(int milli) { }
@@ -176,6 +178,8 @@ public:
 protected:	
 
 	void* Handle() { return (void*)this; }
+
+	bool _call_RealProcessOpenGL;
 
 	ApiFilter _af;
 	MidiFilter _mf;

@@ -67,6 +67,9 @@
     <Filter Include="Source Files\params">
       <UniqueIdentifier>{39fc717c-b954-4a05-9c2a-7f7e5b39944f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\flate">
+      <UniqueIdentifier>{db9db1f8-3a0c-40df-adbe-3bcf4204ca49}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -268,6 +271,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\params\AllVizParams.cpp">
       <Filter>Source Files\params</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\flate\flate.c">
+      <Filter>Source Files\flate</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

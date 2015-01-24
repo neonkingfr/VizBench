@@ -76,12 +76,12 @@ void VizLooper::processCursor(VizCursor* c, int downdragup) {
 std::string VizLooper::processJson(std::string meth, cJSON *json, const char *id) {
 	// NO OpenGL calls here
 	if (meth == "apis") {
-		return jsonStringResult("set_spriteparams(file);set_autoloadparams(onoff)", id);
+		return jsonStringResult("set_spriteparams(paramfile);set_autoloadparams(onoff)", id);
 	}
 
 	// PARAMETER "spriteparams"
 	if (meth == "set_spriteparams") {
-		std::string file = jsonNeedString(json, "file", "");
+		std::string file = jsonNeedString(json, "paramfile", "");
 		if (file == "") {
 			return jsonError(-32000, "Bad file value", id);
 		}

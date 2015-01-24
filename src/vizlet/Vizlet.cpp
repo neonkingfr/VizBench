@@ -132,13 +132,13 @@ Vizlet::Vizlet() {
 
 	_callbacksInitialized = false;
 	_passthru = true;
+	_call_RealProcessOpenGL = false;
 	_spritelist = new VizSpriteList();
 	_defaultmidiparams = defaultParams();
 	// _frame = 0;
 
 	_vizserver = VizServer::GetServer();
 
-	// _viztag = "UNTAGGED";
 	_viztag = vizlet_name();
 
 	_af = ApiFilter(_viztag.c_str());
@@ -176,7 +176,9 @@ Vizlet::Vizlet() {
 	SetMinInputs(1);
 	SetMaxInputs(1);
 
+#ifdef VIZTAG_PARAMETER
 	SetParamInfo(0,"viztag", FF_TYPE_TEXT, VizTag().c_str());
+#endif
 }
 
 Vizlet::~Vizlet()
@@ -187,8 +189,9 @@ Vizlet::~Vizlet()
 
 DWORD Vizlet::SetParameter(const SetParameterStruct* pParam) {
 
+	return FF_FAIL;
+#ifdef VIZTAG_PARAMETER
 	DWORD r = FF_FAIL;
-	bool changed = false;
 
 	// Sometimes SetParameter is called before ProcessOpenGL,
 	// so make sure the VizServer is started.
@@ -198,7 +201,6 @@ DWORD Vizlet::SetParameter(const SetParameterStruct* pParam) {
 	switch ( pParam->ParameterNumber ) {
 	case 0:		// shape
 		if ( VizTag() != std::string(pParam->u.NewTextValue) ) {
-			changed = true;
 			SetVizTag(pParam->u.NewTextValue);
 			_af = ApiFilter(VizTag().c_str());
 			ChangeVizTag(pParam->u.NewTextValue);
@@ -206,24 +208,29 @@ DWORD Vizlet::SetParameter(const SetParameterStruct* pParam) {
 		r = FF_SUCCESS;
 	}
 	return r;
+#endif
 }
 
 DWORD Vizlet::GetParameter(DWORD n) {
+#ifdef VIZTAG_PARAMETER
 	switch ( n ) {
 	case 0:		// shape
 		return (DWORD)(VizTag().c_str());
 	}
+#endif
 	return FF_FAIL;
 }
 
 char* Vizlet::GetParameterDisplay(DWORD n)
 {
+#ifdef VIZTAG_PARAMETER
 	switch ( n ) {
 	case 0:
 	    strncpy_s(_disp,DISPLEN,VizTag().c_str(),VizTag().size());
 	    _disp[DISPLEN-1] = 0;
 		return _disp;
 	}
+#endif
 	return "";
 }
 
@@ -516,7 +523,14 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 		glTranslated(-0.5,-0.5,0.0);
 
 		int milli = MilliNow();
-		bool r = processDraw();			// Call the vizlet's processDraw()
+		bool r;
+		if (_call_RealProcessOpenGL) {
+			// This is used when adapting to existing FFGL plugin code
+			r = (RealProcessOpenGL(pGL)==FF_SUCCESS);
+		}
+		else {
+			r = processDraw();			// Call the vizlet's processDraw()
+		}
 
 		glDisable(GL_TEXTURE_2D);
 		glColor4f(1.f,1.f,1.f,1.f); //restore default color
