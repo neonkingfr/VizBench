@@ -256,7 +256,8 @@ DWORD instantiateGL(const FFGLViewportStruct *pGLViewport)
 	pInstance->m_pPlugin = pInstance;
 
 	// Initializing instance with default values
-	for (int i = 0; i < s_pPrototype->GetNumParams(); ++i) {
+	int nparams = s_pPrototype->GetNumParams();
+	for (int i = 0; i < nparams; ++i) {
 		//DWORD dwType = s_pPrototype->GetParamType(DWORD(i));
 		void* pValue = s_pPrototype->GetParamDefault(DWORD(i));
 		SetParameterStruct ParamStruct;

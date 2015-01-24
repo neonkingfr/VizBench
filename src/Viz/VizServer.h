@@ -215,6 +215,13 @@ public:
 	void QueueMidiPhrase(MidiPhrase* ph, click_t clk);
 	void QueueClear();
 
+	const char* MidiInputName(size_t n) {
+		return _scheduler->MidiInputName(n);
+	}
+	const char* MidiOutputName(size_t n) {
+		return _scheduler->MidiOutputName(n);
+	}
+
 	void SetClicksPerSecond(int clicks);
 	int GetClicksPerSecond();
 	void ANO(int ch = -1);
@@ -271,6 +278,9 @@ private:
 	void _setMidiFile(const char* file) { _midifile = file; }
 	const char* _getMidiFile() { return _midifile; }
 
+	void _setMidiOutput(int i) { _midioutput = i; }
+	int _getMidiOutput() { return _midioutput; }
+
 	void _processServerConfig(cJSON* json);
 	cJSON* _readconfig(const char* fname);
 	void _setMaxCallbacks();
@@ -290,11 +300,11 @@ private:
 	void _setCursorSid(int sidnum, const char* source, double x, double y, double z, double tuio_f, OutlineMem* om, MMTT_SharedMemHeader* hdr );
 	void _processCursorsFromBuff(MMTT_SharedMemHeader* hdr);
 
-	void ScheduleMidiMsg(MidiMsg* m, click_t clk, void* handle);
-	void ScheduleMidiPhrase(MidiPhrase* ph, click_t clk, void* handle);
-	void ScheduleClear();
+	void _scheduleMidiMsg(MidiMsg* m, click_t clk, void* handle);
+	void _scheduleMidiPhrase(MidiPhrase* ph, click_t clk, void* handle);
+	void _scheduleClear();
 
-	static void ErrorPopup(const char* msg);
+	static void _errorPopup(const char* msg);
 
 	bool _started;
 
@@ -302,14 +312,15 @@ private:
 	long _sharedmem_last_attempt;
 
 	// These things are pulled from the config file
-	const char* _midi_input_name;
-	const char* _midi_output_name;
+	const char* _midi_input_list;
+	const char* _midi_output_list;
 	bool _do_midimerge;
 	bool _do_sharedmem;
 	const char *_sharedmemname;
 	bool _do_errorpopup;
 	bool _do_ano;
 	const char* _midifile;
+	int _midioutput;   // default MIDI output index
 
 	int _osc_input_port;
 	const char * _osc_input_host;

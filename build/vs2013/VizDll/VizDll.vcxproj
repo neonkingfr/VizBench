@@ -86,7 +86,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;VIZDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(VIZBENCH)\src\mmtt;$(VIZBENCH)\src\misclib;$(VIZBENCH)\other\freeframe;$(VIZBENCH)\src\Vizlet1;$(VIZBENCH)\other\cvblobslib\src;$(VIZBENCH)\src\vizlet1;$(VIZBENCH)\other\cJSON;$(VIZBENCH)\other\osc\include;$(VIZBENCH)\other\opencv\build\include;$(VIZBENCH)\src\Viz;$(VIZBENCH)\src\nosuch;$(VIZBENCH)\other\portmidi\porttime;$(VIZBENCH)\other\portmidi\pm_common;$(VIZBENCH)\other\pthreads-w32-2-9-1-release\Pre-built.2\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VIZBENCH)\src\mmtt;$(VIZBENCH)\src\misclib;$(VIZBENCH)\other\freeframe;$(VIZBENCH)\src\Vizlet1;$(VIZBENCH)\other\cvblobslib\src;$(VIZBENCH)\src\vizlet1;$(VIZBENCH)\other\cJSON;$(VIZBENCH)\other\osc\include;$(VIZBENCH)\other\opencv\build\include;$(VIZBENCH)\src\params;$(VIZBENCH)\src\Viz;$(VIZBENCH)\src\nosuch;$(VIZBENCH)\other\portmidi\porttime;$(VIZBENCH)\other\portmidi\pm_common;$(VIZBENCH)\other\pthreads-w32-2-9-1-release\Pre-built.2\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
@@ -158,6 +158,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Text Include="..\..\..\bin\genparams.py" />
+    <Text Include="..\..\..\src\params\AllVizParams.list" />
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -179,6 +181,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\other\cJSON\cJSON.cpp" />
+    <ClCompile Include="..\..\..\other\flate\flate.c" />
     <ClCompile Include="..\..\..\other\freeframe\FFGL.cpp" />
     <ClCompile Include="..\..\..\other\freeframe\FFGLExtensions.cpp" />
     <ClCompile Include="..\..\..\other\freeframe\FFGLFBO.cpp" />
@@ -223,6 +226,8 @@
     <ClCompile Include="..\..\..\src\nosuch\NosuchScheduler.cpp" />
     <ClCompile Include="..\..\..\src\nosuch\NosuchSocket.cpp" />
     <ClCompile Include="..\..\..\src\nosuch\NosuchUtil.cpp" />
+    <ClCompile Include="..\..\..\src\params\AllVizParams.cpp" />
+    <ClCompile Include="..\..\..\src\params\VizParams.cpp" />
     <ClCompile Include="..\..\..\src\Viz\VizDll.cpp" />
     <ClCompile Include="..\..\..\src\Viz\VizServer.cpp" />
     <ClCompile Include="..\..\..\src\Viz\stdafx.cpp" />

@@ -123,21 +123,22 @@ Vizlet::Vizlet() {
 	VizParams::Initialize();
 
 	_defaultparams = new AllVizParams(true);
+	_useparamcache = false;
 
-	AllVizParams* spdefault = getAllVizParams("default");
+	AllVizParams* spdefault = getAllVizParams(VizParamPath("default"));
 	if ( spdefault ) {
 		_defaultparams->applyVizParamsFrom(spdefault);
 	}
 
 	_callbacksInitialized = false;
 	_passthru = true;
+	_call_RealProcessOpenGL = false;
 	_spritelist = new VizSpriteList();
 	_defaultmidiparams = defaultParams();
 	// _frame = 0;
 
 	_vizserver = VizServer::GetServer();
 
-	// _viztag = "UNTAGGED";
 	_viztag = vizlet_name();
 
 	_af = ApiFilter(_viztag.c_str());
@@ -175,7 +176,9 @@ Vizlet::Vizlet() {
 	SetMinInputs(1);
 	SetMaxInputs(1);
 
+#ifdef VIZTAG_PARAMETER
 	SetParamInfo(0,"viztag", FF_TYPE_TEXT, VizTag().c_str());
+#endif
 }
 
 Vizlet::~Vizlet()
@@ -186,8 +189,9 @@ Vizlet::~Vizlet()
 
 DWORD Vizlet::SetParameter(const SetParameterStruct* pParam) {
 
+	return FF_FAIL;
+#ifdef VIZTAG_PARAMETER
 	DWORD r = FF_FAIL;
-	bool changed = false;
 
 	// Sometimes SetParameter is called before ProcessOpenGL,
 	// so make sure the VizServer is started.
@@ -197,7 +201,6 @@ DWORD Vizlet::SetParameter(const SetParameterStruct* pParam) {
 	switch ( pParam->ParameterNumber ) {
 	case 0:		// shape
 		if ( VizTag() != std::string(pParam->u.NewTextValue) ) {
-			changed = true;
 			SetVizTag(pParam->u.NewTextValue);
 			_af = ApiFilter(VizTag().c_str());
 			ChangeVizTag(pParam->u.NewTextValue);
@@ -205,24 +208,29 @@ DWORD Vizlet::SetParameter(const SetParameterStruct* pParam) {
 		r = FF_SUCCESS;
 	}
 	return r;
+#endif
 }
 
 DWORD Vizlet::GetParameter(DWORD n) {
+#ifdef VIZTAG_PARAMETER
 	switch ( n ) {
 	case 0:		// shape
 		return (DWORD)(VizTag().c_str());
 	}
+#endif
 	return FF_FAIL;
 }
 
 char* Vizlet::GetParameterDisplay(DWORD n)
 {
+#ifdef VIZTAG_PARAMETER
 	switch ( n ) {
 	case 0:
 	    strncpy_s(_disp,DISPLEN,VizTag().c_str(),VizTag().size());
 	    _disp[DISPLEN-1] = 0;
 		return _disp;
 	}
+#endif
 	return "";
 }
 
@@ -515,7 +523,14 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 		glTranslated(-0.5,-0.5,0.0);
 
 		int milli = MilliNow();
-		bool r = processDraw();			// Call the vizlet's processDraw()
+		bool r;
+		if (_call_RealProcessOpenGL) {
+			// This is used when adapting to existing FFGL plugin code
+			r = (RealProcessOpenGL(pGL)==FF_SUCCESS);
+		}
+		else {
+			r = processDraw();			// Call the vizlet's processDraw()
+		}
 
 		glDisable(GL_TEXTURE_2D);
 		glColor4f(1.f,1.f,1.f,1.f); //restore default color
@@ -669,26 +684,82 @@ Vizlet::findAllVizParams(std::string cachename) {
 }
 
 AllVizParams*
-Vizlet::getAllVizParams(std::string configname) {
-	std::string path = NosuchConfigPath("params/"+configname+".json");
-	std::map<std::string,AllVizParams*>::iterator it = _paramcache.find(path);
-	if ( it == _paramcache.end() ) {
-		std::string err;
-		cJSON* json = jsonReadFile(path,err);
-		if ( !json ) {
-			DEBUGPRINT(("Unable to load vizlet params: path=%s, err=%s",
-				path.c_str(),err.c_str()));
-			return NULL;
+readVizParams(std::string path) {
+	std::string err;
+	cJSON* json = jsonReadFile(path,err);
+	if ( !json ) {
+		DEBUGPRINT(("Unable to load vizlet params: path=%s, err=%s",
+			path.c_str(),err.c_str()));
+		return NULL;
+	}
+	AllVizParams* s = new AllVizParams(false);
+	s->loadJson(json);
+	// XXX - should json be freed, here?
+	return s;
+}
+
+std::string
+Vizlet::VizPath2ConfigName(std::string path) {
+	size_t pos = path.find_last_of("/\\");
+	if (pos != path.npos) {
+		path = path.substr(pos+1);
+	}
+	pos = path.find_last_of(".");
+	if (pos != path.npos) {
+		path = path.substr(0,pos);
+	}
+	return(path);
+}
+
+std::string
+Vizlet::VizParamPath(std::string configname) {
+	if (!ends_with(configname, ".json")) {
+		configname += ".json";
+	}
+	return NosuchConfigPath("params/"+configname);
+}
+
+AllVizParams*
+Vizlet::getAllVizParams(std::string path) {
+	if (_useparamcache) {
+		std::map<std::string, AllVizParams*>::iterator it = _paramcache.find(path);
+		if (it == _paramcache.end()) {
+			_paramcache[path] = readVizParams(path);
+			return _paramcache[path];
 		}
-		AllVizParams* s = new AllVizParams(false);
-		s->loadJson(json);
-		// XXX - should json be freed, here?
-		_paramcache[path] = s;
-		return s;
-	} else {
-		return it->second;
+		else {
+			return it->second;
+		}
+	}
+	else {
+		return readVizParams(path);
 	}
 }
+
+AllVizParams*
+Vizlet::checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, std::time_t& lastupdate) {
+	std::time_t throttle = 1;  // don't check more often than this number of seconds
+	std::time_t tm = time(0);
+	if ((tm - lastcheck) < throttle) {
+		return NULL;
+	}
+	lastcheck = tm;
+	struct _stat statbuff;
+	int e = _stat(path.c_str(), &statbuff);
+	if (e != 0) {
+		throw NosuchException("Error in checkAndLoad - e=%d", e);
+	}
+	if (lastupdate == statbuff.st_mtime) {
+		return NULL;
+	}
+	AllVizParams* p = getAllVizParams(path);
+	if (!p) {
+		throw NosuchException("Bad params file? path=%s", path.c_str());
+	}
+	lastupdate = statbuff.st_mtime;
+	return p;
+}
+
 
 VizSprite*
 Vizlet::makeAndAddVizSprite(AllVizParams* p, NosuchPos pos) {

@@ -60,20 +60,33 @@ SchedEvent::~SchedEvent() {
 }
 
 
-void NosuchScheduler::SortEvents(SchedEventList* sl) {
+void NosuchScheduler::_sortEvents(SchedEventList* sl) {
 	stable_sort (sl->begin(), sl->end(),schedevent_compare);
 }
 
-void NosuchScheduler::ANO(int ch) {
+void NosuchScheduler::ANO(int psi,int ch) {
 	NosuchAssert(ch!=0);
-	if ( ch < 0 ) {
-		for ( int ch=1; ch<=16; ch++ ) {
-			ANO(ch);
+	if (psi < 0) {
+		// Send it on all output ports
+		for (size_t pi = 0; pi < _midi_output_stream.size(); pi++) {
+			ANO(_midi_output_stream[pi], ch);
 		}
 	} else {
-		DEBUGPRINT1(("ANO on channel %d",ch));
+		ANO(_midi_output_stream[psi], ch);
+	}
+}
+
+void NosuchScheduler::ANO(PmStream* ps,int ch) {
+	NosuchAssert(ch!=0);
+	if ( ch < 0 ) {
+		// send it on all channels
+		for ( int ch=1; ch<=16; ch++ ) {
+			ANO(ps,ch);
+		}
+	} else {
+		DEBUGPRINT1(("ANO on ps %ld channel %d",(long)ps,ch));
 		PmMessage pm = Pm_Message((ch-1) + 0xb0, 0x7b, 0x00 );
-		SendPmMessage(pm,NULL);
+		SendPmMessage(pm,ps,NULL);
 	}
 }
 
@@ -123,7 +136,7 @@ NosuchScheduler::ScheduleAddEvent(SchedEvent* e, bool lockit) {
 
 	SchedEventList* sl = ScheduleOf(e->handle);
 	sl->push_back(e);
-	SortEvents(sl);
+	_sortEvents(sl);
 
 	if ( lockit ) {
 		UnlockScheduled();
@@ -152,7 +165,7 @@ void NosuchScheduler::QueueClear() {
 bool
 NosuchScheduler::QueueAddEvent(SchedEvent* e) {
 	_queue->push_back(e);
-	SortEvents(_queue);
+	_sortEvents(_queue);
 	return true;
 }
 
@@ -219,12 +232,16 @@ void NosuchScheduler::Callback(PtTimestamp timestamp) {
 	static int lasttime = 0;
 
 	PmError result;
-	if ( _midi_input != NULL ) {
+	for (size_t i = 0; i < _midi_input_stream.size(); i++ ) {
+		PmStream* ps = _midi_input_stream[i];
+		if (ps == NULL) {
+			continue;
+		}
 		do {
-			result = Pm_Poll(_midi_input);
+			result = Pm_Poll(ps);
 			if (result) {
 				PmEvent buffer;
-		        int rslt = Pm_Read(_midi_input, &buffer, 1);
+		        int rslt = Pm_Read(ps, &buffer, 1);
 				if ( rslt == 1 ) {
 					int msg = buffer.message;
 					lasttime = timestamp;
@@ -233,12 +250,14 @@ void NosuchScheduler::Callback(PtTimestamp timestamp) {
 						if ( mm == NULL ) {
 							DEBUGPRINT(("Hey, MidiMsg::make returned NULL!?"));
 						} else {
+							mm->SetInputPort(i);
 							_maintainNotesDown(mm);
 							// NOTE: ownership of the MidiMsg memory is given up here.
 							// It is the responsibility of the client to delete it.
+							MidiMsg* cloned = mm->clone();
 							_midiinput_client->processMidiMsg(mm);
 							if (_midiinput_merge) {
-								QueueMidiMsg(mm->clone(), CurrentClick());
+								QueueMidiMsg(cloned, CurrentClick());
 							}
 						}
 					}
@@ -300,69 +319,87 @@ int findInputDevice(std::string nm, std::string& found_name)
 }
 
 bool NosuchScheduler::StartMidi(std::string midi_input, std::string midi_output) {
-	if ( m_running )
+	if (m_running)
 		return true;
-
-	int outputId = -1;
-	int inputId = -1;
-
-	if ( midi_output!= "" ) {
-		DEBUGPRINT1(("Looking for MIDI output: %s",midi_output.c_str()));
-
-		std::string found_output;
-		outputId = findOutputDevice(midi_output,found_output);
-		if ( outputId < 0 ) {
-			DEBUGPRINT(("Unable to open MIDI output: %s",midi_output.c_str()));
-		} else {
-			DEBUGPRINT(("Opened MIDI output:%s",found_output.c_str()));
-		}
-	}
-
-	if ( midi_input != "" ) {
-		DEBUGPRINT1(("Looking for MIDI input: %s",midi_input.c_str()));
-
-		std::string found_input;
-		inputId = findInputDevice(midi_input,found_input);
-		if ( inputId < 0 ) {
-			DEBUGPRINT(("Unable to open MIDI input: %s",midi_input.c_str()));
-		} else {
-			DEBUGPRINT(("Opened MIDI input: %s",found_input.c_str()));
-		}
-	}
 
 	millitime0 = 0;
 	Pt_Start(1, midi_callback, (void *)this);   // maybe should be 5?
 
-	/* use zero latency because we want output to be immediate */
-	PmError e;
-	if ( outputId >= 0 ) {
-	    e = Pm_OpenOutput(&_midi_output, 
-	                  outputId, 
-	                  NULL /* driver info */,
-	                  OUT_QUEUE_SIZE,
-	                  NULL, /* timeproc */
-	                  NULL /* time info */,
-	                  0 /* Latency */);
-		if ( e != pmNoError ) {
-			DEBUGPRINT(("Error when opening MIDI Output : %d\n",e));
-			_midi_output = NULL;
-		}
+	std::vector<std::string> inputs = NosuchSplitOnString(midi_input, ";");
+	std::vector<std::string> outputs = NosuchSplitOnString(midi_output, ";");
+
+	_midi_input_stream.resize(inputs.size());
+	_midi_output_stream.resize(outputs.size());
+	_midi_input_name.resize(inputs.size());
+	_midi_output_name.resize(outputs.size());
+
+	for (size_t i = 0; i < inputs.size(); i++) {
+		_midi_input_stream[i] = _openMidiInput(inputs[i]);
+		_midi_input_name[i] = inputs[i];
 	}
-	if ( inputId >= 0 ) {
-		e = Pm_OpenInput(&_midi_input, 
-	                 inputId, 
-	                 NULL /* driver info */,
-	                 0 /* use default input size */,
-	                 NULL,
-	                 NULL /* time info */);
-		if ( e != pmNoError ) {
-			DEBUGPRINT(("Error when opening MIDI Input : %d\n",e));
-			_midi_input = NULL;
-		}
+	for (size_t i = 0; i < outputs.size(); i++) {
+		_midi_output_stream[i] = _openMidiOutput(outputs[i]);
+		_midi_output_name[i] = outputs[i];
 	}
 
 	m_running = true;
 	return true;
+}
+
+PmStream*
+NosuchScheduler::_openMidiOutput(std::string midi_output) {
+
+	int outputId = -1;
+	int inputId = -1;
+
+	std::string found_output;
+	int id = findOutputDevice(midi_output, found_output);
+	if (id < 0) {
+		DEBUGPRINT(("Unable to open MIDI output: %s", midi_output.c_str()));
+		return NULL;
+	}
+	DEBUGPRINT(("Found MIDI output:%s", found_output.c_str()));
+
+	PmStream* pm_out;
+	/* use zero latency because we want output to be immediate */
+	PmError e = Pm_OpenOutput(&pm_out, 
+					id, 
+					NULL /* driver info */,
+					OUT_QUEUE_SIZE,
+					NULL, /* timeproc */
+					NULL /* time info */,
+					0 /* Latency */);
+
+	if ( e != pmNoError ) {
+		DEBUGPRINT(("Error when opening MIDI Output : %d\n",e));
+		pm_out = NULL;
+	}
+	return pm_out;
+}
+
+PmStream*
+NosuchScheduler::_openMidiInput(std::string midi_input) {
+
+	std::string found_input;
+	int id = findInputDevice(midi_input, found_input);
+	if (id < 0) {
+		DEBUGPRINT(("Unable to open MIDI input: %s", midi_input.c_str()));
+		return NULL;
+	}
+	DEBUGPRINT(("Found MIDI input: %s", found_input.c_str()));
+	PmStream* pm_in;
+	PmError e = Pm_OpenInput(&pm_in, 
+						id, 
+						NULL /* driver info */,
+						0 /* use default input size */,
+						NULL,
+						NULL /* time info */);
+
+	if ( e != pmNoError ) {
+		DEBUGPRINT(("Error when opening MIDI Input : %d\n",e));
+		pm_in = NULL;
+	}
+	return pm_in;
 }
 
 SchedEventList* NosuchScheduler::ScheduleOf(void* handle) {
@@ -391,13 +428,19 @@ void NosuchScheduler::Stop() {
 
 	if ( m_running == TRUE ) {
 		Pt_Stop();
-		if ( _midi_input ) {
-			Pm_Close(_midi_input);
-			_midi_input = NULL;
+		for (size_t i = 0; i<_midi_input_stream.size(); i++ ) {
+			if (_midi_input_stream[i]) {
+				Pm_Close(_midi_input_stream[i]);
+				_midi_input_stream[i] = NULL;
+				_midi_input_name[i] = "";
+			}
 		}
-		if ( _midi_output ) {
-			Pm_Close(_midi_output);
-			_midi_output = NULL;
+		for (size_t i = 0; i<_midi_output_stream.size(); i++ ) {
+			if (_midi_output_stream[i]) {
+				Pm_Close(_midi_output_stream[i]);
+				_midi_output_stream[i] = NULL;
+				_midi_output_name[i] = "";
+			}
 		}
 		Pm_Terminate();
 		m_running = false;
@@ -460,7 +503,7 @@ void NosuchScheduler::AdvanceTimeAndDoEvents(PtTimestamp timestamp) {
 		}
 	}
 	
-	AddQueueToScheduled();
+	_addQueueToScheduled();
 
 	UnlockScheduled();
 
@@ -480,7 +523,7 @@ void NosuchScheduler::AdvanceTimeAndDoEvents(PtTimestamp timestamp) {
 }
 
 void
-NosuchScheduler::AddQueueToScheduled() {
+NosuchScheduler::_addQueueToScheduled() {
 	// Add _queue things to _scheduled
 	int nqueue = 0;
 
@@ -496,13 +539,13 @@ NosuchScheduler::AddQueueToScheduled() {
 }
 	
 // SendPmMessage IS BEING PHASED OUT - ONLY ANO STILL USES IT
-void NosuchScheduler::SendPmMessage(PmMessage pm, void* handle) {
+void NosuchScheduler::SendPmMessage(PmMessage pm, PmStream* ps, void* handle) {
 
 	PmEvent ev[1];
 	ev[0].timestamp = TIME_PROC(TIME_INFO);
 	ev[0].message = pm;
-	if ( _midi_output ) {
-		Pm_Write(_midi_output,ev,1);
+	if ( ps ) {
+		Pm_Write(ps,ev,1);
 	} else {
 		DEBUGPRINT1(("SendPmMessage: No MIDI output device?"));
 	}
@@ -522,16 +565,18 @@ void NosuchScheduler::SendMidiMsg(MidiMsg* msg, void* handle) {
 	MidiMsg* mm = msg;
 	MidiMsg* newmm = NULL;
 
-	bool isnoteon = (mm->MidiType()==MIDI_NOTE_ON);
-	bool isnoteoff = (mm->MidiType()==MIDI_NOTE_OFF);
+	int outputport = msg->OutputPort();
+
+	bool isnoteon = (mm->MidiType() == MIDI_NOTE_ON);
+	bool isnoteoff = (mm->MidiType() == MIDI_NOTE_OFF);
 	bool isnote = isnoteon || isnoteoff;
 
-	if ( GlobalPitchOffset != 0 && mm->Channel() != 10 && isnote ) {
+	if (GlobalPitchOffset != 0 && mm->Channel() != 10 && isnote) {
 		// XXX - need to do this without new/delete
 		newmm = mm->clone();
-		newmm->Pitch(newmm->Pitch()+GlobalPitchOffset);
+		newmm->Pitch(newmm->Pitch() + GlobalPitchOffset);
 	}
-	if ( newmm != NULL ) {
+	if (newmm != NULL) {
 		mm = newmm;
 	}
 
@@ -543,11 +588,19 @@ void NosuchScheduler::SendMidiMsg(MidiMsg* msg, void* handle) {
 	PmEvent ev[1];
 	ev[0].timestamp = tm;
 	ev[0].message = pm;
-	if ( _midi_output ) {
-		Pm_Write(_midi_output,ev,1);
-	} else {
-		DEBUGPRINT(("SendMidiMsg: No MIDI output device?"));
+
+	if (outputport < 0 && _midi_output_stream.size() > 0) {
+		DEBUGPRINT1(("SendMidiMsg: unspecified MIDI outputport, using default"));
+		outputport = 0;
 	}
+
+	PmStream* ps = (outputport < 0) ? NULL : _midi_output_stream[outputport];
+	if (ps) {
+		Pm_Write(ps, ev, 1);
+	} else {
+		DEBUGPRINT(("SendMidiMsg: no MIDI output device for outputport=%d?", outputport));
+	}
+
 	if ( NosuchDebugMidiAll ) {
 		DEBUGPRINT(("MIDI OUTPUT MM bytes=%02x %02x %02x",
 			Pm_MessageStatus(pm),

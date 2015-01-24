@@ -1,24 +1,9 @@
 #name			#type	#min		#max		#init		#comment
-nsprites		int		1	10000		1000		#
-controllerchan	int		1	16		1		#
-controllerzmin	double	0.0	1.0	0.05		# 0-1 
-controllerzmax	double	0.0	1.0	0.3		# 0-1 
-pitchmin		int		0	127		33		#
-pitchmax		int		0	127		80		#
-pitchoffset		int		0	127		33		#
-pitchfactor		double		0.1	10.0		1.0		#
-noteonlogic		string	logicTypes	logicTypes	"none"	 #
-hvpos			double		0.0	1.0		0.5		#
 alphafinal		double	0.0	1.0	0.0		# 0-1 
 alphainitial	double	0.0	1.0	0.2		# 0-1
 alphatime		double	0.01	10.0	2.0		# seconds
-arpeggio		bool	false	true	false		#
-quantfixed		bool	false	true	false		#
-quantfactor		double	0.5	2.0	1.0		#
-aspect			double	1.0	10.0	1.0		#
+aspect			double	1.0	4.0	1.0		#
 bounce			bool	false	true	false		#
-doquantize		bool	false	true	true		#
-fullrange		bool	false	true	false		#
 filled			bool	false	true	true		#
 gravity			bool	false	true	false		#
 huefillfinal	double	0.0	360.0	0.0		# 0-360
@@ -30,36 +15,20 @@ huetime			double	0.01	10.0	5.0		# secs
 lifetime		double	0.01	10.0	5.0		#
 luminance		double	0.0	1.0	0.5		#
 mass			double	0.0	1.0	0.5		#
-minmove			double	0.0	0.3	0.025		#
-minmovedepth	double	0.0	0.3	0.025		#
 mirror			string	mirrorTypes	mirrorTypes	"none"	 #
 movedir			double	0.0	360.0	0.0 # 0-360
 movedirrandom	bool	false	true	false	#
 movefollowcursor	bool	false	true	false	#
 noisevertex		double	0.0	1.0	0.0		# 0-1
-rotdirrandom	bool	false	true	false #
+nsprites		int		1	10000		1000		#
 rotanginit	double	0.0	360.0	0.0		# 0-360
 rotangspeed	double	-360.0	360.0	0.0		#
-rotauto		bool	false	true	true		#
+rotdirrandom	bool	false	true	false #
 saturation	double	0.0	1.0	1.0		#
 shape		string	shapeTypes	shapeTypes	"circle"	#
 sizefinal	double	0.0	10.0	0.0		#
 sizeinitial	double	0.01	10.0	1.0		#
 sizetime	double	0.01	10.0	1.0		# secs
-sound		string	*	*	"Dummy"	#
-speedinitial		double	0.0	1.0	0.0f		#
+speedinitial		double	0.0	1.0	0.0		#
 thickness	double	0.01	10.0	3.0		#
 zable		bool	false	true	true		#
-timefret1q	double	0.0	1.0	1.0		#
-timefret1y	double	0.0	1.0	0.3		#
-timefret2q	double	0.0	1.0	0.5		#
-timefret2y	double	0.0	1.0	0.60		#
-timefret3q	double	0.0	1.0	0.25		#
-timefret3y	double	0.0	1.0	0.95		#
-timefret4q	double	0.0	1.0	0.125		#
-timefret4y	double	0.0	1.0	1.0		#
-controllerstyle		string	controllerTypes	controllerTypes	"modulationonly"	 #
-tonicchange	int	0	300*1000		30*1000		#
-xcontroller	int	1	127		3		#
-ycontroller	int	1	127		2		#
-zcontroller	int	1	127		1		#

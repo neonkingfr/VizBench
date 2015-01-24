@@ -14,7 +14,6 @@ public:
 	void processMidiOutput(MidiMsg* m);
 	void processCursor(VizCursor* c, int downdragup);
 	bool processDraw();
-	void processDrawNote(MidiMsg* m);
 
 private:
 	// Put private things here.

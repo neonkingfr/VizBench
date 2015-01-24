@@ -268,24 +268,25 @@ NosuchFullPath(std::string filepath)
 std::string
 NosuchSnprintf(const char *fmt, ...)
 {
-	static char *msg = NULL;
-	static int msglen = 4096;
+	static char *buff = NULL;
+	static int bufflen = 1024;
 	va_list args;
 
-	if ( msg == NULL ) {
-		msg = (char*)malloc(msglen);
+	if ( buff == NULL ) {
+		buff = (char*)malloc(bufflen);
 	}
 
 	while (1) {
 		va_start(args, fmt);
-		int written = vsnprintf_s(msg,msglen,_TRUNCATE,fmt,args);
+		int written = vsnprintf_s(buff,bufflen,_TRUNCATE,fmt,args);
 		va_end(args);
-		if ( written < msglen ) {
-			return std::string(msg);
+		// The written value does NOT include the terminating NULL.
+		if ( written >= 0 && written < (bufflen-1) ) {
+			return std::string(buff);
 		}
-		free(msg);
-		msglen *= 2;
-		msg = (char*)malloc(msglen);
+		free(buff);
+		bufflen *= 2;
+		buff = (char*)malloc(bufflen);
 	}
 }
 

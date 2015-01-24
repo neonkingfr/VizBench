@@ -15,6 +15,7 @@
 #include "VizSprite.h"
 #include "VizParams.h"
 #include "VizServer.h"
+#include <ctime>
 
 class Vizlet;
 class VizletHttpServer;
@@ -64,22 +65,44 @@ public:
 	void QueueMidiPhrase(MidiPhrase* ph, click_t clk);
 	void QueueClear();
 
-	DWORD ProcessOpenGL(ProcessOpenGLStruct *pGL);
+	std::string MidiInputName(size_t n) { return _vizserver->MidiInputName(n);  }
+	std::string MidiOutputName(size_t n) { return _vizserver->MidiOutputName(n);  }
 
-	// FFGL things
-	virtual DWORD InitGL(const FFGLViewportStruct *vp);
-	virtual DWORD DeInitGL();
-	virtual DWORD SetParameter(const SetParameterStruct* pParam);
-	virtual DWORD GetParameter(DWORD dwIndex);
-	virtual char* GetParameterDisplay(DWORD dwIndex);
+	int MidiInputNumberOf(std::string name) {
+		for (size_t n = 0; ; n++) {
+			const char* nm = _vizserver->MidiInputName(n);
+			if (nm == NULL) {
+				break;
+			}
+			if ( std::string(nm) == name) {
+				return (int)n;
+			}
+		}
+		return -1;
+	}
+
+	int MidiOutputNumberOf(std::string name) {
+		for (size_t n = 0; ; n++) {
+			const char* nm = _vizserver->MidiOutputName(n);
+			if (nm == NULL) {
+				break;
+			}
+			if ( std::string(nm) == name) {
+				return (int)n;
+			}
+		}
+		return -1;
+	}
 
 	void AddVizSprite(VizSprite* s);
 	void DrawVizSprites();
 	VizSpriteList* GetVizSpriteList() { return _spritelist; }
 	VizSprite* MakeVizSprite(AllVizParams* sp);
+	std::string VizParamPath(std::string configname);
+	std::string VizPath2ConfigName(std::string path);
 	AllVizParams* getAllVizParams(std::string path);
 	AllVizParams* findAllVizParams(std::string cachename);
-	void cacheAllVizParams(std::string name, AllVizParams* sp);
+	AllVizParams* checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, std::time_t& lastupdate);
 	VizSprite* defaultMidiVizSprite(MidiMsg* m);
 
 	AllVizParams* defaultParams() { return _defaultparams; }
@@ -99,17 +122,43 @@ public:
 	// These are the things that a Vizlet should override/define.
 	/////////////////////////////////////////////////////
 
+	/////////////////////////////////////////////////////
+	// methods for NosuchJsonListener
 	virtual std::string processJson(std::string meth, cJSON *params, const char *id) {
-		throw NosuchException("Vizlet - Unrecognized method '%s'",meth.c_str());
+		std::string err = NosuchSnprintf("Vizlet - Unrecognized method '%s'",meth.c_str());
+		return jsonError(-32000, err.c_str(), id);
 	}
+	/////////////////////////////////////////////////////
+
+	/////////////////////////////////////////////////////
+	// methods for NosuchOscListener
 	virtual void processOsc(const char *source, const osc::ReceivedMessage& m) { }
-	virtual void processCursor(VizCursor* c, int downdragup) { }
-	virtual void processKeystroke(int key, int downup) { }
-	// NOTE: processMidi gets called from low-level things,
-	// and should NOT call any OpenGL things or do things that take a long time.
+	/////////////////////////////////////////////////////
+
+	/////////////////////////////////////////////////////
+	// methods for NosuchMidiInputListener
+	// called from low-level things, NO OpenGL or time-intensive calls should be made
 	virtual void processMidiInput(MidiMsg* mm) { }
+	/////////////////////////////////////////////////////
+
+	/////////////////////////////////////////////////////
+	// methods for NosuchMidiInputListener
+	// called from low-level things, NO OpenGL or time-intensive calls should be made
 	virtual void processMidiOutput(MidiMsg* mm) { }
-	virtual bool processDraw() = 0;
+	/////////////////////////////////////////////////////
+
+	/////////////////////////////////////////////////////
+	// methods for CursorListener
+	virtual void processCursor(VizCursor* c, int downdragup) { }
+	/////////////////////////////////////////////////////
+
+	/////////////////////////////////////////////////////
+	// methods for KeystrokeListener
+	virtual void processKeystroke(int key, int downup) { }
+	/////////////////////////////////////////////////////
+
+	virtual DWORD RealProcessOpenGL(ProcessOpenGLStruct* pGL) { return FF_FAIL; }
+	virtual bool processDraw() { return false;  }
 	virtual void processDrawNote(MidiMsg* m) { }
 	virtual void processAdvanceClickTo(int click) { }
 	virtual void processAdvanceTimeTo(int milli) { }
@@ -130,6 +179,8 @@ protected:
 
 	void* Handle() { return (void*)this; }
 
+	bool _call_RealProcessOpenGL;
+
 	ApiFilter _af;
 	MidiFilter _mf;
 	CursorFilter _cf;
@@ -149,6 +200,16 @@ protected:
 	NosuchColor channelColor(int ch);
 
 private:
+
+	/////////////////////////////////////////////////////
+	// methods for CFreeFrameGLPlugin
+	virtual DWORD ProcessOpenGL(ProcessOpenGLStruct *pGL);
+	virtual DWORD InitGL(const FFGLViewportStruct *vp);
+	virtual DWORD DeInitGL();
+	virtual DWORD SetParameter(const SetParameterStruct* pParam);
+	virtual DWORD GetParameter(DWORD dwIndex);
+	virtual char* GetParameterDisplay(DWORD dwIndex);
+	/////////////////////////////////////////////////////
 
 	void _stopstuff();
 	void _stopCallbacks();
@@ -172,6 +233,7 @@ private:
 	VizSpriteList* _spritelist;
 	AllVizParams* _defaultparams;
 	AllVizParams* _defaultmidiparams;
+	bool _useparamcache;
 	std::map<std::string, AllVizParams*> _paramcache;
 
 	void _drawnotes(std::list<MidiMsg*>& notes);

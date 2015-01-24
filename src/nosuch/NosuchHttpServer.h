@@ -60,7 +60,7 @@ private:
 
 	void _init(std::string host, int port, int timeout);
 	std::list<NosuchSocketConnection *> _WebSocket_Clients;
-	void AddWebSocketClient(NosuchSocketConnection* conn);
+	// void AddWebSocketClient(NosuchSocketConnection* conn);
 
 	NosuchJsonListener* _json_processor;
 	NosuchSocket* _listening_socket;

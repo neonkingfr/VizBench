@@ -62,6 +62,8 @@ public:
 class MidiMsg {
 public:
 	MidiMsg() {
+		_inport = -1;
+		_outport = -1;
 	}
 	virtual ~MidiMsg() {
 	}
@@ -74,6 +76,10 @@ public:
 	virtual int Velocity() { return -1; }
 	virtual int Controller() { return -1; }
 	virtual int Value(int val = NO_VALUE) { return NO_VALUE; }
+	int InputPort() { return _inport; }
+	int OutputPort() { return _outport; }
+	void SetInputPort(int n) { _inport = n; }
+	void SetOutputPort(int n) { _outport = n; }
 	bool isSameAs(MidiMsg* m) {
 		NosuchAssert(m);
 		switch (MidiType()) {
@@ -95,6 +101,7 @@ public:
 		DEBUGPRINT(("Unable to clone MidiMsg of type %d, returning NULL",MidiType()));
 		return NULL;
 	}
+
 	static MidiMsg* make(int msg);
 
 	bool matches(MidiFilter mf) {
@@ -109,7 +116,14 @@ public:
 		return false;
 	}
 protected:
+	MidiMsg* finishclone(MidiMsg* m) {
+		m->_inport = _inport;
+		m->_outport = _outport;
+		return m;
+	}
 	virtual std::string DebugString() = 0;
+	int _inport;   // MIDI input port
+	int _outport;  // MIDI output port
 };
 
 
@@ -153,6 +167,7 @@ public:
 	int Velocity() { return _velocity; }
 	MidiNoteOff* clone() {
 		MidiNoteOff* newm = MidiNoteOff::make(Channel(),Pitch(),Velocity());
+		finishclone(newm);
 		return newm;
 	};
 protected:
@@ -184,6 +199,7 @@ public:
 	}
 	MidiNoteOn* clone() {
 		MidiNoteOn* newm = MidiNoteOn::make(Channel(),Pitch(),Velocity());
+		finishclone(newm);
 		return newm;
 	};
 	PmMessage PortMidiMessage() {
@@ -236,6 +252,7 @@ public:
 	}
 	MidiController* clone() {
 		MidiController* newm = MidiController::make(Channel(),Controller(),Value());
+		finishclone(newm);
 		return newm;
 	};
 protected:
@@ -270,6 +287,7 @@ public:
 	}
 	MidiChanPressure* clone() {
 		MidiChanPressure* newm = MidiChanPressure::make(Channel(),Value());
+		finishclone(newm);
 		return newm;
 	};
 protected:
@@ -304,6 +322,7 @@ public:
 	}
 	MidiPressure* clone() {
 		MidiPressure* newm = MidiPressure::make(Channel(),Pitch(),Value());
+		finishclone(newm);
 		return newm;
 	};
 protected:
@@ -340,6 +359,7 @@ public:
 	}
 	MidiProgramChange* clone() {
 		MidiProgramChange* newm = MidiProgramChange::make(Channel(),Value());
+		finishclone(newm);
 		return newm;
 	};
 protected:
@@ -381,6 +401,7 @@ public:
 	}
 	MidiPitchBend* clone() {
 		MidiPitchBend* newm = MidiPitchBend::make(Channel(),Value());
+		finishclone(newm);
 		return newm;
 	};
 protected:

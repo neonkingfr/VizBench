@@ -141,8 +141,12 @@ public:
 		NosuchLockInit(&_scheduled_mutex,"scheduled");
 		NosuchLockInit(&_notesdown_mutex,"notesdown");
 		_midioutput_client = NULL;
-		_midi_input = NULL;
-		_midi_output = NULL;
+
+		_midi_input_stream = std::vector<PmStream*>();
+		_midi_input_name = std::vector<std::string>();
+
+		_midi_output_stream = std::vector<PmStream*>();
+		_midi_output_name = std::vector<std::string>();
 
 		_midiinput_client = NULL;
 		_midiinput_merge = false;
@@ -155,6 +159,20 @@ public:
 	~NosuchScheduler() {
 		DEBUGPRINT(("NosuchScheduler destructor!"));
 		Stop();
+	}
+
+	const char* MidiInputName(size_t n)  {
+		if (n>=_midi_input_name.size()) {
+			return NULL;
+		}
+		return _midi_input_name[n].c_str();
+	}
+
+	const char* MidiOutputName(size_t n)  {
+		if (n>=_midi_output_name.size()) {
+			return NULL;
+		}
+		return _midi_output_name[n].c_str();
 	}
 
 	static void SetClicksPerSecond(int clkpersec);
@@ -192,11 +210,12 @@ public:
 	void QueueClear();
 	bool QueueAddEvent(SchedEvent* e);  // returns false if not added, i.e. means caller should free it
 
-	void SendPmMessage(PmMessage pm, void* handle);
+	void SendPmMessage(PmMessage pm, PmStream* ps, void* handle);
 	void SendMidiMsg(MidiMsg* mm, void* handle);
 	void SendControllerMsg(MidiMsg* m, void* handle, bool smooth);  // gives ownership of m away
 	void SendPitchBendMsg(MidiMsg* m, void* handle, bool smooth);  // gives ownership of m away
-	void ANO(int ch = -1);
+	void ANO(int psi = -1, int ch = -1);
+	void ANO(PmStream* ps, int ch = -1);
 	void setPeriodicANO(bool b) { _periodic_ANO = b; }
 
 	static int _MilliNow;
@@ -211,7 +230,7 @@ public:
 	}
 	click_t CurrentClick() { return clicknow; }
 
-	PmStream *midi_input() { return _midi_input; }
+	// PmStream *midi_input(int n) { return _midi_input[n]; }
 
 	std::list<MidiMsg*>& NotesDown() {
 		return _notesdown;
@@ -228,6 +247,9 @@ public:
 
 private:
 
+	PmStream* _openMidiInput(std::string input);
+	PmStream* _openMidiOutput(std::string output);
+
 	void _maintainNotesDown(MidiMsg* m);
 	std::list<MidiMsg*> _notesdown;
 
@@ -235,9 +257,9 @@ private:
 	void LockScheduled() { NosuchLock(&_scheduled_mutex,"sched"); }
 	void UnlockScheduled() { NosuchUnlock(&_scheduled_mutex,"sched"); }
 
-	void AddQueueToScheduled();
+	void _addQueueToScheduled();
 
-	void SortEvents(SchedEventList* sl);
+	void _sortEvents(SchedEventList* sl);
 	void DoEventAndDelete(SchedEvent* e, void* handle);
 	void DoMidiMsgEvent(MidiMsg* m, void* handle);
 	bool m_running;
@@ -264,8 +286,12 @@ private:
 	std::map<int,MidiMsg*> _nowplaying_pitchbend;
 #endif
 
-	PmStream *_midi_input;
-	PmStream *_midi_output;
+	std::vector<PmStream *> _midi_input_stream;
+	std::vector<std::string> _midi_input_name;
+
+	std::vector<PmStream *> _midi_output_stream;
+	std::vector<std::string> _midi_output_name;
+
 	NosuchClickListener* _click_client;
 	NosuchMidiListener*	_midioutput_client;
 	NosuchMidiListener*	_midiinput_client;

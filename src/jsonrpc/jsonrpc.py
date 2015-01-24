@@ -11,6 +11,7 @@ def dorpc(port,meth,params):
 	id = '12345'
 	data = '{ "jsonrpc": "2.0", "method": "'+meth+'", "params": '+params+', "id":"'+id+'" }\n'
 	r = requests.post(url,data)
+	print "r.text is ",r.text
 	j = json.loads(r.text)
 	if "error" in j:
 		print "ERROR: "+str(j["error"]["message"])

@@ -250,7 +250,6 @@ cJSON *cJSON_Parse(const char *value)
 // Render a cJSON item/entity/structure to text.
 char *cJSON_Print(cJSON *item)				{
 	char *p = print_value(item,0,1);
-	DEBUGPRINT(("cJSON_Print returning p=%lx",(long)p));
 	return p;
 }
 char *cJSON_PrintUnformatted(cJSON *item)	{return print_value(item,0,0);}
