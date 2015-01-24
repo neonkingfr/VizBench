@@ -155,7 +155,13 @@ void VizBox2d::processKeystroke(int key, int downup) {
 		sl->unlock();
 	}
 	if ( key == 70 || key == 71 ) {   // 'f' or 'g'
+#define OLDSTYLE
+#ifdef OLDSTYLE
+		for (std::vector<b2Body*>::const_iterator iter=_bodies.begin();iter!=_bodies.end();++iter) {
+			b2Body* b = *iter;
+#else
 		for ( b2Body* b: _bodies ) {
+#endif
 			float32 fx = (rand() % 1000 - 500) / 10000000.0f;
 			float32 fy = (rand() % 1000 - 500) / 10000000.0f;
 			if ( key == 71 ) {
@@ -189,7 +195,12 @@ std::string VizBox2d::processJson(std::string meth, cJSON *json, const char *id)
 		return jsonOK(id);
 	}
 	if (meth == "push") {
+#ifdef OLDSTYLE
+		for (std::vector<b2Body*>::const_iterator iter=_bodies.begin();iter!=_bodies.end();++iter) {
+			b2Body* b = *iter;
+#else
 		for ( b2Body* b: _bodies ) {
+#endif
 			float32 fx = (rand() % 1000 - 500) / 10000000.0f;
 			float32 fy = (rand() % 1000 - 500) / 10000000.0f;
 			b->ApplyLinearImpulse(b2Vec2(fx,fy),b2Vec2(0.0f,0.0f),true);

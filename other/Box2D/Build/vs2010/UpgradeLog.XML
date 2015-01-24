@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="Box2D">
+</Property><Property Name="Solution File" Value="C:\Users\tjt\Documents\GitHub\VizBench\other\Box2D\Build\vs2010\Box2D.sln">
+</Property><Property Name="Date" Value="Saturday, January 24, 2015">
+</Property><Property Name="Time" Value="13:52 PM">
+</Property></Properties><Event ErrorLevel="3" Project="Box2D" Source="Box2D.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="3" Project="HelloWorld" Source="HelloWorld.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="3" Project="Testbed" Source="Testbed.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="3" Project="glfw" Source="glfw.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="3" Project="glew" Source="glew.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="0" Project="" Source="Box2D.sln" Description="Solution converted successfully">
+</Event><Event ErrorLevel="3" Project="" Source="Box2D.sln" Description="Converted">
+</Event></UpgradeLog>

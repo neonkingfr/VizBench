@@ -1,0 +1,287 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\nosuch">
+      <UniqueIdentifier>{9f4273c3-50c8-4018-9b86-d129fd0380be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\nosuch">
+      <UniqueIdentifier>{68ea747d-8cc5-4967-aff6-d1079d4a8796}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\misclib">
+      <UniqueIdentifier>{20932e79-bb46-410f-881a-deb8dcabbb28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\misclib">
+      <UniqueIdentifier>{3738acdb-70a9-4a67-b129-d1cd338d83e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\osc">
+      <UniqueIdentifier>{23a6b6eb-617f-4043-874e-d5acb61ac129}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\oscpack">
+      <UniqueIdentifier>{99b5ced3-68dd-413c-9f25-5c33407f3328}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\oscpack\ip">
+      <UniqueIdentifier>{b7f9d231-09a7-4238-a54e-5cc6c79808a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\oscpack\ip\win32">
+      <UniqueIdentifier>{c916513e-9ad1-452b-8342-c4bd74064851}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\oscpack\osc">
+      <UniqueIdentifier>{2b2d6f75-7ed8-40fa-9d85-00374f507fa8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\freeframe">
+      <UniqueIdentifier>{dbc52cd3-df51-4a85-8e31-fada6e7e8827}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\portmidi">
+      <UniqueIdentifier>{e8a9b146-7f2f-458b-b7ed-596b5f710c3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\portmidi\pm_win">
+      <UniqueIdentifier>{b7cbaa43-9cc1-432d-b341-3ee19c61a442}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\portmidi\pm_common">
+      <UniqueIdentifier>{bfe66864-86a2-437a-9a7f-340676bc14b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\portmidi\porttime">
+      <UniqueIdentifier>{218c3d90-3abc-4bba-9599-d90b7bce77d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\cJSON">
+      <UniqueIdentifier>{c35272d9-75cc-4b53-b1f9-0473e9826aaa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Viz">
+      <UniqueIdentifier>{38adfe60-3d95-4778-bb1f-8b8e5a74edab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Viz">
+      <UniqueIdentifier>{f51641a9-67c2-4f8f-9edd-126d0d21b647}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\params">
+      <UniqueIdentifier>{39fc717c-b954-4a05-9c2a-7f7e5b39944f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\flate">
+      <UniqueIdentifier>{db9db1f8-3a0c-40df-adbe-3bcf4204ca49}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\Viz\stdafx.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\targetver.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\nosuch\NosuchDaemon.h">
+      <Filter>Header Files\nosuch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\nosuch\NosuchSocket.h">
+      <Filter>Header Files\nosuch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\nosuch\NosuchHttpServer.h">
+      <Filter>Header Files\nosuch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\nosuch\NosuchLooper.h">
+      <Filter>Header Files\nosuch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\nosuch\NosuchOscInput.h">
+      <Filter>Header Files\nosuch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\nosuch\NosuchOscManager.h">
+      <Filter>Header Files\nosuch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\nosuch\NosuchOscTcpInput.h">
+      <Filter>Header Files\nosuch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\nosuch\NosuchOscUdpInput.h">
+      <Filter>Header Files\nosuch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\nosuch\NosuchScheduler.h">
+      <Filter>Header Files\nosuch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\misclib\UT_Mutex.h">
+      <Filter>Header Files\misclib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\misclib\UT_SharedMem.h">
+      <Filter>Header Files\misclib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\misclib\sha1.h">
+      <Filter>Header Files\misclib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizServer.h">
+      <Filter>Header Files\Viz</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\Viz\stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\NosuchScheduler.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\NosuchDaemon.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\NosuchDebug.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\NosuchException.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\NosuchHttpServer.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\NosuchLooper.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\NosuchOscInput.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\NosuchOscManager.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\NosuchOscTcpInput.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\NosuchOscUdpInput.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\NosuchSocket.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\NosuchUtil.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\NosuchJSON.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\NosuchOsc.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\NosuchMidi.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\midifile.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\misclib\sha1.c">
+      <Filter>Source Files\misclib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\misclib\UT_SharedMem.cpp">
+      <Filter>Source Files\misclib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\misclib\UT_Mutex.cpp">
+      <Filter>Source Files\misclib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\osc\src\OscBundle.cpp">
+      <Filter>Source Files\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\osc\src\OscMessage.cpp">
+      <Filter>Source Files\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\osc\src\OscSender.cpp">
+      <Filter>Source Files\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\oscpack\ip\IpEndpointName.cpp">
+      <Filter>Source Files\oscpack\ip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\oscpack\ip\win32\NetworkingUtils.cpp">
+      <Filter>Source Files\oscpack\ip\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\oscpack\ip\win32\UdpSocket.cpp">
+      <Filter>Source Files\oscpack\ip\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\oscpack\osc\OscOutboundPacketStream.cpp">
+      <Filter>Source Files\oscpack\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\oscpack\osc\OscPrintReceivedElements.cpp">
+      <Filter>Source Files\oscpack\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\oscpack\osc\OscReceivedElements.cpp">
+      <Filter>Source Files\oscpack\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\oscpack\osc\OscTypes.cpp">
+      <Filter>Source Files\oscpack\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FFGL.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FFGLExtensions.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FFGLFBO.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FFGLPlugin.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FFGLPluginInfo.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FFGLPluginManager.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FFGLPluginSDK.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FFPlugin.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\WinPluginInstance.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\portmidi\pm_win\pmwin.c">
+      <Filter>Source Files\portmidi\pm_win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\portmidi\pm_common\pmutil.c">
+      <Filter>Source Files\portmidi\pm_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\portmidi\pm_common\portmidi.c">
+      <Filter>Source Files\portmidi\pm_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\misclib\ffutil.cpp">
+      <Filter>Source Files\misclib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\portmidi\porttime\ptwinmm.c">
+      <Filter>Source Files\portmidi\porttime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\portmidi\pm_win\pmwinmm.c">
+      <Filter>Source Files\portmidi\pm_win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\cJSON\cJSON.cpp">
+      <Filter>Source Files\cJSON</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizDll.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizServer.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\params\VizParams.cpp">
+      <Filter>Source Files\params</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\params\AllVizParams.cpp">
+      <Filter>Source Files\params</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\flate\flate.c">
+      <Filter>Source Files\flate</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\bin\genparams.py">
+      <Filter>Source Files\params</Filter>
+    </Text>
+    <Text Include="..\..\..\src\params\AllVizParams.list">
+      <Filter>Source Files\params</Filter>
+    </Text>
+  </ItemGroup>
+</Project>
