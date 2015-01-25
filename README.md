@@ -2,11 +2,15 @@ VizBench
 ========
 
 A framework for creating FreeFrame 1.5 (FFGL) plugins that involve
-OSC/TUIO and HTTP listeners and MIDI I/O.
+OSC/TUIO and HTTP listeners and MIDI I/O.  Plugins listen for
+HTTP on port 80 (by default) in order to deliver HTML GUIs and respond
+to a variety of APIs.  Plugins listen for OSC/TUIO on port 3333 in order
+to respond to cursor information.
+
+The FFGL plugins here have been tested in Resolume (4.1.11) and Magic (1.53).
 
 Also included is a FreeFrame host (FFFF) for testing and simple uses.
-
-The FFGL plugins here have been tested in Resolume (4.1.11).
+FFFF is capable of loading a pipeline of FFGL plugins.
 
 This is a work in progress, but if anything in the instructions below
 doesn't work as advertized (on Window 8 or Windows 7), please send
@@ -27,14 +31,16 @@ Here are the steps to obtain and build it:
      the Control Panel, under System->Advanced System Settings->Advanced
      ->Environment Variables.
 
-   - Install Visual Studio 2013 Community edition (it's free)
+   - Install Visual Studio 2013 Community edition (it's free).
+     You can also use Visual Studio 2010 if you prefer.
 
    - Install Python 2.7 from https://www.python.org/download/releases/2.7/
      and leave it in the default location - C:\Python27.
 
    - Add %VIZBENCH%/bin to your PATH
 
-   - Start Visual Studio, loading the build/vs2013/VizBench.sln solution.
+   - Start Visual Studio 2013, loading the build/vs2013/VizBench.sln solution.
+     For Visual Studio 2010, load build/vs2010/VizBench.sln.
 
    - Make sure Visual Studio is set to compile the Debug Win32 version.
 
@@ -57,17 +63,7 @@ messages to draw graphics.  The "p.bat fourcircles.osc" command
 replays some TUIO/OSC messages stored in the fourcircles.osc file.
 
 ============================================================================
-Second example: vizmidi
-
-    FFFF.exe vizmidi
-    mf.bat prelude.mid
-
-This example will "play" the midifiles/prelude.mid, and draw
-sprites corresponding to the notes.  It will also send the MIDI notes to
-the MIDI output device specified in the config/vizserver.json file.
-
-============================================================================
-Third example: vizlife
+Second example: vizlife
 
     FFFF.exe vizlife
     api VizLife.randomize
@@ -76,6 +72,20 @@ This example loads the VizLife plugin, which plays Conway's Game of Life.
 Invoking the "VizLife.randomize" api, as shown, will randomly fill cells.
 You'll notice that when cells are "born", they cause sprites to be created.
 Invoking the "VizLife.clear" api will clear the grid.
+
+============================================================================
+Third example: vizmidi
+
+    FFFF.exe vizmidi
+    mf.bat prelude.mid
+
+This example will "play" the midifiles/prelude.mid, and draw
+sprites corresponding to the notes.  It will also send the MIDI notes to
+the MIDI output device specified in the config/vizserver.json file.
+Most of the time, you'll be using a virtual MIDI mechanism like
+loopMIDI or LoopBe30 to route MIDI between applications.
+Be warned - sometime these MIDI routing mechanisms can shut down
+unexpectedly or (more likely) disable ports when MIDI feedback is detected.
 
 ============================================================================
 Fourth example: vizbox2d
@@ -104,4 +114,4 @@ in creating this FFGL plugin:
 which you can use like any of the other Vizlet-based plugins.
 ============================================================================
 
-Questions: email me@timthompson.com
+Questions: me@timthompson.com

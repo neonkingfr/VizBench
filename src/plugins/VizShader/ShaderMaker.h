@@ -170,7 +170,7 @@ protected:
 	void CreateRectangleTexture(FFGLTextureStruct Texture, FFGLTexCoords maxCoords, GLuint &glTexture, GLenum texunit, GLuint &fbo, GLuint hostFbo);
 
 	void processCursor(VizCursor* c, int downdragup);
-	NosuchPos m_currentpos;
+	bool m_disconnect_mouseXY;
 };
 
 #endif

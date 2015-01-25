@@ -1006,8 +1006,10 @@ DWORD ShaderMaker::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 
 		// mouse - Mouse position
 		if(m_mouseLocation >= 0) { // Vec2 - normalized
+// DEBUGPRINT(("realProcessOpenGL A setting m_mouseXY=%f %f m_UserMouseXY=%f %f",m_mouseX,m_mouseY,m_UserMouseX,m_UserMouseY));
 			m_mouseX = m_UserMouseX;
 			m_mouseY = m_UserMouseY;
+// DEBUGPRINT(("realProcessOpenGL A after m_mouseXY=%f %f m_UserMouseXY=%f %f",m_mouseX,m_mouseY,m_UserMouseX,m_UserMouseY));
 			m_extensions.glUniform2fARB(m_mouseLocation, m_mouseX, m_mouseY); 
 		}
 
@@ -1029,8 +1031,10 @@ DWORD ShaderMaker::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 		if(m_mouseLocationVec4 >= 0) {
 			// Convert from 0-1 to pixel coordinates for ShaderToy
 			// Here we use the resolution rather than the screen
+// DEBUGPRINT(("realProcessOpenGL B setting m_mouseXY=%f %f m_UserMouseXY=%f %f",m_mouseX,m_mouseY,m_UserMouseX,m_UserMouseY));
 			m_mouseX     = m_UserMouseX*m_vpWidth;
 			m_mouseY     = m_UserMouseY*m_vpHeight;
+// DEBUGPRINT(("realProcessOpenGL B after setting m_mouseXY=%f %f m_UserMouseXY=%f %f",m_mouseX,m_mouseY,m_UserMouseX,m_UserMouseY));
 			m_mouseLeftX = m_UserMouseLeftX*m_vpWidth;
 			m_mouseLeftY = m_UserMouseLeftY*m_vpHeight;
 			m_extensions.glUniform4fARB(m_mouseLocationVec4, m_mouseX, m_mouseY, m_mouseLeftX, m_mouseLeftY); 
@@ -1302,11 +1306,15 @@ DWORD ShaderMaker::SetParameter(const SetParameterStruct* pParam)
 				break;
 
 			case FFPARAM_MOUSEX:
-				m_UserMouseX = *((float *)(unsigned)&(pParam->NewParameterValue));
+				if ( ! m_disconnect_mouseXY ) {
+					m_UserMouseX = *((float *)(unsigned)&(pParam->NewParameterValue));
+				}
 				break;
 
 			case FFPARAM_MOUSEY:
-				m_UserMouseY = *((float *)(unsigned)&(pParam->NewParameterValue));
+				if ( ! m_disconnect_mouseXY ) {
+					m_UserMouseY = *((float *)(unsigned)&(pParam->NewParameterValue));
+				}
 				break;
 
 			case FFPARAM_MOUSELEFTX:
@@ -1491,6 +1499,7 @@ bool ShaderMaker::LoadShader(std::string shaderString) {
 				// Extras
 				// Input colour is linked to the user controls Red, Green, Blue, Alpha
 				m_inputColourLocation        = -1;
+				m_disconnect_mouseXY         = false;
 
 
 				// lookup the "location" of each uniform
@@ -1537,6 +1546,7 @@ bool ShaderMaker::LoadShader(std::string shaderString) {
 					m_timeLocation = m_shader.FindUniform("time");
 
 				// Mouse move
+				// DEBUGPRINT(("LoadShader m_mouseLocation=%d",m_mouseLocation));
 				if(m_mouseLocation < 0)
 					m_mouseLocation = m_shader.FindUniform("mouse");
 
@@ -1590,6 +1600,7 @@ bool ShaderMaker::LoadShader(std::string shaderString) {
 					m_resolutionLocation = m_shader.FindUniform("iResolution");
 
 				// iMouse
+				// DEBUGPRINT(("LoadShader m_mouseLocationVec4=%d",m_mouseLocationVec4));
 				if(m_mouseLocationVec4 < 0) // Shadertoy is Vec4
 					m_mouseLocationVec4 = m_shader.FindUniform("iMouse");
 
@@ -1737,7 +1748,14 @@ void ShaderMaker::CreateRectangleTexture(FFGLTextureStruct Texture, FFGLTexCoord
 }
 
 void ShaderMaker::processCursor(VizCursor* c, int downdragup) {
-	m_currentpos = c->pos;
+
+	// As soon as we get any cursor information from the Vizlet mechanism,
+	// we disconnect the SetParameter method of changing them.
+	// This is because FFGL hosts like Resolume and Magic seem
+	// to continuously set the parameter values from the GUI,
+	// making it hard to change it "behind their back".
+	m_disconnect_mouseXY = true;
+
 	m_UserMouseX = float(c->pos.x);
 	m_UserMouseY = float(c->pos.y);
 }
