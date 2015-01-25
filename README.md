@@ -74,7 +74,26 @@ You'll notice that when cells are "born", they cause sprites to be created.
 Invoking the "VizLife.clear" api will clear the grid.
 
 ============================================================================
-Third example: vizmidi
+Third example: vizshader
+
+    FFFF.exe vizshader
+    p.bat viztest.osc
+
+The second line there will replay a series of OSC messages that
+get sent to port 3333 (a standard for TUIO messages) to convey mouse cursor
+movement.  The VizShader plugin uses code from Lynn Jarvis' Shader Maker
+(see https://github.com/leadedge/ShaderMaker) that creates an FFGL plugin
+directly from shader code you can find at the GLSL Sandbox and ShaderToy sites.
+
+A current wrinkle of this example is that FFGL Host control of the
+"X Mouse" and "Y Mouse" parameters is disabled as soon as the first TUIO/OSC
+message is received.  This means that if you use the plugin inside Resolume
+or Magic, the "X Mouse" and "Y Mouse" parameter control in their GUIs
+will no longer work after you start using TUIO/OSC.  If you don't use TUIO/OSC,
+the GUI-controlled parameters work normally.
+
+============================================================================
+Fourth example: vizmidi
 
     FFFF.exe vizmidi
     mf.bat prelude.mid
@@ -88,7 +107,7 @@ Be warned - sometime these MIDI routing mechanisms can shut down
 unexpectedly or (more likely) disable ports when MIDI feedback is detected.
 
 ============================================================================
-Fourth example: vizbox2d
+Fifth example: vizbox2d
 
     FFFF.exe vizbox2d
     api VizBox2d.randomize
