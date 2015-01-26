@@ -28,7 +28,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -41,8 +41,8 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -70,12 +70,15 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(Configuration)\</OutDir>
+    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(Configuration)\</OutDir>
+    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -86,22 +89,24 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;VIZDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(VIZBENCH)\src\mmtt;$(VIZBENCH)\src\misclib;$(VIZBENCH)\other\freeframe;$(VIZBENCH)\src\Vizlet1;$(VIZBENCH)\other\cvblobslib\src;$(VIZBENCH)\src\vizlet1;$(VIZBENCH)\other\cJSON;$(VIZBENCH)\other\osc\include;$(VIZBENCH)\other\opencv\build\include;$(VIZBENCH)\src\params;$(VIZBENCH)\src\Viz;$(VIZBENCH)\src\nosuch;$(VIZBENCH)\other\portmidi\porttime;$(VIZBENCH)\other\portmidi\pm_common;$(VIZBENCH)\other\pthreads-w32-2-9-1-release\Pre-built.2\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\mmtt;..\..\..\src\misclib;..\..\..\other\freeframe;..\..\..\src\Vizlet1;..\..\..\other\cvblobslib\src;..\..\..\src\vizlet1;..\..\..\other\cJSON;..\..\..\other\osc\include;..\..\..\other\opencv\build\include;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\nosuch;..\..\..\other\portmidi\porttime;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(VIZBENCH)\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>pthreadVC2.lib;winmm.lib;OpenGL32.lib;Glu32.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
-      <OutputFile>Debug\VizDll.dll</OutputFile>
+      <OutputFile>$(Configuration)\$(ProjectName).dll</OutputFile>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>copy Debug\VizDll.dll ..\..\..\bin\VizDll.dll</Command>
+      <Command>copy $(Configuration)\$(ProjectName).dll ..\..\..\bin$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -116,9 +121,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(VIZBENCH)\src\opencv\build\x86\vc10\staticlib;$(VIZBENCH)\src\pthreads-win32-2.8.0\Pre-built.2\lib;$(VIZBENCH)\src\glfw\src\Debug;..\misclib\Debug;..\nosuch\Debug;$(VIZBENCH)\src\zeromq\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(VIZBENCH)\src\opencv\build\x86\vc10\staticlib;$(VIZBENCH)\src\pthreads-win32-2.8.0\Pre-built.2\lib;..\misclib\Debug;..\nosuch\Debug;$(VIZBENCH)\src\zeromq\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>pthreadVC2.lib;winmm.lib;OpenGL32.lib;Glu32.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
     </Link>
@@ -129,18 +133,27 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;VIZUTIL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;VIZDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <AdditionalIncludeDirectories>..\..\..\src\mmtt;..\..\..\src\misclib;..\..\..\other\freeframe;..\..\..\src\Vizlet1;..\..\..\other\cvblobslib\src;..\..\..\src\vizlet1;..\..\..\other\cJSON;..\..\..\other\osc\include;..\..\..\other\opencv\build\include;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\nosuch;..\..\..\other\portmidi\porttime;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>pthreadVC2.lib;winmm.lib;OpenGL32.lib;Glu32.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VIZBENCH)\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OutputFile>$(Configuration)\$(ProjectName).dll</OutputFile>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(Configuration)\$(ProjectName).dll ..\..\..\bin$(Configuration)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

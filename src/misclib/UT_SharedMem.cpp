@@ -208,7 +208,8 @@ UT_SharedMem::createSharedMem()
 		    						  PAGE_READWRITE,
 								  0,
 								  mySize,
-								  s2ws(myName).c_str());
+								  // s2ws(myName).c_str());
+								  myName);
 
     if (GetLastError() == ERROR_ALREADY_EXISTS)
     {
@@ -232,7 +233,8 @@ UT_SharedMem::openSharedMem()
 		return true;
     createName();
 #ifdef WIN32 
-    myMapping = OpenFileMapping( FILE_MAP_ALL_ACCESS, FALSE, s2ws(myName).c_str());
+    // myMapping = OpenFileMapping( FILE_MAP_ALL_ACCESS, FALSE, s2ws(myName).c_str());
+    myMapping = OpenFileMapping( FILE_MAP_ALL_ACCESS, FALSE, myName);
 #else
     assert(false);
 #endif 

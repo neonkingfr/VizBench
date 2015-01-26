@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGUID>{9F1AE77F-E446-4AE9-9C2C-2DF650D55241}</ProjectGUID>
+    <ProjectGUID>{CBA63B0B-3AE1-4FED-8AFB-6BCB9D60FE5D}</ProjectGUID>
     <Keyword>Win32Proj</Keyword>
     <Platform>Win32</Platform>
     <ProjectName>glfw</ProjectName>
@@ -28,7 +28,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -54,27 +54,27 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\local\manifold\src\glfw\src\Debug\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\..\other\glfw\src\Debug\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">glfw.dir\Debug\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">glfw3</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.lib</TargetExt>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\local\manifold\src\glfw\src\Release\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\..\other\glfw\src\Release\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">glfw.dir\Release\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">glfw3</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.lib</TargetExt>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\local\manifold\src\glfw\src\MinSizeRel\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\MinSizeRel\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">glfw.dir\MinSizeRel\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">glfw3</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.lib</TargetExt>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\local\manifold\src\glfw\src\RelWithDebInfo\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\RelWithDebInfo\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">glfw.dir\RelWithDebInfo\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">glfw3</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.lib</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalOptions> /Zm1000 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:/local/manifold/src/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <CompileAs>CompileAsC</CompileAs>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -82,19 +82,18 @@
       </ExceptionHandling>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerListingLocation>Debug</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
-      <ProgramDataBaseFileName>C:/local/manifold/src/glfw/src/Debug/glfw3.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:/local/manifold/src/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:/local/manifold/src/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -104,59 +103,60 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalOptions> /Zm1000 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:/local/manifold/src/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
       <CompileAs>CompileAsC</CompileAs>
       <ExceptionHandling>
       </ExceptionHandling>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <Optimization>MaxSpeed</Optimization>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerListingLocation>Release</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
-      <ProgramDataBaseFileName>C:/local/manifold/src/glfw/src/Release/glfw3.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:/local/manifold/src/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:/local/manifold/src/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
       <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
+    <Lib>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
     <ClCompile>
-      <AdditionalOptions> /Zm1000 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:/local/manifold/src/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>MinSizeRel/</AssemblerListingLocation>
       <CompileAs>CompileAsC</CompileAs>
       <ExceptionHandling>
       </ExceptionHandling>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerListingLocation>MinSizeRel</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
-      <ProgramDataBaseFileName>C:/local/manifold/src/glfw/src/MinSizeRel/glfw3.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:/local/manifold/src/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:/local/manifold/src/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -166,27 +166,26 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">
     <ClCompile>
-      <AdditionalOptions> /Zm1000 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:/local/manifold/src/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>RelWithDebInfo/</AssemblerListingLocation>
       <CompileAs>CompileAsC</CompileAs>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ExceptionHandling>
       </ExceptionHandling>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="RelWithDebInfo";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerListingLocation>RelWithDebInfo</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
-      <ProgramDataBaseFileName>C:/local/manifold/src/glfw/src/RelWithDebInfo/glfw3.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"RelWithDebInfo\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:/local/manifold/src/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:/local/manifold/src/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -196,9 +195,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <CustomBuild Include="CMakeLists.txt">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule C:/local/manifold/src/glfw/src/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
-"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/local/manifold/src/glfw -BC:/local/manifold/src/glfw --check-stamp-file C:\local\manifold\src\glfw\src\CMakeFiles\generate.stamp
+"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/Users/tjt/Documents/GitHub/VizBench/other/glfw -BC:/Users/tjt/Documents/GitHub/VizBench/other/glfw --check-stamp-file C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\CMakeFiles\generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -206,11 +205,11 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/local/manifold/src/glfw/src/CMakeLists.txt;C:\local\manifold\src\glfw\src\CMakeLists.txt;C:\local\manifold\src\glfw\src\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\local\manifold\src\glfw\src\CMakeFiles\generate.stamp</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule C:/local/manifold/src/glfw/src/CMakeLists.txt</Message>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src/CMakeLists.txt;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\CMakeLists.txt;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\CMakeFiles\generate.stamp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
-"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/local/manifold/src/glfw -BC:/local/manifold/src/glfw --check-stamp-file C:\local\manifold\src\glfw\src\CMakeFiles\generate.stamp
+"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/Users/tjt/Documents/GitHub/VizBench/other/glfw -BC:/Users/tjt/Documents/GitHub/VizBench/other/glfw --check-stamp-file C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\CMakeFiles\generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -218,11 +217,11 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/local/manifold/src/glfw/src/CMakeLists.txt;C:\local\manifold\src\glfw\src\CMakeLists.txt;C:\local\manifold\src\glfw\src\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\local\manifold\src\glfw\src\CMakeFiles\generate.stamp</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule C:/local/manifold/src/glfw/src/CMakeLists.txt</Message>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src/CMakeLists.txt;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\CMakeLists.txt;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\CMakeFiles\generate.stamp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
-"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/local/manifold/src/glfw -BC:/local/manifold/src/glfw --check-stamp-file C:\local\manifold\src\glfw\src\CMakeFiles\generate.stamp
+"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/Users/tjt/Documents/GitHub/VizBench/other/glfw -BC:/Users/tjt/Documents/GitHub/VizBench/other/glfw --check-stamp-file C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\CMakeFiles\generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -230,11 +229,11 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:/local/manifold/src/glfw/src/CMakeLists.txt;C:\local\manifold\src\glfw\src\CMakeLists.txt;C:\local\manifold\src\glfw\src\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\local\manifold\src\glfw\src\CMakeFiles\generate.stamp</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule C:/local/manifold/src/glfw/src/CMakeLists.txt</Message>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src/CMakeLists.txt;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\CMakeLists.txt;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\CMakeFiles\generate.stamp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
-"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/local/manifold/src/glfw -BC:/local/manifold/src/glfw --check-stamp-file C:\local\manifold\src\glfw\src\CMakeFiles\generate.stamp
+"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/Users/tjt/Documents/GitHub/VizBench/other/glfw -BC:/Users/tjt/Documents/GitHub/VizBench/other/glfw --check-stamp-file C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\CMakeFiles\generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -242,38 +241,38 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:/local/manifold/src/glfw/src/CMakeLists.txt;C:\local\manifold\src\glfw\src\CMakeLists.txt;C:\local\manifold\src\glfw\src\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\local\manifold\src\glfw\src\CMakeFiles\generate.stamp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src/CMakeLists.txt;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\CMakeLists.txt;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\CMakeFiles\generate.stamp</Outputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C:\local\manifold\src\glfw\src\clipboard.c" />
-    <ClCompile Include="C:\local\manifold\src\glfw\src\context.c" />
-    <ClCompile Include="C:\local\manifold\src\glfw\src\gamma.c" />
-    <ClCompile Include="C:\local\manifold\src\glfw\src\init.c" />
-    <ClCompile Include="C:\local\manifold\src\glfw\src\input.c" />
-    <ClCompile Include="C:\local\manifold\src\glfw\src\joystick.c" />
-    <ClCompile Include="C:\local\manifold\src\glfw\src\monitor.c" />
-    <ClCompile Include="C:\local\manifold\src\glfw\src\time.c" />
-    <ClCompile Include="C:\local\manifold\src\glfw\src\window.c" />
-    <ClCompile Include="C:\local\manifold\src\glfw\src\win32_clipboard.c" />
-    <ClCompile Include="C:\local\manifold\src\glfw\src\win32_gamma.c" />
-    <ClCompile Include="C:\local\manifold\src\glfw\src\win32_init.c" />
-    <ClCompile Include="C:\local\manifold\src\glfw\src\win32_joystick.c" />
-    <ClCompile Include="C:\local\manifold\src\glfw\src\win32_monitor.c" />
-    <ClCompile Include="C:\local\manifold\src\glfw\src\win32_time.c" />
-    <ClCompile Include="C:\local\manifold\src\glfw\src\win32_window.c" />
-    <ClCompile Include="C:\local\manifold\src\glfw\src\wgl_context.c" />
-    <ClInclude Include="C:\local\manifold\src\glfw\src\config.h" />
-    <ClInclude Include="C:\local\manifold\src\glfw\src\internal.h" />
-    <ClInclude Include="C:\local\manifold\src\glfw\include\GLFW\glfw3.h" />
-    <ClInclude Include="C:\local\manifold\src\glfw\include\GLFW\glfw3native.h" />
-    <ClInclude Include="C:\local\manifold\src\glfw\src\win32_platform.h" />
-    <ClInclude Include="C:\local\manifold\src\glfw\src\wgl_platform.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="internal.h" />
+    <ClInclude Include="..\include\GLFW\glfw3.h" />
+    <ClInclude Include="..\include\GLFW\glfw3native.h" />
+    <ClInclude Include="win32_platform.h" />
+    <ClInclude Include="wgl_platform.h" />
+    <ClCompile Include="clipboard.c" />
+    <ClCompile Include="context.c" />
+    <ClCompile Include="gamma.c" />
+    <ClCompile Include="init.c" />
+    <ClCompile Include="input.c" />
+    <ClCompile Include="joystick.c" />
+    <ClCompile Include="monitor.c" />
+    <ClCompile Include="time.c" />
+    <ClCompile Include="window.c" />
+    <ClCompile Include="win32_clipboard.c" />
+    <ClCompile Include="win32_gamma.c" />
+    <ClCompile Include="win32_init.c" />
+    <ClCompile Include="win32_joystick.c" />
+    <ClCompile Include="win32_monitor.c" />
+    <ClCompile Include="win32_time.c" />
+    <ClCompile Include="win32_window.c" />
+    <ClCompile Include="wgl_context.c" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="C:/local/manifold/src/glfw/ZERO_CHECK.vcxproj">
-      <Project>E396DDF0-30F6-4151-AC5D-DFAD4647F4D9</Project>
+    <ProjectReference Include="C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/ZERO_CHECK.vcxproj">
+      <Project>5583451E-6EB3-4B54-BEA0-B9CAA5902A5C</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

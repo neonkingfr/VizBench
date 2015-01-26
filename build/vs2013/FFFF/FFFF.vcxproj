@@ -74,6 +74,9 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
@@ -95,7 +98,7 @@
     <Link>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>misclib.lib;opencv_highgui2410d.lib;opencv_core2410d.lib;opencv_flann2410d.lib;opencv_ml2410d.lib;opencv_imgproc2410d.lib;libjpegd.lib;libpngd.lib;libtiffd.lib;libjasperd.lib;IlmImfd.lib;pthreadVC2.lib;winmm.lib;VizDll.lib;vfw32.lib;Ws2_32.lib;glfw3.lib;Rpcrt4.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Debug\FFFF.exe</OutputFile>
+      <OutputFile>..\..\..\bin\FFFF.exe</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\other\opencv\build\x86\vc12\staticlib;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\glfw\src\Debug;..\Palette\Debug;..\misclib\Debug;..\VizDll\Debug;c:\Python27\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -107,7 +110,8 @@
       </ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>copy Debug\FFFF.exe ..\..\..\bin\FFFF.exe</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -162,8 +166,8 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>opencv_highgui242.lib;opencv_core242.lib;opencv_flann242.lib;opencv_ml242.lib;opencv_imgproc242.lib;libjpeg.lib;libpng.lib;libtiff.lib;libjasper.lib;freenect.lib;pthreadVC2.lib;winmm.lib;FFFF.lib;portmidi_s.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Release\VizBench.exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\src\osc\lib\vc10;..\..\..\src\opencv_localbuild\lib\Release;..\..\..\src\opencv_localbuild\3rdparty\lib\Release;..\..\..\src\libfreenect\lib\Release;..\..\..\src\portmidi\Release;..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OutputFile>..\..\..\bin\FFFF.exe</OutputFile>
+      <AdditionalLibraryDirectories>..\..\..\other\opencv\build\x86\vc12\staticlib;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\glfw\src\Release;..\misclib\Release;..\VizDll\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>

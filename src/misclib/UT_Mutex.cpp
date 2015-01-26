@@ -9,7 +9,8 @@
 UT_Mutex::UT_Mutex(const char *name)
 {
 #ifdef WIN32
-    myMutex = CreateMutex(NULL, FALSE, s2ws(name).c_str());
+    // myMutex = CreateMutex(NULL, FALSE, s2ws(name).c_str());
+    myMutex = CreateMutex(NULL, FALSE, name);
 #else
     assert(false);
 #endif

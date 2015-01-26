@@ -95,7 +95,7 @@
       <OutputFile>Debug\VizMidi.dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\misclib\Debug;..\VizDll\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ModuleDefinitionFile>VizMidi.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>FFGLPlugins.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)Manifold.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>

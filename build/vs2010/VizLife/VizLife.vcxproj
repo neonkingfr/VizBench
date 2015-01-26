@@ -28,7 +28,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -37,7 +37,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -75,6 +75,8 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</PostBuildEventUseInBuild>
+    <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -91,23 +93,21 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>misclib.lib;pthreadVC2.lib;winmm.lib;OpenGL32.lib;Ws2_32.lib;VizDll.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Debug\VizLife.dll</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\misclib\Debug;..\VizDll\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>misclib_MD.lib;pthreadVC2.lib;winmm.lib;OpenGL32.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(Configuration)\$(ProjectName).dll</OutputFile>
+      <AdditionalLibraryDirectories>..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\misclib_MD\Debug;..\VizDll\Debug;..\..\..\other\Box2D\Build\vs2010\bin\x32\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ModuleDefinitionFile>VizLife.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>FFGLPlugins.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(OutDir)Manifold.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
-      <ImportLibrary>$(OutDir)Manifold.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
       <Profile>true</Profile>
     </Link>
     <PostBuildEvent>
-      <Command>copy Debug\VizLife.dll ..\..\..\ffglplugins\VizLife.dll</Command>
+      <Command>copy $(Configuration)\$(ProjectName).dll ..\..\..\ffglplugins$(Configuration)</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -134,12 +134,10 @@
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ModuleDefinitionFile>VizLife.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(OutDir)Manifold.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
-      <ImportLibrary>$(OutDir)Manifold.lib</ImportLibrary>
       <Profile>true</Profile>
     </Link>
     <PostBuildEvent>
@@ -152,8 +150,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\Include;..\..\..\..\Source\portmidi\porttime;..\..\..\..\Source\portmidi\pm_common;..\..\..\..\Source\pthreads-win32-2.8.0\Pre-built.2\include;..\..\..\..\Source\freeglut-2.6.0\include;C:\Python26\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;VIZBENCH_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\src\plugins\VizMidi;..\..\..\src\params;..\..\..\src\misclib;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\cJSON;..\..\..\other\freeframe;..\..\..\other\osc\include;..\..\..\other\portmidi\porttime;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;VIZBENCH_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -163,12 +161,12 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>OpenGL32.lib;pthreadVC2.lib;freeglut_static.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Release\VizLife.dll</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\..\Source\pthreads-win32-2.8.0\Pre-built.2\lib;..\..\..\..\Source\freeglut-2.6.0\VisualStudio2008Static\Release;C:\Python26\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>misclib_MD.lib;pthreadVC2.lib;winmm.lib;OpenGL32.lib;Ws2_32.lib;VizDll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(Configuration)\$(ProjectName).dll</OutputFile>
+      <AdditionalLibraryDirectories>..\misclib_MD\Release;..\VizDll\Release;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ModuleDefinitionFile>FFGLPlugins.def</ModuleDefinitionFile>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -177,12 +175,11 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
-      <ImportLibrary>$(OutDir)Manifold.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
+      <ModuleDefinitionFile>FFGLPlugins.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>copy $(Configuration)\$(ProjectName).dll ..\..\..\ffglplugins$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -212,7 +209,6 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
-      <ImportLibrary>$(OutDir)Manifold.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -226,10 +222,6 @@
     <ClInclude Include="..\..\..\src\plugins\VizLife\VizLife.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\misclib\misclib.vcxproj">
-      <Project>{a0901ba3-9b41-40b9-be2e-1c62f48b3e14}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
     <ProjectReference Include="..\VizDll\VizDll.vcxproj">
       <Project>{1a5433b8-b646-404f-8b96-db5e5a0c29bc}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

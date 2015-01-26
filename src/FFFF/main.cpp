@@ -180,12 +180,11 @@ int ffffMain(std::string config)
 		NosuchErrorOutput("Some other kind of exception occured while loading Pipeline!?");
 	}
 
+
 // #define DUMPOBJECTS
-#ifdef _DEBUG
 #ifdef DUMPOBJECTS
 	_CrtMemState s0;
 	_CrtMemCheckpoint(&s0);
-#endif
 #endif
 
 	glfwSetWindowPos(F->window, window_x, window_y);

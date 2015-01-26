@@ -95,7 +95,7 @@
       <OutputFile>Debug\VizBox2d.dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\misclib\Debug;..\VizDll\Debug;..\..\..\other\Box2D\Build\vs2013\bin\x32\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ModuleDefinitionFile>VizBox2d.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>FFGLPlugins.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)Manifold.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>

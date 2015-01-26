@@ -1,25 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-  </ItemGroup>
-  <ItemGroup>
-  </ItemGroup>
-  <ItemGroup>
-  </ItemGroup>
-  <ItemGroup>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="CMakeFiles\ALL_BUILD.rule">
+    <CustomBuild Include="CMakeLists.txt" />
+    <CustomBuild Include="CMakeFiles\8cf36046d69a865a9cf87dee9de221b2\ALL_BUILD.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CMakeFiles\ALL_BUILD" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CMake Rules">
-      <UniqueIdentifier>{F566123E-1C33-4B1C-966B-4E99A80194E5}</UniqueIdentifier>
+      <UniqueIdentifier>{5EF28710-1157-43B9-8518-67C710A3BC8F}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="C:\local\manifold\src\glfw\CMakeFiles\ALL_BUILD" />
   </ItemGroup>
 </Project>

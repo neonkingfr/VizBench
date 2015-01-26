@@ -101,7 +101,7 @@
       <OutputFile>Debug\Vizlet2.dll</OutputFile>
       <AdditionalLibraryDirectories>..\misclib\Debug;..\VizDll\Debug;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ModuleDefinitionFile>Vizlet2.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>FFGLPlugins.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)Manifold.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>

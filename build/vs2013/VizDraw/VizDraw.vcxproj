@@ -95,7 +95,7 @@
       <OutputFile>Debug\VizDraw.dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;c:\Python27\libs;..\misclib\Debug;..\VizDll\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ModuleDefinitionFile>VizDraw.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>FFGLPlugins.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)Manifold.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>

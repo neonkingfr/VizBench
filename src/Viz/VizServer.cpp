@@ -136,9 +136,11 @@ public:
 	}
 	VizServerApiCallback* findprefix(std::string prefix) {
 		std::map<void*, VizServerApiCallback*>::iterator it;
+		// All comparisons here are case-insensitive
+		prefix = NosuchToLower(prefix);
 		for (it = this->begin(); it != this->end(); it++) {
 			VizServerApiCallback* sscb = it->second;
-			if (sscb->_af.prefix == prefix) {
+			if (NosuchToLower(sscb->_af.prefix) == prefix) {
 				return sscb;
 			}
 		}

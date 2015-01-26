@@ -34,7 +34,8 @@ DWORD WinPluginDef::Load(const char *fname)
     Unload();
 
 	std::wstring wfname = s2ws(fname);
-    m_ffModule = LoadLibrary(wfname.c_str());
+    // m_ffModule = LoadLibrary(wfname.c_str());
+    m_ffModule = LoadLibrary(fname);
     if (m_ffModule==NULL) {
 		long err = GetLastError();
         DEBUGPRINT(("LoadLibrary of %s failed with err=%ld",wfname.c_str(),err));

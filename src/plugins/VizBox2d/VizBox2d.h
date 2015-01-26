@@ -3,7 +3,7 @@
 
 #include <Box2D/Box2D.h>
 #include <Box2D/Common/b2Math.h>
-#include <DebugDraw.h>
+#include "DebugDraw.h"
 
 class VizBox2d : public Vizlet
 {

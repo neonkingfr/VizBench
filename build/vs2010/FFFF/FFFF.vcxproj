@@ -27,9 +27,9 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -39,7 +39,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -69,10 +69,12 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</PostBuildEventUseInBuild>
+    <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -94,11 +96,11 @@
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>misclib.lib;opencv_highgui2410d.lib;opencv_core2410d.lib;opencv_flann2410d.lib;opencv_ml2410d.lib;opencv_imgproc2410d.lib;libjpegd.lib;libpngd.lib;libtiffd.lib;libjasperd.lib;IlmImfd.lib;pthreadVC2.lib;winmm.lib;VizDll.lib;vfw32.lib;Ws2_32.lib;glfw3.lib;Rpcrt4.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Debug\FFFF.exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\other\opencv\build\x86\vc10\staticlib;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\glfw\src\Debug;..\Palette\Debug;..\misclib\Debug;..\VizDll\Debug;c:\Python27\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>misclib_MT.lib;opencv_highgui2410d.lib;opencv_core2410d.lib;opencv_flann2410d.lib;opencv_ml2410d.lib;opencv_imgproc2410d.lib;libjpegd.lib;libpngd.lib;libtiffd.lib;libjasperd.lib;IlmImfd.lib;pthreadVC2.lib;winmm.lib;VizDll.lib;vfw32.lib;Ws2_32.lib;glfw3.lib;Rpcrt4.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(Configuration)\$(ProjectName).exe</OutputFile>
+      <AdditionalLibraryDirectories>..\..\..\other\opencv\build\x86\vc10\staticlib;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\glfw\src\Debug;..\misclib_MT\Debug;..\VizDll\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -107,7 +109,8 @@
       </ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>copy Debug\FFFF.exe ..\..\..\bin\FFFF.exe</Command>
+      <Command>copy $(Configuration)\$(ProjectName).exe ..\..\..\bin$(Configuration)
+switchbin $(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -148,24 +151,26 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\..\src\nosuch;..\..\..\src\FFFF;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\mmtt;..\..\..\other\glfw\include;..\..\..\src\misclib;..\..\..\src\vizlet1;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\osc\include;..\..\..\other\freeframe;..\..\..\other\portmidi\porttime;..\..\..\other\cJSON;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;..\..\..\other\opencv\build\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\src\FFFF;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>opencv_highgui242.lib;opencv_core242.lib;opencv_flann242.lib;opencv_ml242.lib;opencv_imgproc242.lib;libjpeg.lib;libpng.lib;libtiff.lib;libjasper.lib;freenect.lib;pthreadVC2.lib;winmm.lib;FFFF.lib;portmidi_s.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Release\VizBench.exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\src\osc\lib\vc10;..\..\..\src\opencv_localbuild\lib\Release;..\..\..\src\opencv_localbuild\3rdparty\lib\Release;..\..\..\src\libfreenect\lib\Release;..\..\..\src\portmidi\Release;..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalDependencies>misclib_MT.lib;opencv_highgui2410.lib;opencv_core2410.lib;opencv_flann2410.lib;opencv_ml2410.lib;opencv_imgproc2410.lib;libjpeg.lib;libpng.lib;libtiff.lib;libjasper.lib;IlmImf.lib;pthreadVC2.lib;winmm.lib;VizDll.lib;vfw32.lib;Ws2_32.lib;Rpcrt4.lib;zlib.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(Configuration)\$(ProjectName).exe</OutputFile>
+      <AdditionalLibraryDirectories>..\..\..\other\opencv\build\x86\vc10\staticlib;..\misclib_MT\Release;..\VizDll\Release;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\glfw\src\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -173,7 +178,8 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy Release\VizBench.exe ..\..\..\bin\FFFF.exe</Command>
+      <Command>copy $(Configuration)\$(ProjectName).exe ..\..\..\bin$(Configuration)
+switchbin $(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -221,20 +227,8 @@
     <ClInclude Include="..\..\..\src\FFFF\FFFF.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EmptyA\EmptyA.vcxproj">
-      <Project>{2745fa90-0759-4bd4-bb21-7bf13d92c087}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\misclib\misclib.vcxproj">
-      <Project>{a0901ba3-9b41-40b9-be2e-1c62f48b3e14}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
     <ProjectReference Include="..\VizDll\VizDll.vcxproj">
       <Project>{1a5433b8-b646-404f-8b96-db5e5a0c29bc}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\Vizlet1\Vizlet1.vcxproj">
-      <Project>{578bb2a2-1a99-45a5-b99f-62952f6dc0c3}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
