@@ -1,5 +1,6 @@
-src/oldpalette
+build/*/*/Release
 src/palette
+src/oldpalette
 src/zlib/contrib
 src/pthreads-win32-2.8.0
 src/cvblobslib/doc
@@ -39,7 +40,6 @@ Thumbs.db
 *.log
 *.sbr
 obj/
-[Rr]elease*/
 _ReSharper*/
 [Tt]est[Rr]esult*
 patches/alchemy
