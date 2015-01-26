@@ -26,10 +26,11 @@ Here are the steps to obtain and build it:
      where YOURLOGIN is your windows login name.
 
    - Set environment variable VIZBENCH to
-        c:/users/YOURLOGIN/documents/github/VizBench
+        c:\users\YOURLOGIN\documents\github\VizBench
      replacing YOURLOGIN with your Windows login name.  You can do this in
      the Control Panel, under System->Advanced System Settings->Advanced
-     ->Environment Variables.
+     ->Environment Variables.  Note that BACKSLASHES are used in this path.
+     Some scripts will break ifyou use forward slashes.
 
    - Install Visual Studio 2013 Community edition (it's free).
      You can also use Visual Studio 2010 if you prefer.

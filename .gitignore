@@ -1,4 +1,5 @@
 build/*/*/Release
+build/*/*/Debug
 src/palette
 src/oldpalette
 src/zlib/contrib
