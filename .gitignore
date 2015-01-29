@@ -1,5 +1,9 @@
 build/*/*/Release
 build/*/*/Debug
+bin/FFFF.exe
+bin/VizDll.dll
+ffglplugins/Viz*.dll
+ffglplugins/EmptyA.dll
 src/palette
 src/oldpalette
 src/zlib/contrib
