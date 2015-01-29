@@ -332,7 +332,7 @@ jsonSetDebugConfig(cJSON* json)
 		NosuchDebugAutoFlush = j->valueint?TRUE:FALSE;
 	}
 	if ( (j=jsonGetNumber(json,"debuglogfile")) != NULL ) {
-		NosuchDebugSetLogDirFile(ManifoldLogDir(),std::string(j->valuestring));
+		NosuchDebugSetLogDirFile(VizLogDir(),std::string(j->valuestring));
 	}
 }
 

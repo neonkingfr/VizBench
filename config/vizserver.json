@@ -1,6 +1,6 @@
 {
   "httpport": 80,
-  "htmldir": "html",   # $VIZBENCH gets prepended to this
+  "htmldir": "html",
 
   ### When tuioport is not set, we do not listen for OSC at all.
   ### If MMTT is being used on the same machine,
@@ -20,17 +20,5 @@
 
   ### These are values for using LoopBe30
   "midiinput": "09. Internal MIDI",
-  "midioutput": "01. Internal MIDI;02. Internal MIDI;03. Internal MIDI;04. Internal MIDI",
-  "midimerge": 1,
-
-  "periodicANO": 0,
-  "sharedmem": 0,
-  "sharedmemname": "mmtt_outlines",
-  "errorpopup": 0,
-  "debuglevel": 1,
-  "debugtoconsole": 1,
-  "debugtolog": 1,
-  "debugmidinotes": 0,
-  "debugmidiall": 0,
-  "debuglogfile": "vizserver.debug"
+  "midioutput": "01. Internal MIDI;02. Internal MIDI;03. Internal MIDI;04. Internal MIDI"
 }

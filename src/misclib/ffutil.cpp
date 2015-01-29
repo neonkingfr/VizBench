@@ -619,7 +619,7 @@ extern "C" {
 bool
 default_setdll(std::string dllpath)
 {
-	NosuchDebugSetLogDirFile(ManifoldLogDir(),"ffutil.debug");
+	NosuchDebugSetLogDirFile(VizLogDir(),"viz.debug");
 
 	dllpath = NosuchToLower(dllpath);
 	std::string basename = dllpath;

@@ -16,6 +16,17 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 	char path[MAX_PATH];
 	GetModuleFileNameA((HMODULE)hModule, path, MAX_PATH);
 	std::string dllpath = std::string(path);
+	// We want to take off the final filename AND the directory.
+	// This assumes that the DLL is in either a bin or ffglplugins
+	// subdirectory of the main Vizpath
+	size_t pos = dllpath.find_last_of("/\\");
+	if ( pos != dllpath.npos && pos > 0 ) {
+		std::string parent = dllpath.substr(0,pos);
+		pos = dllpath.substr(0,pos-1).find_last_of("/\\");
+		if ( pos != parent.npos && pos > 0) {
+			SetVizPath(parent.substr(0,pos));
+		}
+	}
 
 	switch (ul_reason_for_call) {
 

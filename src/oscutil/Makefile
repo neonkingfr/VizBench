@@ -1,14 +1,13 @@
-default:
-	nmake PYTHON=c:\python27 install
+default: install
+
+install:
+	nmake PYTHON=c:\python27 doinstall
 	c:\python27\python setup.py py2exe
 	copy dist\*.* ..\..\bin
 
-justinstall:
-	nmake PYTHON=c:\python27 install
-
 FINALDIR = $(PYTHON)\lib\site-packages\nosuch
 
-install : \
+doinstall : \
 	$(FINALDIR) \
 	$(FINALDIR)\__init__.py \
 	$(FINALDIR)\oscutil.py

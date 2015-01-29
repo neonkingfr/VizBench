@@ -90,7 +90,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 int ffffMain(std::string config)
 {
 	NosuchDebugInit();
-   	NosuchDebugSetLogDirFile(ManifoldLogDir(),"ffff.debug");
+   	NosuchDebugSetLogDirFile(VizLogDir(),"ffff.debug");
 	DEBUGPRINT(("FFFF is starting."));
 
 	if ( NosuchNetworkInit() ) {
@@ -101,7 +101,7 @@ int ffffMain(std::string config)
     glfwSetTime(0.0);
 
 	std::string err;
-	std::string fname = ManifoldPath("config/FFFF.json");
+	std::string fname = VizPath("config\\FFFF.json");
 	cJSON* j = jsonReadFile(fname,err);
 	if ( !j ) {
 		DEBUGPRINT(("Hey!  Error in reading JSON from %s!  err=%s",fname.c_str(),err.c_str()));
@@ -111,15 +111,13 @@ int ffffMain(std::string config)
 	jsonSetDebugConfig(j);
 
 	// Allow the config to override the default paths for these
-	std::string ffpath = jsonNeedString(j,"ffpath",ManifoldPath("ffplugins"));
-	std::string ffglpath = jsonNeedString(j,"ffglpath",ManifoldPath("ffglplugins"));
+	std::string ffpath = jsonNeedString(j,"ffpath","ffplugins");
+	std::string ffglpath = jsonNeedString(j,"ffglpath","ffglplugins");
 
-	std::string toreplace = "$VIZBENCH";
-	std::string manifold = ManifoldPath("");
-	int pos;
-	while ( (pos=ffglpath.find(toreplace)) != ffglpath.npos) {
-		ffglpath.replace(pos, toreplace.length(), manifold);
-	}
+	// Remove shell expansion, because I want things to be the same between the
+	// Vizbench and Vizlets repositories.  If anything, a general environment
+	// variable subsitution mechanism should be put here.
+	// ffglpath = NosuchReplaceAll(ffglpath,"$VIZPATH",VizPath(""));
 
 	int camera_index = jsonNeedInt(j,"camera",-1);  // -1 for no camera, 0+ for camera
 
@@ -141,13 +139,14 @@ int ffffMain(std::string config)
 		monitor = NULL;
 	}
 
-	int window_width = 800; // 640;
-	int window_height = 600; // 480;
-	int ffgl_width = window_width;
-	int ffgl_height = window_height;
+	int window_width = jsonNeedInt(j,"window_width",800);
+	int window_height = jsonNeedInt(j,"window_height",600);
 
 	int window_x = jsonNeedInt(j,"window_x",100);
 	int window_y = jsonNeedInt(j,"window_y",100);
+
+	int ffgl_width = window_width;
+	int ffgl_height = window_height;
 
     F->window = glfwCreateWindow(window_width, window_height, "FFFF", monitor, NULL);
     if ( F->window == NULL ) {
@@ -159,7 +158,7 @@ int ffffMain(std::string config)
 
     glfwSetKeyCallback(F->window, key_callback);
 
-	F->loadPluginDefs(ffpath,ffglpath,ffgl_width,ffgl_height);
+	F->loadPluginDefs(VizPath(ffpath),VizPath(ffglpath),ffgl_width,ffgl_height);
 
 	bool use_camera = FALSE;
 	if ( camera_index < 0 ) {
@@ -237,7 +236,23 @@ int ffffMain(std::string config)
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLine, int iCmdShow )
 {
 	int r = -1;
-	
+
+	char pathbuff[MAX_PATH];
+	HMODULE module = GetModuleHandleA(NULL);
+	GetModuleFileNameA(module, pathbuff, MAX_PATH);
+	std::string path = std::string(pathbuff);
+	// We want to take off the final filename AND the directory.
+	// This assumes that the DLL is in either a bin or ffglplugins
+	// subdirectory of the main Vizpath
+	size_t pos = path.find_last_of("/\\");
+	if ( pos != path.npos && pos > 0 ) {
+		std::string parent = path.substr(0,pos);
+		pos = path.substr(0,pos-1).find_last_of("/\\");
+		if ( pos != parent.npos && pos > 0) {
+			SetVizPath(parent.substr(0,pos));
+		}
+	}
+
 	std::string config = "";
 	if (__argc > 1) {
 		config = __argv[1];

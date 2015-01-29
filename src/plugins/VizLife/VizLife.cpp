@@ -42,7 +42,8 @@ VizLife::VizLife() : Vizlet(), LifeListener() {
 	_cellseq = 0;
 	_life = NULL;
 	_sparseness = 3;
-	SetSize( 100 , 100);
+	_sprites = true;
+	SetSize( 64 , 64);
 }
 
 void

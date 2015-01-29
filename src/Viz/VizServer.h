@@ -332,7 +332,7 @@ private:
 	std::list<VizCursor*>* _cursors;
 
 	int _httpport;
-	const char* _htmldir;
+	const char* _htmlpath;
 	NosuchDaemon* _daemon;
 
 	// Processors are Listeners that broadcast things to Callbacks

@@ -432,13 +432,19 @@ FFFF::deleteFromPipeline(std::string inm) {
 void
 FFFF::loadPipeline(std::string configname)
 {
-	std::string fname = ManifoldPath("config/ffff/"+configname+".json");
+	std::string fname = VizPath("config/ffff/"+configname+".json");
 	std::string err;
 
 	cJSON* json = jsonReadFile(fname,err);
 	if ( !json ) {
-		throw NosuchException("Unable to loadPipeline of config: %s, err=%s",
-			fname.c_str(),err.c_str());
+		// If an FFFF configfile doesn't exist, synthesize one
+		// assuming that the configname is a vizlet name
+		DEBUGPRINT(("Synthesizing FFFF config for %s",configname.c_str()));
+		std::string jstr = NosuchSnprintf("{\"pipeline\": [ { \"plugin\": \"%s\", \"params\": { } } ] }",configname.c_str());
+		json = cJSON_Parse(jstr.c_str());
+		if ( !json ) {
+			throw NosuchException("Unable to parse synthesized config!? jstr=%s",jstr.c_str());
+		}
 	}
 	loadPipelineJson(json);
 	jsonFree(json);
@@ -814,7 +820,7 @@ std::string FFFF::saveFfffPatch(std::string nm, const char* id)
 std::string FFFF::loadFfffPatch(std::string nm, const char* id)
 {
 	std::string err;
-	std::string fname = ManifoldPath("config/ffff/"+nm);
+	std::string fname = VizPath("config/ffff/"+nm);
 	DEBUGPRINT(("loadPatch nm=%s fname=%s",nm.c_str(),fname.c_str()));
 	cJSON* j = jsonReadFile(fname,err);
 	if ( ! j ) {

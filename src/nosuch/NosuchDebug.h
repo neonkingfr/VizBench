@@ -56,8 +56,9 @@ void NosuchErrorOutput(const char *fmt, ...);
 std::string NosuchFullPath(std::string file);
 std::string NosuchConfigPath(std::string file);
 std::string NosuchForwardSlash(std::string filepath);
-std::string ManifoldPath(std::string fname);
-std::string ManifoldLogDir();
+void SetVizPath(std::string path);
+std::string VizPath(std::string fname);
+std::string VizLogDir();
 
 #define DBGLEVEL 0
 

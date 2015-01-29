@@ -299,31 +299,38 @@ NosuchForwardSlash(std::string filepath) {
 	return filepath;
 }
 
-std::string
-ManifoldPath(std::string fn)
-{
-	static char* manifold = NULL;
-	
-	if ( manifold == NULL ) {
-		manifold = getenv("VIZBENCH");
-		if ( manifold == NULL ) {
-			manifold = ".";
-		}
-	}
-	if (fn == "") {
-		return manifold;
-	}
-	return NosuchSnprintf("%s/%s",manifold,fn.c_str());
+static std::string _VizPath = "";
+
+void
+SetVizPath(std::string vb) {
+	_VizPath = vb;
 }
 
 std::string
-ManifoldLogDir()
+VizPath(std::string fn)
 {
-	return ManifoldPath("log");
+	if ( _VizPath == "" ) {
+		char* p = getenv("VIZPATH");
+		if ( p == NULL ) {
+			_VizPath = ".";
+		} else {
+			_VizPath = std::string(p);
+		}
+	}
+	if (fn == "") {
+		return _VizPath;
+	}
+	return NosuchSnprintf("%s\\%s",_VizPath.c_str(),fn.c_str());
+}
+
+std::string
+VizLogDir()
+{
+	return VizPath("log");
 }
 
 std::string
 NosuchConfigPath(std::string filepath)
 {
-	return ManifoldPath("config") + "/" + filepath;
+	return VizPath("config") + "/" + filepath;
 }

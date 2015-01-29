@@ -4,8 +4,8 @@
  *
  */
 
-#ifndef VIZBENCH_OSC_INPUT
-#define VIZBENCH_OSC_INPUT
+#ifndef NOSUCH_OSC_MANAGER_H
+#define NOSUCH_OSC_MANAGER_H
 
 #include "NosuchOsc.h"
 
