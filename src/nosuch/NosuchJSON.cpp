@@ -331,9 +331,6 @@ jsonSetDebugConfig(cJSON* json)
 	if ( (j=jsonGetNumber(json,"debugautoflush")) != NULL ) {
 		NosuchDebugAutoFlush = j->valueint?TRUE:FALSE;
 	}
-	if ( (j=jsonGetNumber(json,"debuglogfile")) != NULL ) {
-		NosuchDebugSetLogDirFile(VizLogDir(),std::string(j->valuestring));
-	}
 }
 
 void

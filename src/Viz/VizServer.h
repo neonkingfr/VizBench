@@ -2,15 +2,15 @@
 #define _SPACE_SERVER_H
 
 // The following ifdef block is the standard way of creating macros which make exporting 
-// from a DLL simpler. All files within this DLL are compiled with the VIZDLL_EXPORTS
+// from a DLL simpler. All files within this DLL are compiled with the VIZSERVER_EXPORTS
 // symbol defined on the command line. This symbol should not be defined on any project
 // that uses this DLL. This way any other project whose source files include this file see 
-// VIZDLL_API functions as being imported from a DLL, whereas this DLL sees symbols
+// VIZSERVER_API functions as being imported from a DLL, whereas this DLL sees symbols
 // defined with this macro as being exported.
-#ifdef VIZDLL_EXPORTS
-#define VIZDLL_API __declspec(dllexport)
+#ifdef VIZSERVER_EXPORTS
+#define VIZSERVER_API __declspec(dllexport)
 #else
-#define VIZDLL_API __declspec(dllimport)
+#define VIZSERVER_API __declspec(dllimport)
 #endif
 
 // #include "NosuchDaemon.h"
@@ -181,7 +181,7 @@ private:
 
 };
 
-class VIZDLL_API VizServer {
+class VIZSERVER_API VizServer {
 public:
 	static VizServer* GetServer();
 	static void DeleteServer();

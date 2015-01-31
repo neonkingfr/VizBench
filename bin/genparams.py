@@ -297,12 +297,14 @@ if len(sys.argv) < 2:
 	print("Usage: %s {paramlist}" % sys.argv[0])
 	sys.exit(1)
 
-manifold = os.getenv("VIZBENCH")
-if not manifold:
-	print("VIZBENCH environment variable isn't set!")
+# We expect this program to be invoked from the VizBench/bin directory
+# so everything can be full paths without depending on environment variables
+
+paramdir = "../src/params"
+if not os.path.isdir(paramdir):
+	print("No directory "+paramdir+" !?")
 	sys.exit(1)
 
-paramdir = manifold + "/src/params"
 os.chdir(paramdir)
 
 parambase = sys.argv[1]
@@ -310,29 +312,28 @@ paramclass = parambase+"VizParams"
 paramlist = parambase+"VizParams.list"
 paramtouch = parambase+"VizParams.touch"
 paramnames = parambase+"VizParamsNames"
+file_h = parambase + "VizParams.h"
+file_cpp = parambase + "VizParams.cpp"
 
-changed = (modtime(paramlist) > modtime(paramtouch) )
-changed = True
+changed = (modtime(paramlist) > modtime(paramtouch) ) or not os.path.exists(file_h) or not os.path.exists(file_cpp)
 
 if not changed:
 	print "No change in "+paramlist
 	sys.exit(0)
 
-file = parambase + "VizParams.h"
-f = open(file,"w")
+f = open(file_h,"w")
 sys.stdout = f
 params = readparams(paramlist)
 genparamheader(params,paramclass)
 f.close()
 
-file = parambase + "VizParams.cpp"
-f = open(file,"w")
+f = open(file_cpp,"w")
 sys.stdout = f
 genparamcpp(paramclass)
 f.close()
 
-def touch(file):
-	f = open(file,"w")
+def touch(filename):
+	f = open(filename,"w")
 	f.write("# This file exists to record the last build time\n");
 	f.close()
 

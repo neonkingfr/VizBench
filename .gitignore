@@ -2,6 +2,7 @@ build/*/*/Release
 build/*/*/Debug
 bin/FFFF.exe
 bin/VizDll.dll
+bin/VizServer.dll
 ffglplugins/Viz*.dll
 ffglplugins/EmptyA.dll
 src/palette

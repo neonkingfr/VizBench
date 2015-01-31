@@ -90,7 +90,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 int ffffMain(std::string config)
 {
 	NosuchDebugInit();
-   	NosuchDebugSetLogDirFile(VizLogDir(),"ffff.debug");
+   	NosuchDebugSetLogDirFile(VizPath("log"),"ffff.debug");
 	DEBUGPRINT(("FFFF is starting."));
 
 	if ( NosuchNetworkInit() ) {
@@ -117,7 +117,6 @@ int ffffMain(std::string config)
 	// Remove shell expansion, because I want things to be the same between the
 	// Vizbench and Vizlets repositories.  If anything, a general environment
 	// variable subsitution mechanism should be put here.
-	// ffglpath = NosuchReplaceAll(ffglpath,"$VIZPATH",VizPath(""));
 
 	int camera_index = jsonNeedInt(j,"camera",-1);  // -1 for no camera, 0+ for camera
 

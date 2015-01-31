@@ -432,7 +432,7 @@ FFFF::deleteFromPipeline(std::string inm) {
 void
 FFFF::loadPipeline(std::string configname)
 {
-	std::string fname = VizPath("config/ffff/"+configname+".json");
+	std::string fname = VizConfigPath("ffff\\"+configname+".json");
 	std::string err;
 
 	cJSON* json = jsonReadFile(fname,err);
@@ -820,7 +820,7 @@ std::string FFFF::saveFfffPatch(std::string nm, const char* id)
 std::string FFFF::loadFfffPatch(std::string nm, const char* id)
 {
 	std::string err;
-	std::string fname = VizPath("config/ffff/"+nm);
+	std::string fname = VizConfigPath("ffff\\"+nm);
 	DEBUGPRINT(("loadPatch nm=%s fname=%s",nm.c_str(),fname.c_str()));
 	cJSON* j = jsonReadFile(fname,err);
 	if ( ! j ) {

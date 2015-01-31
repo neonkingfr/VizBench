@@ -40,8 +40,6 @@ extern std::string NosuchDebugLogPath;
 extern std::string NosuchDebugLogFile;
 extern std::string NosuchDebugLogDir;
 extern std::string NosuchDebugPrefix;
-extern std::string NosuchCurrentDir;
-extern std::string NosuchConfigDir;
 
 std::string NosuchSnprintf(const char *fmt, ...);
 
@@ -53,12 +51,10 @@ void NosuchDebugDumpLog();
 void NosuchDebug(char const *fmt, ... );
 void NosuchDebug(int level, char const *fmt, ... );
 void NosuchErrorOutput(const char *fmt, ...);
-std::string NosuchFullPath(std::string file);
-std::string NosuchConfigPath(std::string file);
 std::string NosuchForwardSlash(std::string filepath);
 void SetVizPath(std::string path);
+std::string VizConfigPath(std::string file);
 std::string VizPath(std::string fname);
-std::string VizLogDir();
 
 #define DBGLEVEL 0
 

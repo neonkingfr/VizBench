@@ -25,7 +25,7 @@ static CFFGLPluginInfo PluginInfo (
 
 std::string vizlet_name() { return "VizMidi"; }
 CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
-void vizlet_setdll(std::string dll) { }
+// void vizlet_setdll(std::string dll) { }
 
 VizMidi::VizMidi() : Vizlet() {
 	_midiparams = defaultParams();

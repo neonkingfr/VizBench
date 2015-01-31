@@ -54,8 +54,8 @@ std::string NosuchDebugPrefix = "";
 std::string NosuchDebugLogFile = "nosuch.debug";
 std::string NosuchDebugLogDir = ".";
 std::string NosuchDebugLogPath;
-std::string NosuchCurrentDir = ".";
-// std::string NosuchConfigDir = "config";
+
+std::string _VizPath = "";
 
 #ifdef DEBUG_TO_BUFFER
 bool NosuchDebugToBuffer = true;
@@ -82,15 +82,20 @@ NosuchDebugSetLogDirFile(std::string logdir, std::string logfile)
 	} else {
 		NosuchDebugLogFile = logfile;
 		NosuchDebugLogDir = logdir;
-		NosuchDebugLogPath = logdir + "/" + logfile;
+		NosuchDebugLogPath = logdir + "\\" + logfile;
 	}
 }
 
+std::string mmmm;
+
 void
 RealDebugDumpLog() {
+	// XXX - this code needs to handle situations when the file
+	// doesn't already exist.
+	mmmm = _VizPath;
 	std::ofstream f(NosuchDebugLogPath.c_str(),ios::app);
 	if ( ! f.is_open() ) {
-		NosuchDebugLogPath = "c:/windows/temp/debug.txt";
+		NosuchDebugLogPath = "c:/tmp/viz.debug";
 		f.open(NosuchDebugLogPath.c_str(),ios::app);
 		if ( ! f.is_open() ) {
 			return;
@@ -256,16 +261,6 @@ NosuchErrorOutput(const char *fmt, ...)
 }
 
 std::string
-NosuchFullPath(std::string filepath)
-{
-	if ( filepath == "." ) {
-		return NosuchCurrentDir;
-	} else {
-		return NosuchCurrentDir + "/" + filepath;
-	}
-}
-
-std::string
 NosuchSnprintf(const char *fmt, ...)
 {
 	static char *buff = NULL;
@@ -290,6 +285,7 @@ NosuchSnprintf(const char *fmt, ...)
 	}
 }
 
+// Replace ALL backslashes with forward slashes
 std::string
 NosuchForwardSlash(std::string filepath) {
 	size_t i;
@@ -299,23 +295,13 @@ NosuchForwardSlash(std::string filepath) {
 	return filepath;
 }
 
-static std::string _VizPath = "";
-
-void
-SetVizPath(std::string vb) {
-	_VizPath = vb;
-}
-
 std::string
 VizPath(std::string fn)
 {
 	if ( _VizPath == "" ) {
-		char* p = getenv("VIZPATH");
-		if ( p == NULL ) {
-			_VizPath = ".";
-		} else {
-			_VizPath = std::string(p);
-		}
+		std::string msg = NosuchSnprintf("Error: VIZPATH is not set!\n");
+		MessageBoxA(NULL,msg.c_str(),"Viz",MB_OK);
+		_VizPath = ".";
 	}
 	if (fn == "") {
 		return _VizPath;
@@ -323,14 +309,14 @@ VizPath(std::string fn)
 	return NosuchSnprintf("%s\\%s",_VizPath.c_str(),fn.c_str());
 }
 
-std::string
-VizLogDir()
-{
-	return VizPath("log");
+void
+SetVizPath(std::string vb) {
+	_VizPath = vb;
+	NosuchDebugSetLogDirFile(VizPath("log"),"viz.debug");
 }
 
 std::string
-NosuchConfigPath(std::string filepath)
+VizConfigPath(std::string filepath)
 {
-	return VizPath("config") + "/" + filepath;
+	return VizPath("config") + "\\" + filepath;
 }

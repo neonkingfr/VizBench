@@ -37,6 +37,7 @@ extern char* AllVizParamsNames[];
 	"sizeinitial",\
 	"sizetime",\
 	"speedinitial",\
+	"testparam",\
 	"thickness",\
 	"zable",\
 	NULL
@@ -117,6 +118,8 @@ public:
 		if (j) { sizetime.set(j); }
 		j = cJSON_GetObjectItem(json,"speedinitial");
 		if (j) { speedinitial.set(j); }
+		j = cJSON_GetObjectItem(json,"testparam");
+		if (j) { testparam.set(j); }
 		j = cJSON_GetObjectItem(json,"thickness");
 		if (j) { thickness.set(j); }
 		j = cJSON_GetObjectItem(json,"zable");
@@ -154,6 +157,7 @@ public:
 		sizeinitial.set(1.0);
 		sizetime.set(1.0);
 		speedinitial.set(0.0);
+		testparam.set(0.0);
 		thickness.set(3.0);
 		zable.set(true);
 	}
@@ -190,6 +194,7 @@ public:
 		if ( p->sizeinitial.isset() ) { this->sizeinitial.set(p->sizeinitial.get()); }
 		if ( p->sizetime.isset() ) { this->sizetime.set(p->sizetime.get()); }
 		if ( p->speedinitial.isset() ) { this->speedinitial.set(p->speedinitial.get()); }
+		if ( p->testparam.isset() ) { this->testparam.set(p->testparam.get()); }
 		if ( p->thickness.isset() ) { this->thickness.set(p->thickness.get()); }
 		if ( p->zable.isset() ) { this->zable.set(p->zable.get()); }
 	}
@@ -259,6 +264,8 @@ public:
 			sizetime.set(string2double(val));
 		} else if ( nm == "speedinitial" ) {
 			speedinitial.set(string2double(val));
+		} else if ( nm == "testparam" ) {
+			testparam.set(string2double(val));
 		} else if ( nm == "thickness" ) {
 			thickness.set(string2double(val));
 		} else if ( nm == "zable" ) {
@@ -332,6 +339,8 @@ public:
 			sizetime.set(adjust(sizetime.get(),amount,0.01,10.0));
 		} else if ( nm == "speedinitial" ) {
 			speedinitial.set(adjust(speedinitial.get(),amount,0.0,1.0));
+		} else if ( nm == "testparam" ) {
+			testparam.set(adjust(testparam.get(),amount,0.0,1.0));
 		} else if ( nm == "thickness" ) {
 			thickness.set(adjust(thickness.get(),amount,0.01,10.0));
 		} else if ( nm == "zable" ) {
@@ -371,6 +380,7 @@ public:
 		if ( nm == "sizeinitial" ) { return "1.0"; }
 		if ( nm == "sizetime" ) { return "1.0"; }
 		if ( nm == "speedinitial" ) { return "0.0"; }
+		if ( nm == "testparam" ) { return "0.0"; }
 		if ( nm == "thickness" ) { return "3.0"; }
 		if ( nm == "zable" ) { return "true"; }
 		return "";
@@ -407,6 +417,7 @@ public:
 		if ( nm == "sizeinitial" ) { return "0.01"; }
 		if ( nm == "sizetime" ) { return "0.01"; }
 		if ( nm == "speedinitial" ) { return "0.0"; }
+		if ( nm == "testparam" ) { return "0.0"; }
 		if ( nm == "thickness" ) { return "0.01"; }
 		if ( nm == "zable" ) { return "false"; }
 		return "";
@@ -443,6 +454,7 @@ public:
 		if ( nm == "sizeinitial" ) { return "10.0"; }
 		if ( nm == "sizetime" ) { return "10.0"; }
 		if ( nm == "speedinitial" ) { return "1.0"; }
+		if ( nm == "testparam" ) { return "1.0"; }
 		if ( nm == "thickness" ) { return "10.0"; }
 		if ( nm == "zable" ) { return "true"; }
 		return "";
@@ -534,6 +546,8 @@ public:
 			return DoubleString(sizetime.get());
 		} else if ( nm == "speedinitial" ) {
 			return DoubleString(speedinitial.get());
+		} else if ( nm == "testparam" ) {
+			return DoubleString(testparam.get());
 		} else if ( nm == "thickness" ) {
 			return DoubleString(thickness.get());
 		} else if ( nm == "zable" ) {
@@ -573,6 +587,7 @@ public:
 		if ( nm == "sizeinitial" ) { return "double"; }
 		if ( nm == "sizetime" ) { return "double"; }
 		if ( nm == "speedinitial" ) { return "double"; }
+		if ( nm == "testparam" ) { return "double"; }
 		if ( nm == "thickness" ) { return "double"; }
 		if ( nm == "zable" ) { return "bool"; }
 		return "";
@@ -609,6 +624,7 @@ public:
 	DoubleParam sizeinitial;
 	DoubleParam sizetime;
 	DoubleParam speedinitial;
+	DoubleParam testparam;
 	DoubleParam thickness;
 	BoolParam zable;
 };

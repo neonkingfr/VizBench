@@ -1,18 +1,30 @@
-rem This only copies binaries for DLLs and executables
+rem copies binaries and other things from %VIZBENCH% to %VIZLETS%
 
-rem NOTE - the *Release directories are used
-copy %VIZBENCH%\ffglpluginsRelease\*.* %VIZLETS%\ffglplugins
-copy %VIZBENCH%\binRelease\FFFF.exe %VIZLETS%\bin
+@if x%1 == x echo Usage: updatevizlets "{Debug|Release}"
+@if x%1 == x goto getout:
 
+set config=%1
+
+copy %VIZBENCH%\ffglplugins%config%\*.* %VIZLETS%\ffglplugins
+copy %VIZBENCH%\bin%config%\FFFF.exe %VIZLETS%\bin
+copy %VIZBENCH%\bin%config%\VizServer.dll %VIZLETS%\bin
+
+rem these are the python-based EXEs, no separate Release or Debug version
 copy %VIZBENCH%\bin\jsonrpc.exe %VIZLETS%\bin
 copy %VIZBENCH%\bin\oscutil.exe %VIZLETS%\bin
-copy %VIZBENCH%\bin\python27.dll %VIZLETS%\bin
 
+rem other DLLs
+copy %VIZBENCH%\bin\python27.dll %VIZLETS%\bin
 copy %VIZBENCH%\bin\pthreadVC2.dll %VIZLETS%\bin
-copy %VIZBENCH%\bin\VizDll.dll %VIZLETS%\bin
 
 copy %VIZBENCH%\src\oscutil\dist\*.* %VIZLETS%\bin
 copy %VIZBENCH%\src\jsonrpc\dist\*.* %VIZLETS%\bin
+
+copy %VIZBENCH%\bin\p.bat %VIZLETS%\bin
+copy %VIZBENCH%\bin\mf.bat %VIZLETS%\bin
+copy %VIZBENCH%\bin\api.bat %VIZLETS%\bin
+copy %VIZBENCH%\bin\oscplayback.bat %VIZLETS%\bin
+copy %VIZBENCH%\bin\osclisten.bat %VIZLETS%\bin
 
 rem copy %VIZBENCH%\bin\*.osc %VIZLETS%\bin
 
@@ -38,3 +50,5 @@ cd ..
 rmdir /s /q libraryzipdir
 copy %VIZBENCH%\bin\library.zip %VIZLETS%\bin
 rem ----------------------------------------------------------------------
+
+:getout

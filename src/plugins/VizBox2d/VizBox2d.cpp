@@ -24,7 +24,7 @@ static CFFGLPluginInfo PluginInfo (
 
 std::string vizlet_name() { return "VizBox2d"; }
 CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
-void vizlet_setdll(std::string dll) { }
+// void vizlet_setdll(std::string dll) { }
 
 VizBox2d::VizBox2d() : Vizlet() {
 	_params = defaultParams();

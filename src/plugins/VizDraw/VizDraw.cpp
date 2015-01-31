@@ -24,10 +24,11 @@ static CFFGLPluginInfo PluginInfo(
 
 std::string vizlet_name() { return "VizDraw"; }
 CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
-void vizlet_setdll(std::string dll) { }
+// void vizlet_setdll(std::string dll) { }
 
 VizDraw::VizDraw() : Vizlet() {
-	_params = defaultParams();
+	std::string path = VizParamPath("default");
+	_params = getAllVizParams(path);
 }
 
 VizDraw::~VizDraw() {

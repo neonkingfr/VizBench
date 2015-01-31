@@ -86,7 +86,7 @@ std::string &ltrim(std::string &s);
 std::string &rtrim(std::string &s);
 std::string &trim(std::string &s);
 
-extern "C" { bool default_setdll(std::string dllpath); }
+extern "C" { bool vizlet_setdll(std::string dllpath); }
 
 #define WINDOWS_DLLMAIN_FUNCTION(setdll) \
 	BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) { \
@@ -94,7 +94,7 @@ extern "C" { bool default_setdll(std::string dllpath); }
 	GetModuleFileNameA((HMODULE)hModule, dllpath, MAX_PATH); \
 	\
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH ) { \
-		if ( ! default_setdll(std::string(dllpath)) ) { \
+		if ( ! vizlet_setdll(std::string(dllpath)) ) { \
 			return FALSE; \
 		} \
 	} \

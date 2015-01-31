@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="VizBench">
+</Property><Property Name="Solution File" Value="C:\Users\tjt\Documents\GitHub\VizBench\build\vs2010\VizBench.sln">
+</Property><Property Name="Date" Value="Saturday, January 24, 2015">
+</Property><Property Name="Time" Value="12:12 PM">
+</Property></Properties><Event ErrorLevel="3" Project="EmptyA" Source="EmptyA\EmptyA.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="3" Project="FFFF" Source="FFFF\FFFF.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="3" Project="Vizlet1" Source="Vizlet1\Vizlet1.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="3" Project="VizDll" Source="VizDll\VizDll.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="3" Project="Vizlet2" Source="Vizlet2\Vizlet2.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="3" Project="misclib" Source="misclib\misclib.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="3" Project="VizletTemplate" Source="VizletTemplate\VizletTemplate.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="3" Project="VizDraw" Source="VizDraw\VizDraw.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="3" Project="VizBox2d" Source="VizBox2d\VizBox2d.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="3" Project="VizMidi" Source="VizMidi\VizMidi.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="3" Project="VizLife" Source="VizLife\VizLife.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="3" Project="VizLooper" Source="VizLooper\VizLooper.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="3" Project="VizShader" Source="VizShader\VizShader.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="0" Project="" Source="VizBench.sln" Description="Solution converted successfully">
+</Event><Event ErrorLevel="3" Project="" Source="VizBench.sln" Description="Converted">
+</Event></UpgradeLog>

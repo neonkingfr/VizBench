@@ -25,7 +25,7 @@ static CFFGLPluginInfo PluginInfo (
 
 std::string vizlet_name() { return "Vizlet2"; }
 CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
-void vizlet_setdll(std::string dll) { }
+// void vizlet_setdll(std::string dll) { }
 
 Vizlet2::Vizlet2() : Vizlet() {
 	_stepmilli = 125;

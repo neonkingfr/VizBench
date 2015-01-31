@@ -55,7 +55,7 @@
 
 // These functions need to be defined in a vizlet's source file.
 extern std::string vizlet_name();
-extern void vizlet_setdll(std::string(dllpath));
+extern bool vizlet_setdll(std::string(dllpath));
 CFFGLPluginInfo& vizlet_plugininfo();
 
 void vizlet_setid(CFFGLPluginInfo& plugininfo, std::string name)
@@ -92,8 +92,8 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserv
 		// Initialize once for each new process.
 		// Return FALSE if we fail to load DLL.
 		dllpathstr = NosuchToLower(dllpathstr);
-		if ( ! default_setdll(dllpathstr) ) {
-			DEBUGPRINT(("default_setdll failed"));
+		if ( ! vizlet_setdll(dllpathstr) ) {
+			DEBUGPRINT(("vizlet_setdll failed"));
 			return FALSE;
 		}
 		vizlet_setdll(dllpathstr);
@@ -716,7 +716,7 @@ Vizlet::VizParamPath(std::string configname) {
 	if (!ends_with(configname, ".json")) {
 		configname += ".json";
 	}
-	return NosuchConfigPath("params/"+configname);
+	return VizConfigPath("params\\"+configname);
 }
 
 AllVizParams*

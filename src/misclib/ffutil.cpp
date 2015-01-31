@@ -617,31 +617,17 @@ ff_passthru(ProcessOpenGLStruct *pGL)
 
 extern "C" {
 bool
-default_setdll(std::string dllpath)
+vizlet_setdll(std::string dllpath)
 {
-	NosuchDebugSetLogDirFile(VizLogDir(),"viz.debug");
-
 	dllpath = NosuchToLower(dllpath);
-	std::string basename = dllpath;
 
-	size_t lastslash = dllpath.find_last_of("/\\");
-	size_t lastdot = dllpath.find_last_of(".");
-	if ( lastslash == dllpath.npos || lastdot == dllpath.npos ) {
-		DEBUGPRINT(("Hey!  dllpath in default_setdll doesn't have slash or dot!?"));
-		return FALSE;
-	}
-	std::string dir = dllpath.substr(0,lastslash);
-	if ( lastdot > lastslash ) {
-		basename = dllpath.substr(lastslash+1,lastdot-lastslash-1);
-	}
-
-	NosuchCurrentDir = dir;
-
-	struct _stat statbuff;
-	int e = _stat(dir.c_str(),&statbuff);
-	if ( ! (e == 0 && (statbuff.st_mode | _S_IFDIR) != 0) ) {
-		DEBUGPRINT(("Hey! No directory %s!?",dir.c_str()));
-		return FALSE;
+	size_t pos = dllpath.find_last_of("/\\");
+	if ( pos != dllpath.npos && pos > 0 ) {
+		std::string parent = dllpath.substr(0,pos);
+		pos = dllpath.substr(0,pos-1).find_last_of("/\\");
+		if ( pos != parent.npos && pos > 0) {
+			SetVizPath(parent.substr(0,pos));
+		}
 	}
 
 	return TRUE;

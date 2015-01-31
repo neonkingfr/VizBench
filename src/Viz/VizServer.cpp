@@ -37,6 +37,41 @@
 #include <NosuchScheduler.h>
 #include "UT_SharedMem.h"
 
+BOOL APIENTRY DllMain( HANDLE hModule,
+                       DWORD  ul_reason_for_call,
+                       LPVOID lpReserved
+					 )
+{
+	switch (ul_reason_for_call) {
+
+	case DLL_PROCESS_ATTACH:
+		{
+			char path[MAX_PATH];
+			GetModuleFileNameA((HMODULE)hModule, path, MAX_PATH);
+			std::string dllpath = std::string(path);
+
+			// We want to take off the final filename AND the directory.
+			// This assumes that the DLL is in either a bin or ffglplugins
+			// subdirectory of the main Vizpath
+			size_t pos = dllpath.find_last_of("/\\");
+			if ( pos != dllpath.npos && pos > 0 ) {
+				std::string parent = dllpath.substr(0,pos);
+				pos = dllpath.substr(0,pos-1).find_last_of("/\\");
+				if ( pos != parent.npos && pos > 0) {
+					SetVizPath(parent.substr(0,pos));
+				}
+			}
+		}
+		break;
+
+	case DLL_THREAD_ATTACH:
+	case DLL_THREAD_DETACH:
+	case DLL_PROCESS_DETACH:
+		break;
+	}
+	return TRUE;
+}
+
 #include <set>
 #include <map>
 
@@ -356,7 +391,7 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 				if (!ends_with(file, ".json")) {
 					file = file + ".json";
 				}
-				std::string fpath = NosuchConfigPath("params/" + file);
+				std::string fpath = VizConfigPath("params\\" + file);
 
 				std::string err;
 				cJSON* json = jsonReadFile(fpath, err);
@@ -380,7 +415,7 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 				file = file + ".json";
 			}
 			cJSON* j = jsonNeedJSON(params, "contents");
-			std::string fpath = NosuchConfigPath("params/" + file);
+			std::string fpath = VizConfigPath("params\\" + file);
 			std::string err;
 			if (jsonWriteFile(fpath, j, err)) {
 				return jsonOK(id);
@@ -397,7 +432,7 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 				std::string err = NosuchSnprintf("play_midifile called with no midifile set, use set_midifile first");
 				return jsonError(-32000, err, id);
 			}
-			std::string fpath = VizPath("midifiles/" + filename);
+			std::string fpath = VizPath("midifiles\\" + filename);
 			MidiPhrase* ph = newMidiPhraseFromFile(fpath);
 			if (ph == NULL) {
 				std::string err = NosuchSnprintf("Error reading phrase from file: %s", fpath.c_str());
@@ -981,14 +1016,11 @@ VizServer::Start() {
 		NosuchErrorPopup = NULL;
 	}
 	try {
-		DEBUGPRINT(("VizServer::Start  A"));
 		std::string configfile = "config/vizserver.json";
 		std::string configpath = VizPath(configfile);
 		DEBUGPRINT1(("configpath = %s", configpath.c_str()));
 
-		DEBUGPRINT(("VizServer::Start  B"));
 		cJSON* json = _readconfig(configpath.c_str());
-		DEBUGPRINT(("VizServer::Start  C"));
 		if (json == NULL) {
 			DEBUGPRINT(("Unable to load config?  path=%s", configpath.c_str()));
 		}
@@ -997,11 +1029,8 @@ VizServer::Start() {
 			// NOTE: DO NOT FREE json - some of the char* values in it get saved/used later.
 		}
 
-		DEBUGPRINT(("VizServer::Start  D"));
 		_scheduler = new NosuchScheduler();
-		DEBUGPRINT(("VizServer::Start  E"));
 		_scheduler->setPeriodicANO(_do_ano);
-		DEBUGPRINT(("VizServer::Start  F"));
 
 		_midiinputprocessor = new VizServerMidiProcessor();
 		_midioutputprocessor = new VizServerMidiProcessor();
@@ -1011,7 +1040,6 @@ VizServer::Start() {
 		_cursorprocessor = new VizServerCursorProcessor();
 		_keystrokeprocessor = new VizServerKeystrokeProcessor();
 
-		DEBUGPRINT(("VizServer::Start  G"));
 		_jsonprocessor = new VizServerJsonProcessor();
 		_oscprocessor = new VizServerOscProcessor(this);
 		_daemon = new NosuchDaemon(_osc_input_port, _osc_input_host, _oscprocessor,
@@ -1020,7 +1048,6 @@ VizServer::Start() {
 		_started = true;
 
 		_openSharedMemOutlines();
-		DEBUGPRINT(("VizServer::Start  H"));
 
 		if (_midi_output_list == NULL) {
 			DEBUGPRINT(("Warning: MIDI output wasn't defined in configuration!"));
@@ -1032,12 +1059,8 @@ VizServer::Start() {
 		}
 		_scheduler->StartMidi(_midi_input_list, _midi_output_list);
 
-		DEBUGPRINT(("VizServer::Start  I"));
-
 		_clickprocessor = new VizServerClickProcessor(this);
 		_scheduler->SetClickProcessor(_clickprocessor);
-
-		DEBUGPRINT(("VizServer::Start  J"));
 
 	}
 	catch (NosuchException& e) {
@@ -1049,7 +1072,6 @@ VizServer::Start() {
 		DEBUGPRINT(("Some other kind of exception occured!?"));
 		r = false;
 	}
-	DEBUGPRINT(("VizServer::Start  XXX"));
 	return r;
 }
 
@@ -1235,64 +1257,49 @@ void
 VizServer::_processServerConfig(cJSON* json) {
 	cJSON *j;
 
-
-	DEBUGPRINT(("VizServer::processServerConfig  A"));
-
 	if ((j = jsonGetNumber(json, "periodicANO")) != NULL) {
 		_do_ano = (j->valueint != 0);
 	}
-	DEBUGPRINT(("VizServer::processServerConfig  B"));
 	if ((j = jsonGetNumber(json, "sharedmem")) != NULL) {
 		_do_sharedmem = (j->valueint != 0);
 	}
 	if ((j = jsonGetString(json, "sharedmemname")) != NULL) {
 		_sharedmemname = j->valuestring;
 	}
-	DEBUGPRINT(("VizServer::processServerConfig  C"));
 	if ((j = jsonGetString(json, "midiinput")) != NULL) {
 		_midi_input_list = j->valuestring;
 	}
 	if ((j = jsonGetNumber(json, "midimerge")) != NULL) {
 		_do_midimerge = (j->valueint != 0);
 	}
-	DEBUGPRINT(("VizServer::processServerConfig  D"));
 	if ((j = jsonGetString(json, "midioutput")) != NULL) {
 		_midi_output_list = j->valuestring;
 	}
 	if ((j = jsonGetNumber(json, "errorpopup")) != NULL) {
 		_do_errorpopup = (j->valueint != 0);
 	}
-	DEBUGPRINT(("VizServer::processServerConfig  E"));
 	if ((j = jsonGetNumber(json, "tuio")) != NULL) {
 		DEBUGPRINT(("tuio value in palette.json no longer used.  Remove tuioport value to disable tuio"));
 	}
-	DEBUGPRINT(("VizServer::processServerConfig  F"));
 	if ((j = jsonGetNumber(json, "tuioport")) != NULL) {
 		_osc_input_port = j->valueint;
 	}
-	DEBUGPRINT(("VizServer::processServerConfig  G"));
 	if ((j = jsonGetString(json, "tuiohost")) != NULL) {
 		_osc_input_host = j->valuestring;
 	}
-	DEBUGPRINT(("VizServer::processServerConfig  G2"));
 	if ((j = jsonGetNumber(json, "httpport")) != NULL) {
 		_httpport = j->valueint;
 	}
-	DEBUGPRINT(("VizServer::processServerConfig  G3"));
 	if ((j = jsonGetString(json, "htmldir")) != NULL) {
 		// There's undoubtedly a better way to check for a full path...
-		DEBUGPRINT(("VizServer::processServerConfig  G4"));
 		char* jstr = j->valuestring;
 		if (jstr[0] != '/' && jstr[0] != '\\' && jstr[1] != ':' ) {
-		DEBUGPRINT(("VizServer::processServerConfig  G5"));
 			// It's not a full path
 			_htmlpath = _strdup(VizPath(jstr).c_str());
-		DEBUGPRINT(("VizServer::processServerConfig  G7"));
 		}
 		else {
 			_htmlpath = _strdup(j->valuestring);
 		}
-		DEBUGPRINT(("VizServer::processServerConfig  G8"));
 	}
 	if ((j = jsonGetNumber(json, "debugtoconsole")) != NULL) {
 		NosuchDebugToConsole = j->valueint ? TRUE : FALSE;
@@ -1315,10 +1322,6 @@ VizServer::_processServerConfig(cJSON* json) {
 	if ((j = jsonGetNumber(json, "debugautoflush")) != NULL) {
 		NosuchDebugAutoFlush = j->valueint ? TRUE : FALSE;
 	}
-	if ((j = jsonGetString(json, "debuglogfile")) != NULL) {
-		NosuchDebugSetLogDirFile(NosuchDebugLogDir, std::string(j->valuestring));
-	}
-	DEBUGPRINT(("VizServer::processServerConfig  X"));
 }
 
 VizServer*

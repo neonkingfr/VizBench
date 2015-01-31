@@ -74,7 +74,7 @@ static CFFGLPluginInfo PluginInfo (
 #ifdef VIZLET
 std::string vizlet_name() { return PLUGINNAME; }
 CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
-void vizlet_setdll(std::string dll) { }
+// void vizlet_setdll(std::string dll) { }
 #endif
 
 // Common vertex shader code as per FreeFrame examples
