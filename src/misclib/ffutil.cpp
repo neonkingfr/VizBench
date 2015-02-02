@@ -178,7 +178,7 @@ void loadffglplugindef(std::string ffgldir, std::string dllnm)
 }
 
 bool
-ends_with(std::string s, std::string suff)
+NosuchEndsWith(std::string s, std::string suff)
 {
 	unsigned int nchars = suff.size();
 	std::string suffix = (s.size()>nchars) ? s.substr(s.size()-nchars).c_str() : "";
@@ -228,7 +228,7 @@ void loadffdir(std::string ffdir)
 			// std::string cfname = NosuchToLower(ws2s(wcfname));
 			std::string cfname = NosuchToLower(ffd.cFileName);
 
-			if ( ends_with(cfname,".dll") ) {
+			if ( NosuchEndsWith(cfname,".dll") ) {
 	            loadffplugindef(ffdir,cfname.c_str());
 			} else {
 				DEBUGPRINT1(("Ignoring %s, not .dll",cfname.c_str()));
@@ -272,7 +272,7 @@ void loadffgldir(std::string ffgldir)
 			// std::string cfname = NosuchToLower(ws2s(wcfname));
 			std::string cfname = NosuchToLower(ffd.cFileName);
 
-			if ( ends_with(cfname,".dll") ) {
+			if ( NosuchEndsWith(cfname,".dll") ) {
 	            loadffglplugindef(ffgldir,cfname.c_str());
 			}
         }

@@ -713,7 +713,7 @@ Vizlet::VizPath2ConfigName(std::string path) {
 
 std::string
 Vizlet::VizParamPath(std::string configname) {
-	if (!ends_with(configname, ".json")) {
+	if (!NosuchEndsWith(configname, ".json")) {
 		configname += ".json";
 	}
 	return VizConfigPath("params\\"+configname);

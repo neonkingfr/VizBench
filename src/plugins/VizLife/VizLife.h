@@ -53,7 +53,7 @@ private:
 	float col2x(int col);
 	float row2y(int row);
 	float CellDepth(LifeCell& cell);
-	void fakeCellBirth(int r, int c, LifeCell& cell);
+	void fakeCellBirth(int r, int c);
 	void addCellSprite(int r, int c);
 	void DeleteCellAndTouching(int r, int c);
 	void SetSize(int rows, int cols);

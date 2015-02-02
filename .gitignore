@@ -1,8 +1,13 @@
 build/*/*/Release
 build/*/*/Debug
 bin/FFFF.exe
-bin/VizDll.dll
 bin/VizServer.dll
+binDebug/FFFF.exe
+binDebug/VizServer.dll
+binRelease/FFFF.exe
+binRelease/VizServer.dll
+ffglpluginsDebug/Viz*.dll
+ffglpluginsRelease/Viz*.dll
 ffglplugins/Viz*.dll
 ffglplugins/EmptyA.dll
 src/palette
@@ -66,7 +71,6 @@ bin/pd
 *.exp
 *.manifest
 *.res
-vs2010/VizDll/Debug/VizDll_manifest.rc
 log/debug.txt
 log/*.debug
 vs2012/winsocktest

@@ -29,6 +29,9 @@ CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
 VizDraw::VizDraw() : Vizlet() {
 	std::string path = VizParamPath("default");
 	_params = getAllVizParams(path);
+	_params->sizeinitial.set(0.5);
+	_params->sizefinal.set(0.05);
+	_params->sizetime.set(3.0);
 }
 
 VizDraw::~VizDraw() {

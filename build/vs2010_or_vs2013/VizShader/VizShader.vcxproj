@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{B3A35C51-A06C-47B3-9D41-D7B9490AC448}</ProjectGuid>
+    <ProjectGuid>{24C1F8FE-FADE-42EF-815D-5C2B70D734C5}</ProjectGuid>
     <RootNamespace>Manifold</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <ProjectName>VizShader</ProjectName>
@@ -215,10 +215,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\plugins\VizShader\ShaderMaker.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\src\plugins\VizShader\ShaderMaker.h" />
+    <ClInclude Include="..\..\..\src\plugins\VizShader\VizShader.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
@@ -229,6 +226,9 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VizShader.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\plugins\VizShader\VizShader.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

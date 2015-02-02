@@ -388,7 +388,7 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 		if (api == "param_readfile") {
 			std::string file = jsonNeedString(params, "paramfile", "");
 			if (file != "") {
-				if (!ends_with(file, ".json")) {
+				if (!NosuchEndsWith(file, ".json")) {
 					file = file + ".json";
 				}
 				std::string fpath = VizConfigPath("params\\" + file);
@@ -411,7 +411,7 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 			if (file == "") {
 				return jsonError(-32000, "No file parameter specified on param_readfile?", id);
 			}
-			if (!ends_with(file, ".json")) {
+			if (!NosuchEndsWith(file, ".json")) {
 				file = file + ".json";
 			}
 			cJSON* j = jsonNeedJSON(params, "contents");

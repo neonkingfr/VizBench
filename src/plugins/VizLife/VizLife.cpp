@@ -292,10 +292,8 @@ void
 VizLife::RandomAddEvery(int sparseness) {
 	for (int r = 0; r < _nrows; r++) {
 		for (int c = 0; c < _ncols; c++) {
-			LifeCell& cell = _life->Cell(r, c);
 			if ((rand() % sparseness) == 0) {
-				LifeCellData* data = (LifeCellData*) cell.data();
-				fakeCellBirth(r, c, cell);
+				fakeCellBirth(r, c);
 			}
 		}
 	}
@@ -369,7 +367,9 @@ VizLife::cursor2Cell(VizCursor* c, int& row, int& col) {
 }
 
 void
-VizLife::fakeCellBirth(int r, int c, LifeCell& cell) {
+VizLife::fakeCellBirth(int r, int c) {
+
+	LifeCell& cell = _life->Cell(r, c);
 
 	cell.setVal(true);
 	LifeCellData* data = (LifeCellData*) cell.data();
@@ -396,15 +396,7 @@ VizLife::fakeCellBirth(int r, int c, LifeCell& cell) {
 }
 
 void VizLife::processCursor(VizCursor* c, int downdragup) {
-#ifdef DRAWOUTLINE
-	if ( c->outline != NULL ) {
-		_params->shape.set("outline");
-	} else {
-		_params->shape.set("square");
-	}
-#else
 	_params->shape.set("square");
-#endif
 	_params->filled.set(true);
 	_params->sizeinitial.set(1.0);
 	_params->sizefinal.set(0.1);
@@ -412,22 +404,18 @@ void VizLife::processCursor(VizCursor* c, int downdragup) {
 	_params->alphainitial.set(1.0);
 	_params->alphafinal.set(0.0);
 	_params->alphatime.set(0.5);
-	VizSprite* s = makeAndAddVizSprite(_params, c->pos);
-	VizSpriteOutline* so = (VizSpriteOutline*)s;
-#ifdef DRAWOUTLINE
-	if ( so != NULL && c->outline != NULL ) {
-		so->setOutline(c->outline,c->hdr);
-	}
-#endif
+
+	// VizSprite* s = makeAndAddVizSprite(_params, c->pos);
+	// VizSpriteOutline* so = (VizSpriteOutline*)s;
 
 	// NO OpenGL calls here
 	double minarea = 0.05;
-	if (c->area > minarea) {
+	if (c->area == 0.0 || c->area > minarea) {
 		int row, col;
 		cursor2Cell(c,row,col);
-		LifeCell& cell = _life->Cell(row,col);
 		if (downdragup == CURSOR_DOWN) {
-			fakeCellBirth(row, col, cell);
+			DEBUGPRINT(("fakeCellBirth (down) at row/col = %d / %d",_savedrow,_savedcol));
+			fakeCellBirth(row, col);
 			_savedrow = row;
 			_savedcol = col;
 		}
@@ -449,8 +437,8 @@ void VizLife::processCursor(VizCursor* c, int downdragup) {
 					DEBUGPRINT(("VizLife should not get here"));
 					break;
 				}
-				LifeCell& cell = _life->Cell(_savedrow,_savedcol);
-				fakeCellBirth(_savedrow, _savedcol, cell);
+				DEBUGPRINT(("fakeCellBirth (drag) at row/col = %d / %d",_savedrow,_savedcol));
+				fakeCellBirth(_savedrow, _savedcol);
 			}
 		}
 	}

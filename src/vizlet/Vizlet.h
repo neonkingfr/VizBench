@@ -1,6 +1,8 @@
 #ifndef _VIZLET_H
 #define _VIZLET_H
 
+#define VIZLET
+
 #include "ffutil.h"
 #include "FFGL.h"
 #include "FFGLPluginSDK.h"

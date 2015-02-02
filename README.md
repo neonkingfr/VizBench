@@ -40,8 +40,9 @@ Here are the steps to obtain and build it:
 
    - Add %VIZBENCH%/bin to your PATH
 
-   - Start Visual Studio 2013, loading the build/vs2013/VizBench.sln solution.
-     For Visual Studio 2010, load build/vs2010/VizBench.sln.
+   - Start Visual Studio 2013 or Visual Studio 2010 with this solution:
+
+         build/vs2010_or_vs2013/VizBench.sln
 
    - Make sure Visual Studio is set to compile the Debug Win32 version.
 
