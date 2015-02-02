@@ -122,28 +122,28 @@ Vizlet::Vizlet() {
 
 	VizParams::Initialize();
 
-	_defaultparams = new AllVizParams(true);
-	_useparamcache = false;
+	m_defaultparams = new AllVizParams(true);
+	m_useparamcache = false;
 
 	AllVizParams* spdefault = getAllVizParams(VizParamPath("default"));
 	if ( spdefault ) {
-		_defaultparams->applyVizParamsFrom(spdefault);
+		m_defaultparams->applyVizParamsFrom(spdefault);
 	}
 
-	_callbacksInitialized = false;
-	_passthru = true;
-	_call_RealProcessOpenGL = false;
-	_spritelist = new VizSpriteList();
-	_defaultmidiparams = defaultParams();
+	m_callbacksInitialized = false;
+	m_passthru = true;
+	m_call_RealProcessOpenGL = false;
+	m_spritelist = new VizSpriteList();
+	m_defaultmidiparams = defaultParams();
 	// _frame = 0;
 
-	_vizserver = VizServer::GetServer();
+	m_vizserver = VizServer::GetServer();
 
-	_viztag = vizlet_name();
+	m_viztag = vizlet_name();
 
-	_af = ApiFilter(_viztag.c_str());
-	_mf = MidiFilter();  // ALL Midi
-	_cf = CursorFilter();  // ALL Cursors
+	m_af = ApiFilter(m_viztag.c_str());
+	m_mf = MidiFilter();  // ALL Midi
+	m_cf = CursorFilter();  // ALL Cursors
 
 	// These are default values, which can be overridden by the config file.
 
@@ -165,7 +165,7 @@ Vizlet::Vizlet() {
 	_disabled = false;
 	_disable_on_exception = false;
 
-	_stopped = false;
+	m_stopped = false;
 
 	// The most common reason for being disabled at this point
 	// is when the config JSON file can't be parsed.
@@ -183,7 +183,7 @@ Vizlet::Vizlet() {
 
 Vizlet::~Vizlet()
 {
-	DEBUGPRINT1(("=== Vizlet destructor is called viztag=%s", _viztag.c_str()));
+	DEBUGPRINT1(("=== Vizlet destructor is called viztag=%s", m_viztag.c_str()));
 	_stopstuff();
 }
 
@@ -287,32 +287,32 @@ void vizlet_keystroke(void* data,int key, int downup) {
 }
 
 void Vizlet::advanceCursorTo(VizCursor* c, int tm) {
-	_vizserver->AdvanceCursorTo(c,tm);
+	m_vizserver->AdvanceCursorTo(c,tm);
 }
 
 void Vizlet::ChangeVizTag(const char* p) {
-	_vizserver->ChangeVizTag(Handle(),p);
+	m_vizserver->ChangeVizTag(Handle(),p);
 }
 
 void Vizlet::_startApiCallbacks(ApiFilter af, void* data) {
-	NosuchAssert(_vizserver);
-	_vizserver->AddJsonCallback(Handle(),af,vizlet_json,data);
+	NosuchAssert(m_vizserver);
+	m_vizserver->AddJsonCallback(Handle(),af,vizlet_json,data);
 }
 
 void Vizlet::_startMidiCallbacks(MidiFilter mf, void* data) {
-	NosuchAssert(_vizserver);
-	_vizserver->AddMidiInputCallback(Handle(),mf,vizlet_midiinput,data);
-	_vizserver->AddMidiOutputCallback(Handle(),mf,vizlet_midioutput,data);
+	NosuchAssert(m_vizserver);
+	m_vizserver->AddMidiInputCallback(Handle(),mf,vizlet_midiinput,data);
+	m_vizserver->AddMidiOutputCallback(Handle(),mf,vizlet_midioutput,data);
 }
 
 void Vizlet::_startCursorCallbacks(CursorFilter cf, void* data) {
-	NosuchAssert(_vizserver);
-	_vizserver->AddCursorCallback(Handle(),cf,vizlet_cursor,data);
+	NosuchAssert(m_vizserver);
+	m_vizserver->AddCursorCallback(Handle(),cf,vizlet_cursor,data);
 }
 
 void Vizlet::_startKeystrokeCallbacks(void* data) {
-	NosuchAssert(_vizserver);
-	_vizserver->AddKeystrokeCallback(Handle(),vizlet_keystroke,data);
+	NosuchAssert(m_vizserver);
+	m_vizserver->AddKeystrokeCallback(Handle(),vizlet_keystroke,data);
 }
 
 void Vizlet::_stopCallbacks() {
@@ -322,36 +322,36 @@ void Vizlet::_stopCallbacks() {
 }
 
 void Vizlet::_stopApiCallbacks() {
-	NosuchAssert(_vizserver);
-	_vizserver->RemoveJsonCallback(Handle());
+	NosuchAssert(m_vizserver);
+	m_vizserver->RemoveJsonCallback(Handle());
 }
 
 void Vizlet::_stopMidiCallbacks() {
-	NosuchAssert(_vizserver);
-	_vizserver->RemoveMidiInputCallback(Handle());
-	_vizserver->RemoveMidiOutputCallback(Handle());
+	NosuchAssert(m_vizserver);
+	m_vizserver->RemoveMidiInputCallback(Handle());
+	m_vizserver->RemoveMidiOutputCallback(Handle());
 }
 
 void Vizlet::_stopCursorCallbacks() {
-	NosuchAssert(_vizserver);
-	_vizserver->RemoveCursorCallback(Handle());
+	NosuchAssert(m_vizserver);
+	m_vizserver->RemoveCursorCallback(Handle());
 }
 
 int Vizlet::MilliNow() {
-	if ( _vizserver == NULL ) {
+	if ( m_vizserver == NULL ) {
 		DEBUGPRINT(("Vizlet::MilliNow() - _vizserver is NULL!"));
 		return 0;
 	} else {
-		return _vizserver->MilliNow();
+		return m_vizserver->MilliNow();
 	}
 }
 
 int Vizlet::CurrentClick() {
-	if ( _vizserver == NULL ) {
+	if ( m_vizserver == NULL ) {
 		DEBUGPRINT(("Vizlet::CurrentClick() - _vizserver is NULL!"));
 		return 0;
 	} else {
-		return _vizserver->CurrentClick();
+		return m_vizserver->CurrentClick();
 	}
 }
 
@@ -359,7 +359,7 @@ void Vizlet::SendMidiMsg() {
 	DEBUGPRINT(("Vizlet::SendMidiMsg called - this should go away eventually"));
 	MidiMsg* msg = MidiNoteOn::make(1,80,100);
 	// _vizserver->MakeNoteOn(1,80,100);
-	_vizserver->SendMidiMsg(msg);
+	m_vizserver->SendMidiMsg(msg);
 }
 
 
@@ -403,16 +403,16 @@ DWORD Vizlet::InitGL(const FFGLViewportStruct *vp) {
 }
 
 void Vizlet::_stopstuff() {
-	if ( _stopped )
+	if ( m_stopped )
 		return;
-	_stopped = true;
+	m_stopped = true;
 	_stopCallbacks();
-	if ( _vizserver ) {
-		int ncb = _vizserver->NumCallbacks();
-		int mcb = _vizserver->MaxCallbacks();
+	if ( m_vizserver ) {
+		int ncb = m_vizserver->NumCallbacks();
+		int mcb = m_vizserver->MaxCallbacks();
 		DEBUGPRINT1(("Vizlet::_stopstuff - VizServer has %d callbacks, max=%d!",ncb,mcb));
 		if ( ncb == 0 && mcb > 0 ) {
-			_vizserver->Stop();
+			m_vizserver->Stop();
 		}
 	}
 }
@@ -423,11 +423,11 @@ DWORD Vizlet::DeInitGL() {
 }
 
 void Vizlet::AddVizSprite(VizSprite* s) {
-	_spritelist->add(s,defaultParams()->nsprites);
+	m_spritelist->add(s,defaultParams()->nsprites);
 }
 
 void Vizlet::DrawVizSprites() {
-	_spritelist->draw(&graphics);
+	m_spritelist->draw(&graphics);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -436,43 +436,43 @@ void Vizlet::DrawVizSprites() {
 
 void
 Vizlet::QueueMidiPhrase(MidiPhrase* ph, click_t clk) {
-	_vizserver->QueueMidiPhrase(ph,clk);
+	m_vizserver->QueueMidiPhrase(ph,clk);
 }
 
 void
 Vizlet::QueueMidiMsg(MidiMsg* m, click_t clk) {
-	_vizserver->QueueMidiMsg(m,clk);
+	m_vizserver->QueueMidiMsg(m,clk);
 }
 
 void
 Vizlet::QueueClear() {
-	_vizserver->QueueClear();
+	m_vizserver->QueueClear();
 }
 
 void
 Vizlet::StartVizServer() {
-	if ( ! _vizserver->Started() ) {
-		_vizserver->Start();
-		srand( _vizserver->MilliNow() );
+	if ( ! m_vizserver->Started() ) {
+		m_vizserver->Start();
+		srand( m_vizserver->MilliNow() );
 	}
 }
 
 void
 Vizlet::InitCallbacks() {
-	if ( ! _callbacksInitialized ) {
+	if ( ! m_callbacksInitialized ) {
 
-		_startApiCallbacks(_af,(void*)this);
-		_startMidiCallbacks(_mf,(void*)this);
-		_startCursorCallbacks(_cf,(void*)this);
+		_startApiCallbacks(m_af,(void*)this);
+		_startMidiCallbacks(m_mf,(void*)this);
+		_startCursorCallbacks(m_cf,(void*)this);
 		_startKeystrokeCallbacks((void*)this);
 
-		_callbacksInitialized = true;
+		m_callbacksInitialized = true;
 	}
 }
 
 DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 {
-	if ( _stopped ) {
+	if ( m_stopped ) {
 		return FF_SUCCESS;
 	}
 	if ( _disabled ) {
@@ -500,7 +500,7 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 	}
 	NosuchUnlock(&json_mutex,"json");
 
-	if ( _passthru && pGL != NULL ) {
+	if ( m_passthru && pGL != NULL ) {
 		if ( ! ff_passthru(pGL) ) {
 			return FF_FAIL;
 		}
@@ -524,7 +524,7 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 
 		int milli = MilliNow();
 		bool r;
-		if (_call_RealProcessOpenGL) {
+		if (m_call_RealProcessOpenGL) {
 			// This is used when adapting to existing FFGL plugin code
 			r = (RealProcessOpenGL(pGL)==FF_SUCCESS);
 		}
@@ -535,7 +535,7 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 		glDisable(GL_TEXTURE_2D);
 		glColor4f(1.f,1.f,1.f,1.f); //restore default color
 
-		_spritelist->advanceTo(milli);
+		m_spritelist->advanceTo(milli);
 		processAdvanceTimeTo(milli);
 
 		if ( ! r ) {
@@ -592,16 +592,16 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 }
 
 void Vizlet::DrawNotesDown() {
-	_vizserver->LockNotesDown();
+	m_vizserver->LockNotesDown();
 	try {
 		CATCH_NULL_POINTERS;
-		_drawnotes(_vizserver->NotesDown());
+		_drawnotes(m_vizserver->NotesDown());
 	} catch (NosuchException& e) {
 		DEBUGPRINT(("NosuchException while drawing notes: %s",e.message()));
 	} catch (...) {
 		DEBUGPRINT(("Some other kind of exception occured while drawing notes!?"));
 	}
-	_vizserver->UnlockNotesDown();
+	m_vizserver->UnlockNotesDown();
 }
 
 void Vizlet::LockVizlet() {
@@ -721,7 +721,7 @@ Vizlet::VizParamPath(std::string configname) {
 
 AllVizParams*
 Vizlet::getAllVizParams(std::string path) {
-	if (_useparamcache) {
+	if (m_useparamcache) {
 		std::map<std::string, AllVizParams*>::iterator it = _paramcache.find(path);
 		if (it == _paramcache.end()) {
 			_paramcache[path] = readVizParams(path);
@@ -828,31 +828,31 @@ VizSprite* Vizlet::defaultMidiVizSprite(MidiMsg* m) {
 		pos.y = (m->Pitch()-minpitch) / float(maxpitch-minpitch);
 		pos.z = (m->Velocity()*m->Velocity()) / (128.0*128.0);
 
-		_defaultmidiparams->shape.set("circle");
+		m_defaultmidiparams->shape.set("circle");
 
 		double fadetime = 5.0;
-		_defaultmidiparams->movedir.set(180.0);
-		_defaultmidiparams->speedinitial.set(0.2);
-		_defaultmidiparams->sizeinitial.set(0.1);
-		_defaultmidiparams->sizefinal.set(0.0);
-		_defaultmidiparams->sizetime.set(fadetime);
+		m_defaultmidiparams->movedir.set(180.0);
+		m_defaultmidiparams->speedinitial.set(0.2);
+		m_defaultmidiparams->sizeinitial.set(0.1);
+		m_defaultmidiparams->sizefinal.set(0.0);
+		m_defaultmidiparams->sizetime.set(fadetime);
 
-		_defaultmidiparams->lifetime.set(fadetime);
+		m_defaultmidiparams->lifetime.set(fadetime);
 
 		// control color with channel
 		NosuchColor clr = channelColor(m->Channel());
 		double hue = clr.hue();
 
-		_defaultmidiparams->alphainitial.set(1.0);
-		_defaultmidiparams->alphafinal.set(0.0);
-		_defaultmidiparams->alphatime.set(fadetime);
+		m_defaultmidiparams->alphainitial.set(1.0);
+		m_defaultmidiparams->alphafinal.set(0.0);
+		m_defaultmidiparams->alphatime.set(fadetime);
 
-		_defaultmidiparams->hueinitial.set(hue);
-		_defaultmidiparams->huefinal.set(hue);
-		_defaultmidiparams->huefillinitial.set(hue);
-		_defaultmidiparams->huefillfinal.set(hue);
+		m_defaultmidiparams->hueinitial.set(hue);
+		m_defaultmidiparams->huefinal.set(hue);
+		m_defaultmidiparams->huefillinitial.set(hue);
+		m_defaultmidiparams->huefillfinal.set(hue);
 
-		s = makeAndAddVizSprite(_defaultmidiparams, pos);
+		s = makeAndAddVizSprite(m_defaultmidiparams, pos);
 	}
 	return s;
 }

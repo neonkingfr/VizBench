@@ -63,33 +63,33 @@ FFGLPluginDef::getParamNum(std::string pnm) {
 }
 
 FFGLPluginInstance::FFGLPluginInstance(FFGLPluginDef* d, std::string nm) :
-	_plugindef(d), next(NULL), _params(NULL), _name(nm), _enabled(false),
+	m_plugindef(d), next(NULL), m_params(NULL), _name(nm), _enabled(false),
 	m_ffInstanceID(INVALIDINSTANCE) {
 
 	NosuchAssert ( d->m_ffPluginMain );
-	_main = d->m_ffPluginMain;
+	m_main = d->m_ffPluginMain;
 }
 
 bool FFGLPluginInstance::setparam(std::string pnm, float v)
 {
-	int pnum = _plugindef->getParamNum(pnm);
+	int pnum = m_plugindef->getParamNum(pnm);
 	if ( pnum >= 0 ) {
 		SetFloatParameter(pnum, v);
 	    return true;
 	} else {
-	    DEBUGPRINT(("Didn't find FFGL parameter pnm=%s in plugin=%s\n",pnm.c_str(),_plugindef->GetPluginName().c_str()));
+	    DEBUGPRINT(("Didn't find FFGL parameter pnm=%s in plugin=%s\n",pnm.c_str(),m_plugindef->GetPluginName().c_str()));
 	    return false;
 	}
 }
 
 bool FFGLPluginInstance::setparam(std::string pnm, std::string v)
 {
-	int pnum = _plugindef->getParamNum(pnm);
+	int pnum = m_plugindef->getParamNum(pnm);
 	if ( pnum >= 0 ) {
 		SetStringParameter(pnum, v);
 	    return true;
 	} else {
-	    DEBUGPRINT(("Didn't find FFGL parameter pnm=%s in plugin=%s\n",pnm.c_str(),_plugindef->GetPluginName().c_str()));
+	    DEBUGPRINT(("Didn't find FFGL parameter pnm=%s in plugin=%s\n",pnm.c_str(),m_plugindef->GetPluginName().c_str()));
 	    return false;
 	}
 }
@@ -97,7 +97,7 @@ bool FFGLPluginInstance::setparam(std::string pnm, std::string v)
 float FFGLPluginInstance::getparam(std::string pnm)
 {
 	DEBUGPRINT(("FGLPlugin::getparam pnm=%s",pnm.c_str()));
-	int pnum = _plugindef->getParamNum(pnm);
+	int pnum = m_plugindef->getParamNum(pnm);
 	if ( pnum >= 0 ) {
 		return GetFloatParameter(pnum);
 	}
@@ -108,7 +108,7 @@ float FFGLPluginInstance::getparam(std::string pnm)
 void FFGLPluginInstance::SetFloatParameter(int paramNum, float value)
 {
     //make sure its a float parameter type
-    DWORD ffParameterType = _main(FF_GETPARAMETERTYPE,(DWORD)paramNum,0).ivalue;
+    DWORD ffParameterType = m_main(FF_GETPARAMETERTYPE,(DWORD)paramNum,0).ivalue;
     if (ffParameterType!=FF_TYPE_TEXT) {
         SetParameterStruct ArgStruct;
         ArgStruct.ParameterNumber = paramNum;
@@ -120,7 +120,7 @@ void FFGLPluginInstance::SetFloatParameter(int paramNum, float value)
         ArgStruct.u.NewFloatValue = value;
 		// ArgStruct.NewParameterValue = (DWORD)value;
 
-        _main(FF_SETPARAMETER,(DWORD)(&ArgStruct), m_ffInstanceID);
+        m_main(FF_SETPARAMETER,(DWORD)(&ArgStruct), m_ffInstanceID);
     } else {
 		DEBUGPRINT(("HEY! SetFloatParameter called on TEXT parameter (paramnum=%d)",paramNum));
 	}
@@ -129,27 +129,27 @@ void FFGLPluginInstance::SetFloatParameter(int paramNum, float value)
 void FFGLPluginInstance::SetStringParameter(int paramNum, std::string value)
 {
     //make sure its a text parameter type
-    DWORD ffParameterType = _main(FF_GETPARAMETERTYPE,(DWORD)paramNum,0).ivalue;
+    DWORD ffParameterType = m_main(FF_GETPARAMETERTYPE,(DWORD)paramNum,0).ivalue;
     if (ffParameterType==FF_TYPE_TEXT) {
         SetParameterStruct ArgStruct;
         ArgStruct.ParameterNumber = paramNum;
         ArgStruct.u.NewTextValue = value.c_str();
-        _main(FF_SETPARAMETER,(DWORD)(&ArgStruct), m_ffInstanceID);
+        m_main(FF_SETPARAMETER,(DWORD)(&ArgStruct), m_ffInstanceID);
     } else {
 		DEBUGPRINT(("HEY! SetStringParameter called on non-TEXT parameter (paramnum=%d)",paramNum));
 	}
 }
 
 void FFGLPluginInstance::SetTime(double curTime) {
-    _main(FF_SETTIME, (DWORD)(&curTime), m_ffInstanceID);
+    m_main(FF_SETTIME, (DWORD)(&curTime), m_ffInstanceID);
 }
 
 float FFGLPluginInstance::GetFloatParameter(int paramNum) {
     //make sure its a float parameter type
-    DWORD ffParameterType = _main(FF_GETPARAMETERTYPE,(DWORD)paramNum,0).ivalue;
+    DWORD ffParameterType = m_main(FF_GETPARAMETERTYPE,(DWORD)paramNum,0).ivalue;
     if (ffParameterType!=FF_TYPE_TEXT)
     {
-        plugMainUnion result = _main(FF_GETPARAMETER,(DWORD)paramNum, m_ffInstanceID);
+        plugMainUnion result = m_main(FF_GETPARAMETER,(DWORD)paramNum, m_ffInstanceID);
 
         //make sure the call to get the parameter succeeded before
         //reading the float value
@@ -163,10 +163,10 @@ float FFGLPluginInstance::GetFloatParameter(int paramNum) {
 
 bool FFGLPluginInstance::GetBoolParameter(int paramNum) {
     //make sure its a float parameter type
-    DWORD ffParameterType = _main(FF_GETPARAMETERTYPE,(DWORD)paramNum,0).ivalue;
+    DWORD ffParameterType = m_main(FF_GETPARAMETERTYPE,(DWORD)paramNum,0).ivalue;
     if (ffParameterType==FF_TYPE_BOOLEAN)
     {
-        plugMainUnion r = _main(FF_GETPARAMETER,(DWORD)paramNum, m_ffInstanceID);
+        plugMainUnion r = m_main(FF_GETPARAMETER,(DWORD)paramNum, m_ffInstanceID);
 
         //make sure the call to get the parameter succeeded before
         //reading the float value
@@ -183,7 +183,7 @@ bool FFGLPluginInstance::GetBoolParameter(int paramNum) {
 
 std::string FFGLPluginInstance::GetParameterDisplay(int paramNum)
 {
-    plugMainUnion r = _main(FF_GETPARAMETERDISPLAY,(DWORD)paramNum,m_ffInstanceID);
+    plugMainUnion r = m_main(FF_GETPARAMETERDISPLAY,(DWORD)paramNum,m_ffInstanceID);
     char nm[17];
     memcpy(nm,r.svalue,16);
     nm[16] = 0;
@@ -200,7 +200,7 @@ DWORD FFGLPluginInstance::CallProcessOpenGL(ProcessOpenGLStructTag &t)
 
     try
     {
-        retVal = _main(FF_PROCESSOPENGL, (DWORD)&t, m_ffInstanceID).ivalue;
+        retVal = m_main(FF_PROCESSOPENGL, (DWORD)&t, m_ffInstanceID).ivalue;
     }
     catch (...)
     {
@@ -286,7 +286,7 @@ DWORD FFGLPluginInstance::InstantiateGL(const FFGLViewportStruct *viewport)
     }
 
     //instantiate 1 of the plugins
-    m_ffInstanceID = _main(FF_INSTANTIATEGL, (DWORD)viewport, 0).ivalue;
+    m_ffInstanceID = m_main(FF_INSTANTIATEGL, (DWORD)viewport, 0).ivalue;
 
     //if it instantiated ok, return success
     if (m_ffInstanceID==INVALIDINSTANCE)
@@ -294,11 +294,11 @@ DWORD FFGLPluginInstance::InstantiateGL(const FFGLViewportStruct *viewport)
 
     //make default param assignments
     int i;
-	int numparams = _plugindef->m_numparams;
+	int numparams = m_plugindef->m_numparams;
     for (i=0; i<numparams; i++) {
-        plugMainUnion result = _main(FF_GETPARAMETERDEFAULT,(DWORD)i,0);
+        plugMainUnion result = m_main(FF_GETPARAMETERDEFAULT,(DWORD)i,0);
         if (result.ivalue!=FF_FAIL) {
-		    DWORD ffParameterType = _main(FF_GETPARAMETERTYPE,(DWORD)i,0).ivalue;
+		    DWORD ffParameterType = m_main(FF_GETPARAMETERTYPE,(DWORD)i,0).ivalue;
 		    if (ffParameterType!=FF_TYPE_TEXT) {
 	            SetFloatParameter(i,result.fvalue);
 			} else {
@@ -321,7 +321,7 @@ DWORD FFGLPluginInstance::DeInstantiateGL()
     DWORD rval = FF_FAIL;
 
     try {
-        rval = _main(FF_DEINSTANTIATEGL, 0, (DWORD)m_ffInstanceID).ivalue;
+        rval = m_main(FF_DEINSTANTIATEGL, 0, (DWORD)m_ffInstanceID).ivalue;
     }
     catch (...) {
         DEBUGPRINT(("FreeFrame Exception on DEINSTANTIATE"));

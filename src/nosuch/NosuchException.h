@@ -13,10 +13,10 @@
 #include "NosuchUtil.h"
 
 class NosuchException {
-	char *_msg;
+	char *m_msg;
 public:
 	NosuchException( const char *fmt, ...);
-	const char *message() { return _msg; }
+	const char *message() { return m_msg; }
 };
 
 #define SEH_STUFF_ONLY_USABLE_WHEN_COMPILING_FOR_SEH

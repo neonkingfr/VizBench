@@ -19,8 +19,8 @@ private:
 	// Put private things here.
 
 	void _midiVizSprite(MidiMsg* m);
-	AllVizParams* _midiparams;
-	std::string _spriteparams;
+	AllVizParams* m_midiparams;
+	std::string m_spriteparams;
 };
 
 #endif

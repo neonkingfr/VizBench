@@ -42,46 +42,46 @@
 
 NosuchHttpServer::NosuchHttpServer(NosuchJsonListener* jproc, int port, std::string htmldir, int timeout, int idletime)
 {
-	_listening_socket = new NosuchSocket();
-	_json_processor = jproc;
-	_htmldir = htmldir;
+	m_listening_socket = new NosuchSocket();
+	m_json_processor = jproc;
+	m_htmldir = htmldir;
 	// Someday we'll probably need the ability to specify a host,
 	// but it's more foolproof to listen on all IP addresses
 	// of the local host, so we set h=0
 	DWORD h = 0;
-	_shouldbeshutdown = false;
-	_shutdowncomplete = false;
-	_listening_socket->Listen(h, port, timeout, idletime);
+	m_shouldbeshutdown = false;
+	m_shutdowncomplete = false;
+	m_listening_socket->Listen(h, port, timeout, idletime);
 	DEBUGPRINT(("Listening for HTTP on TCP port %d\n", port));
 }
 
 NosuchHttpServer::~NosuchHttpServer() {
-	DEBUGPRINT(("~NosuchHttpServer called, deleting listening socket=%lx", (long)_listening_socket));
-	delete _listening_socket;
-	_listening_socket = NULL;
+	DEBUGPRINT(("~NosuchHttpServer called, deleting listening socket=%lx", (long)m_listening_socket));
+	delete m_listening_socket;
+	m_listening_socket = NULL;
 }
 
 void NosuchHttpServer::Shutdown() {
 	DEBUGPRINT(("NosuchHttpServer::Shutdown called, closing listening_socket"));
-	_listening_socket->Close();
-	DEBUGPRINT(("NosuchHttpServer::Shutdown is NOT deleting _listening_socket = %ld", (long)_listening_socket));
+	m_listening_socket->Close();
+	DEBUGPRINT(("NosuchHttpServer::Shutdown is NOT deleting _listening_socket = %ld", (long)m_listening_socket));
 	// delete _listening_socket;
 	// _listening_socket = NULL;
-	_shutdowncomplete = true;
+	m_shutdowncomplete = true;
 }
 
 bool NosuchHttpServer::IsShutdownComplete() {
-	return _shutdowncomplete;
+	return m_shutdowncomplete;
 }
 
 bool NosuchHttpServer::ShouldBeShutdown() {
-	return _shouldbeshutdown;
+	return m_shouldbeshutdown;
 }
 
 void
 NosuchHttpServer::SetShouldBeShutdown(bool b) {
-	_shouldbeshutdown = b;
-	_shutdowncomplete = false;
+	m_shouldbeshutdown = b;
+	m_shutdowncomplete = false;
 }
 
 bool
@@ -97,34 +97,34 @@ get_name_value(std::string line, std::string& name, std::string& value) {
 
 void
 NosuchSocketConnection::_grab_request(int req, std::string& line) {
-	_request_type = req;
-	_url = line.substr(req == REQUEST_GET ? 4 : 5); // 4 is strlen("GET")+1, 5 is strlen("POST")+1
+	m_request_type = req;
+	m_url = line.substr(req == REQUEST_GET ? 4 : 5); // 4 is strlen("GET")+1, 5 is strlen("POST")+1
 	size_t k;
-	if ((k = _url.find(" ")) != _url.npos) {
-		_url = _url.substr(0, k);
+	if ((k = m_url.find(" ")) != m_url.npos) {
+		m_url = m_url.substr(0, k);
 	}
 }
 
 bool
 NosuchSocketConnection::CollectHttpRequest(const char *p) {
-	_buff_sofar += std::string(p);
+	m_buff_sofar += std::string(p);
 
-	if (_collecting_post_data) {
-		bool done = CollectPostData(_buff_sofar);
-		_buff_sofar = "";
+	if (m_collecting_post_data) {
+		bool done = CollectPostData(m_buff_sofar);
+		m_buff_sofar = "";
 		return done;  // true if we've collected
 	}
 
 	// Keep pulling off lines...
 	size_t i;
-	while ((i = _buff_sofar.find("\n")) != _buff_sofar.npos) {
-		std::string line = _buff_sofar.substr(0, i + 1);  // line includes the newline
-		_buff_sofar = _buff_sofar.substr(i + 1);
+	while ((i = m_buff_sofar.find("\n")) != m_buff_sofar.npos) {
+		std::string line = m_buff_sofar.substr(0, i + 1);  // line includes the newline
+		m_buff_sofar = m_buff_sofar.substr(i + 1);
 		// ... until you get to the end of the headers
 		if (CollectHttpHeader(line)) {
-			if (_collecting_post_data) {
-				bool done = CollectPostData(_buff_sofar);
-				_buff_sofar = "";
+			if (m_collecting_post_data) {
+				bool done = CollectPostData(m_buff_sofar);
+				m_buff_sofar = "";
 				return done;
 			}
 			return true;
@@ -136,13 +136,13 @@ NosuchSocketConnection::CollectHttpRequest(const char *p) {
 // This method returns true when POST data has been completely collected
 bool
 NosuchSocketConnection::CollectPostData(std::string data) {
-	_data += data;
-	DEBUGPRINT1(("Collected data source=%s, _data (_content_leng=%d dataleng=%d) is now=((%s))\n", _source.c_str(), _content_length, _data.length(), _data.c_str()));
-	const char *dd = _data.c_str();
+	m_data += data;
+	DEBUGPRINT1(("Collected data source=%s, _data (_content_leng=%d dataleng=%d) is now=((%s))\n", _source.c_str(), m_content_length, m_data.length(), m_data.c_str()));
+	const char *dd = m_data.c_str();
 	if (*dd != '{') {
 		DEBUGPRINT(("Hey, Data doesn't being with curly! source=%s\n", _source.c_str()));
 	}
-	if (_data.length() >= _content_length) {
+	if (m_data.length() >= m_content_length) {
 		return true;
 	}
 	else {
@@ -155,23 +155,23 @@ bool
 NosuchSocketConnection::CollectHttpHeader(std::string line) {
 	if (line == "\n" || line == "\r\n") {
 		// blank line, end of header
-		if (_content_length > 0) {
-			DEBUGPRINT1(("End of header, content-length=%d\n", _content_length));
+		if (m_content_length > 0) {
+			DEBUGPRINT1(("End of header, content-length=%d\n", m_content_length));
 		}
-		if (_request_type == REQUEST_GET) {
+		if (m_request_type == REQUEST_GET) {
 			return true;
 		}
-		if (_request_type != REQUEST_POST) {
-			DEBUGPRINT(("HEY!  Can't handle _request_type: %d\n", _request_type));
+		if (m_request_type != REQUEST_POST) {
+			DEBUGPRINT(("HEY!  Can't handle _request_type: %d\n", m_request_type));
 			return true;
 		}
-		if (_content_length == 0) {
+		if (m_content_length == 0) {
 			DEBUGPRINT(("HEY!  No Content_Length on POST?\n"));
 			return true;
 		}
 		DEBUGPRINT1(("Setting _collecting_post_data to true! source=%s\n", _source.c_str()));
-		_collecting_post_data = true;
-		_data = "";
+		m_collecting_post_data = true;
+		m_data = "";
 		return true;
 	}
 	if (line.find("GET ") == 0) {
@@ -196,11 +196,11 @@ NosuchSocketConnection::CollectHttpHeader(std::string line) {
 	DEBUGPRINT1(("HTTP header, name=%s value=%s", name.c_str(), value.c_str()));
 
 	if (name == "content-length") {
-		_content_length = atoi(value.c_str());
+		m_content_length = atoi(value.c_str());
 	}
 	else if (name == "upgrade") {
 		if (value == "websocket") {
-			_is_websocket = true;
+			m_is_websocket = true;
 		}
 		else {
 			DEBUGPRINT(("WARNING: Unable to handle upgrade (%s) that isn't websocket!?",
@@ -244,7 +244,7 @@ NosuchHttpServer::Check()
 		if (recvMem) {
 			DEBUGPRINT1(("Before ProcessEvents, recvMem=%ld", (long)recvMem));
 		}
-		DWORD u32_Err = _listening_socket->ProcessEvents(&u32_Event, &u32_IP,
+		DWORD u32_Err = m_listening_socket->ProcessEvents(&u32_Event, &u32_IP,
 			&u16_Port_source, &h_Socket, &h_connection,
 			&recvMem, &u32_Read, &u32_Sent);
 		if (recvMem) {
@@ -283,7 +283,7 @@ NosuchHttpServer::Check()
 				if (h_connection) {
 					bool finished = h_connection->CollectHttpRequest(p);
 
-					if (h_connection->parent != _listening_socket) {
+					if (h_connection->parent != m_listening_socket) {
 						DEBUGPRINT(("HEY!  _h_connection->parent != _listening_socket!?"));
 					}
 
@@ -291,7 +291,7 @@ NosuchHttpServer::Check()
 
 					if (finished) {
 
-						if (h_connection->_is_websocket) {
+						if (h_connection->m_is_websocket) {
 							if (h_connection->h_Socket != h_Socket) {
 								DEBUGPRINT(("HEY!! NosuchSocketConnection->h_Socket != h_Socket!?"));
 							}
@@ -299,7 +299,7 @@ NosuchHttpServer::Check()
 						}
 						else {
 							RespondToGetOrPost(h_connection);
-							_listening_socket->DisconnectClient(h_Socket);
+							m_listening_socket->DisconnectClient(h_Socket);
 							DEBUGPRINT1(("DELETING connection source=%s\n",
 								h_connection->_source.c_str()));
 						}
@@ -365,7 +365,7 @@ NosuchHttpServer::RespondToGetOrPost(NosuchSocketConnection *conn) {
 	char *memblock = NULL;
 	size_t memsize;
 
-	std::string urlstr(conn->_url);
+	std::string urlstr(conn->m_url);
 	std::string args;
 
 	size_t questionmark = 0;
@@ -376,7 +376,7 @@ NosuchHttpServer::RespondToGetOrPost(NosuchSocketConnection *conn) {
 	if (urlstr == "" || urlstr == "/") {
 		urlstr = "/index.html";
 	}
-	int request_type = conn->_request_type;
+	int request_type = conn->m_request_type;
 
 	if (request_type == REQUEST_GET) {
 		size_t dot = urlstr.rfind('.');
@@ -402,7 +402,7 @@ NosuchHttpServer::RespondToGetOrPost(NosuchSocketConnection *conn) {
 			}
 		}
 		// c->_content_type = ctype;
-		std::string fn = _htmldir + urlstr;
+		std::string fn = m_htmldir + urlstr;
 
 		DEBUGPRINT(("GET request for %s, reading %s\n", urlstr.c_str(), fn.c_str()));
 
@@ -428,14 +428,14 @@ NosuchHttpServer::RespondToGetOrPost(NosuchSocketConnection *conn) {
 
 	if (request_type == REQUEST_POST) {
 		// data is the input to the POST
-		std::string dd = conn->_data;   // Hmm, when I combine this with the next statement, it doesn't work?  Odd.
+		std::string dd = conn->m_data;   // Hmm, when I combine this with the next statement, it doesn't work?  Odd.
 		const char *pp = dd.c_str();
 		const char *endpp = strchr(pp, '\0');
 		bool hasnewline = (endpp && endpp > pp && *(endpp - 1) == '\n');
 		if (*pp != '{') {
 			DEBUGPRINT(("HEY!!! No curly!?\n"));
 		}
-		const char *datastr = conn->_data.c_str();
+		const char *datastr = conn->m_data.c_str();
 		cJSON *request = cJSON_Parse(datastr);
 		std::string ret;
 		if (request) {
@@ -471,7 +471,7 @@ NosuchHttpServer::RespondToGetOrPost(NosuchSocketConnection *conn) {
 			const char *id = i.c_str();
 			try {
 				CATCH_NULL_POINTERS;
-				ret = _json_processor->processJson(method, c_params, id);
+				ret = m_json_processor->processJson(method, c_params, id);
 			}
 			catch (NosuchException& e) {
 				std::string s = NosuchSnprintf("Exception in '%s' API - %s", method, e.message());

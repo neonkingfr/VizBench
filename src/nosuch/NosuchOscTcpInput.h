@@ -22,17 +22,17 @@ public:
 	int Listen();
 	void Check();
 	void UnListen();
-	std::string Host() { return _myhost; }
-	int Port() { return _myport; }
+	std::string Host() { return m_myhost; }
+	int Port() { return m_myport; }
 
 private:
 	void ProcessBytes(const char *source, NosuchSocketMemory* buff);
 	int ProcessOneOscMessage( const char *source, NosuchSocketMemory* buff);
 	int SlipBoundaries(char *p, int leng, char** pbegin, char** pend);
-	NosuchSocketMemory* _oscmsg;
+	NosuchSocketMemory* m_oscmsg;
 	NosuchSocket* mi_Socket;
-	int _myport;
-	std::string _myhost;
+	int m_myport;
+	std::string m_myhost;
 };
 
 #endif

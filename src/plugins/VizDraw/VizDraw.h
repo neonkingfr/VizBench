@@ -11,17 +11,13 @@ public:
 	static DWORD __stdcall CreateInstance(CFreeFrameGLPlugin **ppInstance);
 
 	std::string processJson(std::string meth, cJSON *jsonparams, const char *id);
-	void processMidiInput(MidiMsg* m);
-	void processMidiOutput(MidiMsg* m);
 	void processCursor(VizCursor* c, int downdragup);
-	void processKeystroke(int key, int downup);
 	bool processDraw();
-	void processDrawNote(MidiMsg* m);
 
 private:
 	// Put private things here.
-	AllVizParams* _params;
-	std::string _spriteparams;
+	AllVizParams* m_params;
+	std::string m_spriteparams;
 };
 
 #endif

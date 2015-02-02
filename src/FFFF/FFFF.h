@@ -92,32 +92,32 @@ public:
 
 	void InsertKeystroke(int key, int downup);
 
-	void SetShowFPS(bool b) { _showfps = b; }
+	void SetShowFPS(bool b) { m_showfps = b; }
 	GLFWwindow* window;
 	bool hidden;
 
-	std::string _json_result;
+	std::string m_json_result;
 
 private:
-	VizServer* _vizserver;
-	CvCapture* _capture;
-	bool _showfps;
+	VizServer* m_vizserver;
+	CvCapture* m_capture;
+	bool m_showfps;
 	pthread_mutex_t _json_mutex;
-	pthread_cond_t _json_cond;
-	bool _json_pending;
-	std::string _json_method;
-	cJSON* _json_params;
-	const char* _json_id;
+	pthread_cond_t m_json_cond;
+	bool m_json_pending;
+	std::string m_json_method;
+	cJSON* m_json_params;
+	const char* m_json_id;
 
 	// FPS stuff
-	Timer* _timer;
+	Timer* m_timer;
 	double desired_FPS;
 	double throttle_timePerFrame;
 	double throttle_lasttime;
 	int fps_accumulator;
 	double fps_lasttime;
 
-	FFGLPluginInstance* _pipeline;
+	FFGLPluginInstance* m_pipeline;
 
 };
 

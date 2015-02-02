@@ -8,7 +8,7 @@
 	"gravity":	"false",
 	"huefillfinal":	"0.0",
 	"huefillinitial":	"360.0",
-	"huefilltime":	"5.0",
+	"huefilltime":	"0.9091",
 	"huefinal":	"360.0",
 	"hueinitial":	"0.0",
 	"huetime":	"5.0",
@@ -27,9 +27,10 @@
 	"saturation":	"1.0",
 	"shape":	"circle",
 	"sizefinal":	"0.0",
-	"sizeinitial":	"1.0",
+	"sizeinitial":	"0.3097",
 	"sizetime":	"1.0",
 	"speedinitial":	"0.0",
+	"testparam":	"",
 	"thickness":	"3.0",
 	"zable":	"true"
 }

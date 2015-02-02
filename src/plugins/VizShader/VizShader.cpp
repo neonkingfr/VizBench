@@ -53,7 +53,7 @@
 
 static CFFGLPluginInfo PluginInfo ( 
 	VizShader::CreateInstance,		// Create method
-	"ZZZZ",								// *** Plugin unique ID (4 chars) - this must be unique for each plugin
+	"VZSH",								// *** Plugin unique ID (4 chars) - this must be unique for each plugin
 	PLUGINNAME,							// *** Plugin name - make it different for each plugin
 	1,						   			// API major version number 													
 	000,								// API minor version number	
@@ -143,7 +143,7 @@ VizShader::VizShader():Vizlet()
 	// Flags
 	bInitialized = false;
 
-	_call_RealProcessOpenGL = true;
+	m_call_RealProcessOpenGL = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

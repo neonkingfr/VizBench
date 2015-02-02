@@ -56,6 +56,9 @@ typedef void (*keystrokecallback_t)(void* data,int key,int downup);
 #define KEYSTROKE_DOWN 0
 #define KEYSTROKE_UP 1
 
+#define CURSOR_Z_UNSET (-1.0f)
+#define CURSOR_AREA_UNSET (-1.0f)
+
 struct ApiFilter {
 public:
 	// Don't use std::string here, so memory management between
@@ -128,27 +131,27 @@ public:
 		return r * 360.0 / (2.0 * (double)M_PI);
 	}
 
-	std::vector<int>& lastpitches() { return _last_pitches; }
-	int lastchannel() { return _last_channel; }
-	int lastclick() { return _last_click; }
+	std::vector<int>& lastpitches() { return m_last_pitches; }
+	int lastchannel() { return m_last_channel; }
+	int lastclick() { return m_last_click; }
 
 	void add_last_note(int clk, MidiMsg* m) {
 		// NosuchDebug(2,"ADD_LAST_NOTE clk=%d m=%s",clk,m->DebugString().c_str());
-		_last_click = clk;
-		_last_channel = m->Channel();
-		_last_pitches.push_back(m->Pitch());
+		m_last_click = clk;
+		m_last_channel = m->Channel();
+		m_last_pitches.push_back(m->Pitch());
 	}
 	int last_pitch() {
-		if ( _last_pitches.size() == 0 ) {
+		if ( m_last_pitches.size() == 0 ) {
 			return -1;
 		}
-		return _last_pitches.front();
+		return m_last_pitches.front();
 	}
 	void clear_last_note() {
 		NosuchDebug(2,"CLEAR_LAST_NOTE!");
-		_last_click = -1;
-		_last_channel = -1;
-		_last_pitches.clear();
+		m_last_click = -1;
+		m_last_channel = -1;
+		m_last_pitches.clear();
 	}
 
 	// members
@@ -169,11 +172,11 @@ public:
 private:
 	double _target_depth;
 	double _last_depth;
-	std::vector<int> _last_pitches;
-	int _last_channel;
-	int _last_click;
+	std::vector<int> m_last_pitches;
+	int m_last_channel;
+	int m_last_click;
 	NosuchPos _previous_musicpos;
-	int _last_tm;
+	int m_last_tm;
 	NosuchPos _last_pos;
 	double _target_degrees;
 	bool _g_firstdir;
@@ -216,10 +219,10 @@ public:
 	void QueueClear();
 
 	const char* MidiInputName(size_t n) {
-		return _scheduler->MidiInputName(n);
+		return m_scheduler->MidiInputName(n);
 	}
 	const char* MidiOutputName(size_t n) {
-		return _scheduler->MidiOutputName(n);
+		return m_scheduler->MidiOutputName(n);
 	}
 
 	void SetClicksPerSecond(int clicks);
@@ -237,21 +240,21 @@ public:
 
 	void InsertKeystroke(int key, int downup);
 
-	bool Started() { return _started; }
+	bool Started() { return m_started; }
 	int NumCallbacks();
-	int MaxCallbacks() { return _maxcallbacks; }
+	int MaxCallbacks() { return m_maxcallbacks; }
 
 	void LockNotesDown() {
-		_scheduler->LockNotesDown();
+		m_scheduler->LockNotesDown();
 	}
 	std::list<MidiMsg*>& NotesDown() {
-		return _scheduler->NotesDown();
+		return m_scheduler->NotesDown();
 	}
 	void ClearNotesDown() {
-		return _scheduler->ClearNotesDown();
+		return m_scheduler->ClearNotesDown();
 	}
 	void UnlockNotesDown() {
-		_scheduler->UnlockNotesDown();
+		m_scheduler->UnlockNotesDown();
 	}
 
 	int TryLockCursors() {
@@ -264,7 +267,7 @@ public:
 		NosuchUnlock(&_cursors_mutex,"cursors");
 	}
 
-	int FrameSeq() { return _frameseq; }
+	int FrameSeq() { return m_frameseq; }
 
 private:
 	
@@ -275,11 +278,11 @@ private:
 	VizServer();
 	virtual ~VizServer();
 
-	void _setMidiFile(const char* file) { _midifile = file; }
-	const char* _getMidiFile() { return _midifile; }
+	void _setMidiFile(const char* file) { m_midifile = file; }
+	const char* _getMidiFile() { return m_midifile; }
 
-	void _setMidiOutput(int i) { _midioutput = i; }
-	int _getMidiOutput() { return _midioutput; }
+	void _setMidiOutput(int i) { m_midioutput = i; }
+	int _getMidiOutput() { return m_midioutput; }
 
 	void _processServerConfig(cJSON* json);
 	cJSON* _readconfig(const char* fname);
@@ -291,7 +294,7 @@ private:
 
 	void _openSharedMemOutlines();
 	void _closeSharedMemOutlines();
-	UT_SharedMem* _getSharedMemOutlines() { return _sharedmem_outlines; }
+	UT_SharedMem* _getSharedMemOutlines() { return m_sharedmem_outlines; }
 
 	void _checkCursorUp();
 	VizCursor* _getCursor(int sidnum, std::string sidsource, bool lockit);
@@ -306,43 +309,43 @@ private:
 
 	static void _errorPopup(const char* msg);
 
-	bool _started;
+	bool m_started;
 
-	UT_SharedMem* _sharedmem_outlines;
+	UT_SharedMem* m_sharedmem_outlines;
 	long _sharedmem_last_attempt;
 
 	// These things are pulled from the config file
-	const char* _midi_input_list;
-	const char* _midi_output_list;
-	bool _do_midimerge;
-	bool _do_sharedmem;
-	const char *_sharedmemname;
-	bool _do_errorpopup;
-	bool _do_ano;
-	const char* _midifile;
-	int _midioutput;   // default MIDI output index
+	const char* m_midi_input_list;
+	const char* m_midi_output_list;
+	bool m_do_midimerge;
+	bool m_do_sharedmem;
+	const char *m_sharedmemname;
+	bool m_do_errorpopup;
+	bool m_do_ano;
+	const char* m_midifile;
+	int m_midioutput;   // default MIDI output index
 
-	int _osc_input_port;
-	const char * _osc_input_host;
+	int m_osc_input_port;
+	const char * m_osc_input_host;
 
-	int _maxcallbacks;
-	int _frameseq;
+	int m_maxcallbacks;
+	int m_frameseq;
 
 	pthread_mutex_t _cursors_mutex;
-	std::list<VizCursor*>* _cursors;
+	std::list<VizCursor*>* m_cursors;
 
 	int _httpport;
-	const char* _htmlpath;
-	NosuchDaemon* _daemon;
+	const char* m_htmlpath;
+	NosuchDaemon* m_daemon;
 
 	// Processors are Listeners that broadcast things to Callbacks
-	VizServerJsonProcessor* _jsonprocessor;
-	VizServerOscProcessor* _oscprocessor;
-	VizServerMidiProcessor* _midiinputprocessor;
-	VizServerMidiProcessor* _midioutputprocessor;
-	VizServerCursorProcessor* _cursorprocessor;
-	VizServerKeystrokeProcessor* _keystrokeprocessor;
-	NosuchScheduler* _scheduler;
+	VizServerJsonProcessor* m_jsonprocessor;
+	VizServerOscProcessor* m_oscprocessor;
+	VizServerMidiProcessor* m_midiinputprocessor;
+	VizServerMidiProcessor* m_midioutputprocessor;
+	VizServerCursorProcessor* m_cursorprocessor;
+	VizServerKeystrokeProcessor* m_keystrokeprocessor;
+	NosuchScheduler* m_scheduler;
 	NosuchClickListener* _clickprocessor;
 
 };

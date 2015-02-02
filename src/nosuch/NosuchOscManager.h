@@ -29,10 +29,10 @@ public:
 	bool ShouldBeShutdown();
 
 private:
-	NosuchOscTcpInput* _tcp;
-	NosuchOscUdpInput* _udp;
-	bool _shouldbeshutdown;
-	bool _shutdowncomplete;
+	NosuchOscTcpInput* m_tcp;
+	NosuchOscUdpInput* m_udp;
+	bool m_shouldbeshutdown;
+	bool m_shutdowncomplete;
 };
 
 #endif

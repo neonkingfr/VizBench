@@ -16,7 +16,7 @@ int GlobalPitchOffset = 0;
 bool NoMultiNotes = true;
 bool LoopCursors = true;
 
-int NosuchScheduler::_MilliNow = 0;
+int NosuchScheduler::m_MilliNow = 0;
 int NosuchScheduler::ClicksPerSecond = 0;
 double NosuchScheduler::ClicksPerMillisecond = 0;
 int NosuchScheduler::LastTimeStamp;
@@ -45,7 +45,7 @@ schedevent_compare (SchedEvent* first, SchedEvent* second)
 }
 
 SchedEvent::~SchedEvent() {
-	switch(_eventtype) {
+	switch(m_eventtype) {
 	case MIDIPHRASE:
 		delete u.midiphrase;
 		u.midiphrase = NULL;
@@ -68,11 +68,11 @@ void NosuchScheduler::ANO(int psi,int ch) {
 	NosuchAssert(ch!=0);
 	if (psi < 0) {
 		// Send it on all output ports
-		for (size_t pi = 0; pi < _midi_output_stream.size(); pi++) {
-			ANO(_midi_output_stream[pi], ch);
+		for (size_t pi = 0; pi < m_midi_output_stream.size(); pi++) {
+			ANO(m_midi_output_stream[pi], ch);
 		}
 	} else {
-		ANO(_midi_output_stream[psi], ch);
+		ANO(m_midi_output_stream[psi], ch);
 	}
 }
 
@@ -118,8 +118,8 @@ void NosuchScheduler::ScheduleMidiPhrase(MidiPhrase* ph, click_t clk, void* hand
 
 void NosuchScheduler::ScheduleClear() {
 	LockScheduled();
-	std::map<void*,SchedEventList*>::iterator it = _scheduled.begin();
-	for (; it != _scheduled.end(); it++ ) {
+	std::map<void*,SchedEventList*>::iterator it = m_scheduled.begin();
+	for (; it != m_scheduled.end(); it++ ) {
 		SchedEventList* sl = it->second;
 		sl->clear();
 	}
@@ -159,13 +159,13 @@ void NosuchScheduler::QueueMidiPhrase(MidiPhrase* ph, click_t clk) {
 }
 
 void NosuchScheduler::QueueClear() {
-	_queue->clear();
+	m_queue->clear();
 }
 
 bool
 NosuchScheduler::QueueAddEvent(SchedEvent* e) {
-	_queue->push_back(e);
-	_sortEvents(_queue);
+	m_queue->push_back(e);
+	_sortEvents(m_queue);
 	return true;
 }
 
@@ -187,14 +187,14 @@ void NosuchScheduler::_maintainNotesDown(MidiMsg* m) {
 
 	if ( isnoteon ) {
 		DEBUGPRINT1(("Adding pitch=%d to _notesdown",m->Pitch()));
-		_notesdown.push_back(m->clone());
+		m_notesdown.push_back(m->clone());
 	} else if ( isnoteoff ) {
 		// Find note in current list
 		bool found = false;
-	    for ( std::list<MidiMsg*>::const_iterator ci = _notesdown.begin(); ci != _notesdown.end(); ) {
+	    for ( std::list<MidiMsg*>::const_iterator ci = m_notesdown.begin(); ci != m_notesdown.end(); ) {
 			MidiMsg* m2 = *ci;
 			if ( chan == m2->Channel() && pitch == m2->Pitch() ) {
-				_notesdown.erase(ci++);
+				m_notesdown.erase(ci++);
 				DEBUGPRINT1(("Removing pitch=%d from _notesdown",pitch));
 				found = true;
 				// We could break, but continuing on
@@ -215,7 +215,7 @@ void NosuchScheduler::Callback(PtTimestamp timestamp) {
 		return;
 	}
 
-	_MilliNow = timestamp;
+	m_MilliNow = timestamp;
 	AdvanceTimeAndDoEvents(timestamp);
 
 	static int lastcallback = 0;
@@ -232,8 +232,8 @@ void NosuchScheduler::Callback(PtTimestamp timestamp) {
 	static int lasttime = 0;
 
 	PmError result;
-	for (size_t i = 0; i < _midi_input_stream.size(); i++ ) {
-		PmStream* ps = _midi_input_stream[i];
+	for (size_t i = 0; i < m_midi_input_stream.size(); i++ ) {
+		PmStream* ps = m_midi_input_stream[i];
 		if (ps == NULL) {
 			continue;
 		}
@@ -245,7 +245,7 @@ void NosuchScheduler::Callback(PtTimestamp timestamp) {
 				if ( rslt == 1 ) {
 					int msg = buffer.message;
 					lasttime = timestamp;
-					if ( _midiinput_client ) {
+					if ( m_midiinput_client ) {
 						MidiMsg* mm = MidiMsg::make(msg);
 						if ( mm == NULL ) {
 							DEBUGPRINT(("Hey, MidiMsg::make returned NULL!?"));
@@ -255,8 +255,8 @@ void NosuchScheduler::Callback(PtTimestamp timestamp) {
 							// NOTE: ownership of the MidiMsg memory is given up here.
 							// It is the responsibility of the client to delete it.
 							MidiMsg* cloned = mm->clone();
-							_midiinput_client->processMidiMsg(mm);
-							if (_midiinput_merge) {
+							m_midiinput_client->processMidiMsg(mm);
+							if (m_midiinput_merge) {
 								QueueMidiMsg(cloned, CurrentClick());
 							}
 						}
@@ -328,18 +328,18 @@ bool NosuchScheduler::StartMidi(std::string midi_input, std::string midi_output)
 	std::vector<std::string> inputs = NosuchSplitOnString(midi_input, ";");
 	std::vector<std::string> outputs = NosuchSplitOnString(midi_output, ";");
 
-	_midi_input_stream.resize(inputs.size());
-	_midi_output_stream.resize(outputs.size());
-	_midi_input_name.resize(inputs.size());
-	_midi_output_name.resize(outputs.size());
+	m_midi_input_stream.resize(inputs.size());
+	m_midi_output_stream.resize(outputs.size());
+	m_midi_input_name.resize(inputs.size());
+	m_midi_output_name.resize(outputs.size());
 
 	for (size_t i = 0; i < inputs.size(); i++) {
-		_midi_input_stream[i] = _openMidiInput(inputs[i]);
-		_midi_input_name[i] = inputs[i];
+		m_midi_input_stream[i] = _openMidiInput(inputs[i]);
+		m_midi_input_name[i] = inputs[i];
 	}
 	for (size_t i = 0; i < outputs.size(); i++) {
-		_midi_output_stream[i] = _openMidiOutput(outputs[i]);
-		_midi_output_name[i] = outputs[i];
+		m_midi_output_stream[i] = _openMidiOutput(outputs[i]);
+		m_midi_output_name[i] = outputs[i];
 	}
 
 	m_running = true;
@@ -403,18 +403,18 @@ NosuchScheduler::_openMidiInput(std::string midi_input) {
 }
 
 SchedEventList* NosuchScheduler::ScheduleOf(void* handle) {
-	std::map<void*,SchedEventList*>::iterator it = _scheduled.find(handle);
-	if ( it == _scheduled.end() ) {
+	std::map<void*,SchedEventList*>::iterator it = m_scheduled.find(handle);
+	if ( it == m_scheduled.end() ) {
 		DEBUGPRINT1(("CREATING NEW SchedEventList SCHEDULE for handle = %ld",(long)handle));
-		_scheduled[handle] = new SchedEventList();
-		return _scheduled[handle];
+		m_scheduled[handle] = new SchedEventList();
+		return m_scheduled[handle];
 	} else {
 		return it->second;
 	}
 }
 
 void NosuchScheduler::Stop() {
-	DEBUGPRINT(("NosuchScheduler::Stop is starting, notesdown=%d",_notesdown.size()));
+	DEBUGPRINT(("NosuchScheduler::Stop is starting, notesdown=%d",m_notesdown.size()));
 #ifdef THIS_IS_BUGGY
 	LockNotesDown();
 	for ( std::list<MidiMsg*>::const_iterator ci = _notesdown.begin(); ci != _notesdown.end(); ) {
@@ -428,18 +428,18 @@ void NosuchScheduler::Stop() {
 
 	if ( m_running == TRUE ) {
 		Pt_Stop();
-		for (size_t i = 0; i<_midi_input_stream.size(); i++ ) {
-			if (_midi_input_stream[i]) {
-				Pm_Close(_midi_input_stream[i]);
-				_midi_input_stream[i] = NULL;
-				_midi_input_name[i] = "";
+		for (size_t i = 0; i<m_midi_input_stream.size(); i++ ) {
+			if (m_midi_input_stream[i]) {
+				Pm_Close(m_midi_input_stream[i]);
+				m_midi_input_stream[i] = NULL;
+				m_midi_input_name[i] = "";
 			}
 		}
-		for (size_t i = 0; i<_midi_output_stream.size(); i++ ) {
-			if (_midi_output_stream[i]) {
-				Pm_Close(_midi_output_stream[i]);
-				_midi_output_stream[i] = NULL;
-				_midi_output_name[i] = "";
+		for (size_t i = 0; i<m_midi_output_stream.size(); i++ ) {
+			if (m_midi_output_stream[i]) {
+				Pm_Close(m_midi_output_stream[i]);
+				m_midi_output_stream[i] = NULL;
+				m_midi_output_name[i] = "";
 			}
 		}
 		Pm_Terminate();
@@ -460,8 +460,8 @@ void NosuchScheduler::AdvanceTimeAndDoEvents(PtTimestamp timestamp) {
 		return;
 	}
 	clicknow = clickssofar;
-	if ( _click_client ) {
-		_click_client->AdvanceClickTo(clicknow,this);
+	if ( m_click_client ) {
+		m_click_client->AdvanceClickTo(clicknow,this);
 	}
 	GlobalClick = clicknow;
 
@@ -475,9 +475,9 @@ void NosuchScheduler::AdvanceTimeAndDoEvents(PtTimestamp timestamp) {
 
 	int nevents = 0;
 
-	std::map<void*,SchedEventList*>::iterator itsid = _scheduled.begin();
+	std::map<void*,SchedEventList*>::iterator itsid = m_scheduled.begin();
 
-	for (; itsid != _scheduled.end(); itsid++ ) {
+	for (; itsid != m_scheduled.end(); itsid++ ) {
 
 		void* handle = itsid->first;
 
@@ -507,7 +507,7 @@ void NosuchScheduler::AdvanceTimeAndDoEvents(PtTimestamp timestamp) {
 
 	UnlockScheduled();
 
-	if ( _periodic_ANO ) {
+	if ( m_periodic_ANO ) {
 		// We send an ANO every once in a while, if there's been no events,
 		// to deal with stuck notes.
 		static int last_ano_or_event = 0;
@@ -527,7 +527,7 @@ NosuchScheduler::_addQueueToScheduled() {
 	// Add _queue things to _scheduled
 	int nqueue = 0;
 
-	SchedEventList* sl = _queue;
+	SchedEventList* sl = m_queue;
 	while (sl->size() > 0) {
 		SchedEvent* ev = sl->front();
 		nqueue++;
@@ -589,12 +589,12 @@ void NosuchScheduler::SendMidiMsg(MidiMsg* msg, void* handle) {
 	ev[0].timestamp = tm;
 	ev[0].message = pm;
 
-	if (outputport < 0 && _midi_output_stream.size() > 0) {
+	if (outputport < 0 && m_midi_output_stream.size() > 0) {
 		DEBUGPRINT1(("SendMidiMsg: unspecified MIDI outputport, using default"));
 		outputport = 0;
 	}
 
-	PmStream* ps = (outputport < 0) ? NULL : _midi_output_stream[outputport];
+	PmStream* ps = (outputport < 0) ? NULL : m_midi_output_stream[outputport];
 	if (ps) {
 		Pm_Write(ps, ev, 1);
 	} else {
@@ -613,8 +613,8 @@ void NosuchScheduler::SendMidiMsg(MidiMsg* msg, void* handle) {
 			mm->Channel(),mm->Velocity(),ReadableMidiPitch(pitch),pitch));
 	}
 
-	if ( _midioutput_client ) {
-		_midioutput_client->processMidiMsg(mm);
+	if ( m_midioutput_client ) {
+		m_midioutput_client->processMidiMsg(mm);
 	}
 
 	if ( newmm != NULL ) {
@@ -806,8 +806,8 @@ NosuchScheduler::DebugString() {
 	std::string s;
 	s = "NosuchScheduler (\n";
 
-	std::map<void*,SchedEventList*>::iterator itsid = _scheduled.begin();
-	for (; itsid != _scheduled.end(); itsid++ ) {
+	std::map<void*,SchedEventList*>::iterator itsid = m_scheduled.begin();
+	for (; itsid != m_scheduled.end(); itsid++ ) {
 		void* handle = itsid->first;
 		SchedEventList* sl = itsid->second;
 		NosuchAssert(sl);
@@ -825,10 +825,10 @@ NosuchScheduler::DebugString() {
 std::string
 SchedEvent::DebugString() {
 	std::string s;
-	switch (_eventtype) {
+	switch (m_eventtype) {
 	case SchedEvent::CURSORMOTION:
 		NosuchAssert(u.cursormotion != NULL);
-		s = NosuchSnprintf("SchedEvent CursorMotion downdragup=%d pos=%.4f,%.4f depth=%.4f",u.cursormotion->_downdragup,u.cursormotion->_pos.x,u.cursormotion->_pos.y,u.cursormotion->_depth);
+		s = NosuchSnprintf("SchedEvent CursorMotion downdragup=%d pos=%.4f,%.4f depth=%.4f",u.cursormotion->m_downdragup,u.cursormotion->m_pos.x,u.cursormotion->m_pos.y,u.cursormotion->m_depth);
 		break;
 	case SchedEvent::MIDIMSG:
 		NosuchAssert(u.midimsg != NULL);

@@ -1,9 +1,0 @@
-{
-"pipeline": [
-	{
-		"plugin": "VizBox2d",
-		"params": {
-		}
-	}
-]
-}

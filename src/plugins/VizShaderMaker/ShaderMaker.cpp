@@ -27,12 +27,6 @@
 //
 //
 
-#define VIZLET
-
-#ifndef VIZLET
-#include "FFGL\FFGL.h"
-#include "FFGL\FFGLLib.h"
-#endif
 #include <stdio.h>
 #include <string>
 #include <time.h> // for date
@@ -54,15 +48,11 @@
 // +++++++++++ IMPORTANT : DEFINE YOUR PLUGIN INFORMATION HERE +++++++++++
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#ifdef VIZLET
 #define PLUGINNAME "VizShaderMaker"
-#else
-#define PLUGINNAME "Shader Maker"
-#endif
 
 static CFFGLPluginInfo PluginInfo ( 
 	ShaderMaker::CreateInstance,		// Create method
-	"ZZZZ",								// *** Plugin unique ID (4 chars) - this must be unique for each plugin
+	"VZSM",								// *** Plugin unique ID (4 chars) - this must be unique for each plugin
 	PLUGINNAME,							// *** Plugin name - make it different for each plugin
 	1,						   			// API major version number 													
 	000,								// API minor version number	
@@ -73,11 +63,8 @@ static CFFGLPluginInfo PluginInfo (
 	"by Author - website.com"			// *** About
 );
 
-#ifdef VIZLET
 std::string vizlet_name() { return PLUGINNAME; }
 CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
-// void vizlet_setdll(std::string dll) { }
-#endif
 
 // Common vertex shader code as per FreeFrame examples
 char *vertexShaderCode = STRINGIFY (
@@ -761,11 +748,7 @@ void main(void)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Constructor and destructor
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-#ifdef VIZLET
 ShaderMaker::ShaderMaker():Vizlet()
-#else
-ShaderMaker::ShaderMaker():CFreeFrameGLPlugin()
-#endif
 {
 
 	/*
@@ -798,9 +781,7 @@ ShaderMaker::ShaderMaker():CFreeFrameGLPlugin()
 	// Flags
 	bInitialized = false;
 
-#ifdef VIZLET
-	_call_RealProcessOpenGL = true;
-#endif
+	m_call_RealProcessOpenGL = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -854,11 +835,7 @@ DWORD ShaderMaker::DeInitGL()
 	return FF_SUCCESS;
 }
 
-#ifdef VIZLET
 DWORD ShaderMaker::RealProcessOpenGL(ProcessOpenGLStruct *pGL)
-#else
-DWORD ShaderMaker::ProcessOpenGL(ProcessOpenGLStruct *pGL)
-#endif
 {
 	FFGLTextureStruct Texture0;
 	FFGLTextureStruct Texture1;

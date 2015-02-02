@@ -1,18 +1,9 @@
-#include "NosuchDebug.h"
-#include "NosuchUtil.h"
-#include "ffutil.h"
-
 #include "Vizlet.h"
 #include "VizLife.h"
-#include "NosuchOsc.h"
-
-#include "VizSprite.h"
-#include "NosuchLife.h"
-#include "VizServer.h"
 
 static CFFGLPluginInfo PluginInfo ( 
 	VizLife::CreateInstance,	// Create method
-	"V510",		// Plugin unique ID
+	"VZLF",		// Plugin unique ID
 	"VizLife",	// Plugin name	
 	1,			// API major version number
 	000,		// API minor version number	
@@ -25,7 +16,6 @@ static CFFGLPluginInfo PluginInfo (
 
 std::string vizlet_name() { return "VizLife"; }
 CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
-// void vizlet_setdll(std::string dll) { }
 
 float
 randdepth() {
@@ -33,58 +23,58 @@ randdepth() {
 }
 
 VizLife::VizLife() : Vizlet(), LifeListener() {
-	_savedkey = 0;
-	_savedrow = _savedcol = -1;
-	_params = defaultParams();
-	_cellparams = new AllVizParams(true);
-	_gen = 0;
-	_doage = false;
-	_cellseq = 0;
-	_life = NULL;
-	_sparseness = 3;
-	_sprites = true;
+	m_savedkey = 0;
+	m_savedrow = m_savedcol = -1;
+	m_params = defaultParams();
+	m_cellparams = new AllVizParams(true);
+	m_gen = 0;
+	m_doage = false;
+	m_cellseq = 0;
+	m_life = NULL;
+	m_sparseness = 3;
+	m_sprites = true;
 	SetSize( 64 , 64);
 }
 
 void
 VizLife::SetSize(int rows, int cols) {
 
-	_nrows = rows;
-	_ncols = cols;
+	m_nrows = rows;
+	m_ncols = cols;
 
 	// Should probably delete _life if it's non-NULL
-	_life = new NosuchLife(*this,rows,cols);
+	m_life = new NosuchLife(*this,rows,cols);
 
 	int ncells = rows * cols;
-	_data = new LifeCellData[ncells];
+	m_data = new LifeCellData[ncells];
 	for (int r = 0; r < rows; r++) {
 		for (int c = 0; c < cols; c++) {
-			int i = r * _ncols + c;
-			LifeCellData* d = &(_data[i]);
+			int i = r * m_ncols + c;
+			LifeCellData* d = &(m_data[i]);
 			d->lifetime = 200;
 			d->genborn = 0;
 			d->row = r;
 			d->col = c;
 			d->zdepth = randdepth();
-			_life->setData(r, c, d);
+			m_life->setData(r, c, d);
 		}
 	}
 }
 
 LifeCellData&
 VizLife::getData(int r, int c) {
-	int i = r * _ncols + c;
-	return _data[i];
+	int i = r * m_ncols + c;
+	return m_data[i];
 }
 
 VizLife::~VizLife() {
 }
 
 float VizLife::col2x(int col) {
-	return float(col) / _ncols;
+	return float(col) / m_ncols;
 }
 float VizLife::row2y(int row) {
-	return float(row) / _nrows;
+	return float(row) / m_nrows;
 }
 
 float
@@ -132,42 +122,42 @@ LifeCell& cell_ll, LifeCell& cell_lm, LifeCell& cell_lr)
 	else {
 		avg_depth = tot / nactive;
 	}
-	data->genborn = _gen;
+	data->genborn = m_gen;
 	data->zdepth = avg_depth;
-	data->seq = _cellseq++;
+	data->seq = m_cellseq++;
 
 	if (((data->seq) % 100) == 0) {
 		addCellSprite(data->row, data->col);
 	}
-	// DEBUGPRINT(("cellBirth r=%d c=%d gen=%d genborn=%d", r, c, _gen, oldest));
+	// DEBUGPRINT(("cellBirth r=%d c=%d gen=%d genborn=%d", r, c, m_gen, oldest));
 }
 
 
 void
 VizLife::addCellSprite(int r, int c)
 {
-	if (!_sprites) {
+	if (!m_sprites) {
 		return;
 	}
-	_cellparams->shape.set("circle");
-	_cellparams->filled.set(true);
-	_cellparams->sizeinitial.set(0.01);
-	_cellparams->sizefinal.set(0.3);
-	_cellparams->sizetime.set(1.0);
-	_cellparams->alphainitial.set(0.8);
-	_cellparams->alphafinal.set(0.1);
-	_cellparams->alphatime.set(1.0);
+	m_cellparams->shape.set("circle");
+	m_cellparams->filled.set(true);
+	m_cellparams->sizeinitial.set(0.01);
+	m_cellparams->sizefinal.set(0.3);
+	m_cellparams->sizetime.set(1.0);
+	m_cellparams->alphainitial.set(0.8);
+	m_cellparams->alphafinal.set(0.1);
+	m_cellparams->alphatime.set(1.0);
 
 	float x = col2x(c);
 	float y = row2y(r);
 	NosuchPos pos = NosuchPos(x, y, 0.5);
-	makeAndAddVizSprite(_cellparams, pos);
+	makeAndAddVizSprite(m_cellparams, pos);
 }
 
 void
 VizLife::onCellSurvive(int row, int col, LifeCell& cell) {
 	// DEBUGPRINT(("VizLife Survive r=%d c=%d", row, col));
-	// getData(row, col).genborn = _gen;
+	// getData(row, col).genborn = m_gen;
 	// LifeCellData& d = getData(row, col);
 	// d.genborn++;
 }
@@ -185,15 +175,15 @@ VizLife::onCellDraw(int row, int col, LifeCell& cell)
 	float y = row2y(row);
 
 	LifeCellData& d = getData(row, col);
-	int age = _gen - d.genborn;
+	int age = m_gen - d.genborn;
 	float alpha = 1.0f - (float(age) / d.lifetime);
 
-	if (d.zdepth > _deepestdepth) {
-		_deepestdepth = d.zdepth;
-		_deepestcell = &cell;
+	if (d.zdepth > m_deepestdepth) {
+		m_deepestdepth = d.zdepth;
+		m_deepestcell = &cell;
 	}
 
-	float sz = (w / _ncols) / 2.0f;
+	float sz = (w / m_ncols) / 2.0f;
 
 	glColor4f(0.0, 1.0, 0.0, alpha);
 	glLineWidth((GLfloat)3.0f);
@@ -216,15 +206,15 @@ DWORD __stdcall VizLife::CreateInstance(CFreeFrameGLPlugin **ppInstance) {
 
 void
 VizLife::Gen() {
-	_life->Gen();
-	_gen++;
+	m_life->Gen();
+	m_gen++;
 }
 
 void
 VizLife::Clear() {
-	for (int r = 0; r < _nrows; r++) {
-		for (int c = 0; c < _ncols; c++) {
-			LifeCell& cell = _life->Cell(r, c);
+	for (int r = 0; r < m_nrows; r++) {
+		for (int c = 0; c < m_ncols; c++) {
+			LifeCell& cell = m_life->Cell(r, c);
 			cell.setVal(false);
 		}
 	}
@@ -232,55 +222,55 @@ VizLife::Clear() {
 
 void
 VizLife::DeleteCellAndTouching(int r, int c) {
-	LifeCell& cell = _life->Cell(r, c);
+	LifeCell& cell = m_life->Cell(r, c);
 	cell.setVal(false);
-	LifeCell& cellcheck = _life->Cell(r, c);
+	LifeCell& cellcheck = m_life->Cell(r, c);
 	// DEBUGPRINT(("Cell %d %d dying due to age, val=%d", r, c, cellcheck.val()));
 
 	// If any of the surrounding cells are alive, recurse
-	LifeCell& cell0 = _life->Cell(r-1, c-1);
+	LifeCell& cell0 = m_life->Cell(r-1, c-1);
 	if (cell0.val()) {
 		DeleteCellAndTouching(r - 1, c - 1); }
 
-	LifeCell& cell1 = _life->Cell(r-1, c);
+	LifeCell& cell1 = m_life->Cell(r-1, c);
 	if (cell1.val()) {
 		DeleteCellAndTouching(r - 1, c ); }
 
-	LifeCell& cell2 = _life->Cell(r-1, c+1);
+	LifeCell& cell2 = m_life->Cell(r-1, c+1);
 	if (cell2.val()) {
 		DeleteCellAndTouching(r - 1, c + 1); }
 
-	LifeCell& cell3 = _life->Cell(r, c-1);
+	LifeCell& cell3 = m_life->Cell(r, c-1);
 	if (cell3.val()) {
 		DeleteCellAndTouching(r, c - 1); }
 
-	LifeCell& cell4 = _life->Cell(r, c+1);
+	LifeCell& cell4 = m_life->Cell(r, c+1);
 	if (cell4.val()) {
 		DeleteCellAndTouching(r, c + 1); }
 
-	LifeCell& cell6 = _life->Cell(r+1, c-1);
+	LifeCell& cell6 = m_life->Cell(r+1, c-1);
 	if (cell6.val()) {
 		DeleteCellAndTouching(r + 1, c - 1); }
 
-	LifeCell& cell7 = _life->Cell(r+1, c);
+	LifeCell& cell7 = m_life->Cell(r+1, c);
 	if (cell7.val()) {
 		DeleteCellAndTouching(r + 1, c ); }
 
-	LifeCell& cell8 = _life->Cell(r+1, c+1);
+	LifeCell& cell8 = m_life->Cell(r+1, c+1);
 	if (cell8.val()) {
 		DeleteCellAndTouching(r + 1, c + 1); }
 }
 
 void
 VizLife::Age() {
-	for (int r = 0; r < _nrows; r++) {
-		for (int c = 0; c < _ncols; c++) {
-			LifeCell& cell = _life->Cell(r, c);
+	for (int r = 0; r < m_nrows; r++) {
+		for (int c = 0; c < m_ncols; c++) {
+			LifeCell& cell = m_life->Cell(r, c);
 			if (!cell.val()) {
 				continue;
 			}
 			LifeCellData& d = getData(r, c);
-			int dg = _gen - d.genborn;
+			int dg = m_gen - d.genborn;
 			if (dg > d.lifetime) {
 				DeleteCellAndTouching(r, c);
 			}
@@ -290,8 +280,8 @@ VizLife::Age() {
 
 void
 VizLife::RandomAddEvery(int sparseness) {
-	for (int r = 0; r < _nrows; r++) {
-		for (int c = 0; c < _ncols; c++) {
+	for (int r = 0; r < m_nrows; r++) {
+		for (int c = 0; c < m_ncols; c++) {
 			if ((rand() % sparseness) == 0) {
 				fakeCellBirth(r, c);
 			}
@@ -300,7 +290,7 @@ VizLife::RandomAddEvery(int sparseness) {
 }
 void VizLife::processKeystroke(int key, int downup) {
 	if ( downup ) {
-		_savedkey = key;
+		m_savedkey = key;
 	}
 }
 
@@ -313,7 +303,7 @@ void VizLife::DoKey(int key) {
 		Clear();
 		break;
 	case 65:  // a
-		_doage = !_doage;
+		m_doage = !m_doage;
 		break;
 	case 82: // r
 		RandomAddEvery(10);
@@ -325,8 +315,8 @@ void VizLife::DoKey(int key) {
 		RandomAddEvery(30);
 		break;
 	case 87: // w
-		_life->setWrap( ! _life->getWrap() );
-		DEBUGPRINT(("Wrap is now %d", _life->getWrap()));
+		m_life->setWrap( ! m_life->getWrap() );
+		DEBUGPRINT(("Wrap is now %d", m_life->getWrap()));
 		break;
 	case 49: // 1
 		Clear();
@@ -359,17 +349,17 @@ limit(int v, int mn, int mx) {
 
 void
 VizLife::cursor2Cell(VizCursor* c, int& row, int& col) {
-	row = int((c->pos.y * _nrows)+0.5f);
-	row = limit(row, 0, _nrows - 1);
+	row = int((c->pos.y * m_nrows)+0.5f);
+	row = limit(row, 0, m_nrows - 1);
 
-	col = int((c->pos.x * _ncols)+0.5f);
-	col = limit(col, 0, _ncols - 1);
+	col = int((c->pos.x * m_ncols)+0.5f);
+	col = limit(col, 0, m_ncols - 1);
 }
 
 void
 VizLife::fakeCellBirth(int r, int c) {
 
-	LifeCell& cell = _life->Cell(r, c);
+	LifeCell& cell = m_life->Cell(r, c);
 
 	cell.setVal(true);
 	LifeCellData* data = (LifeCellData*) cell.data();
@@ -377,17 +367,17 @@ VizLife::fakeCellBirth(int r, int c) {
 		data->zdepth = randdepth();
 	}
 
-	LifeCell& cell_ul = _life->Cell(r - 1, c - 1);
-	LifeCell& cell_um = _life->Cell(r - 1, c);
-	LifeCell& cell_ur = _life->Cell(r - 1, c + 1);
+	LifeCell& cell_ul = m_life->Cell(r - 1, c - 1);
+	LifeCell& cell_um = m_life->Cell(r - 1, c);
+	LifeCell& cell_ur = m_life->Cell(r - 1, c + 1);
 
-	LifeCell& cell_ml = _life->Cell(r, c - 1);
-	LifeCell& cell_mm = _life->Cell(r, c);
-	LifeCell& cell_mr = _life->Cell(r, c + 1);
+	LifeCell& cell_ml = m_life->Cell(r, c - 1);
+	LifeCell& cell_mm = m_life->Cell(r, c);
+	LifeCell& cell_mr = m_life->Cell(r, c + 1);
 
-	LifeCell& cell_ll = _life->Cell(r + 1, c - 1);
-	LifeCell& cell_lm = _life->Cell(r + 1, c);
-	LifeCell& cell_lr = _life->Cell(r + 1, c + 1);
+	LifeCell& cell_ll = m_life->Cell(r + 1, c - 1);
+	LifeCell& cell_lm = m_life->Cell(r + 1, c);
+	LifeCell& cell_lr = m_life->Cell(r + 1, c + 1);
 
 	onCellBirth(r, c, cell,
 		cell_ul, cell_um, cell_ur,
@@ -396,56 +386,56 @@ VizLife::fakeCellBirth(int r, int c) {
 }
 
 void VizLife::processCursor(VizCursor* c, int downdragup) {
-	_params->shape.set("square");
-	_params->filled.set(true);
-	_params->sizeinitial.set(1.0);
-	_params->sizefinal.set(0.1);
-	_params->sizetime.set(0.5);
-	_params->alphainitial.set(1.0);
-	_params->alphafinal.set(0.0);
-	_params->alphatime.set(0.5);
+	m_params->shape.set("square");
+	m_params->filled.set(true);
+	m_params->sizeinitial.set(1.0);
+	m_params->sizefinal.set(0.1);
+	m_params->sizetime.set(0.5);
+	m_params->alphainitial.set(1.0);
+	m_params->alphafinal.set(0.0);
+	m_params->alphatime.set(0.5);
 
-	// VizSprite* s = makeAndAddVizSprite(_params, c->pos);
+	// VizSprite* s = makeAndAddVizSprite(m_params, c->pos);
 	// VizSpriteOutline* so = (VizSpriteOutline*)s;
 
 	// NO OpenGL calls here
 	double minarea = 0.05;
-	if (c->area == 0.0 || c->area > minarea) {
+	if (c->area < 0.0 || c->area > minarea) {
 		int row, col;
 		cursor2Cell(c,row,col);
 		if (downdragup == CURSOR_DOWN) {
-			DEBUGPRINT(("fakeCellBirth (down) at row/col = %d / %d",_savedrow,_savedcol));
+			DEBUGPRINT(("fakeCellBirth (down) at row/col = %d / %d",m_savedrow,m_savedcol));
 			fakeCellBirth(row, col);
-			_savedrow = row;
-			_savedcol = col;
+			m_savedrow = row;
+			m_savedcol = col;
 		}
 		else if (downdragup == CURSOR_DRAG) {
-			while (_savedrow>=0 && _savedcol>= 0 && row != _savedrow && col != _savedcol) {
-				int dr = row - _savedrow;
-				int dc = col - _savedcol;
+			while (m_savedrow>=0 && m_savedcol>= 0 && row != m_savedrow && col != m_savedcol) {
+				int dr = row - m_savedrow;
+				int dc = col - m_savedcol;
 				if (dr == dc) {
-					_savedrow += (dr < 0 ? -1 : 1);
-					_savedcol += (dc < 0 ? -1 : 1);
+					m_savedrow += (dr < 0 ? -1 : 1);
+					m_savedcol += (dc < 0 ? -1 : 1);
 				}
 				else if (abs(dr) > abs(dc)) {
-					_savedrow += (dr < 0 ? -1 : 1);
+					m_savedrow += (dr < 0 ? -1 : 1);
 				}
 				else if (abs(dc) > abs(dr)) {
-					_savedcol += (dc < 0 ? -1 : 1);
+					m_savedcol += (dc < 0 ? -1 : 1);
 				}
 				else {
 					DEBUGPRINT(("VizLife should not get here"));
 					break;
 				}
-				DEBUGPRINT(("fakeCellBirth (drag) at row/col = %d / %d",_savedrow,_savedcol));
-				fakeCellBirth(_savedrow, _savedcol);
+				DEBUGPRINT(("fakeCellBirth (drag) at row/col = %d / %d",m_savedrow,m_savedcol));
+				fakeCellBirth(m_savedrow, m_savedcol);
 			}
 		}
 	}
 
 	if (downdragup == CURSOR_UP) {
-		_savedrow = -1;
-		_savedcol = -1;
+		m_savedrow = -1;
+		m_savedcol = -1;
 	}
 }
 
@@ -458,7 +448,7 @@ std::string VizLife::processJson(std::string meth, cJSON *json, const char *id) 
 	}
 
 	if (meth == "randomize") {
-		RandomAddEvery(_sparseness);
+		RandomAddEvery(m_sparseness);
 		return jsonOK(id);
 	}
 
@@ -470,31 +460,31 @@ std::string VizLife::processJson(std::string meth, cJSON *json, const char *id) 
 	//  PARAMETER "wrap"
 	if (meth == "set_wrap") {
 		bool onoff = jsonNeedBool(json, "onoff", 1);
-		_life->setWrap(onoff);
+		m_life->setWrap(onoff);
 		return jsonOK(id);
 	}
 	if (meth == "get_wrap") {
-		std::string val = _life->getWrap() ? "on" : "off";
+		std::string val = m_life->getWrap() ? "on" : "off";
 		return jsonStringResult(val,id);
 	}
 
 	//  PARAMETER "sparseness"
 	if (meth == "set_sparseness") {
-		_sparseness = jsonNeedInt(json, "amount", 1);
+		m_sparseness = jsonNeedInt(json, "amount", 1);
 		return jsonOK(id);
 	}
 	if (meth == "get_sparseness") {
-		std::string val = NosuchSnprintf("%d",_sparseness);
+		std::string val = NosuchSnprintf("%d",m_sparseness);
 		return jsonStringResult(val,id);
 	}
 
 	//  PARAMETER "sprites"
 	if (meth == "set_sprites") {
-		_sprites = jsonNeedBool(json, "onoff", 1);
+		m_sprites = jsonNeedBool(json, "onoff", 1);
 		return jsonOK(id);
 	}
 	if (meth == "get_sprites") {
-		std::string val = _sprites ? "on" : "off";
+		std::string val = m_sprites ? "on" : "off";
 		return jsonStringResult(val,id);
 	}
 
@@ -512,7 +502,7 @@ std::string VizLife::processJson(std::string meth, cJSON *json, const char *id) 
 		return jsonOK(id);
 	}
 	if (meth == "get_size") {
-		std::string val = NosuchSnprintf("%dx%d", _nrows, _ncols);
+		std::string val = NosuchSnprintf("%dx%d", m_nrows, m_ncols);
 		return jsonStringResult(val, id);
 	}
 
@@ -529,26 +519,26 @@ void VizLife::processMidiOutput(MidiMsg* m) {
 
 bool VizLife::processDraw() {
 
-	if (_savedkey > 0) {
-		DoKey(_savedkey);
-		_savedkey = 0;
+	if (m_savedkey > 0) {
+		DoKey(m_savedkey);
+		m_savedkey = 0;
 	}
 
 	// OpenGL calls here
 	DrawVizSprites();
-	_deepestcell = NULL;
-	_deepestdepth = 0.0;
-	_life->Draw();
+	m_deepestcell = NULL;
+	m_deepestdepth = 0.0;
+	m_life->Draw();
 #if 0
-	if (_deepestcell) {
-		LifeCellData* data = (LifeCellData*) _deepestcell->data();
+	if (m_deepestcell) {
+		LifeCellData* data = (LifeCellData*) m_deepestcell->data();
 		if (data) {
 			addCellSprite(data->row, data->col);
 		}
 	}
 #endif
 	Gen();
-	if (_doage) {
+	if (m_doage) {
 		Age();
 	}
 

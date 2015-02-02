@@ -4,7 +4,7 @@
     <LocalDebuggerCommand>$(VIZBENCH)\bin\FFFF.exe</LocalDebuggerCommand>
     <LocalDebuggerWorkingDirectory>$(VIZBENCH)\bin</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>vizshader</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>vizdraw</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerCommand>$(VIZBENCH)\bin\FFFF.exe</LocalDebuggerCommand>

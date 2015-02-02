@@ -55,7 +55,7 @@ std::string NosuchDebugLogFile = "nosuch.debug";
 std::string NosuchDebugLogDir = ".";
 std::string NosuchDebugLogPath;
 
-std::string _VizPath = "";
+std::string m_VizPath = "";
 
 #ifdef DEBUG_TO_BUFFER
 bool NosuchDebugToBuffer = true;
@@ -92,7 +92,7 @@ void
 RealDebugDumpLog() {
 	// XXX - this code needs to handle situations when the file
 	// doesn't already exist.
-	mmmm = _VizPath;
+	mmmm = m_VizPath;
 	std::ofstream f(NosuchDebugLogPath.c_str(),ios::app);
 	if ( ! f.is_open() ) {
 		NosuchDebugLogPath = "c:/tmp/viz.debug";
@@ -298,20 +298,20 @@ NosuchForwardSlash(std::string filepath) {
 std::string
 VizPath(std::string fn)
 {
-	if ( _VizPath == "" ) {
+	if ( m_VizPath == "" ) {
 		std::string msg = NosuchSnprintf("Error: VIZPATH is not set!\n");
 		MessageBoxA(NULL,msg.c_str(),"Viz",MB_OK);
-		_VizPath = ".";
+		m_VizPath = ".";
 	}
 	if (fn == "") {
-		return _VizPath;
+		return m_VizPath;
 	}
-	return NosuchSnprintf("%s\\%s",_VizPath.c_str(),fn.c_str());
+	return NosuchSnprintf("%s\\%s",m_VizPath.c_str(),fn.c_str());
 }
 
 void
 SetVizPath(std::string vb) {
-	_VizPath = vb;
+	m_VizPath = vb;
 	NosuchDebugSetLogDirFile(VizPath("log"),"viz.debug");
 }
 

@@ -1,9 +1,0 @@
-{
-"pipeline": [
-	{
-		"plugin": "Pyffle_Text",
-		"params": {
-		}
-	}
-]
-}

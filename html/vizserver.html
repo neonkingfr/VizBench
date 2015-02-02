@@ -35,8 +35,8 @@ function setup() {
 	title.innerHTML += "<br><a href=index.html>Vizlets Control</a>";
 	title.innerHTML += "<br><a href=vizserver.html>VizServer Control</a>";
 
-	var taginclude = /.*/;
-	var tagexclude = /VizServer/;
+	var taginclude = /VizServer/;
+	var tagexclude = /donotmatchanything/;
 
 	vizpagegen(taginclude,tagexclude);
 }

@@ -11,12 +11,12 @@
 		"params": {
 		}
 	}
-,
-	{
-		"plugin": "Twisted",
-		"params": {
-		}
-	}
+# ,
+# 	{
+# 		"plugin": "Twisted",
+# 		"params": {
+# 		}
+# 	}
 # ,
 # 	{
 # 		"viztag": "p4",

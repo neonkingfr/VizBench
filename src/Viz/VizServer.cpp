@@ -129,23 +129,23 @@ public:
 class VizServerKeystrokeCallback {
 public:
 	VizServerKeystrokeCallback(void* cb, void* data) {
-		_cb = cb;
-		_data = data;
+		m_cb = cb;
+		m_data = data;
 	}
-	void* _cb;
-	void* _data;
+	void* m_cb;
+	void* m_data;
 };
 
 class VizServerMidiCallback {
 public:
 	VizServerMidiCallback(MidiFilter mf, void* cb, void* data) {
-		_cb = cb;
-		_data = data;
-		_mf = mf;
+		m_cb = cb;
+		m_data = data;
+		m_mf = mf;
 	}
-	void* _cb;
-	void* _data;
-	MidiFilter _mf;
+	void* m_cb;
+	void* m_data;
+	MidiFilter m_mf;
 };
 
 class VizServerApiCallbackMap : public std::map < void*, VizServerApiCallback* > {
@@ -592,8 +592,8 @@ public:
 
 				double x = ArgAsFloat(m, 2);
 				double y = ArgAsFloat(m, 3);
-				double z = -1.0;
-				double tuio_f = -1.0;
+				double z = CURSOR_Z_UNSET;
+				double tuio_f = CURSOR_AREA_UNSET;
 
 				y = 1.0f - y;
 
@@ -643,9 +643,9 @@ public:
 		std::map<void*, VizServerMidiCallback*>::iterator it;
 		for (it = _callbacks.begin(); it != _callbacks.end(); it++) {
 			VizServerMidiCallback* sscb = it->second;
-			if (m->matches(sscb->_mf)) {
-				midicallback_t cb = (midicallback_t)(sscb->_cb);
-				cb(sscb->_data, m);
+			if (m->matches(sscb->m_mf)) {
+				midicallback_t cb = (midicallback_t)(sscb->m_cb);
+				cb(sscb->m_data, m);
 			}
 		}
 	}
@@ -709,8 +709,8 @@ public:
 			std::map<void*, VizServerKeystrokeCallback*>::iterator it;
 			for (it = _callbacks.begin(); it != _callbacks.end(); it++) {
 				VizServerKeystrokeCallback* sscb = it->second;
-				keystrokecallback_t cb = (keystrokecallback_t)(sscb->_cb);
-				cb(sscb->_data, key, downup);
+				keystrokecallback_t cb = (keystrokecallback_t)(sscb->m_cb);
+				cb(sscb->m_data, key, downup);
 			}
 		}
 		catch (NosuchException& e) {
@@ -738,34 +738,34 @@ VizServer::VizServer() {
 
 	VizParams::Initialize();
 
-	_started = false;
-	_frameseq = 0;
-	_htmlpath = _strdup(VizPath("html").c_str());
-	_midifile = "";
-	_midioutput = -1;
-	_jsonprocessor = NULL;
-	_oscprocessor = NULL;
-	_midiinputprocessor = NULL;
-	_midioutputprocessor = NULL;
-	_cursorprocessor = NULL;
-	_keystrokeprocessor = NULL;
-	_daemon = NULL;
-	_scheduler = NULL;
-	_cursors = new std::list<VizCursor*>();
+	m_started = false;
+	m_frameseq = 0;
+	m_htmlpath = _strdup(VizPath("html").c_str());
+	m_midifile = "";
+	m_midioutput = -1;
+	m_jsonprocessor = NULL;
+	m_oscprocessor = NULL;
+	m_midiinputprocessor = NULL;
+	m_midioutputprocessor = NULL;
+	m_cursorprocessor = NULL;
+	m_keystrokeprocessor = NULL;
+	m_daemon = NULL;
+	m_scheduler = NULL;
+	m_cursors = new std::list<VizCursor*>();
 	NosuchLockInit(&_cursors_mutex, "cursors");
 
-	_midi_input_list = "";
-	_midi_output_list = "";
-	_do_midimerge = false;
-	_do_sharedmem = false;
-	_sharedmem_outlines = NULL;
-	_sharedmemname = "mmtt_outlines";
-	_do_errorpopup = false;
-	_do_ano = false;
-	_maxcallbacks = 0;
+	m_midi_input_list = "";
+	m_midi_output_list = "";
+	m_do_midimerge = false;
+	m_do_sharedmem = false;
+	m_sharedmem_outlines = NULL;
+	m_sharedmemname = "mmtt_outlines";
+	m_do_errorpopup = false;
+	m_do_ano = false;
+	m_maxcallbacks = 0;
 
-	_osc_input_port = -1;
-	_osc_input_host = "";
+	m_osc_input_port = -1;
+	m_osc_input_host = "";
 }
 
 VizServer::~VizServer() {
@@ -780,7 +780,7 @@ VizServer::_getCursor(int sidnum, std::string sidsource, bool lockit) {
 	if (lockit) {
 		LockCursors();
 	}
-	for (std::list<VizCursor*>::iterator i = _cursors->begin(); i != _cursors->end(); i++) {
+	for (std::list<VizCursor*>::iterator i = m_cursors->begin(); i != m_cursors->end(); i++) {
 		VizCursor* c = *i;
 		NosuchAssert(c);
 		if (c->sid == sidnum && c->source == sidsource) {
@@ -796,7 +796,7 @@ VizServer::_getCursor(int sidnum, std::string sidsource, bool lockit) {
 
 void VizServer::_checkCursorUp() {
 
-	for (std::list<VizCursor*>::iterator i = _cursors->begin(); i != _cursors->end();) {
+	for (std::list<VizCursor*>::iterator i = m_cursors->begin(); i != m_cursors->end();) {
 		VizCursor* c = *i;
 		NosuchAssert(c);
 		int dt = MilliNow() - c->last_touched;
@@ -804,9 +804,9 @@ void VizServer::_checkCursorUp() {
 		// is being used, the frame rate can be slow, so 20ms
 		// is more appropriate.
 		if (dt > 100) {
-			DEBUGPRINT1(("processing and erasing cursor c sid=%d  cursors size=%d", c->sid, _cursors->size()));
-			_cursorprocessor->processCursor(c, CURSOR_UP);
-			i = _cursors->erase(i);
+			DEBUGPRINT1(("processing and erasing cursor c sid=%d  cursors size=%d", c->sid, m_cursors->size()));
+			m_cursorprocessor->processCursor(c, CURSOR_UP);
+			i = m_cursors->erase(i);
 			delete c;
 		}
 		else {
@@ -832,13 +832,13 @@ VizServer::_setCursor(int sidnum, std::string sidsource, NosuchPos pos, double a
 		c->area = area;
 		c->outline = om;
 		c->hdr = hdr;
-		_cursorprocessor->processCursor(c, CURSOR_DRAG);
+		m_cursorprocessor->processCursor(c, CURSOR_DRAG);
 	}
 	else {
 		c = new VizCursor(this, sidnum, sidsource, pos, area, om, hdr);
 		DEBUGPRINT1(("_setCursor NEW c=%ld pos= %.3f %.3f", (long)c, pos.x, pos.y));
-		_cursors->push_back(c);
-		_cursorprocessor->processCursor(c, CURSOR_DOWN);
+		m_cursors->push_back(c);
+		m_cursorprocessor->processCursor(c, CURSOR_DOWN);
 	}
 	c->advanceTo(MilliNow());
 	c->touch(MilliNow());
@@ -867,24 +867,24 @@ void VizServer::_errorPopup(const char* msg) {
 }
 
 int VizServer::MilliNow() {
-	if (_scheduler == NULL)
+	if (m_scheduler == NULL)
 		return 0;
-	return _scheduler->_MilliNow;
+	return m_scheduler->m_MilliNow;
 }
 
 click_t VizServer::CurrentClick() {
-	if (_scheduler == NULL) {
+	if (m_scheduler == NULL) {
 		DEBUGPRINT(("In VizServer::CurrentClick, _scheduler==NULL?"));
 		return 0;
 	}
 	else {
-		return _scheduler->CurrentClick();
+		return m_scheduler->CurrentClick();
 	}
 }
 
 std::string
 VizServer::_processJson(std::string fullmethod, cJSON* params, const char* id) {
-	return _jsonprocessor->processJson(fullmethod, params, id);
+	return m_jsonprocessor->processJson(fullmethod, params, id);
 }
 
 cJSON*
@@ -902,14 +902,14 @@ VizServer::_readconfig(const char* fn) {
 
 void
 VizServer::InsertKeystroke(int key, int downup) {
-	if (_keystrokeprocessor) {
-		_keystrokeprocessor->processKeystroke(key, downup);
+	if (m_keystrokeprocessor) {
+		m_keystrokeprocessor->processKeystroke(key, downup);
 	}
 }
 
 int
 VizServer::GetClicksPerSecond() {
-	return _scheduler->ClicksPerSecond;
+	return m_scheduler->ClicksPerSecond;
 }
 void
 VizServer::SendMidiMsg(MidiMsg* msg) {
@@ -918,83 +918,83 @@ VizServer::SendMidiMsg(MidiMsg* msg) {
 
 void
 VizServer::SendControllerMsg(MidiMsg* m, void* handle, bool smooth) {
-	_scheduler->SendControllerMsg(m, handle, smooth);
+	m_scheduler->SendControllerMsg(m, handle, smooth);
 }
 
 void
 VizServer::SendPitchBendMsg(MidiMsg* m, void* handle, bool smooth) {
-	_scheduler->SendPitchBendMsg(m, handle, smooth);
+	m_scheduler->SendPitchBendMsg(m, handle, smooth);
 }
 
 void
 VizServer::IncomingNoteOff(click_t clk, int ch, int pitch, int vel, void* handle) {
-	_scheduler->IncomingNoteOff(clk, ch, pitch, vel, handle);
+	m_scheduler->IncomingNoteOff(clk, ch, pitch, vel, handle);
 }
 
 void
 VizServer::IncomingMidiMsg(MidiMsg* m, click_t clk, void* handle) {
-	_scheduler->IncomingMidiMsg(m, clk, handle);
+	m_scheduler->IncomingMidiMsg(m, clk, handle);
 }
 
 void
 VizServer::_scheduleMidiPhrase(MidiPhrase* ph, click_t clk, void* handle) {
-	NosuchAssert(_scheduler);
-	_scheduler->ScheduleMidiPhrase(ph, clk, handle);
+	NosuchAssert(m_scheduler);
+	m_scheduler->ScheduleMidiPhrase(ph, clk, handle);
 }
 
 void
 VizServer::_scheduleMidiMsg(MidiMsg* m, click_t clk, void* handle) {
-	NosuchAssert(_scheduler);
-	_scheduler->ScheduleMidiMsg(m, clk, handle);
+	NosuchAssert(m_scheduler);
+	m_scheduler->ScheduleMidiMsg(m, clk, handle);
 }
 
 void
 VizServer::_scheduleClear() {
-	NosuchAssert(_scheduler);
-	_scheduler->ScheduleClear();
+	NosuchAssert(m_scheduler);
+	m_scheduler->ScheduleClear();
 }
 
 void
 VizServer::QueueMidiPhrase(MidiPhrase* ph, click_t clk) {
-	NosuchAssert(_scheduler);
-	_scheduler->QueueMidiPhrase(ph, clk);
+	NosuchAssert(m_scheduler);
+	m_scheduler->QueueMidiPhrase(ph, clk);
 }
 
 void
 VizServer::QueueMidiMsg(MidiMsg* m, click_t clk) {
-	NosuchAssert(_scheduler);
-	_scheduler->QueueMidiMsg(m, clk);
+	NosuchAssert(m_scheduler);
+	m_scheduler->QueueMidiMsg(m, clk);
 }
 
 void
 VizServer::QueueClear() {
-	NosuchAssert(_scheduler);
-	_scheduler->QueueClear();
+	NosuchAssert(m_scheduler);
+	m_scheduler->QueueClear();
 }
 
 void
 VizServer::SetClicksPerSecond(int clicks) {
-	NosuchAssert(_scheduler);
-	_scheduler->SetClicksPerSecond(clicks);
+	NosuchAssert(m_scheduler);
+	m_scheduler->SetClicksPerSecond(clicks);
 }
 
 void
 VizServer::SetTempoFactor(float f) {
-	_scheduler->SetTempoFactor(f);
+	m_scheduler->SetTempoFactor(f);
 }
 
 void
 VizServer::ANO(int channel) {
-	NosuchAssert(_scheduler);
-	_scheduler->ANO(channel);
+	NosuchAssert(m_scheduler);
+	m_scheduler->ANO(channel);
 }
 
 int
 VizServer::NumCallbacks() {
-	int nmidiin = _midiinputprocessor ? _midiinputprocessor->numCallbacks() : 0;
-	int nmidiout = _midioutputprocessor ? _midioutputprocessor->numCallbacks() : 0;
-	int njson = _jsonprocessor ? _jsonprocessor->numCallbacks() : 0;
-	int ncursor = _cursorprocessor ? _cursorprocessor->numCallbacks() : 0;
+	int nmidiin = m_midiinputprocessor ? m_midiinputprocessor->numCallbacks() : 0;
+	int nmidiout = m_midioutputprocessor ? m_midioutputprocessor->numCallbacks() : 0;
+	int njson = m_jsonprocessor ? m_jsonprocessor->numCallbacks() : 0;
+	int ncursor = m_cursorprocessor ? m_cursorprocessor->numCallbacks() : 0;
 	return nmidiin + nmidiout + njson + ncursor;
 }
 
@@ -1003,13 +1003,13 @@ VizServer::Start() {
 
 	bool r = true;
 
-	if (_started) {
+	if (m_started) {
 		DEBUGPRINT1(("VizServer::Start called - things are already running "));
 		return true;
 	}
 	DEBUGPRINT(("VizServer::Start"));
 
-	if (_do_errorpopup) {
+	if (m_do_errorpopup) {
 		NosuchErrorPopup = VizServer::_errorPopup;
 	}
 	else {
@@ -1029,38 +1029,38 @@ VizServer::Start() {
 			// NOTE: DO NOT FREE json - some of the char* values in it get saved/used later.
 		}
 
-		_scheduler = new NosuchScheduler();
-		_scheduler->setPeriodicANO(_do_ano);
+		m_scheduler = new NosuchScheduler();
+		m_scheduler->setPeriodicANO(m_do_ano);
 
-		_midiinputprocessor = new VizServerMidiProcessor();
-		_midioutputprocessor = new VizServerMidiProcessor();
-		_scheduler->SetMidiInputListener(_midiinputprocessor, _do_midimerge);
-		_scheduler->SetMidiOutputListener(_midioutputprocessor);
+		m_midiinputprocessor = new VizServerMidiProcessor();
+		m_midioutputprocessor = new VizServerMidiProcessor();
+		m_scheduler->SetMidiInputListener(m_midiinputprocessor, m_do_midimerge);
+		m_scheduler->SetMidiOutputListener(m_midioutputprocessor);
 
-		_cursorprocessor = new VizServerCursorProcessor();
-		_keystrokeprocessor = new VizServerKeystrokeProcessor();
+		m_cursorprocessor = new VizServerCursorProcessor();
+		m_keystrokeprocessor = new VizServerKeystrokeProcessor();
 
-		_jsonprocessor = new VizServerJsonProcessor();
-		_oscprocessor = new VizServerOscProcessor(this);
-		_daemon = new NosuchDaemon(_osc_input_port, _osc_input_host, _oscprocessor,
-			_httpport, _htmlpath, _jsonprocessor);
+		m_jsonprocessor = new VizServerJsonProcessor();
+		m_oscprocessor = new VizServerOscProcessor(this);
+		m_daemon = new NosuchDaemon(m_osc_input_port, m_osc_input_host, m_oscprocessor,
+			_httpport, m_htmlpath, m_jsonprocessor);
 
-		_started = true;
+		m_started = true;
 
 		_openSharedMemOutlines();
 
-		if (_midi_output_list == NULL) {
+		if (m_midi_output_list == NULL) {
 			DEBUGPRINT(("Warning: MIDI output wasn't defined in configuration!"));
-			_midi_output_list = "loopMIDI Port 1";
+			m_midi_output_list = "loopMIDI Port 1";
 		}
-		if (_midi_input_list == NULL) {
+		if (m_midi_input_list == NULL) {
 			DEBUGPRINT(("Warning: MIDI input wasn't defined in configuration!"));
-			_midi_input_list = "loopMIDI Port";
+			m_midi_input_list = "loopMIDI Port";
 		}
-		_scheduler->StartMidi(_midi_input_list, _midi_output_list);
+		m_scheduler->StartMidi(m_midi_input_list, m_midi_output_list);
 
 		_clickprocessor = new VizServerClickProcessor(this);
-		_scheduler->SetClickProcessor(_clickprocessor);
+		m_scheduler->SetClickProcessor(_clickprocessor);
 
 	}
 	catch (NosuchException& e) {
@@ -1087,7 +1087,7 @@ void VizServer::_advanceClickTo(int current_click, NosuchScheduler* sched) {
 
 	// DEBUGPRINT(("VizServer::_advanceClickTo click=%d now=%d",
 	// 	current_click,VizServer::MilliNow()));
-	for (std::list<VizCursor*>::iterator i = _cursors->begin(); i != _cursors->end(); i++) {
+	for (std::list<VizCursor*>::iterator i = m_cursors->begin(); i != m_cursors->end(); i++) {
 		VizCursor* c = *i;
 		NosuchAssert(c);
 		c->advanceTo(MilliNow());
@@ -1129,7 +1129,7 @@ void VizServer::_checkSharedMem() {
 
 	long dt = timeGetTime() - mem->lastUpdateTime;
 
-	DEBUGPRINT1(("_checkSharedMem mem->seqnum=%d _frameseq=%d", mem->seqnum, _frameseq));
+	DEBUGPRINT1(("_checkSharedMem mem->seqnum=%d _frameseq=%d", mem->seqnum, m_frameseq));
 
 	if (mem->seqnum < 0) {
 		// If seqnum is negative, the shared memory
@@ -1139,10 +1139,10 @@ void VizServer::_checkSharedMem() {
 		goto getout;
 	}
 	// Don't process the same frame twice
-	if (mem->seqnum == _frameseq) {
+	if (mem->seqnum == m_frameseq) {
 		goto getout;
 	}
-	_frameseq = mem->seqnum;
+	m_frameseq = mem->seqnum;
 
 	if (dt > 10000) {
 		DEBUGPRINT(("VizServer, sharedmem isn't being updated, closing it (seqnum=%d dt=%d)", mem->seqnum, dt));
@@ -1186,25 +1186,25 @@ getout:
 void
 VizServer::Stop() {
 	DEBUGPRINT(("VizServer::Stop called"));
-	if (!_started) {
+	if (!m_started) {
 		return;
 	}
-	_started = false;
-	if (_scheduler) {
+	m_started = false;
+	if (m_scheduler) {
 		ANO();
 		_scheduleClear();
 		ClearNotesDown();
-		_scheduler->Stop();
-		delete _scheduler;
-		_scheduler = NULL;
+		m_scheduler->Stop();
+		delete m_scheduler;
+		m_scheduler = NULL;
 	}
 	//	_scheduler->StopMidi(_midi_input_name,_midi_output_name);
-	if (_daemon) { delete _daemon; _daemon = NULL; }
-	if (_midiinputprocessor) { delete _midiinputprocessor; _midiinputprocessor = NULL; }
-	if (_midioutputprocessor) { delete _midioutputprocessor; _midioutputprocessor = NULL; }
-	if (_jsonprocessor) { delete _jsonprocessor; _jsonprocessor = NULL; }
-	if (_oscprocessor) { delete _oscprocessor; _oscprocessor = NULL; }
-	if (_cursorprocessor) { delete _cursorprocessor; _cursorprocessor = NULL; }
+	if (m_daemon) { delete m_daemon; m_daemon = NULL; }
+	if (m_midiinputprocessor) { delete m_midiinputprocessor; m_midiinputprocessor = NULL; }
+	if (m_midioutputprocessor) { delete m_midioutputprocessor; m_midioutputprocessor = NULL; }
+	if (m_jsonprocessor) { delete m_jsonprocessor; m_jsonprocessor = NULL; }
+	if (m_oscprocessor) { delete m_oscprocessor; m_oscprocessor = NULL; }
+	if (m_cursorprocessor) { delete m_cursorprocessor; m_cursorprocessor = NULL; }
 	if (_clickprocessor) { delete _clickprocessor; _clickprocessor = NULL; }
 
 	_closeSharedMemOutlines();
@@ -1213,7 +1213,7 @@ VizServer::Stop() {
 void
 VizServer::_openSharedMemOutlines()
 {
-	if (!_do_sharedmem || _sharedmem_outlines != NULL) {
+	if (!m_do_sharedmem || m_sharedmem_outlines != NULL) {
 		return;
 	}
 	if (!Pt_Started()) {
@@ -1225,18 +1225,18 @@ VizServer::_openSharedMemOutlines()
 		return;
 	}
 	_sharedmem_last_attempt = now;
-	_sharedmem_outlines = new UT_SharedMem(_sharedmemname);
-	UT_SharedMemError err = _sharedmem_outlines->getErrorState();
+	m_sharedmem_outlines = new UT_SharedMem(m_sharedmemname);
+	UT_SharedMemError err = m_sharedmem_outlines->getErrorState();
 	if (err != UT_SHM_ERR_NONE) {
 		static long last_warning = 0;
 		if (last_warning == 0 || (now - last_warning) > 60000) {
 			last_warning = now;
-			DEBUGPRINT(("Unable to open shared memory with name='%s' ?  Is MMTT running?  err=%d", _sharedmemname, err));
+			DEBUGPRINT(("Unable to open shared memory with name='%s' ?  Is MMTT running?  err=%d", m_sharedmemname, err));
 		}
 		_closeSharedMemOutlines();
 	}
 	else {
-		DEBUGPRINT(("Successfully opened shared memory, name=%s", _sharedmemname));
+		DEBUGPRINT(("Successfully opened shared memory, name=%s", m_sharedmemname));
 	}
 
 }
@@ -1244,12 +1244,12 @@ VizServer::_openSharedMemOutlines()
 void
 VizServer::_closeSharedMemOutlines()
 {
-	if (_sharedmem_outlines) {
-		delete _sharedmem_outlines;
+	if (m_sharedmem_outlines) {
+		delete m_sharedmem_outlines;
 		// DON'T set _do_sharedmem to false, we want
 		// to keep trying to connect to the sharedmem
 		// every once in a while.
-		_sharedmem_outlines = NULL;
+		m_sharedmem_outlines = NULL;
 	}
 }
 
@@ -1258,34 +1258,34 @@ VizServer::_processServerConfig(cJSON* json) {
 	cJSON *j;
 
 	if ((j = jsonGetNumber(json, "periodicANO")) != NULL) {
-		_do_ano = (j->valueint != 0);
+		m_do_ano = (j->valueint != 0);
 	}
 	if ((j = jsonGetNumber(json, "sharedmem")) != NULL) {
-		_do_sharedmem = (j->valueint != 0);
+		m_do_sharedmem = (j->valueint != 0);
 	}
 	if ((j = jsonGetString(json, "sharedmemname")) != NULL) {
-		_sharedmemname = j->valuestring;
+		m_sharedmemname = j->valuestring;
 	}
 	if ((j = jsonGetString(json, "midiinput")) != NULL) {
-		_midi_input_list = j->valuestring;
+		m_midi_input_list = j->valuestring;
 	}
 	if ((j = jsonGetNumber(json, "midimerge")) != NULL) {
-		_do_midimerge = (j->valueint != 0);
+		m_do_midimerge = (j->valueint != 0);
 	}
 	if ((j = jsonGetString(json, "midioutput")) != NULL) {
-		_midi_output_list = j->valuestring;
+		m_midi_output_list = j->valuestring;
 	}
 	if ((j = jsonGetNumber(json, "errorpopup")) != NULL) {
-		_do_errorpopup = (j->valueint != 0);
+		m_do_errorpopup = (j->valueint != 0);
 	}
 	if ((j = jsonGetNumber(json, "tuio")) != NULL) {
 		DEBUGPRINT(("tuio value in palette.json no longer used.  Remove tuioport value to disable tuio"));
 	}
 	if ((j = jsonGetNumber(json, "tuioport")) != NULL) {
-		_osc_input_port = j->valueint;
+		m_osc_input_port = j->valueint;
 	}
 	if ((j = jsonGetString(json, "tuiohost")) != NULL) {
-		_osc_input_host = j->valuestring;
+		m_osc_input_host = j->valuestring;
 	}
 	if ((j = jsonGetNumber(json, "httpport")) != NULL) {
 		_httpport = j->valueint;
@@ -1295,10 +1295,10 @@ VizServer::_processServerConfig(cJSON* json) {
 		char* jstr = j->valuestring;
 		if (jstr[0] != '/' && jstr[0] != '\\' && jstr[1] != ':' ) {
 			// It's not a full path
-			_htmlpath = _strdup(VizPath(jstr).c_str());
+			m_htmlpath = _strdup(VizPath(jstr).c_str());
 		}
 		else {
-			_htmlpath = _strdup(j->valuestring);
+			m_htmlpath = _strdup(j->valuestring);
 		}
 	}
 	if ((j = jsonGetNumber(json, "debugtoconsole")) != NULL) {
@@ -1344,78 +1344,78 @@ VizServer::DeleteServer() {
 void
 VizServer::_setMaxCallbacks() {
 	int ncb = NumCallbacks();
-	if (ncb > _maxcallbacks) {
-		_maxcallbacks = ncb;
+	if (ncb > m_maxcallbacks) {
+		m_maxcallbacks = ncb;
 	}
 }
 
 const char *
 VizServer::VizTags() {
 	static std::string s;
-	s = _jsonprocessor->VizTags();
+	s = m_jsonprocessor->VizTags();
 	return s.c_str();
 }
 
 void
 VizServer::ChangeVizTag(void* handle, const char* p) {
-	_jsonprocessor->ChangeVizTag(handle, p);
+	m_jsonprocessor->ChangeVizTag(handle, p);
 }
 
 void
 VizServer::AddJsonCallback(void* handle, ApiFilter af, jsoncallback_t callback, void* data) {
-	_jsonprocessor->AddJsonCallback(handle, af, callback, data);
+	m_jsonprocessor->AddJsonCallback(handle, af, callback, data);
 	_setMaxCallbacks();
 }
 
 void
 VizServer::AddMidiInputCallback(void* handle, MidiFilter mf, midicallback_t callback, void* data) {
-	_midiinputprocessor->AddMidiCallback(handle, mf, callback, data);
+	m_midiinputprocessor->AddMidiCallback(handle, mf, callback, data);
 	_setMaxCallbacks();
 }
 
 void
 VizServer::AddMidiOutputCallback(void* handle, MidiFilter mf, midicallback_t callback, void* data) {
-	_midioutputprocessor->AddMidiCallback(handle, mf, callback, data);
+	m_midioutputprocessor->AddMidiCallback(handle, mf, callback, data);
 	_setMaxCallbacks();
 }
 
 void
 VizServer::AddCursorCallback(void* handle, CursorFilter cf, cursorcallback_t callback, void* data) {
-	_cursorprocessor->AddCursorCallback(handle, cf, callback, data);
+	m_cursorprocessor->AddCursorCallback(handle, cf, callback, data);
 	_setMaxCallbacks();
 }
 
 void
 VizServer::AddKeystrokeCallback(void* handle, keystrokecallback_t callback, void* data) {
-	_keystrokeprocessor->AddKeystrokeCallback(handle, callback, data);
+	m_keystrokeprocessor->AddKeystrokeCallback(handle, callback, data);
 	_setMaxCallbacks();
 }
 
 void
 VizServer::RemoveJsonCallback(void* handle) {
-	if (_jsonprocessor) {
-		_jsonprocessor->RemoveJsonCallback(handle);
+	if (m_jsonprocessor) {
+		m_jsonprocessor->RemoveJsonCallback(handle);
 	}
 }
 
 void
 VizServer::RemoveMidiInputCallback(void* handle) {
-	if (_midiinputprocessor) {
-		_midiinputprocessor->RemoveMidiCallback(handle);
+	if (m_midiinputprocessor) {
+		m_midiinputprocessor->RemoveMidiCallback(handle);
 	}
 }
 
 void
 VizServer::RemoveMidiOutputCallback(void* handle) {
-	if (_midioutputprocessor) {
-		_midioutputprocessor->RemoveMidiCallback(handle);
+	if (m_midioutputprocessor) {
+		m_midioutputprocessor->RemoveMidiCallback(handle);
 	}
 }
 
 void
 VizServer::RemoveCursorCallback(void* handle) {
-	if (_cursorprocessor) {
-		_cursorprocessor->RemoveCursorCallback(handle);
+	if (m_cursorprocessor) {
+		m_cursorprocessor->RemoveCursorCallback(handle);
 	}
 }
 
@@ -1445,9 +1445,9 @@ VizCursor::VizCursor(VizServer* ss, int sid_, std::string source_,
 
 	_target_depth = 0;
 	_last_depth = 0;
-	_last_channel = 0;
-	_last_click = 0;
-	_last_tm = 0;
+	m_last_channel = 0;
+	m_last_click = 0;
+	m_last_tm = 0;
 	_target_degrees = 0;
 	_g_firstdir = true;
 	_smooth_degrees_factor = 0.2;
@@ -1469,7 +1469,7 @@ normalize_degrees(double d) {
 void
 VizCursor::advanceTo(int tm) {
 
-	int dt = tm - _last_tm;
+	int dt = tm - m_last_tm;
 	if (dt <= 0) {
 		return;
 	}
@@ -1576,5 +1576,5 @@ VizCursor::advanceTo(int tm) {
 			curr_degrees = normalize_degrees(curr_degrees);
 		}
 	}
-	_last_tm = tm;
+	m_last_tm = tm;
 }

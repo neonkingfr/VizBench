@@ -27,6 +27,10 @@ copy %VIZBENCH%\bin\api.bat %VIZLETS%\bin
 copy %VIZBENCH%\bin\oscplayback.bat %VIZLETS%\bin
 copy %VIZBENCH%\bin\osclisten.bat %VIZLETS%\bin
 
+rem HTML stuff
+copy %VIZBENCH%\html\*.html %VIZLETS%\html\*.html
+copy %VIZBENCH%\html\*.js %VIZLETS%\html\*.js
+
 rem copy %VIZBENCH%\bin\*.osc %VIZLETS%\bin
 
 rem clean up temporary files

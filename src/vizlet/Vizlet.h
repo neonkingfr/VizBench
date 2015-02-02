@@ -45,14 +45,14 @@ public:
 	Vizlet();
 	virtual ~Vizlet();
 
-	std::string VizTag() { return _viztag; }
-	void SetVizTag(std::string s) { _viztag = s; }
+	std::string VizTag() { return m_viztag; }
+	void SetVizTag(std::string s) { m_viztag = s; }
 	VizSprite* makeAndInitVizSprite(AllVizParams* sp, NosuchPos pos);
 	VizSprite* makeAndAddVizSprite(AllVizParams* sp, NosuchPos pos);
 
-	void SetPassthru(bool b) { _passthru = b; }
+	void SetPassthru(bool b) { m_passthru = b; }
 
-	VizServer* vizserver() { return _vizserver; }
+	VizServer* vizserver() { return m_vizserver; }
 	void StartVizServer();
 	void InitCallbacks();
 	void ChangeVizTag(const char* newtag);
@@ -67,12 +67,12 @@ public:
 	void QueueMidiPhrase(MidiPhrase* ph, click_t clk);
 	void QueueClear();
 
-	std::string MidiInputName(size_t n) { return _vizserver->MidiInputName(n);  }
-	std::string MidiOutputName(size_t n) { return _vizserver->MidiOutputName(n);  }
+	std::string MidiInputName(size_t n) { return m_vizserver->MidiInputName(n);  }
+	std::string MidiOutputName(size_t n) { return m_vizserver->MidiOutputName(n);  }
 
 	int MidiInputNumberOf(std::string name) {
 		for (size_t n = 0; ; n++) {
-			const char* nm = _vizserver->MidiInputName(n);
+			const char* nm = m_vizserver->MidiInputName(n);
 			if (nm == NULL) {
 				break;
 			}
@@ -85,7 +85,7 @@ public:
 
 	int MidiOutputNumberOf(std::string name) {
 		for (size_t n = 0; ; n++) {
-			const char* nm = _vizserver->MidiOutputName(n);
+			const char* nm = m_vizserver->MidiOutputName(n);
 			if (nm == NULL) {
 				break;
 			}
@@ -98,7 +98,7 @@ public:
 
 	void AddVizSprite(VizSprite* s);
 	void DrawVizSprites();
-	VizSpriteList* GetVizSpriteList() { return _spritelist; }
+	VizSpriteList* GetVizSpriteList() { return m_spritelist; }
 	VizSprite* MakeVizSprite(AllVizParams* sp);
 	std::string VizParamPath(std::string configname);
 	std::string VizPath2ConfigName(std::string path);
@@ -107,7 +107,7 @@ public:
 	AllVizParams* checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, std::time_t& lastupdate);
 	VizSprite* defaultMidiVizSprite(MidiMsg* m);
 
-	AllVizParams* defaultParams() { return _defaultparams; }
+	AllVizParams* defaultParams() { return m_defaultparams; }
 
 	void SetDefaults();
 
@@ -173,7 +173,7 @@ public:
 
 	void SendMidiMsg();
 	void DrawNotesDown();
-	int FrameSeq() { return _vizserver->FrameSeq(); }
+	int FrameSeq() { return m_vizserver->FrameSeq(); }
 
 	std::string json_result;
 
@@ -181,11 +181,11 @@ protected:
 
 	void* Handle() { return (void*)this; }
 
-	bool _call_RealProcessOpenGL;
+	bool m_call_RealProcessOpenGL;
 
-	ApiFilter _af;
-	MidiFilter _mf;
-	CursorFilter _cf;
+	ApiFilter m_af;
+	MidiFilter m_mf;
+	CursorFilter m_cf;
 	
 	pthread_mutex_t json_mutex;
 	pthread_cond_t json_cond;
@@ -225,17 +225,17 @@ private:
 	void _stopKeystrokeCallbacks();
 
 	// int _frame;
-	bool _passthru;
-	bool _stopped;
+	bool m_passthru;
+	bool m_stopped;
 	bool _disabled;
 	bool _disable_on_exception;
-	VizServer* _vizserver;
-	bool _callbacksInitialized;
-	std::string _viztag;
-	VizSpriteList* _spritelist;
-	AllVizParams* _defaultparams;
-	AllVizParams* _defaultmidiparams;
-	bool _useparamcache;
+	VizServer* m_vizserver;
+	bool m_callbacksInitialized;
+	std::string m_viztag;
+	VizSpriteList* m_spritelist;
+	AllVizParams* m_defaultparams;
+	AllVizParams* m_defaultmidiparams;
+	bool m_useparamcache;
 	std::map<std::string, AllVizParams*> _paramcache;
 
 	void _drawnotes(std::list<MidiMsg*>& notes);

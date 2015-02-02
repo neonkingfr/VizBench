@@ -107,17 +107,17 @@ public:
 	NosuchSocketMemory*   pi_RecvMem;
 
 	// SOCKET _socket;
-	std::string _url;
-	std::string _data;
+	std::string m_url;
+	std::string m_data;
 	std::string _source;
-	std::string _buff_sofar;
+	std::string m_buff_sofar;
 	std::string _attempt_to_find_memory_leak;
 	// std::string _content_type;
-	bool _collecting_post_data;
-	bool _is_websocket;
+	bool m_collecting_post_data;
+	bool m_is_websocket;
 	std::string _websocket_key;
-	unsigned int _content_length;
-	int _request_type;
+	unsigned int m_content_length;
+	int m_request_type;
 	void _grab_request(int req, std::string& line);
 	bool CollectHttpRequest(const char* p);
 	bool CollectHttpHeader(std::string line);

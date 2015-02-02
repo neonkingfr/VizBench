@@ -22,27 +22,18 @@
 #ifndef ShaderMaker_H
 #define ShaderMaker_H
 
-#ifdef VIZLET
 #include "FFGL.h"
 #include "FFGLLib.h"
 #include "FFGLShader.h"
 #include "FFGLPluginSDK.h"
 #include "Vizlet.h"
 #define NewParameterValue u.NewParameterValue
-#else
-#include "FFGL\FFGLShader.h"
-#include "FFGL\FFGLPluginSDK.h"
-#endif
 
 #define GL_SHADING_LANGUAGE_VERSION	0x8B8C
 #define GL_READ_FRAMEBUFFER_EXT		0x8CA8
 #define GL_TEXTURE_WRAP_R			0x8072
 
-#ifdef VIZLET
 class ShaderMaker : public Vizlet
-#else
-class ShaderMaker : public CFreeFrameGLPlugin
-#endif
 {
 
 public:
@@ -56,11 +47,7 @@ public:
 	
 	DWORD SetParameter(const SetParameterStruct* pParam);		
 	DWORD GetParameter(DWORD dwIndex);					
-#ifdef VIZLET
 	DWORD RealProcessOpenGL(ProcessOpenGLStruct* pGL);
-#else
-	DWORD ProcessOpenGL(ProcessOpenGLStruct* pGL);
-#endif
 	DWORD InitGL(const FFGLViewportStruct *vp);
 	DWORD DeInitGL();
 
