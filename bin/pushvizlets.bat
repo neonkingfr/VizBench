@@ -2,7 +2,6 @@ copy c:\users\tjt\documents\github\vizlets\installer\vizlets\vizlets\vizlets-set
 
 p:
 cd \tmp
-set vizlets=vizlets-setup.exe
 
 set PATH=c:\local\rsync;%PATH%
 set CYGWIN=tty binmode
@@ -12,5 +11,5 @@ set RSYNC_RSH=/cygdrive/c/local/rsync/ssh.exe
 set USERNAME=tjt
 set HOME=c:\local\rsync
 echo Drive C >>c:\local\rsync\rsync.log
-chmod -R +rx "%vizlets%"
-c:\local\rsync\rsync -av "%vizlets%" tjt@nosuch.com:/htdocs/tmp/vizlets
+chmod -R +rx vizlets-setup.exe
+c:\local\rsync\rsync -av vizlets-setup.exe tjt@nosuch.com:/htdocs/tmp/vizlets

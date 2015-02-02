@@ -1,4 +1,5 @@
 rem copies binaries and other things from %VIZBENCH% to %VIZLETS%
+rem so it can be packaged up for distribution.
 
 @if x%1 == x echo Usage: updatevizlets "{Debug|Release}"
 @if x%1 == x goto getout:
@@ -32,6 +33,8 @@ rem clean up temporary files
 del /s %VIZLETS%\html\*~
 del /s %VIZLETS%\bin\*~
 del /s %VIZLETS%\config\*~
+del /s %VIZLETS%\shaders\*~
+del /s %VIZLETS%\params\*~
 
 set zip="\program files\7-Zip\7z.exe"
 set libraryzip="%VIZBENCH%\bin\library.zip"
