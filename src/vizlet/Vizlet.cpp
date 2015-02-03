@@ -125,10 +125,10 @@ Vizlet::Vizlet() {
 	m_defaultparams = new AllVizParams(true);
 	m_useparamcache = false;
 
-	AllVizParams* spdefault = getAllVizParams(VizParamPath("default"));
-	if ( spdefault ) {
-		m_defaultparams->applyVizParamsFrom(spdefault);
-	}
+	// AllVizParams* spdefault = getAllVizParams(VizParamPath("default"));
+	// if ( spdefault ) {
+	// 	m_defaultparams->applyVizParamsFrom(spdefault);
+	// }
 
 	m_callbacksInitialized = false;
 	m_passthru = true;
@@ -772,7 +772,7 @@ VizSprite*
 Vizlet::makeAndInitVizSprite(AllVizParams* p, NosuchPos pos) {
 
 	VizSprite* s = VizSprite::makeVizSprite(p);
-	s->frame = FrameSeq();
+	s->m_frame = FrameSeq();
 
 	double movedir;
 	if ( p->movedirrandom.get() ) {
@@ -785,9 +785,8 @@ Vizlet::makeAndInitVizSprite(AllVizParams* p, NosuchPos pos) {
 		movedir = p->movedir.get();
 	}
 
-	DEBUGPRINT1(("makeAndAddVizSprite pos=%.4f   %.4f   %.4f",pos.x,pos.y,pos.z));
 	s->initVizSpriteState(MilliNow(),Handle(),pos,movedir);
-	// AddVizSprite(s);
+	DEBUGPRINT1(("Vizlet::makeAndInitVizSprite size=%f",s->m_state.size));
 	return s;
 }
 

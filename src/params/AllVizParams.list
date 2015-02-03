@@ -1,7 +1,7 @@
 #name			#type	#min		#max		#init		#comment 
 testparam		double	0.0	1.0	0.0		# 0-1 
 alphafinal		double	0.0	1.0	0.0		# 0-1 
-alphainitial	double	0.0	1.0	0.2		# 0-1
+alphainitial	double	0.0	1.0	1.0		# 0-1
 alphatime		double	0.01	10.0	2.0		# seconds
 aspect			double	1.0	4.0	1.0		#
 bounce			bool	false	true	false		#
@@ -9,11 +9,11 @@ filled			bool	false	true	true		#
 gravity			bool	false	true	false		#
 huefillfinal	double	0.0	360.0	0.0		# 0-360
 huefillinitial	double	0.0	360.0	360.0		# 0-360
-huefilltime		double	0.01	10.0	5.0		# secs
+huefilltime		double	0.01	10.0	2.0		# secs
 huefinal		double	0.0	360.0	360.0		# 0-360
 hueinitial		double	0.0	360.0	0.0		# 0-360
-huetime			double	0.01	10.0	5.0		# secs
-lifetime		double	0.01	10.0	5.0		#
+huetime			double	0.01	10.0	2.0		# secs
+lifetime		double	0.01	10.0	3.0		#
 luminance		double	0.0	1.0	0.5		#
 mass			double	0.0	1.0	0.5		#
 mirror			string	mirrorTypes	mirrorTypes	"none"	 #
@@ -27,9 +27,9 @@ rotangspeed	double	-360.0	360.0	0.0		#
 rotdirrandom	bool	false	true	false #
 saturation	double	0.0	1.0	1.0		#
 shape		string	shapeTypes	shapeTypes	"circle"	#
-sizefinal	double	0.0	10.0	0.0		#
-sizeinitial	double	0.01	10.0	1.0		#
-sizetime	double	0.01	10.0	1.0		# secs
+sizefinal	double	0.0	10.0	0.5		#
+sizeinitial	double	0.01	10.0	0.2		#
+sizetime	double	0.01	10.0	2.0		# secs
 speedinitial		double	0.0	1.0	0.0		#
 thickness	double	0.01	10.0	3.0		#
 zable		bool	false	true	true		#

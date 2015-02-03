@@ -45,6 +45,14 @@ function doapi(meth,params) {
 	return {result: retval, error: errval};
 }
 
+function viztitlegen(titlestr) {
+	var title = dojo.byId("title");
+	title.innerHTML = "<h2>"+titlestr+"</h2>";
+	title.innerHTML += "<br><a href=index.html>Vizlets Control</a>";
+	title.innerHTML += "<br><a href=vizserver.html>VizServer Control</a>";
+	title.innerHTML += "<br><a href=params.html>Params Editor</a>";
+}
+
 function vizpagegen(taginclude,tagexclude) {
 
 	var plugins = dojo.byId("vizplugins");

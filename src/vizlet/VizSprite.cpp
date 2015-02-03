@@ -37,9 +37,9 @@
 
 VizSprite::VizSprite(AllVizParams* sp) {
 	// create a copy, since the params may change
-	params = new AllVizParams(true);  // loads it with default values
-	params->applyVizParamsFrom(sp);
-	frame = 0;
+	m_params = new AllVizParams(true);  // loads it with default values
+	m_params->applyVizParamsFrom(sp);
+	m_frame = 0;
 }
 
 
@@ -48,8 +48,8 @@ VizSprite::~VizSprite() {
 
 double VizSprite::vertexNoise()
 {
-	if (params->noisevertex > 0.0f) {
-		return params->noisevertex * RANDDOUBLE * ((rand() % 2) == 0 ? 1 : -1);
+	if (m_params->noisevertex > 0.0f) {
+		return m_params->noisevertex * RANDDOUBLE * ((rand() % 2) == 0 ? 1 : -1);
 	}
 	else {
 		return 0.0f;
@@ -68,53 +68,52 @@ double scale_z(double z, double zexp, double zmult) {
 }
 
 void VizSprite::draw(NosuchGraphics* p) {
-	double scalehack = 0.5f;
-	if (params->zable) {
-		double zmultiply = 4.0f;
+	if (m_params->zable && m_state.pos.z != CURSOR_Z_UNSET) {
+		double zmultiply = 1.0f;
 		double zexponential = 2.0f;
-		double scaled_z = scale_z(state.pos.z, zexponential, zmultiply);
-		draw(p, scaled_z*scalehack);
+		double scaled_z = scale_z(m_state.pos.z, zexponential, zmultiply);
+		draw(p, scaled_z);
 	}
 	else {
-		draw(p, 1.0*scalehack);
+		draw(p, 0.5);
 	}
 }
 
 void VizSprite::draw(NosuchGraphics* graphics, double scaled_z) {
-	if (!state.visible) {
+	if (!m_state.visible) {
 		DEBUGPRINT(("VizSprite.draw NOT DRAWING, !visible"));
 		return;
 	}
 	// double hue = state.hueoffset + params->hueinitial;
 	// double huefill = state.hueoffset + params->huefillinitial;
 
-	NosuchColor color = NosuchColor(state.hue, params->luminance, params->saturation);
-	NosuchColor colorfill = NosuchColor(state.huefill, params->luminance, params->saturation);
+	NosuchColor color = NosuchColor(m_state.hue, m_params->luminance, m_params->saturation);
+	NosuchColor colorfill = NosuchColor(m_state.huefill, m_params->luminance, m_params->saturation);
 
-	if (state.alpha <= 0.0f || state.size <= 0.0) {
-		state.killme = true;
+	if (m_state.alpha <= 0.0f || m_state.size <= 0.0) {
+		m_state.killme = true;
 		return;
 	}
 
-	if (params->filled) {
-		graphics->fill(colorfill, state.alpha);
+	if (m_params->filled) {
+		graphics->fill(colorfill, m_state.alpha);
 	}
 	else {
 		graphics->noFill();
 	}
-	graphics->stroke(color, state.alpha);
-	if (state.size < 0.001f) {
-		state.killme = true;
+	graphics->stroke(color, m_state.alpha);
+	if (m_state.size < 0.001f) {
+		m_state.killme = true;
 		return;
 	}
-	double thickness = params->thickness;
+	double thickness = m_params->thickness;
 	graphics->strokeWeight(thickness);
-	double aspect = params->aspect;
+	double aspect = m_params->aspect;
 
 	// double scaled_z = region->scale_z(state.depth);
 
-	double scalex = state.size * scaled_z;
-	double scaley = state.size * scaled_z;
+	double scalex = m_state.size * scaled_z;
+	double scaley = m_state.size * scaled_z;
 
 	scalex *= aspect;
 
@@ -122,10 +121,10 @@ void VizSprite::draw(NosuchGraphics* graphics, double scaled_z) {
 	double y;
 	int xdir;
 	int ydir;
-	std::string mirror = params->mirror.get();
+	std::string mirror = m_params->mirror.get();
 	if (mirror == "four") {
-		x = state.pos.x;
-		y = state.pos.y;
+		x = m_state.pos.x;
+		y = m_state.pos.y;
 		xdir = 1;
 		ydir = 1;
 		drawAt(graphics, x, y, scalex, scaley, xdir, ydir);
@@ -137,8 +136,8 @@ void VizSprite::draw(NosuchGraphics* graphics, double scaled_z) {
 		drawAt(graphics, 1.0 - x, 1.0 - y, scalex, scaley, xdir, ydir);
 	}
 	else if (mirror == "vertical") {
-		x = state.pos.x;
-		y = state.pos.y;
+		x = m_state.pos.x;
+		y = m_state.pos.y;
 		xdir = 1;
 		ydir = 1;
 		drawAt(graphics, x, y, scalex, scaley, xdir, ydir);
@@ -147,8 +146,8 @@ void VizSprite::draw(NosuchGraphics* graphics, double scaled_z) {
 		drawAt(graphics, x, 1.0 - y, scalex, scaley, xdir, ydir);
 	}
 	else if (mirror == "horizontal") {
-		x = state.pos.x;
-		y = state.pos.y;
+		x = m_state.pos.x;
+		y = m_state.pos.y;
 		xdir = 1;
 		ydir = 1;
 		drawAt(graphics, x, y, scalex, scaley, xdir, ydir);
@@ -156,8 +155,8 @@ void VizSprite::draw(NosuchGraphics* graphics, double scaled_z) {
 		drawAt(graphics, 1.0 - x, y, scalex, scaley, xdir, ydir);
 	}
 	else {
-		x = state.pos.x;
-		y = state.pos.y;
+		x = m_state.pos.x;
+		y = m_state.pos.y;
 		xdir = 1;
 		ydir = 1;
 		drawAt(graphics, x, y, scalex, scaley, xdir, ydir);
@@ -174,7 +173,7 @@ void VizSprite::drawAt(NosuchGraphics* graphics, double x, double y, double scal
 	else {
 		graphics->scale(scalex, scaley);
 	}
-	double degrees = params->rotanginit + state.rotangsofar;
+	double degrees = m_params->rotanginit + m_state.rotangsofar;
 	graphics->rotate(degrees);
 	drawShape(graphics, xdir, ydir);
 	graphics->popMatrix();
@@ -201,51 +200,51 @@ envelopeValue(double initial, double final, double duration, double born, double
 void VizSprite::advanceTo(int now) {
 
 	// _params->advanceTo(tm);
-	state.alpha = envelopeValue(params->alphainitial, params->alphafinal, params->alphatime, state.born, now);
-	state.size = envelopeValue(params->sizeinitial, params->sizefinal, params->sizetime, state.born, now);
+	m_state.alpha = envelopeValue(m_params->alphainitial, m_params->alphafinal, m_params->alphatime, m_state.born, now);
+	m_state.size = envelopeValue(m_params->sizeinitial, m_params->sizefinal, m_params->sizetime, m_state.born, now);
 
-	float age = (now - state.born) / 1000.0f;
-	double life = params->lifetime;
-	if (params->lifetime >= 0.0 && age > params->lifetime) {
-		state.killme = true;
+	float age = (now - m_state.born) / 1000.0f;
+	double life = m_params->lifetime;
+	if (m_params->lifetime >= 0.0 && age > m_params->lifetime) {
+		m_state.killme = true;
 	}
-	double dt = (double)(now - state.last_tm);
-	state.last_tm = now;
+	double dt = (double)(now - m_state.last_tm);
+	m_state.last_tm = now;
 
-	if (!state.visible) {
+	if (!m_state.visible) {
 		return;
 	}
 
-	state.hue = envelopeValue(params->hueinitial, params->huefinal, params->huetime, state.born, now);
-	state.huefill = envelopeValue(params->huefillinitial, params->huefillfinal, params->huefilltime, state.born, now);
+	m_state.hue = envelopeValue(m_params->hueinitial, m_params->huefinal, m_params->huetime, m_state.born, now);
+	m_state.huefill = envelopeValue(m_params->huefillinitial, m_params->huefillfinal, m_params->huefilltime, m_state.born, now);
 
 	// state.hueoffset = fmod((state.hueoffset + params->cyclehue), 360.0);
 
-	if (state.stationary) {
+	if (m_state.stationary) {
 		DEBUGPRINT2(("VizSprite %d is stationary", this));
 		return;
 	}
 
-	if (params->rotangspeed != 0.0) {
-		state.rotangsofar = fmod((state.rotangsofar + (state.rotclockwise ? 1 : -1) * (dt / 1000.0) * params->rotangspeed), 360.0);
+	if (m_params->rotangspeed != 0.0) {
+		m_state.rotangsofar = fmod((m_state.rotangsofar + (m_state.rotclockwise ? 1 : -1) * (dt / 1000.0) * m_params->rotangspeed), 360.0);
 	}
 
-	if (params->gravity) {
-		state.speedX += dt * state.forceX / params->mass;
-		state.speedY += dt * state.forceY / params->mass;
-		if (_isnan(state.speedX)) {
-			DEBUGPRINT(("Updated speedX to NAN! %f", state.speedX));
+	if (m_params->gravity) {
+		m_state.speedX += dt * m_state.forceX / m_params->mass;
+		m_state.speedY += dt * m_state.forceY / m_params->mass;
+		if (_isnan(m_state.speedX)) {
+			DEBUGPRINT(("Updated speedX to NAN! %f", m_state.speedX));
 		}
-		if (_isnan(state.speedY)) {
-			DEBUGPRINT(("Updated speedY to NAN! %f", state.speedY));
+		if (_isnan(m_state.speedY)) {
+			DEBUGPRINT(("Updated speedY to NAN! %f", m_state.speedY));
 		}
 	}
 
-	if (state.speedX != 0.0 || state.speedY != 0.0) {
+	if (m_state.speedX != 0.0 || m_state.speedY != 0.0) {
 
-		NosuchPos npos = state.pos;
-		npos.x += dt * state.speedX / 1000.0;
-		npos.y += dt * state.speedY / 1000.0;
+		NosuchPos npos = m_state.pos;
+		npos.x += dt * m_state.speedX / 1000.0;
+		npos.y += dt * m_state.speedY / 1000.0;
 		if (_isnan(npos.x)) {
 			DEBUGPRINT(("Updated pos to NAN! %.4f %.4f", npos.x, npos.y));
 		}
@@ -253,38 +252,38 @@ void VizSprite::advanceTo(int now) {
 			// DEBUGPRINT(("Updated pos to %.4f %.4f",npos.x,npos.y));
 		}
 
-		if (params->bounce) {
+		if (m_params->bounce) {
 
 			if (npos.x > 1.0f) {
-				state.speedX = -state.speedX;
-				npos.x += 2 * dt * state.speedX;
+				m_state.speedX = -m_state.speedX;
+				npos.x += 2 * dt * m_state.speedX;
 			}
 			if (npos.x < 0.0f) {
-				state.speedX = -state.speedX;
-				npos.x += 2 * dt * state.speedX;
+				m_state.speedX = -m_state.speedX;
+				npos.x += 2 * dt * m_state.speedX;
 			}
 			if (npos.y > 1.0f) {
-				state.speedY = -state.speedY;
-				npos.y += 2 * dt * state.speedX;
+				m_state.speedY = -m_state.speedY;
+				npos.y += 2 * dt * m_state.speedX;
 			}
 			if (npos.y < 0.0f) {
-				state.speedY = -state.speedY;
-				npos.y += 2 * dt * state.speedX;
+				m_state.speedY = -m_state.speedY;
+				npos.y += 2 * dt * m_state.speedX;
 			}
 		}
 		else {
 			if (npos.x > 1.0f || npos.x < 0.0f || npos.y > 1.0f || npos.y < 0.0f) {
-				state.killme = true;
+				m_state.killme = true;
 			}
 		}
 
-		state.pos = npos;
+		m_state.pos = npos;
 	}
 }
 
 VizSpriteList::VizSpriteList() {
-	rwlock = PTHREAD_RWLOCK_INITIALIZER;
-	int rc1 = pthread_rwlock_init(&rwlock, NULL);
+	m_rwlock = PTHREAD_RWLOCK_INITIALIZER;
+	int rc1 = pthread_rwlock_init(&m_rwlock, NULL);
 	if (rc1) {
 		DEBUGPRINT(("Failure on pthread_rwlock_init!? rc=%d", rc1));
 	}
@@ -293,7 +292,7 @@ VizSpriteList::VizSpriteList() {
 
 void
 VizSpriteList::lock_read() {
-	int e = pthread_rwlock_rdlock(&rwlock);
+	int e = pthread_rwlock_rdlock(&m_rwlock);
 	if (e != 0) {
 		DEBUGPRINT(("rwlock for read failed!? e=%d", e));
 		return;
@@ -302,7 +301,7 @@ VizSpriteList::lock_read() {
 
 void
 VizSpriteList::lock_write() {
-	int e = pthread_rwlock_wrlock(&rwlock);
+	int e = pthread_rwlock_wrlock(&m_rwlock);
 	if (e != 0) {
 		DEBUGPRINT(("rwlock for write failed!? e=%d", e));
 		return;
@@ -311,7 +310,7 @@ VizSpriteList::lock_write() {
 
 void
 VizSpriteList::unlock() {
-	int e = pthread_rwlock_unlock(&rwlock);
+	int e = pthread_rwlock_unlock(&m_rwlock);
 	if (e != 0) {
 		DEBUGPRINT(("rwlock unlock failed!? e=%d", e));
 		return;
@@ -320,10 +319,10 @@ VizSpriteList::unlock() {
 
 void VizSpriteList::hit() {
 	lock_write();
-	for (std::list<VizSprite*>::iterator i = sprites.begin(); i != sprites.end(); i++) {
+	for (std::list<VizSprite*>::iterator i = m_sprites.begin(); i != m_sprites.end(); i++) {
 		VizSprite* s = *i;
 		NosuchAssert(s);
-		s->state.alpha = 1.0;
+		s->m_state.alpha = 1.0;
 	}
 	unlock();
 }
@@ -331,56 +330,56 @@ void VizSpriteList::hit() {
 void VizSpriteList::computeForces() {
 	// We assume we're being called with lock_write() already done.
 	bool anyGravity = false;
-	for (std::list<VizSprite*>::iterator i1 = sprites.begin(); i1 != sprites.end(); i1++) {
+	for (std::list<VizSprite*>::iterator i1 = m_sprites.begin(); i1 != m_sprites.end(); i1++) {
 		VizSprite* s1 = *i1;
-		s1->state.forceX = s1->state.forceY = 0.0;
-		if (s1->params->gravity) {
+		s1->m_state.forceX = s1->m_state.forceY = 0.0;
+		if (s1->m_params->gravity) {
 			anyGravity = true;
 		}
 	}
 	if (!anyGravity) {
 		return;
 	}
-	for (std::list<VizSprite*>::iterator i1 = sprites.begin(); i1 != sprites.end(); i1++) {
+	for (std::list<VizSprite*>::iterator i1 = m_sprites.begin(); i1 != m_sprites.end(); i1++) {
 		VizSprite* s1 = *i1;
 		NosuchAssert(s1);
-		if (!s1->params->gravity) {
+		if (!s1->m_params->gravity) {
 			continue;
 		}
-		for (std::list<VizSprite*>::iterator i2 = sprites.begin(); i2 != sprites.end(); i2++) {
+		for (std::list<VizSprite*>::iterator i2 = m_sprites.begin(); i2 != m_sprites.end(); i2++) {
 			VizSprite* s2 = *i2;
 			NosuchAssert(s2);
 			if (s2 == s1) {   // this assumes the iterators use the same order
 				break;
 			}
-			if (!s2->params->gravity) {
+			if (!s2->m_params->gravity) {
 				continue;
 			}
-			double dx = s1->state.pos.x - s2->state.pos.x;
-			double dy = s1->state.pos.y - s2->state.pos.y;
+			double dx = s1->m_state.pos.x - s2->m_state.pos.x;
+			double dy = s1->m_state.pos.y - s2->m_state.pos.y;
 			double dist = sqrt(dx*dx + dy*dy);
 #define MIN_DIST 0.001
 			if (dist < MIN_DIST) {
 				dist = MIN_DIST;
 			}
 			double EPS = 0.01;  // softening parameter (to avoid infinities)
-			double f = (Grav * s1->params->mass * s2->params->mass) / (dist*dist + EPS*EPS);
+			double f = (Grav * s1->m_params->mass * s2->m_params->mass) / (dist*dist + EPS*EPS);
 
-			s1->state.forceX -= f * dx / dist;
-			s1->state.forceY -= f * dy / dist;
-			if (_isnan(s1->state.forceX)) {
+			s1->m_state.forceX -= f * dx / dist;
+			s1->m_state.forceY -= f * dy / dist;
+			if (_isnan(s1->m_state.forceX)) {
 				DEBUGPRINT(("Updated s1->forceX to NAN!"));
 			}
-			if (_isnan(s1->state.forceY)) {
+			if (_isnan(s1->m_state.forceY)) {
 				DEBUGPRINT(("Updated s1->forceY to NAN!"));
 			}
 
-			s2->state.forceX += f * dx / dist;
-			s2->state.forceY += f * dy / dist;
-			if (_isnan(s2->state.forceX)) {
+			s2->m_state.forceX += f * dx / dist;
+			s2->m_state.forceY += f * dy / dist;
+			if (_isnan(s2->m_state.forceX)) {
 				DEBUGPRINT(("Updated s2->forceX to NAN!"));
 			}
-			if (_isnan(s2->state.forceY)) {
+			if (_isnan(s2->m_state.forceY)) {
 				DEBUGPRINT(("Updated s2->forceY to NAN!"));
 			}
 		}
@@ -391,21 +390,21 @@ void
 VizSpriteList::add(VizSprite* s, int limit)
 {
 	lock_write();
-	sprites.push_front(s);
+	m_sprites.push_front(s);
 	NosuchAssert(limit >= 1);
-	while ((int)sprites.size() > limit) {
-		VizSprite* ps = sprites.back();
-		sprites.pop_back();
+	while ((int)m_sprites.size() > limit) {
+		VizSprite* ps = m_sprites.back();
+		m_sprites.pop_back();
 		delete ps;
 	}
-	s->state.visible = true;
+	s->m_state.visible = true;
 	unlock();
 }
 
 void
 VizSpriteList::draw(NosuchGraphics* b) {
 	lock_read();
-	for (std::list<VizSprite*>::iterator i = sprites.begin(); i != sprites.end(); i++) {
+	for (std::list<VizSprite*>::iterator i = m_sprites.begin(); i != m_sprites.end(); i++) {
 		VizSprite* s = *i;
 		NosuchAssert(s);
 		s->draw(b);
@@ -415,17 +414,17 @@ VizSpriteList::draw(NosuchGraphics* b) {
 
 void
 VizSpriteList::advanceTo(int tm) {
-	if (sprites.size() == 0) {
+	if (m_sprites.size() == 0) {
 		return;
 	}
 	lock_write();
 	computeForces();
-	for (std::list<VizSprite*>::iterator i = sprites.begin(); i != sprites.end();) {
+	for (std::list<VizSprite*>::iterator i = m_sprites.begin(); i != m_sprites.end();) {
 		VizSprite* s = *i;
 		NosuchAssert(s);
 		s->advanceTo(tm);
-		if (s->state.killme) {
-			i = sprites.erase(i);
+		if (s->m_state.killme) {
+			i = m_sprites.erase(i);
 			delete s;
 		}
 		else {
@@ -436,39 +435,39 @@ VizSpriteList::advanceTo(int tm) {
 }
 
 VizSpriteSquare::VizSpriteSquare(AllVizParams* sp) : VizSprite(sp) {
-	noise_x0 = vertexNoise();
-	noise_y0 = vertexNoise();
-	noise_x1 = vertexNoise();
-	noise_y1 = vertexNoise();
-	noise_x2 = vertexNoise();
-	noise_y2 = vertexNoise();
-	noise_x3 = vertexNoise();
-	noise_y3 = vertexNoise();
+	m_noise_x0 = vertexNoise();
+	m_noise_y0 = vertexNoise();
+	m_noise_x1 = vertexNoise();
+	m_noise_y1 = vertexNoise();
+	m_noise_x2 = vertexNoise();
+	m_noise_y2 = vertexNoise();
+	m_noise_x3 = vertexNoise();
+	m_noise_y3 = vertexNoise();
 }
 
 void VizSpriteSquare::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
 	double halfw = 0.2f;
 	double halfh = 0.2f;
 
-	double x0 = -halfw + noise_x0 * halfw;
-	double y0 = -halfh + noise_y0 * halfh;
-	double x1 = -halfw + noise_x1 * halfw;
-	double y1 = halfh + noise_y1 * halfh;
-	double x2 = halfw + noise_x2 * halfw;
-	double y2 = halfh + noise_y2 * halfh;
-	double x3 = halfw + noise_x3 * halfw;
-	double y3 = -halfh + noise_y3 * halfh;
+	double x0 = -halfw + m_noise_x0 * halfw;
+	double y0 = -halfh + m_noise_y0 * halfh;
+	double x1 = -halfw + m_noise_x1 * halfw;
+	double y1 = halfh + m_noise_y1 * halfh;
+	double x2 = halfw + m_noise_x2 * halfw;
+	double y2 = halfh + m_noise_y2 * halfh;
+	double x3 = halfw + m_noise_x3 * halfw;
+	double y3 = -halfh + m_noise_y3 * halfh;
 	DEBUGPRINT2(("drawing Square halfw=%.3f halfh=%.3f", halfw, halfh));
 	graphics->quad(x0, y0, x1, y1, x2, y2, x3, y3);
 }
 
 VizSpriteTriangle::VizSpriteTriangle(AllVizParams* sp) : VizSprite(sp) {
-	noise_x0 = vertexNoise();
-	noise_y0 = vertexNoise();
-	noise_x1 = vertexNoise();
-	noise_y1 = vertexNoise();
-	noise_x2 = vertexNoise();
-	noise_y2 = vertexNoise();
+	m_noise_x0 = vertexNoise();
+	m_noise_y0 = vertexNoise();
+	m_noise_x1 = vertexNoise();
+	m_noise_y1 = vertexNoise();
+	m_noise_x2 = vertexNoise();
+	m_noise_y2 = vertexNoise();
 }
 
 void VizSpriteTriangle::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
@@ -481,16 +480,16 @@ void VizSpriteTriangle::drawShape(NosuchGraphics* graphics, int xdir, int ydir) 
 	NosuchVector p3 = p1;
 	p3 = p3.rotate(VizSprite::degree2radian(-120));
 
-	graphics->triangle(p1.x + noise_x0*sz, p1.y + noise_y0*sz,
-		p2.x + noise_x1*sz, p2.y + noise_y1*sz,
-		p3.x + noise_x2*sz, p3.y + noise_y2*sz, xdir, ydir);
+	graphics->triangle(p1.x + m_noise_x0*sz, p1.y + m_noise_y0*sz,
+		p2.x + m_noise_x1*sz, p2.y + m_noise_y1*sz,
+		p3.x + m_noise_x2*sz, p3.y + m_noise_y2*sz, xdir, ydir);
 }
 
 VizSpriteLine::VizSpriteLine(AllVizParams* sp) : VizSprite(sp) {
-	noise_x0 = vertexNoise();
-	noise_y0 = vertexNoise();
-	noise_x1 = vertexNoise();
-	noise_y1 = vertexNoise();
+	m_noise_x0 = vertexNoise();
+	m_noise_y0 = vertexNoise();
+	m_noise_x1 = vertexNoise();
+	m_noise_y1 = vertexNoise();
 }
 
 void VizSpriteLine::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
@@ -500,7 +499,7 @@ void VizSpriteLine::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
 	double y0 = 0.0f;
 	double x1 = 0.2f;
 	double y1 = 0.0f;
-	graphics->line(x0 + noise_x0, y0 + noise_y0, x1 + noise_x1, y1 + noise_y1);
+	graphics->line(x0 + m_noise_x0, y0 + m_noise_y0, x1 + m_noise_x1, y1 + m_noise_y1);
 }
 
 VizSpriteCircle::VizSpriteCircle(AllVizParams* sp) : VizSprite(sp) {
@@ -517,14 +516,14 @@ void VizSpriteNothing::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
 }
 
 VizSpriteOutline::VizSpriteOutline(AllVizParams* sp) : VizSprite(sp) {
-	_npoints = 0;
-	_points = NULL;
+	m_npoints = 0;
+	m_points = NULL;
 }
 
 void
 VizSpriteOutline::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
 	// app->ellipse(0, 0, 0.2f, 0.2f);
-	graphics->polygon(_points, _npoints, xdir, ydir);
+	graphics->polygon(m_points, m_npoints, xdir, ydir);
 	return;
 }
 
@@ -532,14 +531,14 @@ void
 VizSpriteOutline::setOutline(OutlineMem* om, MMTT_SharedMemHeader* hdr) {
 	buff_index b = hdr->buff_to_display;
 	PointMem* p = hdr->point(b, om->index_of_firstpoint);
-	_npoints = om->npoints;
-	_points = new PointMem[_npoints];
-	memcpy(_points, p, _npoints*sizeof(PointMem));
+	m_npoints = om->npoints;
+	m_points = new PointMem[m_npoints];
+	memcpy(m_points, p, m_npoints*sizeof(PointMem));
 }
 
 VizSpriteOutline::~VizSpriteOutline() {
-	if (_points) {
-		delete _points;
+	if (m_points) {
+		delete m_points;
 	}
 }
 
@@ -599,21 +598,21 @@ int rotangdirOf(std::string s) {
 void VizSprite::initVizSpriteState(int millinow, void* handle, NosuchPos& pos, double movedir) {
 
 	// most of the state has been initialized in VizSpriteState constructor
-	state.pos = pos;
+	m_state.pos = pos;
 
 	double rad = degree2radian(movedir);
-	state.speedX = params->speedinitial * sin(rad);
-	state.speedY = params->speedinitial * cos(rad);
+	m_state.speedX = m_params->speedinitial * sin(rad);
+	m_state.speedY = m_params->speedinitial * cos(rad);
 
-	state.handle = handle;
-	state.born = millinow;
-	state.last_tm = millinow;
-	state.hue = params->hueinitial;
-	state.huefill = params->huefillinitial;
-	state.alpha = params->alphainitial;
-	state.size = params->sizeinitial;
-	state.rotangspeed = params->rotangspeed;
-	if (params->rotdirrandom.get() && ((rand() % 2) == 0)) {
-		state.rotangspeed = -state.rotangspeed;
+	m_state.handle = handle;
+	m_state.born = millinow;
+	m_state.last_tm = millinow;
+	m_state.hue = m_params->hueinitial;
+	m_state.huefill = m_params->huefillinitial;
+	m_state.alpha = m_params->alphainitial;
+	m_state.size = m_params->sizeinitial;
+	m_state.rotangspeed = m_params->rotangspeed;
+	if (m_params->rotdirrandom.get() && ((rand() % 2) == 0)) {
+		m_state.rotangspeed = -m_state.rotangspeed;
 	}
 }

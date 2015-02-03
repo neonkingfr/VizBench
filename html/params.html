@@ -274,7 +274,6 @@ function updateval2(name) {
 
 function setup() {
 
-	var title = dojo.byId("title");
 	var status = dojo.byId("status");
 	var params = dojo.byId("params");
 
@@ -285,8 +284,8 @@ function setup() {
 		var port = host.substr(i+1);
 		instancenum = port - 4439;
 	}
-	title.innerHTML = "<h2>Params Editor</h2>"
-	title.innerHTML += "<a href=index.html>Viz Control</a>";
+
+	viztitlegen("Params Editor");
 
 	var html = "";
 

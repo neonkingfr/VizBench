@@ -148,8 +148,10 @@ public:
 		m_midi_output_stream = std::vector<PmStream*>();
 		m_midi_output_name = std::vector<std::string>();
 
+		m_midi_merge_outport = std::vector<int>();
+		m_midi_merge_name = std::vector<std::string>();
+
 		m_midiinput_client = NULL;
-		m_midiinput_merge = false;
 		m_midioutput_client = NULL;
 
 		m_click_client = NULL;
@@ -175,20 +177,26 @@ public:
 		return m_midi_output_name[n].c_str();
 	}
 
+	const char* MidiMergeName(size_t n)  {
+		if (n>=m_midi_merge_name.size()) {
+			return NULL;
+		}
+		return m_midi_merge_name[n].c_str();
+	}
+
 	static void SetClicksPerSecond(int clkpersec);
 	static void SetTempoFactor(float f);
 
 	void SetClickProcessor(NosuchClickListener* client) {
 		m_click_client = client;
 	}
-	void SetMidiInputListener(NosuchMidiListener* client, bool merge) {
+	void SetMidiInputListener(NosuchMidiListener* client) {
 		m_midiinput_client = client;
-		m_midiinput_merge = merge;
 	}
 	void SetMidiOutputListener(NosuchMidiListener* client) {
 		m_midioutput_client = client;
 	}
-	bool StartMidi(std::string midi_input, std::string midi_output);
+	bool StartMidi(std::string midi_input, std::string midi_output, std::string midi_merge);
 	void Stop();
 	void AdvanceTimeAndDoEvents(PtTimestamp timestamp);
 	void Callback(PtTimestamp timestamp);
@@ -292,10 +300,13 @@ private:
 	std::vector<PmStream *> m_midi_output_stream;
 	std::vector<std::string> m_midi_output_name;
 
+	std::vector<int> m_midi_merge_outport;
+	std::vector<std::string> m_midi_merge_name;
+
 	NosuchClickListener* m_click_client;
 	NosuchMidiListener*	m_midioutput_client;
 	NosuchMidiListener*	m_midiinput_client;
-	bool m_midiinput_merge;
+
 	pthread_mutex_t _scheduled_mutex;
 	pthread_mutex_t _notesdown_mutex;
 	bool m_periodic_ANO;

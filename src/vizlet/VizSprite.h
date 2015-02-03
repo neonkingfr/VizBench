@@ -23,10 +23,10 @@ public:
 	void computeForces();
 	void hit();
 	void add(VizSprite* s, int limit);
-	int size() { return sprites.size(); }
+	int size() { return m_sprites.size(); }
 
-	std::list<VizSprite*> sprites;
-	pthread_rwlock_t rwlock;
+	std::list<VizSprite*> m_sprites;
+	pthread_rwlock_t m_rwlock;
 
 };
 
@@ -101,8 +101,8 @@ public:
 
 	// Screen space is 2.0x2.0, while cursor space is 1.0x1.0
 	void scaleCursorSpaceToScreenSpace(NosuchVector& pos) {
-		state.pos.x *= 2.0f;
-		state.pos.y *= 2.0f;
+		m_state.pos.x *= 2.0f;
+		m_state.pos.y *= 2.0f;
 	}
 
 	void draw(NosuchGraphics* graphics);
@@ -115,10 +115,9 @@ public:
 	virtual void accumulate(Cursor* c) { }
 #endif
 
-	AllVizParams* params;
-	VizSpriteState state;
-	b2Body* body;
-	int frame;
+	AllVizParams* m_params;
+	VizSpriteState m_state;
+	int m_frame;
 
 protected:
 	double vertexNoise();
@@ -134,14 +133,14 @@ public:
 	void drawShape(NosuchGraphics* app, int xdir, int ydir);
 
 private:
-	double noise_x0;
-	double noise_y0;
-	double noise_x1;
-	double noise_y1;
-	double noise_x2;
-	double noise_y2;
-	double noise_x3;
-	double noise_y3;
+	double m_noise_x0;
+	double m_noise_y0;
+	double m_noise_x1;
+	double m_noise_y1;
+	double m_noise_x2;
+	double m_noise_y2;
+	double m_noise_x3;
+	double m_noise_y3;
 };
 
 class VizSpriteTriangle : public VizSprite {
@@ -151,12 +150,12 @@ public:
 	void drawShape(NosuchGraphics* app, int xdir, int ydir);
 
 private:
-	double noise_x0;
-	double noise_y0;
-	double noise_x1;
-	double noise_y1;
-	double noise_x2;
-	double noise_y2;
+	double m_noise_x0;
+	double m_noise_y0;
+	double m_noise_x1;
+	double m_noise_y1;
+	double m_noise_x2;
+	double m_noise_y2;
 };
 
 class VizSpriteCircle : public VizSprite {
@@ -173,12 +172,12 @@ public:
 	~VizSpriteOutline();
 	void drawShape(NosuchGraphics* app, int xdir, int ydir);
 	void setOutline(OutlineMem* om, MMTT_SharedMemHeader* hdr);
-	int Npoints() { return _npoints; }
-	PointMem* Points() { return _points; }
+	int Npoints() { return m_npoints; }
+	PointMem* Points() { return m_points; }
 
 private:
-	int _npoints;
-	PointMem* _points;
+	int m_npoints;
+	PointMem* m_points;
 };
 
 class VizSpriteLine : public VizSprite {
@@ -188,10 +187,10 @@ public:
 	void drawShape(NosuchGraphics* app, int xdir, int ydir);
 
 private:
-	double noise_x0;
-	double noise_y0;
-	double noise_x1;
-	double noise_y1;
+	double m_noise_x0;
+	double m_noise_y0;
+	double m_noise_x1;
+	double m_noise_y1;
 };
 
 class VizSpriteNothing : public VizSprite {

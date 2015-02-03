@@ -127,7 +127,7 @@ public:
 	}
 	void loadDefaults() {
 		alphafinal.set(0.0);
-		alphainitial.set(0.2);
+		alphainitial.set(1.0);
 		alphatime.set(2.0);
 		aspect.set(1.0);
 		bounce.set(false);
@@ -135,11 +135,11 @@ public:
 		gravity.set(false);
 		huefillfinal.set(0.0);
 		huefillinitial.set(360.0);
-		huefilltime.set(5.0);
+		huefilltime.set(2.0);
 		huefinal.set(360.0);
 		hueinitial.set(0.0);
-		huetime.set(5.0);
-		lifetime.set(5.0);
+		huetime.set(2.0);
+		lifetime.set(3.0);
 		luminance.set(0.5);
 		mass.set(0.5);
 		mirror.set("none");
@@ -153,9 +153,9 @@ public:
 		rotdirrandom.set(false);
 		saturation.set(1.0);
 		shape.set("circle");
-		sizefinal.set(0.0);
-		sizeinitial.set(1.0);
-		sizetime.set(1.0);
+		sizefinal.set(0.5);
+		sizeinitial.set(0.2);
+		sizetime.set(2.0);
 		speedinitial.set(0.0);
 		testparam.set(0.0);
 		thickness.set(3.0);
@@ -350,7 +350,7 @@ public:
 	}
 	std::string DefaultValue(std::string nm) {
 		if ( nm == "alphafinal" ) { return "0.0"; }
-		if ( nm == "alphainitial" ) { return "0.2"; }
+		if ( nm == "alphainitial" ) { return "1.0"; }
 		if ( nm == "alphatime" ) { return "2.0"; }
 		if ( nm == "aspect" ) { return "1.0"; }
 		if ( nm == "bounce" ) { return "false"; }
@@ -358,11 +358,11 @@ public:
 		if ( nm == "gravity" ) { return "false"; }
 		if ( nm == "huefillfinal" ) { return "0.0"; }
 		if ( nm == "huefillinitial" ) { return "360.0"; }
-		if ( nm == "huefilltime" ) { return "5.0"; }
+		if ( nm == "huefilltime" ) { return "2.0"; }
 		if ( nm == "huefinal" ) { return "360.0"; }
 		if ( nm == "hueinitial" ) { return "0.0"; }
-		if ( nm == "huetime" ) { return "5.0"; }
-		if ( nm == "lifetime" ) { return "5.0"; }
+		if ( nm == "huetime" ) { return "2.0"; }
+		if ( nm == "lifetime" ) { return "3.0"; }
 		if ( nm == "luminance" ) { return "0.5"; }
 		if ( nm == "mass" ) { return "0.5"; }
 		if ( nm == "mirror" ) { return "none"; }
@@ -376,9 +376,9 @@ public:
 		if ( nm == "rotdirrandom" ) { return "false"; }
 		if ( nm == "saturation" ) { return "1.0"; }
 		if ( nm == "shape" ) { return "circle"; }
-		if ( nm == "sizefinal" ) { return "0.0"; }
-		if ( nm == "sizeinitial" ) { return "1.0"; }
-		if ( nm == "sizetime" ) { return "1.0"; }
+		if ( nm == "sizefinal" ) { return "0.5"; }
+		if ( nm == "sizeinitial" ) { return "0.2"; }
+		if ( nm == "sizetime" ) { return "2.0"; }
 		if ( nm == "speedinitial" ) { return "0.0"; }
 		if ( nm == "testparam" ) { return "0.0"; }
 		if ( nm == "thickness" ) { return "3.0"; }

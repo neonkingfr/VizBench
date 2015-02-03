@@ -756,7 +756,7 @@ VizServer::VizServer() {
 
 	m_midi_input_list = "";
 	m_midi_output_list = "";
-	m_do_midimerge = false;
+	m_midi_merge_list = "";
 	m_do_sharedmem = false;
 	m_sharedmem_outlines = NULL;
 	m_sharedmemname = "mmtt_outlines";
@@ -1034,7 +1034,7 @@ VizServer::Start() {
 
 		m_midiinputprocessor = new VizServerMidiProcessor();
 		m_midioutputprocessor = new VizServerMidiProcessor();
-		m_scheduler->SetMidiInputListener(m_midiinputprocessor, m_do_midimerge);
+		m_scheduler->SetMidiInputListener(m_midiinputprocessor);
 		m_scheduler->SetMidiOutputListener(m_midioutputprocessor);
 
 		m_cursorprocessor = new VizServerCursorProcessor();
@@ -1057,7 +1057,7 @@ VizServer::Start() {
 			DEBUGPRINT(("Warning: MIDI input wasn't defined in configuration!"));
 			m_midi_input_list = "loopMIDI Port";
 		}
-		m_scheduler->StartMidi(m_midi_input_list, m_midi_output_list);
+		m_scheduler->StartMidi(m_midi_input_list, m_midi_output_list, m_midi_merge_list);
 
 		_clickprocessor = new VizServerClickProcessor(this);
 		m_scheduler->SetClickProcessor(_clickprocessor);
@@ -1269,8 +1269,8 @@ VizServer::_processServerConfig(cJSON* json) {
 	if ((j = jsonGetString(json, "midiinput")) != NULL) {
 		m_midi_input_list = j->valuestring;
 	}
-	if ((j = jsonGetNumber(json, "midimerge")) != NULL) {
-		m_do_midimerge = (j->valueint != 0);
+	if ((j = jsonGetString(json, "midimerge")) != NULL) {
+		m_midi_merge_list = j->valuestring;
 	}
 	if ((j = jsonGetString(json, "midioutput")) != NULL) {
 		m_midi_output_list = j->valuestring;

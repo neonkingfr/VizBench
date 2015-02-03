@@ -28,12 +28,7 @@ function editparams(inputid) {
 
 function setup() {
 
-	var title = dojo.byId("title");
-
-	title.innerHTML = "<h2>Viz Control</h2>";
-	title.innerHTML += "<a href=params.html>Params Editor</a>";
-	title.innerHTML += "<br><a href=index.html>Vizlets Control</a>";
-	title.innerHTML += "<br><a href=vizserver.html>VizServer Control</a>";
+	viztitlegen("VizServer Control");
 
 	var taginclude = /VizServer/;
 	var tagexclude = /donotmatchanything/;

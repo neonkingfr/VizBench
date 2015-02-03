@@ -317,7 +317,7 @@ private:
 	// These things are pulled from the config file
 	const char* m_midi_input_list;
 	const char* m_midi_output_list;
-	bool m_do_midimerge;
+	const char* m_midi_merge_list;
 	bool m_do_sharedmem;
 	const char *m_sharedmemname;
 	bool m_do_errorpopup;

@@ -91,9 +91,9 @@ void VizBox2d::OutlineToBody(VizSpriteOutline* so) {
 	fixtureDef.restitution = 1.0f;
 
 	b2BodyDef bodydef;
-	DEBUGPRINT(("bodydef position set %.4f %.4f",so->state.pos.x, so->state.pos.y));
+	DEBUGPRINT(("bodydef position set %.4f %.4f",so->m_state.pos.x, so->m_state.pos.y));
 	// bodydef.type = b2_dynamicBody;
-	bodydef.position.Set((float32)(so->state.pos.x), (float32)(so->state.pos.y));
+	bodydef.position.Set((float32)(so->m_state.pos.x), (float32)(so->m_state.pos.y));
 
 	b2Body* b = m_world->CreateBody(&bodydef);
 	b->CreateFixture(&fixtureDef);
@@ -126,19 +126,19 @@ void VizBox2d::processKeystroke(int key, int downup) {
 		// We assume the sprite list is sorted with most recent ones at the beginning
 		VizSpriteList* sl = GetVizSpriteList();
 		sl->lock_read();
-		for ( std::list<VizSprite*>::iterator i = sl->sprites.begin(); i!=sl->sprites.end(); i++ ) {
+		for ( std::list<VizSprite*>::iterator i = sl->m_sprites.begin(); i!=sl->m_sprites.end(); i++ ) {
 			VizSprite* s = *i;
 			NosuchAssert(s);
 			VizSpriteOutline* so = (VizSpriteOutline*)s;
 			if ( so ) {
 				if ( newest_frameseq < 0 ) {
-					newest_frameseq = so->frame;
+					newest_frameseq = so->m_frame;
 				}
-				if ( so->frame != newest_frameseq ) {
+				if ( so->m_frame != newest_frameseq ) {
 					break;
 				}
 				noutlines++;
-				DEBUGPRINT(("Should be snapshotting outine at %.4f,%.4f with npoints=%d frame=%d",so->state.pos.x,so->state.pos.y,so->Npoints(),so->frame));
+				DEBUGPRINT(("Should be snapshotting outine at %.4f,%.4f with npoints=%d frame=%d",so->m_state.pos.x,so->m_state.pos.y,so->Npoints(),so->m_frame));
 				OutlineToBody(so);
 			}
 		}

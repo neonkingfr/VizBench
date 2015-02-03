@@ -256,8 +256,14 @@ void NosuchScheduler::Callback(PtTimestamp timestamp) {
 							// It is the responsibility of the client to delete it.
 							MidiMsg* cloned = mm->clone();
 							m_midiinput_client->processMidiMsg(mm);
-							if (m_midiinput_merge) {
-								QueueMidiMsg(cloned, CurrentClick());
+							// send to all midimerge outputs
+							for (size_t j = 0; j < m_midi_merge_outport.size(); j++ ) {
+								int outport = m_midi_merge_outport[j];
+								if (outport>=0) {
+									DEBUGPRINT(("Sending to midi_merge j=%d outport=%d", j,outport));
+									cloned->SetOutputPort(outport);
+									QueueMidiMsg(cloned, CurrentClick());
+								}
 							}
 						}
 					}
@@ -318,7 +324,7 @@ int findInputDevice(std::string nm, std::string& found_name)
 	return findDevice(nm,1,found_name);
 }
 
-bool NosuchScheduler::StartMidi(std::string midi_input, std::string midi_output) {
+bool NosuchScheduler::StartMidi(std::string midi_input, std::string midi_output, std::string midi_merge) {
 	if (m_running)
 		return true;
 
@@ -327,11 +333,16 @@ bool NosuchScheduler::StartMidi(std::string midi_input, std::string midi_output)
 
 	std::vector<std::string> inputs = NosuchSplitOnString(midi_input, ";");
 	std::vector<std::string> outputs = NosuchSplitOnString(midi_output, ";");
+	std::vector<std::string> merges = NosuchSplitOnString(midi_merge, ";");
 
 	m_midi_input_stream.resize(inputs.size());
-	m_midi_output_stream.resize(outputs.size());
 	m_midi_input_name.resize(inputs.size());
+
+	m_midi_output_stream.resize(outputs.size());
 	m_midi_output_name.resize(outputs.size());
+
+	m_midi_merge_outport.resize(merges.size());
+	m_midi_merge_name.resize(merges.size());
 
 	for (size_t i = 0; i < inputs.size(); i++) {
 		m_midi_input_stream[i] = _openMidiInput(inputs[i]);
@@ -340,6 +351,21 @@ bool NosuchScheduler::StartMidi(std::string midi_input, std::string midi_output)
 	for (size_t i = 0; i < outputs.size(); i++) {
 		m_midi_output_stream[i] = _openMidiOutput(outputs[i]);
 		m_midi_output_name[i] = outputs[i];
+	}
+	for (size_t i = 0; i < merges.size(); i++) {
+		m_midi_merge_name[i] = merges[i];
+		// Find the output port in the m_midi_output_* list
+		int outport = -1;
+		for (size_t k = 0; k < outputs.size(); k++) {
+			if (merges[i] == m_midi_output_name[k]) {
+				outport = k;
+				break;
+			}
+		}
+		m_midi_merge_outport[i] = outport;
+		if (outport < 0) {
+			DEBUGPRINT(("Didn't find midimerge value '%s' in midioutputs!", merges[i]));
+		}
 	}
 
 	m_running = true;
@@ -441,6 +467,10 @@ void NosuchScheduler::Stop() {
 				m_midi_output_stream[i] = NULL;
 				m_midi_output_name[i] = "";
 			}
+		}
+		for (size_t i = 0; i<m_midi_merge_outport.size(); i++ ) {
+			m_midi_merge_outport[i] = -1;
+			m_midi_merge_name[i] = "";
 		}
 		Pm_Terminate();
 		m_running = false;

@@ -10,6 +10,10 @@ copy %VIZBENCH%\ffglplugins%config%\*.* %VIZLETS%\ffglplugins
 copy %VIZBENCH%\bin%config%\FFFF.exe %VIZLETS%\bin
 copy %VIZBENCH%\bin%config%\VizServer.dll %VIZLETS%\bin
 
+rem get rid of plugins that shouldn't be distributed
+del %VIZLETS%\ffglplugins\VizLooper.dll
+del %VIZLETS%\ffglplugins\VizletTemplate.dll
+
 rem these are the python-based EXEs, no separate Release or Debug version
 copy %VIZBENCH%\bin\jsonrpc.exe %VIZLETS%\bin
 copy %VIZBENCH%\bin\oscutil.exe %VIZLETS%\bin
@@ -27,9 +31,12 @@ copy %VIZBENCH%\bin\api.bat %VIZLETS%\bin
 copy %VIZBENCH%\bin\oscplayback.bat %VIZLETS%\bin
 copy %VIZBENCH%\bin\osclisten.bat %VIZLETS%\bin
 
-rem HTML stuff
-copy %VIZBENCH%\html\*.html %VIZLETS%\html\*.html
-copy %VIZBENCH%\html\*.js %VIZLETS%\html\*.js
+rem HTML
+copy %VIZBENCH%\html\*.html %VIZLETS%\html
+copy %VIZBENCH%\html\*.js %VIZLETS%\html
+
+rem Params
+copy %VIZBENCH%\config\params\*.json %VIZLETS%\config\params
 
 rem copy %VIZBENCH%\bin\*.osc %VIZLETS%\bin
 

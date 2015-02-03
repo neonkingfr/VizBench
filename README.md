@@ -9,6 +9,9 @@ to respond to cursor information.
 
 The FFGL plugins here have been tested in Resolume (4.1.11) and Magic (1.53).
 
+For people that don't want to compile anything, or want to try it out
+before compiling anything, an installer is available, see http://vizicist.com
+
 Also included is a FreeFrame host (FFFF) for testing and simple uses.
 FFFF is capable of loading a pipeline of FFGL plugins.
 
@@ -52,22 +55,29 @@ Here are the steps to obtain and build it:
 At this point you should have enough to execute this first example:
 
     cd %VIZBENCH%/bin
-    FFFF.exe vizdraw
-    p.bat fourcircles.osc
+    FFFF VizExample1
 
-and see some graphics appear in the FFFF window.  FFFF.exe is an FFGL
-host that can be configured to load a pipeline of FFGL plugins.
-The command-line argument to FFFF.exe is the initial configuration to load,
-which should be the name of a file in the config/ffff directory.
-In the example above, the file config/ffff/vizdraw.json is used, which
-loads the single FFGL plugin named VizDraw, which listens for TUIO/OSC
-messages to draw graphics.  The "p.bat fourcircles.osc" command 
-replays some TUIO/OSC messages stored in the fourcircles.osc file.
+You should see a window with a single red outlined square.  If that works,
+you can move on to the second example:
+
+    FFFF VizExample2
+    p fourcircles.osc
+
+The second line there uses the p.bat script to replay a series of TUIO/OSC
+messages that get sent to port 3333 (a standard port for TUIO messages)
+to convey mouse cursor movement.  When these messages are received,
+they will result in some graphics (little sprites) in the FFFF window.
+
+If you have an iPhone or iPad with the TuioPad app, you can use TuioPad to
+draw things in VizExample2.  Just start TuioPad, set the host IP address
+to the IP address of your Windows machine, press the Start button,
+and start drawing with your fingers.  Note that it's multitouch -
+you can use more than one finger at a time.
 
 ============================================================================
-Second example: vizlife
+Next example: vizlife
 
-    FFFF.exe vizlife
+    FFFF vizlife
     api VizLife.randomize
 
 This example loads the VizLife plugin, which plays Conway's Game of Life.
@@ -76,16 +86,17 @@ You'll notice that when cells are "born", they cause sprites to be created.
 Invoking the "VizLife.clear" api will clear the grid.
 
 ============================================================================
-Third example: vizshader
+Next example: vizshader
 
-    FFFF.exe vizshader
-    p.bat viztest.osc
+    FFFF vizshader
+    p viztest.osc
 
-The second line there will replay a series of OSC messages that
-get sent to port 3333 (a standard for TUIO messages) to convey mouse cursor
-movement.  The VizShader plugin uses code from Lynn Jarvis' Shader Maker
-(see https://github.com/leadedge/ShaderMaker) that creates an FFGL plugin
-directly from shader code you can find at the GLSL Sandbox and ShaderToy sites.
+The second line there uses the p.bat script to replay a series of
+OSC messages that get sent to port 3333 (a standard for TUIO messages)
+to convey mouse cursor movement.  The VizShader plugin uses code
+from Lynn Jarvis' Shader Maker (see https://github.com/leadedge/ShaderMaker)
+that creates an FFGL plugin directly from shader code you can find at the
+GLSL Sandbox and ShaderToy sites.
 
 A current wrinkle of this example is that FFGL Host control of the
 "X Mouse" and "Y Mouse" parameters is disabled as soon as the first TUIO/OSC
@@ -95,9 +106,9 @@ will no longer work after you start using TUIO/OSC.  If you don't use TUIO/OSC,
 the GUI-controlled parameters work normally.
 
 ============================================================================
-Fourth example: vizmidi
+Next example: vizmidi
 
-    FFFF.exe vizmidi
+    FFFF vizmidi
     mf.bat prelude.mid
 
 This example will "play" the midifiles/prelude.mid, and draw
@@ -109,9 +120,9 @@ Be warned - sometime these MIDI routing mechanisms can shut down
 unexpectedly or (more likely) disable ports when MIDI feedback is detected.
 
 ============================================================================
-Fifth example: vizbox2d
+Next example: vizbox2d
 
-    FFFF.exe vizbox2d
+    FFFF vizbox2d
     api VizBox2d.randomize
     api VizBox2d.push
 
@@ -133,6 +144,16 @@ in creating this FFGL plugin:
     ffglplugins\MyViz.dll
 
 which you can use like any of the other Vizlet-based plugins.
+============================================================================
+
+POTENTIAL ISSUES:
+
+- You can only run one FFFF program at a time, since it listens on several
+  ports (for HTTP and OSC) and only one program can listen on them at a time.
+
+- If you run one of these plugins inside a FreeFrame host like Resolume,
+  the plugin must be active before you can talk to its web interface.
+
 ============================================================================
 
 Questions: me@timthompson.com

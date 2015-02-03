@@ -1,6 +1,12 @@
 //
-// This Vizlet example just draws a square.
+// This Vizlet example shows how to create Sprites, using 3 different methods.
+// All of the methods operate simultaneously.  Sprites are created:
 //
+// 1) When cursor events are received by processCursor().
+// 2) When MIDI events are received by processMidiOutput or processMidiInput
+// 3) When the "newsprite" API is received by processJson
+//
+
 #include "Vizlet.h"
 
 class VizExample2 : public Vizlet
@@ -16,6 +22,11 @@ public:
 	void processMidiOutput(MidiMsg* m);
 	void processCursor(VizCursor* c, int downdragup);
 	bool processDraw();
+
+private:
+	AllVizParams* m_midiparams;
+	AllVizParams* m_cursorparams;
+	AllVizParams* m_apiparams;
 };
 
 static CFFGLPluginInfo PluginInfo ( 
@@ -35,10 +46,19 @@ std::string vizlet_name() { return "VizExample2"; }
 CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
 
 VizExample2::VizExample2() : Vizlet() {
+
+	// Set up different parameters for each type of Sprite
+	m_cursorparams = getAllVizParams(VizParamPath("default"));
+	m_cursorparams->shape.set("circle");
+
+	m_midiparams = getAllVizParams(VizParamPath("default"));
+	m_midiparams->shape.set("square");
+
+	m_apiparams = getAllVizParams(VizParamPath("default"));
+	m_apiparams->shape.set("triangle");
 }
 
 VizExample2::~VizExample2() {
-	DEBUGPRINT1(("Destructor for VizExample2"));
 }
 
 DWORD __stdcall VizExample2::CreateInstance(CFreeFrameGLPlugin **ppInstance) {
@@ -48,12 +68,14 @@ DWORD __stdcall VizExample2::CreateInstance(CFreeFrameGLPlugin **ppInstance) {
 
 void VizExample2::processCursor(VizCursor* c, int downdragup) {
 
+	// Create Sprites whenever and wherever a cursor is moved.
+	// Cursor input for multiple cursors comes in via TUIO over OSC.
 	switch(downdragup) {
 	case CURSOR_DOWN:
-		makeAndAddVizSprite(defaultParams(), c->pos);
+		makeAndAddVizSprite(m_cursorparams, c->pos);
 		break;
 	case CURSOR_DRAG:
-		makeAndAddVizSprite(defaultParams(), c->pos);
+		makeAndAddVizSprite(m_cursorparams, c->pos);
 		break;
 	case CURSOR_UP:
 		break;
@@ -62,15 +84,19 @@ void VizExample2::processCursor(VizCursor* c, int downdragup) {
 
 std::string VizExample2::processJson(std::string meth, cJSON *json, const char *id) {
 
+	// All Vizlets should have an "apis" method that lists the
+	// APIs that the Vizlet understands.  In this case, there is just
+	// one api - newsprite - which creates and randomly places a new Sprite.
 	if (meth == "apis") {
 		return jsonStringResult("newsprite",id);
 	}
 
 	if ( meth == "newsprite" ) {
-		double x = ((double)rand())/RAND_MAX;
-		double y = ((double)rand())/RAND_MAX;
+		// Position the Sprite randomly
+		double x = 0.1 + 0.8*((double)rand())/RAND_MAX;   // 0.1-0.9
+		double y = 0.1 + 0.8*((double)rand())/RAND_MAX;   // 0.1-0.9
 		double z = 0.5;
-		makeAndAddVizSprite(defaultParams(),NosuchPos(x,y,z));
+		makeAndAddVizSprite(m_apiparams,NosuchPos(x,y,z));
 		return jsonOK(id);
 	}
 
@@ -78,14 +104,42 @@ std::string VizExample2::processJson(std::string meth, cJSON *json, const char *
 }
 
 void VizExample2::processMidiInput(MidiMsg* m) {
-	defaultMidiVizSprite(m);
+
+	// Ignore everything except MIDI_NOTE_ON
+	if ( m->MidiType() != MIDI_NOTE_ON || m->Velocity() == 0 ) {
+			return;
+	}
+
+	// The sprite position is based on the MIDI pitch and velocity
+	NosuchPos pos;
+	pos.x = 0.5f;
+	pos.y = (m->Pitch()) / float(127);
+	pos.z = (m->Velocity()*m->Velocity()) / (128.0*128.0);
+
+	// Sprite color is controlled by the MIDI channel
+	NosuchColor clr = channelColor(m->Channel());
+	double hue = clr.hue();
+
+	if ((rand() % 2) == 0) {
+		m_midiparams->movedir.set(90.0);
+	} else {
+		m_midiparams->movedir.set(270.0);
+	}
+	m_midiparams->speedinitial.set(0.2);
+	m_midiparams->hueinitial.set(hue);
+	m_midiparams->huefinal.set(hue);
+	m_midiparams->huefillinitial.set(hue);
+	m_midiparams->huefillfinal.set(hue);
+
+	makeAndAddVizSprite(m_midiparams, pos);
 }
 
 void VizExample2::processMidiOutput(MidiMsg* m) {
-	defaultMidiVizSprite(m);
+	processMidiInput(m);
 }
 
 bool VizExample2::processDraw() {
+	// Draw all active sprites
 	DrawVizSprites();
 	return true;
 }
