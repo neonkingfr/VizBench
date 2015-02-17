@@ -537,6 +537,6 @@ std::string ws2s(const std::wstring& s)
 	char* r = new char[len];  // includes the null character
     WideCharToMultiByte(CP_ACP, 0, s.c_str(), slength, r, len, 0, 0); 
 	std::string rs = std::string(r);
-	delete r;
+	delete[] r;
     return rs;
 }

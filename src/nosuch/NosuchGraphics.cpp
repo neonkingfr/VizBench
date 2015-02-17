@@ -38,6 +38,8 @@
 NosuchGraphics::NosuchGraphics() {
 	m_filled = false;
 	m_stroked = false;
+	m_fill_alpha = 1.0;
+	m_stroke_alpha = 1.0;
 }
 
 void NosuchGraphics::rect(double x, double y, double w, double h) {

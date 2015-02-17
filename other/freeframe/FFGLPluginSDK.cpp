@@ -33,6 +33,7 @@ static char s_DisplayValue[DISPLAY_VALUE_LENGTH];
 CFreeFrameGLPlugin::CFreeFrameGLPlugin()
 : CFFGLPluginManager()
 {
+	m_pPlugin = NULL;
 }
 
 CFreeFrameGLPlugin::~CFreeFrameGLPlugin() 

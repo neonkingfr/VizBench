@@ -122,6 +122,8 @@ Vizlet::Vizlet() {
 
 	VizParams::Initialize();
 
+	json_params = NULL;
+	json_id = NULL;
 	m_defaultparams = new AllVizParams(true);
 	m_useparamcache = false;
 
@@ -226,9 +228,9 @@ char* Vizlet::GetParameterDisplay(DWORD n)
 #ifdef VIZTAG_PARAMETER
 	switch ( n ) {
 	case 0:
-	    strncpy_s(_disp,DISPLEN,VizTag().c_str(),VizTag().size());
-	    _disp[DISPLEN-1] = 0;
-		return _disp;
+	    strncpy_s(m_disp,DISPLEN,VizTag().c_str(),VizTag().size());
+	    m_disp[DISPLEN-1] = 0;
+		return m_disp;
 	}
 #endif
 	return "";

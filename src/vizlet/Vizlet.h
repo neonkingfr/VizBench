@@ -240,8 +240,10 @@ private:
 
 	void _drawnotes(std::list<MidiMsg*>& notes);
 
+#ifdef VIZTAG_PARAMETER
 #define DISPLEN 128
-	char _disp[DISPLEN];
+	char m_disp[DISPLEN];
+#endif
 };
 
 std::string dll_pathname();

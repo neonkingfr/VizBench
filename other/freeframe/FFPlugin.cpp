@@ -29,6 +29,9 @@ FFPluginDef::FFPluginDef()
 {
     m_hInst = NULL;
     m_pff = NULL;
+	m_instanceid = 0;
+	m_numparams = 0;
+	m_paramdefs = NULL;
 }
 
 FFPluginDef::~FFPluginDef()
@@ -42,7 +45,7 @@ bool FFPluginDef::Load(std::string Path)
 
     Free();
 
-	std::wstring wPath = s2ws(Path);
+	// std::wstring wPath = s2ws(Path);
     // m_hInst = LoadLibrary(wPath.c_str());
     m_hInst = LoadLibrary(Path.c_str());
     if ( m_hInst == NULL ) {
@@ -155,7 +158,7 @@ int FFPluginDef::Instantiate(VideoInfoStruct *vis)
 bool FFPluginDef::Free()
 {
     if (m_pff != NULL) {
-        plugMainUnion u = m_pff(FF_DEINITIALISE, 0, 0);
+        m_pff(FF_DEINITIALISE, 0, 0);
         m_pff = NULL;
     }
     if (m_hInst != NULL) {

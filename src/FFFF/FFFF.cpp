@@ -87,6 +87,9 @@ FFFF::FFFF() {
 	m_json_cond = PTHREAD_COND_INITIALIZER;
 	m_json_pending = false;
 	m_timer = Timer::New();
+	m_vizserver = NULL;
+	m_json_params = NULL;
+	m_json_id = NULL;
 	desired_FPS = 60.0;
 	throttle_timePerFrame = 1.0 / desired_FPS;
 	throttle_lasttime = 0.0;

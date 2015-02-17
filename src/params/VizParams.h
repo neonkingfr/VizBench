@@ -21,7 +21,7 @@ bool string2bool(std::string s);
 
 class DoubleParam {
 public:
-	DoubleParam() { enabled = false; }
+	DoubleParam() { enabled = false; value = 0.0;  }
 	double get() { return value; }
 	void set(double v) { value = v; enabled = true; }
 	void set(cJSON* j) {
@@ -45,7 +45,7 @@ private:
 
 class BoolParam {
 public:
-	BoolParam() { enabled = false; }
+	BoolParam() { enabled = false; value = false; }
 	bool get() { return value; }
 	void set(bool v) { value = v; enabled = true; }
 	void set(cJSON* j) {
@@ -95,7 +95,7 @@ private:
 
 class IntParam {
 public:
-	IntParam() { enabled = false; }
+	IntParam() { enabled = false; value = 0; }
 	int get() { return value; }
 	void set(int v) { value = v; enabled = true; }
 	void set(cJSON* j) {

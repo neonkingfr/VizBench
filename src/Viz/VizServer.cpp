@@ -559,9 +559,9 @@ public:
 				double x = ArgAsFloat(m, 2);
 				double y = ArgAsFloat(m, 3);
 				double z = ArgAsFloat(m, 4);
-				double tuio_a = ArgAsFloat(m, 5);   // Angle
-				double tuio_w = ArgAsFloat(m, 6);
-				double tuio_h = ArgAsFloat(m, 7);
+				// double tuio_a = ArgAsFloat(m, 5);   // Angle
+				// double tuio_w = ArgAsFloat(m, 6);
+				// double tuio_h = ArgAsFloat(m, 7);
 				double tuio_f = ArgAsFloat(m, 8);   // Area
 				// y = 1.0f - y;
 
