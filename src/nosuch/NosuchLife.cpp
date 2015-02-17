@@ -29,23 +29,23 @@
 #include "NosuchLife.h"
 #include "NosuchGraphics.h"
 
-NosuchLife::NosuchLife(LifeListener& listener, int nrows, int ncols) : _listener(listener) {
+NosuchLife::NosuchLife(LifeListener& listener, int nrows, int ncols) : m_listener(listener) {
 
-	_nrows = nrows;
-	_ncols = ncols;
-	_wrap = true;
+	m_nrows = nrows;
+	m_ncols = ncols;
+	m_wrap = true;
 
-	int ncells = _nrows * _ncols;
-	_cells = new LifeCell[ncells];
-	_nextcells = new LifeCell[ncells];
+	int ncells = m_nrows * m_ncols;
+	m_cells = new LifeCell[ncells];
+	m_nextcells = new LifeCell[ncells];
 }
 
 void
 NosuchLife::Gen() {
 
-	for (int r = 0; r < _nrows; r++) {
-		int rstart = r * _ncols;
-		for (int c = 0; c < _ncols; c++) {
+	for (int r = 0; r < m_nrows; r++) {
+		int rstart = r * m_ncols;
+		for (int c = 0; c < m_ncols; c++) {
 
 			LifeCell& cell_ul = Cell(r - 1, c - 1);
 			LifeCell& cell_um = Cell(r - 1, c);
@@ -71,17 +71,17 @@ NosuchLife::Gen() {
 				if (tot < 2 || tot > 3) {
 					// dies due to under- or over-population
 					nextcell.setVal(false);
-					_listener.onCellDeath(r, c, nextcell);
+					m_listener.onCellDeath(r, c, nextcell);
 				} else {
 					nextcell.setVal(true);  // didn't change
-					_listener.onCellSurvive(r, c, nextcell);
+					m_listener.onCellSurvive(r, c, nextcell);
 				}
 			}
 			else {
 				if (tot == 3) {
 					// born
 					nextcell.setVal(true);
-					_listener.onCellBirth(r, c, nextcell,
+					m_listener.onCellBirth(r, c, nextcell,
 						cell_ul,cell_um,cell_ur,
 						cell_ml,cell_mm,cell_mr,
 						cell_ll,cell_lm,cell_lr);
@@ -92,18 +92,18 @@ NosuchLife::Gen() {
 			}
 		}
 	}
-	LifeCell* t = _cells;
-	_cells = _nextcells;
-	_nextcells = t;
+	LifeCell* t = m_cells;
+	m_cells = m_nextcells;
+	m_nextcells = t;
 }
 
 void
 NosuchLife::Draw() {
-	for (int r = 0; r < _nrows; r++) {
-		for (int c = 0; c < _ncols; c++) {
+	for (int r = 0; r < m_nrows; r++) {
+		for (int c = 0; c < m_ncols; c++) {
 			LifeCell& cell = Cell(r, c);
 			if (cell.val()) {
-				_listener.onCellDraw(r, c, cell);
+				m_listener.onCellDraw(r, c, cell);
 			}
 		}
 	}

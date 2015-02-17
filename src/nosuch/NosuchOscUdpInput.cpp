@@ -12,15 +12,15 @@ OscSocketError(char *s)
 
 NosuchOscUdpInput::NosuchOscUdpInput(std::string host, int port, NosuchOscListener* processor) : NosuchOscInput(processor) {
 	DEBUGPRINT2(("NosuchOscUdpInput constructor"));
-	_s = INVALID_SOCKET;
-	_myhost = host;
-	_myport = port;
+	m_sock = INVALID_SOCKET;
+	m_myhost = host;
+	m_myport = port;
 }
 
 NosuchOscUdpInput::~NosuchOscUdpInput() {
 	DEBUGPRINT2(("NosuchOscUdpInput destructor"));
-	if ( _s != INVALID_SOCKET ) {
-		DEBUGPRINT(("HEY!  _info._s is still set in NSosc destructor!?"));
+	if ( m_sock != INVALID_SOCKET ) {
+		DEBUGPRINT(("HEY!  _info.m_sock is still set in NSosc destructor!?"));
 	}
 }
 
@@ -42,17 +42,17 @@ NosuchOscUdpInput::Listen() {
     sin.sin_family = AF_INET;
     // sin.sin_addr.s_addr = INADDR_ANY;
 
-	if ( _myhost != "*" && _myhost != "" ) {
-	    phe = gethostbyname(_myhost.c_str());
+	if ( m_myhost != "*" && m_myhost != "" ) {
+	    phe = gethostbyname(m_myhost.c_str());
 	    if (phe == NULL) {
 	        return OscSocketError("unable to get hostname");
 	    }
 	    memcpy((struct sockaddr FAR *) &(sin.sin_addr),
 	           *(char **)phe->h_addr_list, phe->h_length);
-	    sin.sin_port = htons(_myport);
+	    sin.sin_port = htons(m_myport);
 	} else {
 		// Listen on all ip addresses
-	    sin.sin_port = htons(_myport);
+	    sin.sin_port = htons(m_myport);
 		sin.sin_addr.S_un.S_addr = INADDR_ANY;
 	}
 
@@ -62,7 +62,7 @@ NosuchOscUdpInput::Listen() {
     }
     if (bind(s, (LPSOCKADDR)&sin, sizeof (sin)) < 0) {
         int e = WSAGetLastError();
-        DEBUGPRINT(("NSosc socket bind error: host=%s port=%d e=%d",_myhost.c_str(),_myport,e));
+        DEBUGPRINT(("NSosc socket bind error: host=%s port=%d e=%d",m_myhost.c_str(),m_myport,e));
         return e;
         // return OscSocketError("unable to bind socket");
     }
@@ -70,15 +70,15 @@ NosuchOscUdpInput::Listen() {
         return OscSocketError("unable to getsockname after bind");
     }
     // *myport = ntohs(sin2.sin_port);
-    DEBUGPRINT(("LISTENING for OSC on UDP port %d@%s",_myport,_myhost.c_str()));
-    _s = s;
+    DEBUGPRINT(("LISTENING for OSC on UDP port %d@%s",m_myport,m_myhost.c_str()));
+    m_sock = s;
     return 0;
 }
 
 void
 NosuchOscUdpInput::Check()
 {
-	if ( _s == INVALID_SOCKET )
+	if ( m_sock == INVALID_SOCKET )
 		return;
 
     struct sockaddr_in sin;
@@ -94,13 +94,13 @@ NosuchOscUdpInput::Check()
 			// DEBUGPRINT(("OSC processing taking too long, Check returning early, cnt=%d  tm0=%ld now=%ld\n",cnt,tm0,tm));
 			break;
 		}
-        int i = recvfrom(_s,buf,sizeof(buf),0,(LPSOCKADDR)&sin, &sin_len);
+        int i = recvfrom(m_sock,buf,sizeof(buf),0,(LPSOCKADDR)&sin, &sin_len);
         if ( i <= 0 ) {
             int e = WSAGetLastError();
 			switch (e) {
 			case WSAENOTSOCK:
 				DEBUGPRINT(("NosuchOscUdpInput::Check e==WSAENOTSOCK"));
-				_s = INVALID_SOCKET;
+				m_sock = INVALID_SOCKET;
 				break;
 			case WSAEWOULDBLOCK:
 				break;
@@ -119,8 +119,8 @@ NosuchOscUdpInput::Check()
 void
 NosuchOscUdpInput::UnListen()
 {
-    DEBUGPRINT(("_oscUnlisten( _myport=%d)", _myport));
-    closesocket(_s);
-    _s = INVALID_SOCKET;
+    DEBUGPRINT(("_oscUnlisten( _myport=%d)", m_myport));
+    closesocket(m_sock);
+    m_sock = INVALID_SOCKET;
 }
 

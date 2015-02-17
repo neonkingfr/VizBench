@@ -1,3 +1,3 @@
 c:
-cd \users\tjt\documents\github\manifold\log
+cd %VIZBENCH%\log
 del *.debug

@@ -54,8 +54,8 @@ std::string NosuchDebugPrefix = "";
 std::string NosuchDebugLogFile = "nosuch.debug";
 std::string NosuchDebugLogDir = ".";
 std::string NosuchDebugLogPath;
-std::string NosuchCurrentDir = ".";
-// std::string NosuchConfigDir = "config";
+
+std::string m_VizPath = "";
 
 #ifdef DEBUG_TO_BUFFER
 bool NosuchDebugToBuffer = true;
@@ -82,15 +82,20 @@ NosuchDebugSetLogDirFile(std::string logdir, std::string logfile)
 	} else {
 		NosuchDebugLogFile = logfile;
 		NosuchDebugLogDir = logdir;
-		NosuchDebugLogPath = logdir + "/" + logfile;
+		NosuchDebugLogPath = logdir + "\\" + logfile;
 	}
 }
 
+std::string mmmm;
+
 void
 RealDebugDumpLog() {
+	// XXX - this code needs to handle situations when the file
+	// doesn't already exist.
+	mmmm = m_VizPath;
 	std::ofstream f(NosuchDebugLogPath.c_str(),ios::app);
 	if ( ! f.is_open() ) {
-		NosuchDebugLogPath = "c:/windows/temp/debug.txt";
+		NosuchDebugLogPath = "c:/tmp/viz.debug";
 		f.open(NosuchDebugLogPath.c_str(),ios::app);
 		if ( ! f.is_open() ) {
 			return;
@@ -256,16 +261,6 @@ NosuchErrorOutput(const char *fmt, ...)
 }
 
 std::string
-NosuchFullPath(std::string filepath)
-{
-	if ( filepath == "." ) {
-		return NosuchCurrentDir;
-	} else {
-		return NosuchCurrentDir + "/" + filepath;
-	}
-}
-
-std::string
 NosuchSnprintf(const char *fmt, ...)
 {
 	static char *buff = NULL;
@@ -290,6 +285,7 @@ NosuchSnprintf(const char *fmt, ...)
 	}
 }
 
+// Replace ALL backslashes with forward slashes
 std::string
 NosuchForwardSlash(std::string filepath) {
 	size_t i;
@@ -300,30 +296,27 @@ NosuchForwardSlash(std::string filepath) {
 }
 
 std::string
-ManifoldPath(std::string fn)
+VizPath(std::string fn)
 {
-	static char* manifold = NULL;
-	
-	if ( manifold == NULL ) {
-		manifold = getenv("VIZBENCH");
-		if ( manifold == NULL ) {
-			manifold = ".";
-		}
+	if ( m_VizPath == "" ) {
+		std::string msg = NosuchSnprintf("Error: VIZPATH is not set!\n");
+		MessageBoxA(NULL,msg.c_str(),"Viz",MB_OK);
+		m_VizPath = ".";
 	}
 	if (fn == "") {
-		return manifold;
+		return m_VizPath;
 	}
-	return NosuchSnprintf("%s/%s",manifold,fn.c_str());
+	return NosuchSnprintf("%s\\%s",m_VizPath.c_str(),fn.c_str());
+}
+
+void
+SetVizPath(std::string vb) {
+	m_VizPath = vb;
+	NosuchDebugSetLogDirFile(VizPath("log"),"viz.debug");
 }
 
 std::string
-ManifoldLogDir()
+VizConfigPath(std::string filepath)
 {
-	return ManifoldPath("log");
-}
-
-std::string
-NosuchConfigPath(std::string filepath)
-{
-	return ManifoldPath("config") + "/" + filepath;
+	return VizPath("config") + "\\" + filepath;
 }

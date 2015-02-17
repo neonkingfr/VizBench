@@ -88,16 +88,16 @@ public:
 	void disable() { _enabled = false; }
 	bool isEnabled(){ return _enabled; }
 	std::string name() { return _name; }
-	FFGLPluginDef* plugindef() { return _plugindef; }
+	FFGLPluginDef* plugindef() { return m_plugindef; }
 
 	FFGLPluginInstance* next;
 
 private:
 	std::string _name;
 	bool _enabled;
-	FFGLPluginDef* _plugindef;
-	FFGLParameterInstance *_params;
-	FF_Main_FuncPtr _main;
+	FFGLPluginDef* m_plugindef;
+	FFGLParameterInstance *m_params;
+	FF_Main_FuncPtr m_main;
 
 	//many plugins will return 0x00000000 as the first valid instance,
 	//so we use 0xFFFFFFFF to represent an uninitialized/invalid instance

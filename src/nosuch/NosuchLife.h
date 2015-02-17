@@ -31,17 +31,17 @@
 class LifeCell {
 public:
 	LifeCell() {
-		_on = false;
-		_data = NULL;
+		m_on = false;
+		m_data = NULL;
 	}
-	int val() { return (_on == true) ? 1 : 0; }
-	void* data() { return _data; }
-	void setVal(bool onoff) { _on = onoff; }
+	int val() { return (m_on == true) ? 1 : 0; }
+	void* data() { return m_data; }
+	void setVal(bool onoff) { m_on = onoff; }
 private:
 	friend class NosuchLife;  // so it can use setData
-	void setData(void* d) { _data = d; }
-	bool _on;
-	void* _data;
+	void setData(void* d) { m_data = d; }
+	bool m_on;
+	void* m_data;
 };
 
 class LifeListener {
@@ -62,54 +62,54 @@ public:
 	void Draw();
 	void Gen();
 	LifeCell& Cell(int r, int c) {
-		return _getcell(r, c, _cells);
+		return _getcell(r, c, m_cells);
 	}
 	void setData(int row, int col, void* d) {
 		// Set it in BOTH cell grids
-		_getcell(row, col, _cells).setData(d);
-		_getcell(row, col, _nextcells).setData(d);
+		_getcell(row, col, m_cells).setData(d);
+		_getcell(row, col, m_nextcells).setData(d);
 	}
-	void setWrap(bool w) { _wrap = w; }
-	bool getWrap() { return _wrap; }
+	void setWrap(bool w) { m_wrap = w; }
+	bool getWrap() { return m_wrap; }
 private:
 	LifeCell& NextCell(int r, int c) {
-		return _getcell(r, c, _nextcells);
+		return _getcell(r, c, m_nextcells);
 	}
 	LifeCell& _getcell(int r, int c, LifeCell* cells) {
 		// Handle requests for row and col just beyond borders
 		if (r == -1) {
-			if (!_wrap) {
+			if (!m_wrap) {
 				return _zero;
 			}
-			r = _nrows - 1;
+			r = m_nrows - 1;
 		}
-		else if (r == _nrows) {
-			if (!_wrap) {
+		else if (r == m_nrows) {
+			if (!m_wrap) {
 				return _zero;
 			}
 			r = 0;
 		}
 		if (c == -1) {
-			if (!_wrap) {
+			if (!m_wrap) {
 				return _zero;
 			}
-			c = _ncols - 1;
+			c = m_ncols - 1;
 		}
-		else if (c == _ncols) {
-			if (!_wrap) {
+		else if (c == m_ncols) {
+			if (!m_wrap) {
 				return _zero;
 			}
 			c = 0;
 		}
-		return cells[r *_ncols + c];
+		return cells[r *m_ncols + c];
 	}
-	LifeListener& _listener;
-	LifeCell* _cells;
-	LifeCell* _nextcells;
+	LifeListener& m_listener;
+	LifeCell* m_cells;
+	LifeCell* m_nextcells;
 	LifeCell _zero;
-	int _nrows;
-	int _ncols;
-	bool _wrap;
+	int m_nrows;
+	int m_ncols;
+	bool m_wrap;
 };
 
 #endif

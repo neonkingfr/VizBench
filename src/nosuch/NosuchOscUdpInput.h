@@ -12,14 +12,14 @@ public:
 	int Listen();
 	void Check();
 	void UnListen();
-	std::string Host() { return _myhost; }
-	int Port() { return _myport; }
+	std::string Host() { return m_myhost; }
+	int Port() { return m_myport; }
 
 private:
-	SOCKET _s;
-	int _myport;
-	std::string _myhost;
-	NosuchOscListener* _processor;
+	SOCKET m_sock;
+	int m_myport;
+	std::string m_myhost;
+	// NosuchOscListener* m_processor;
 };
 
 #endif

@@ -1,18 +1,9 @@
-#include "NosuchDebug.h"
-#include "NosuchUtil.h"
-#include "NosuchMidi.h"
-#include "ffutil.h"
-
 #include "Vizlet.h"
 #include "VizMidi.h"
-#include "NosuchOsc.h"
-
-#include "VizSprite.h"
-#include "VizServer.h"
 
 static CFFGLPluginInfo PluginInfo ( 
 	VizMidi::CreateInstance,	// Create method
-	"V498",		// Plugin unique ID
+	"VZMD",		// Plugin unique ID
 	"VizMidi",	// Plugin name	
 	1,			// API major version number
 	000,		// API minor version number	
@@ -25,33 +16,32 @@ static CFFGLPluginInfo PluginInfo (
 
 std::string vizlet_name() { return "VizMidi"; }
 CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
-void vizlet_setdll(std::string dll) { }
 
 VizMidi::VizMidi() : Vizlet() {
-	_midiparams = defaultParams();
-	_midiparams->shape.set("line");
+	m_midiparams = defaultParams();
+	m_midiparams->shape.set("line");
 
 	double fadetime = 2.0;
-	_midiparams->speedinitial.set(0.05);
+	m_midiparams->speedinitial.set(0.05);
 
-	_midiparams->sizeinitial.set(0.1);
-	_midiparams->sizefinal.set(0.05);
-	_midiparams->sizetime.set(fadetime);
+	m_midiparams->sizeinitial.set(0.1);
+	m_midiparams->sizefinal.set(0.05);
+	m_midiparams->sizetime.set(fadetime);
 
-	_midiparams->lifetime.set(fadetime);
+	m_midiparams->lifetime.set(fadetime);
 
-	_midiparams->thickness.set(3.0);
-	// _midiparams->rotauto.set(true);
-	_midiparams->rotangspeed.set(30.0);
+	m_midiparams->thickness.set(3.0);
+	// m_midiparams->rotauto.set(true);
+	m_midiparams->rotangspeed.set(30.0);
 
-	_midiparams->alphainitial.set(0.8);
-	_midiparams->alphafinal.set(0.0);
-	_midiparams->alphatime.set(fadetime);
+	m_midiparams->alphainitial.set(0.8);
+	m_midiparams->alphafinal.set(0.0);
+	m_midiparams->alphatime.set(fadetime);
 
-	_midiparams->gravity.set(true);
-	_midiparams->mass.set(0.01);
+	m_midiparams->gravity.set(true);
+	m_midiparams->mass.set(0.01);
 
-	_spriteparams = "";
+	m_spriteparams = "";
 
 }
 
@@ -80,11 +70,11 @@ std::string VizMidi::processJson(std::string meth, cJSON *json, const char *id) 
 		if (val == "") {
 			return jsonError(-32000, "Bad shape value", id);
 		}
-		_midiparams->shape.set(val);
+		m_midiparams->shape.set(val);
 		return jsonOK(id);
 	}
 	if (meth == "get_shape") {
-		return jsonStringResult(_midiparams->shape.get(), id);
+		return jsonStringResult(m_midiparams->shape.get(), id);
 	}
 
 	// PARAMETER "spriteparams"
@@ -96,13 +86,13 @@ std::string VizMidi::processJson(std::string meth, cJSON *json, const char *id) 
 		std::string path = VizParamPath(file);
 		AllVizParams* p = getAllVizParams(path);
 		if (p) {
-			_spriteparams = path;
-			_midiparams = p;
+			m_spriteparams = path;
+			m_midiparams = p;
 		}
 		return jsonOK(id);
 	}
 	if (meth == "get_spriteparams") {
-		return jsonStringResult(_spriteparams, id);
+		return jsonStringResult(m_spriteparams, id);
 	}
 
 	throw NosuchException("VizMidi - Unrecognized method '%s'",meth.c_str());
@@ -149,10 +139,10 @@ void VizMidi::_midiVizSprite(MidiMsg* m) {
 		// control color with channel
 		NosuchColor clr = channelColor(m->Channel());
 		double hue = clr.hue();
-		_midiparams->hueinitial.set(hue);
-		_midiparams->huefinal.set(hue);
-		_midiparams->huefillinitial.set(hue);
-		_midiparams->huefillfinal.set(hue);
+		m_midiparams->hueinitial.set(hue);
+		m_midiparams->huefinal.set(hue);
+		m_midiparams->huefillinitial.set(hue);
+		m_midiparams->huefillfinal.set(hue);
 
 		NosuchPos pos;
 		float movedir = 0.0;
@@ -177,11 +167,11 @@ void VizMidi::_midiVizSprite(MidiMsg* m) {
 			pos.z = (m->Velocity()*m->Velocity()) / (128.0*128.0);
 		}
 
-		_midiparams->movedir.set(movedir);
+		m_midiparams->movedir.set(movedir);
 
-		makeAndAddVizSprite(_midiparams, pos);
+		makeAndAddVizSprite(m_midiparams, pos);
 
 		// pos.x += 0.2;
-		// makeAndAddVizSprite(_midiparams, pos);
+		// makeAndAddVizSprite(m_midiparams, pos);
 	}
 }

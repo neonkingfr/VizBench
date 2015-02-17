@@ -54,14 +54,14 @@ const char* FFFF_json(void* data,const char *method, cJSON* params, const char* 
 	static std::string result;
 
 	FFFF* ffff = (FFFF*)data;
-	ffff->_json_result = ffff->submitJson(std::string(method),params,id);
-	return ffff->_json_result.c_str();
+	ffff->m_json_result = ffff->submitJson(std::string(method),params,id);
+	return ffff->m_json_result.c_str();
 }
 
 FFFF::FFFF() {
-	_showfps = true;
-	_capture = NULL;
-	_pipeline = NULL;
+	m_showfps = true;
+	m_capture = NULL;
+	m_pipeline = NULL;
 	hidden = false;
 
 #ifdef ZRE_TEST
@@ -84,20 +84,21 @@ FFFF::FFFF() {
 #endif
 
 	NosuchLockInit(&_json_mutex,"json");
-	_json_cond = PTHREAD_COND_INITIALIZER;
-	_json_pending = false;
-	_timer = Timer::New();
-	desired_FPS = 60.0;
-	throttle_timePerFrame = 1.0 / desired_FPS;
-	throttle_lasttime = 0.0;
+	m_json_cond = PTHREAD_COND_INITIALIZER;
+	m_json_pending = false;
+	m_timer = Timer::New();
+	m_desired_FPS = 60.0;
+	m_desired_FPS = 120.0;
+	m_throttle_timePerFrame = 1.0 / m_desired_FPS;
+	m_throttle_lasttime = 0.0;
 
-	fps_accumulator = 0;
-	fps_lasttime = -1.0;
+	m_fps_accumulator = 0;
+	m_fps_lasttime = -1.0;
 }
 
 void
 FFFF::InsertKeystroke(int key,int updown) {
-	_vizserver->InsertKeystroke(key,updown);
+	m_vizserver->InsertKeystroke(key,updown);
 }
 
 void
@@ -109,15 +110,15 @@ FFFF::StartStuff() {
 	// end up in the log anyway.
 	NosuchErrorPopup = NULL;
 
-	_vizserver = VizServer::GetServer();
-	_vizserver->Start();
+	m_vizserver = VizServer::GetServer();
+	m_vizserver->Start();
 	ApiFilter af = ApiFilter("ffff");
-	_vizserver->AddJsonCallback((void*)this,af,FFFF_json,(void*)this);
+	m_vizserver->AddJsonCallback((void*)this,af,FFFF_json,(void*)this);
 }
 
 void
 FFFF::StopStuff() {
-	_vizserver->Stop();
+	m_vizserver->Stop();
 	VizServer::DeleteServer();
 }
 
@@ -125,23 +126,24 @@ void
 FFFF::CheckFPS()
 {
 	// Put out FPS
-    curFrameTime = _timer->GetElapsedTime();
-	if ( fps_lasttime < 0 || (curFrameTime-fps_lasttime) > 1.0 ) {
-		if ( _showfps ) {
-			DEBUGPRINT(("FPS = %d\n",fps_accumulator));
+    curFrameTime = m_timer->GetElapsedTime();
+	if ( m_fps_lasttime < 0 || (curFrameTime - m_fps_lasttime) > 1.0 ) {
+		if ( m_showfps ) {
+			DEBUGPRINT(("FPS = %d\n",m_fps_accumulator));
 		}
-		fps_lasttime = curFrameTime;
-		fps_accumulator = 0;
+		 m_fps_lasttime = curFrameTime;
+		 m_fps_accumulator = 0;
 	} else {
-		fps_accumulator++;
+		 m_fps_accumulator++;
 	}
 
 	// Throttle things so we only do desired_FPS frames per second
 	// XXX - BOGUS!  There's got to be a better way.
 	while (1) {
-	    curFrameTime = _timer->GetElapsedTime();
-		if ( (curFrameTime-throttle_lasttime) > throttle_timePerFrame ) {
-			throttle_lasttime += throttle_timePerFrame;
+	    curFrameTime = m_timer->GetElapsedTime();
+		if ( (curFrameTime - m_throttle_lasttime) > m_throttle_timePerFrame ) {
+			m_throttle_lasttime += m_throttle_timePerFrame;
+			// DEBUGPRINT(("m_throttle_lasttime=%f", m_throttle_lasttime));
 			break;
 		} else {
 			Sleep(1);
@@ -158,15 +160,15 @@ FFFF::submitJson(std::string method, cJSON *params, const char* id) {
 	// pick it up (in ProcessOpenGL)
 	NosuchLock(&_json_mutex,"json");
 
-	_json_pending = true;
-	_json_method = std::string(method);
-	_json_params = params;
-	_json_id = id;
+	m_json_pending = true;
+	m_json_method = std::string(method);
+	m_json_params = params;
+	m_json_id = id;
 
 	bool err = false;
-	while ( _json_pending ) {
+	while ( m_json_pending ) {
 		DEBUGPRINT2(("####### Waiting for _json_cond!"));
-		int e = pthread_cond_wait(&_json_cond, &_json_mutex);
+		int e = pthread_cond_wait(&m_json_cond, &_json_mutex);
 		if ( e ) {
 			DEBUGPRINT(("####### ERROR from pthread_cond_wait e=%d",e));
 			err = true;
@@ -177,7 +179,7 @@ FFFF::submitJson(std::string method, cJSON *params, const char* id) {
 	if ( err ) {
 		result = jsonError(-32000,"Error waiting for json!?",id);
 	} else {
-		result = _json_result;
+		result = m_json_result;
 	}
 
 	NosuchUnlock(&_json_mutex,"json");
@@ -188,11 +190,11 @@ FFFF::submitJson(std::string method, cJSON *params, const char* id) {
 void
 FFFF::checkAndExecuteJSON() {
 	NosuchLock(&_json_mutex,"json");
-	if (_json_pending) {
+	if (m_json_pending) {
 		// Execute json stuff and generate response
-		_json_result = executeJsonAndCatchExceptions(_json_method, _json_params, _json_id);
-		_json_pending = false;
-		int e = pthread_cond_signal(&_json_cond);
+		m_json_result = executeJsonAndCatchExceptions(m_json_method, m_json_params, m_json_id);
+		m_json_pending = false;
+		int e = pthread_cond_signal(&m_json_cond);
 		if ( e ) {
 			DEBUGPRINT(("ERROR from pthread_cond_signal e=%d\n",e));
 		}
@@ -221,10 +223,10 @@ std::string FFFF::executeJsonAndCatchExceptions(std::string meth, cJSON *params,
 IplImage*
 FFFF::getCameraFrame()
 {
-	if ( _capture == NULL ) {
+	if ( m_capture == NULL ) {
 		return NULL;
 	}
-	return cvQueryFrame(_capture);
+	return cvQueryFrame(m_capture);
 }
 
 bool
@@ -232,21 +234,21 @@ FFFF::initCamera(int camindex) {
 
 	if ( camindex < 0 ) {
 		DEBUGPRINT(("CAMERA disabled (camera < 0)"));
-		_capture = NULL;
+		m_capture = NULL;
 		return FALSE;
 	}
-	_capture = cvCreateCameraCapture(camindex);
-	if ( !_capture ) {
+	m_capture = cvCreateCameraCapture(camindex);
+	if ( !m_capture ) {
 	    DEBUGPRINT(("Unable to initialize capture from camera index=%d\n",camindex));
 	    return FALSE;
 	}
 	DEBUGPRINT1(("CAMERA detail FPS=%f wid=%f hgt=%f msec=%f ratio=%f fourcc=%f",
-		cvGetCaptureProperty(_capture,CV_CAP_PROP_FPS),
-		cvGetCaptureProperty(_capture,CV_CAP_PROP_FRAME_WIDTH),
-		cvGetCaptureProperty(_capture,CV_CAP_PROP_FRAME_HEIGHT),
-		cvGetCaptureProperty(_capture,CV_CAP_PROP_POS_MSEC),
-		cvGetCaptureProperty(_capture,CV_CAP_PROP_POS_AVI_RATIO),
-		cvGetCaptureProperty(_capture,CV_CAP_PROP_FOURCC)));
+		cvGetCaptureProperty(m_capture,CV_CAP_PROP_FPS),
+		cvGetCaptureProperty(m_capture,CV_CAP_PROP_FRAME_WIDTH),
+		cvGetCaptureProperty(m_capture,CV_CAP_PROP_FRAME_HEIGHT),
+		cvGetCaptureProperty(m_capture,CV_CAP_PROP_POS_MSEC),
+		cvGetCaptureProperty(m_capture,CV_CAP_PROP_POS_AVI_RATIO),
+		cvGetCaptureProperty(m_capture,CV_CAP_PROP_FOURCC)));
 
 	// This code is an attempt to figure out when the camera is way too slow - on
 	// my laptop, for example, if you try to use camera index 1 (when there's only
@@ -256,13 +258,13 @@ FFFF::initCamera(int camindex) {
 	// quickly, but if not, this will cause a 2-second delay and
 	// then the camera will be disabled and we'll continue on.
 	double t1 = glfwGetTime();
-	IplImage* cami = cvQueryFrame(_capture);
+	IplImage* cami = cvQueryFrame(m_capture);
 	double t2 = glfwGetTime();
-	cami = cvQueryFrame(_capture);
+	cami = cvQueryFrame(m_capture);
 	double t3 = glfwGetTime();
 	if ( (t2-t1) > 0.75 && (t3-t2) > 0.75 ) {
-		cvReleaseCapture(&_capture);
-		_capture = NULL;
+		cvReleaseCapture(&m_capture);
+		m_capture = NULL;
 		DEBUGPRINT(("Getting Camera Frames is too slow!  Disabling camera! (times=%lf %lf %lf",t1,t2,t3));
 		return FALSE;
 	}
@@ -271,8 +273,8 @@ FFFF::initCamera(int camindex) {
 #define CV_CAP_PROP_FRAME_HEIGHT   4
 
     /* retrieve or set capture properties */
-    double fwidth = cvGetCaptureProperty( _capture, CV_CAP_PROP_FRAME_WIDTH );
-    double fheight = cvGetCaptureProperty( _capture, CV_CAP_PROP_FRAME_HEIGHT );
+    double fwidth = cvGetCaptureProperty( m_capture, CV_CAP_PROP_FRAME_WIDTH );
+    double fheight = cvGetCaptureProperty( m_capture, CV_CAP_PROP_FRAME_HEIGHT );
 
     camWidth = (int)fwidth;
     camHeight = (int)fheight;
@@ -310,11 +312,11 @@ FFFF::clearPipeline()
 		preplugins[n] = NULL;
     }
 	FFGLPluginInstance* next;
-	for ( FFGLPluginInstance* p=_pipeline; p!=NULL; p=next ) {
+	for ( FFGLPluginInstance* p=m_pipeline; p!=NULL; p=next ) {
 		next = p->next;
 		deletePluginInstance(p);
     }
-	_pipeline = NULL;
+	m_pipeline = NULL;
 }
 
 void
@@ -337,7 +339,7 @@ FFFF::loadPluginDefs(std::string ffpath, std::string ffglpath, int ffgl_width, i
 
 FFGLPluginInstance*
 FFFF::findInstance(std::string inm) {
-	for ( FFGLPluginInstance* p=_pipeline; p!=NULL; p=p->next ) {
+	for ( FFGLPluginInstance* p=m_pipeline; p!=NULL; p=p->next ) {
 		if ( inm == p->name() ) {
 			return p;
 		}
@@ -351,7 +353,7 @@ FFFF::newInstanceName() {
 	int inum = 0;
 	while ( true ) {
 		std::string nm = NosuchSnprintf("p%d",inum++);
-		FFGLPluginInstance* p=_pipeline;
+		FFGLPluginInstance* p=m_pipeline;
 		for ( ; p!=NULL; p=p->next ) {
 			if ( nm == p->name() ) {
 				break;
@@ -368,7 +370,7 @@ FFFF::addToPipeline(std::string pluginName, std::string inm, bool autoenable = t
 
 	// First scan existing pipeline to see if this instanceName is already used
 	FFGLPluginInstance* last = NULL;
-	for ( FFGLPluginInstance* p=_pipeline; p!=NULL; p=p->next ) {
+	for ( FFGLPluginInstance* p=m_pipeline; p!=NULL; p=p->next ) {
 		if ( inm == p->name() ) {
 			DEBUGPRINT(("Plugin instance named '%s' already exists",inm.c_str()));
 			return NULL;
@@ -393,7 +395,7 @@ FFFF::addToPipeline(std::string pluginName, std::string inm, bool autoenable = t
 
 	// Add it to the end of the pipeline
 	if ( last == NULL ) {
-		_pipeline = np;
+		m_pipeline = np;
 	} else {
 		last->next = np;
 	}
@@ -409,7 +411,7 @@ FFFF::deleteFromPipeline(std::string inm) {
 
 	// First scan existing pipeline to see if this instanceName is already used
 	FFGLPluginInstance* prev = NULL;
-	FFGLPluginInstance* p = _pipeline;
+	FFGLPluginInstance* p = m_pipeline;
 	while ( p ) {
 		if ( inm == p->name() ) {
 			break;
@@ -422,7 +424,7 @@ FFFF::deleteFromPipeline(std::string inm) {
 		return;
 	}
 	if ( prev == NULL ) {
-		_pipeline = _pipeline->next;
+		m_pipeline = m_pipeline->next;
 	} else {
 		prev->next = p->next;
 	}
@@ -432,13 +434,19 @@ FFFF::deleteFromPipeline(std::string inm) {
 void
 FFFF::loadPipeline(std::string configname)
 {
-	std::string fname = ManifoldPath("config/ffff/"+configname+".json");
+	std::string fname = VizConfigPath("ffff\\"+configname+".json");
 	std::string err;
 
 	cJSON* json = jsonReadFile(fname,err);
 	if ( !json ) {
-		throw NosuchException("Unable to loadPipeline of config: %s, err=%s",
-			fname.c_str(),err.c_str());
+		// If an FFFF configfile doesn't exist, synthesize one
+		// assuming that the configname is a vizlet name
+		DEBUGPRINT(("Synthesizing FFFF config for %s",configname.c_str()));
+		std::string jstr = NosuchSnprintf("{\"pipeline\": [ { \"plugin\": \"%s\", \"params\": { } } ] }",configname.c_str());
+		json = cJSON_Parse(jstr.c_str());
+		if ( !json ) {
+			throw NosuchException("Unable to parse synthesized config!? jstr=%s",jstr.c_str());
+		}
 	}
 	loadPipelineJson(json);
 	jsonFree(json);
@@ -587,7 +595,7 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
     int nactive = 0;
 	FFGLPluginInstance* pi;
 
-	for ( pi = _pipeline; pi!=NULL; pi=pi->next ) {
+	for ( pi = m_pipeline; pi!=NULL; pi=pi->next ) {
 		if ( pi->isEnabled() ) {
 			nactive++;
 			lastplugin = pi;
@@ -604,7 +612,7 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 		}
 	}
 
-	for ( pi = _pipeline; pi!=NULL; pi=pi->next ) {
+	for ( pi = m_pipeline; pi!=NULL; pi=pi->next ) {
 		if ( ! pi->isEnabled() ) {
 			continue;
 		}
@@ -637,6 +645,43 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 				pi->disable();
 			}
 		}
+	}
+
+	static GLubyte *data = NULL;
+
+	extern char* SaveFrames;
+	extern FILE* Ffmpeg;
+
+	// Now read the pixels back and save them
+	if (SaveFrames && *SaveFrames!='\0') {
+		static int filenum = 0;
+		std::string path = VizPath("recording") + NosuchSnprintf("/%s%06d.ppm", SaveFrames, filenum++);
+		if (data == NULL) {
+			data = (GLubyte*)malloc(4 * window_width*window_height);  // 4, should work for both 3 and 4 bytes
+		}
+		glReadPixels(0, 0, window_width, window_height, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
+		IplImage* img = cvCreateImageHeader(cvSize(window_width, window_height), IPL_DEPTH_8U, 3);
+		img->origin = 1;  // ???
+		img->imageData = (char*)data;
+		if (!cvSaveImage(path.c_str(), img)) {
+			DEBUGPRINT(("Unable to save image: %s", path.c_str()));
+		}
+		// free(data);
+		img->imageData = NULL;
+		cvReleaseImageHeader(&img);
+	}
+	if (Ffmpeg) {
+		if (data == NULL) {
+			data = (GLubyte*)malloc(4 * window_width*window_height);  // 4, should work for both 3 and 4 bytes
+		}
+		// glReadPixels(0, 0, window_width, window_height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+		// glReadPixels(0, 0, window_width, window_height, GL_BGR_EXT, GL_3_BYTES, data);
+		glReadPixels(0, 0, window_width, window_height, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
+
+		// glReadPixels(0, 0, window_width, window_height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		// glReadPixels(0, 0, window_width, window_height, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
+		fwrite(data, window_width*window_height, 3, Ffmpeg);
 	}
 
 	if ( camframe != NULL ) {
@@ -676,7 +721,7 @@ std::string FFFF::FFGLList() {
 std::string FFFF::PipelineList(bool only_enabled) {
 	std::string r = "[";
 	std::string sep = "";
-	for ( FFGLPluginInstance* p=_pipeline; p!=NULL; p=p->next ) {
+	for ( FFGLPluginInstance* p=m_pipeline; p!=NULL; p=p->next ) {
 		bool enabled = p->isEnabled();
 		if ( only_enabled==false || enabled==true ) {
 			r += (sep + "{ \"plugin\":\""+p->plugindef()->GetPluginName()+"\", \"instance\":\"" + p->name() + "\", "
@@ -814,7 +859,7 @@ std::string FFFF::saveFfffPatch(std::string nm, const char* id)
 std::string FFFF::loadFfffPatch(std::string nm, const char* id)
 {
 	std::string err;
-	std::string fname = ManifoldPath("config/ffff/"+nm);
+	std::string fname = VizConfigPath("ffff\\"+nm);
 	DEBUGPRINT(("loadPatch nm=%s fname=%s",nm.c_str(),fname.c_str()));
 	cJSON* j = jsonReadFile(fname,err);
 	if ( ! j ) {
@@ -829,11 +874,11 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 {
 	std::string err;
 
-	if ( meth == "millinow"  ) {
-		return jsonIntResult(_vizserver->MilliNow(),id);
+	if ( meth == "time"  ) {
+		return jsonDoubleResult(m_vizserver->GetTime(),id);
 	}
 	if ( meth == "clicknow"  ) {
-		return jsonIntResult(_vizserver->CurrentClick(),id);
+		return jsonIntResult(m_vizserver->SchedulerCurrentClick(),id);
 	}
 	if ( meth == "show" ) {
 		if ( ! window ) {

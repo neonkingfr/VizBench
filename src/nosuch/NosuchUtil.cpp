@@ -56,6 +56,14 @@ void NosuchPrintTime(const char *prefix) {
 	DEBUGPRINT(("%s: time= %ld.%03u\n",prefix,secs,milli));
 }
 
+std::string NosuchReplaceAll(std::string instr, std::string toreplace, std::string replacement) {
+	size_t pos;
+	while ( (pos=instr.find(toreplace)) != instr.npos) {
+		instr.replace(pos, toreplace.length(), replacement);
+	}
+	return instr;
+}
+
 std::vector<std::string> NosuchSplitOnAnyChar(std::string s, std::string sepchars)
 {
 	std::vector<std::string> result;

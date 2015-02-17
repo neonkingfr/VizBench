@@ -263,11 +263,45 @@ void methodNeedParams(std::string meth, cJSON* j) {
 	}
 }
 
+std::string
+NosuchReadFile(std::string fname, std::string& err, std::string commentstart, bool ignoreblanklines, std::string replaceEOL)
+{
+	std::ifstream f;
+	err = "";
+
+	f.open(fname.c_str());
+	if ( ! f.good() ) {
+		err = NosuchSnprintf("No such file: %s\n",fname.c_str());
+		return "";
+	}
+	DEBUGPRINT(("NosuchReadFile fname=%s\n",fname.c_str()));
+	std::string line;
+	std::string jstr;
+	while ( getline(f,line) ) {
+		if ( commentstart != "" ) {
+			// Delete anything after commentstart
+			std::string::size_type pos = line.find(commentstart);
+			if ( pos != line.npos ) {
+				line = line.substr(0,pos);
+			}
+		}
+		if ( ignoreblanklines && line.find_last_not_of(" \t\n") == line.npos ) {
+			DEBUGPRINT1(("Ignoring blank/comment line=%s\n",line.c_str()));
+			continue;
+		}
+		if ( replaceEOL != "" ) {
+			line += replaceEOL;
+		}
+		jstr += line;
+	}
+	f.close();
+	return jstr;
+}
+
 cJSON*
 jsonReadFile(std::string fname, std::string& err)
 {
 	std::ifstream f;
-	err = "";
 
 	f.open(fname.c_str());
 	if ( ! f.good() ) {
@@ -275,24 +309,16 @@ jsonReadFile(std::string fname, std::string& err)
 		return NULL;
 	}
 	DEBUGPRINT1(("Loading config=%s\n",fname.c_str()));
-	std::string line;
-	std::string jstr;
-	while ( getline(f,line) ) {
-		// Delete anything after a # (i.e. comments)
-		std::string::size_type pound = line.find("#");
-		if ( pound != line.npos ) {
-			line = line.substr(0,pound);
-		}
-		if ( line.find_last_not_of(" \t\n") == line.npos ) {
-			DEBUGPRINT1(("Ignoring blank/comment line=%s\n",line.c_str()));
-			continue;
-		}
-		jstr += line;
+	err = "";
+	std::string jstr = NosuchReadFile(fname,err,"#",true);
+	if ( err != "" ) {
+		err = "jsonReadFile: " + err;
+		return NULL;
 	}
-	f.close();
 	cJSON* json = cJSON_Parse(jstr.c_str());
 	if ( ! json ) {
-		err = NosuchSnprintf("Unable to parse json for config!?  json= %s\n",jstr.c_str());
+		err = "jsonReadFile: Unable to parse json for config!?  json=" + jstr;
+		return NULL;
 	}
 	return json;
 }
@@ -330,9 +356,6 @@ jsonSetDebugConfig(cJSON* json)
 	}
 	if ( (j=jsonGetNumber(json,"debugautoflush")) != NULL ) {
 		NosuchDebugAutoFlush = j->valueint?TRUE:FALSE;
-	}
-	if ( (j=jsonGetNumber(json,"debuglogfile")) != NULL ) {
-		NosuchDebugSetLogDirFile(ManifoldLogDir(),std::string(j->valuestring));
 	}
 }
 

@@ -1,17 +1,9 @@
-#include "NosuchDebug.h"
-#include "NosuchUtil.h"
-#include "ffutil.h"
-
 #include "Vizlet.h"
 #include "VizLooper.h"
-#include "NosuchOsc.h"
-
-#include "VizSprite.h"
-#include "VizServer.h"
 
 static CFFGLPluginInfo PluginInfo ( 
 	VizLooper::CreateInstance,	// Create method
-	"V137",		// Plugin unique ID
+	"VZLP",		// Plugin unique ID
 	"VizLooper",	// Plugin name	
 	1,			// API major version number
 	000,		// API minor version number	
@@ -24,41 +16,40 @@ static CFFGLPluginInfo PluginInfo (
 
 std::string vizlet_name() { return "VizLooper"; }
 CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
-void vizlet_setdll(std::string dll) { }
 
 VizLooper::VizLooper() : Vizlet() {
 
-	_midiin = MidiInputNumberOf("09. Internal MIDI");
-	_midiout = MidiOutputNumberOf("03. Internal MIDI");
+	m_midiin = MidiInputNumberOf("09. Internal MIDI");
+	m_midiout = MidiOutputNumberOf("03. Internal MIDI");
 
 #if 0
-	_midiparams = defaultParams();
-	_midiparams->shape.set("line");
+	m_midiparams = defaultParams();
+	m_midiparams->shape.set("line");
 
 	double fadetime = 2.0;
-	_midiparams->speedinitial.set(0.05);
+	m_midiparams->speedinitial.set(0.05);
 
-	_midiparams->sizeinitial.set(0.1);
-	_midiparams->sizefinal.set(0.05);
-	_midiparams->sizetime.set(fadetime);
+	m_midiparams->sizeinitial.set(0.1);
+	m_midiparams->sizefinal.set(0.05);
+	m_midiparams->sizetime.set(fadetime);
 
-	_midiparams->lifetime.set(fadetime);
+	m_midiparams->lifetime.set(fadetime);
 
-	_midiparams->thickness.set(3.0);
-	// _midiparams->rotauto.set(true);
-	_midiparams->rotangspeed.set(30.0);
+	m_midiparams->thickness.set(3.0);
+	// m_midiparams->rotauto.set(true);
+	m_midiparams->rotangspeed.set(30.0);
 
-	_midiparams->alphainitial.set(0.8);
-	_midiparams->alphafinal.set(0.0);
-	_midiparams->alphatime.set(fadetime);
+	m_midiparams->alphainitial.set(0.8);
+	m_midiparams->alphafinal.set(0.0);
+	m_midiparams->alphatime.set(fadetime);
 
-	_midiparams->gravity.set(false);
-	_midiparams->mass.set(0.01);
+	m_midiparams->gravity.set(false);
+	m_midiparams->mass.set(0.01);
 #endif
-	_spriteparamspath = VizParamPath("default");
-	_midiparams = getAllVizParams(_spriteparamspath);
-	_lastfileupdate = 0;
-	_lastfilecheck = 0;
+	m_spriteparamspath = VizParamPath("default");
+	m_midiparams = getAllVizParams(m_spriteparamspath);
+	m_lastfileupdate = 0;
+	m_lastfilecheck = 0;
 }
 
 VizLooper::~VizLooper() {
@@ -88,8 +79,8 @@ std::string VizLooper::processJson(std::string meth, cJSON *json, const char *id
 		std::string path = VizParamPath(file);
 		AllVizParams* p = getAllVizParams(path);
 		if (p) {
-			_spriteparamspath = path;
-			_midiparams = p;
+			m_spriteparamspath = path;
+			m_midiparams = p;
 			return jsonOK(id);
 		}
 		else {
@@ -97,16 +88,16 @@ std::string VizLooper::processJson(std::string meth, cJSON *json, const char *id
 		}
 	}
 	if (meth == "get_spriteparams") {
-		return jsonStringResult(VizPath2ConfigName(_spriteparamspath), id);
+		return jsonStringResult(VizPath2ConfigName(m_spriteparamspath), id);
 	}
 
 	// PARAMETER "autoloadparams"
 	if (meth == "set_autoloadparams") {
-		_autoloadparams = jsonNeedBool(json, "onoff", false);
+		m_autoloadparams = jsonNeedBool(json, "onoff", false);
 		return jsonOK(id);
 	}
 	if (meth == "get_autoloadparams") {
-		return jsonIntResult(_autoloadparams?1:0, id);
+		return jsonIntResult(m_autoloadparams?1:0, id);
 	}
 
 	throw NosuchException("VizLooper - Unrecognized method '%s'", meth.c_str());
@@ -114,17 +105,17 @@ std::string VizLooper::processJson(std::string meth, cJSON *json, const char *id
 
 void VizLooper::processMidiInput(MidiMsg* m) {
 	// NO OpenGL calls here
-	if (m->InputPort() != _midiin) {
+	if (m->InputPort() != m_midiin) {
 		return;
 	}
 
 	MidiMsg* m1 = m->clone();
-	m1->SetOutputPort(_midiout);
-	QueueMidiMsg(m1, CurrentClick());
+	m1->SetOutputPort(m_midiout);
+	QueueMidiMsg(m1, SchedulerCurrentClick());
 
 	MidiMsg* m2 = m->clone();
-	m2->SetOutputPort(_midiout);
-	QueueMidiMsg(m2,CurrentClick()+192);
+	m2->SetOutputPort(m_midiout);
+	QueueMidiMsg(m2,SchedulerCurrentClick()+192);
 }
 
 void VizLooper::processMidiOutput(MidiMsg* m) {
@@ -134,11 +125,11 @@ void VizLooper::processMidiOutput(MidiMsg* m) {
 
 bool VizLooper::processDraw() {
 	// OpenGL calls here
-	if (_autoloadparams) {
-		AllVizParams* p = checkAndLoadIfModifiedSince(_spriteparamspath,
-								_lastfilecheck, _lastfileupdate);
+	if (m_autoloadparams) {
+		AllVizParams* p = checkAndLoadIfModifiedSince(m_spriteparamspath,
+								m_lastfilecheck, m_lastfileupdate);
 		if (p) {
-			_midiparams = p;
+			m_midiparams = p;
 		}
 	}
 	DrawVizSprites();
@@ -158,10 +149,10 @@ void VizLooper::_midiVizSprite(MidiMsg* m) {
 		// control color with channel
 		NosuchColor clr = channelColor(m->Channel());
 		double hue = clr.hue();
-		_midiparams->hueinitial.set(hue);
-		_midiparams->huefinal.set(hue);
-		_midiparams->huefillinitial.set(hue);
-		_midiparams->huefillfinal.set(hue);
+		m_midiparams->hueinitial.set(hue);
+		m_midiparams->huefinal.set(hue);
+		m_midiparams->huefillinitial.set(hue);
+		m_midiparams->huefillfinal.set(hue);
 
 		NosuchPos pos;
 		float movedir = 0.0;
@@ -187,11 +178,11 @@ void VizLooper::_midiVizSprite(MidiMsg* m) {
 			pos.z = (m->Velocity()*m->Velocity()) / (128.0*128.0);
 		}
 
-		_midiparams->movedir.set(movedir);
+		m_midiparams->movedir.set(movedir);
 
-		makeAndAddVizSprite(_midiparams, pos);
+		makeAndAddVizSprite(m_midiparams, pos);
 
 		// pos.x += 0.2;
-		// makeAndAddVizSprite(_midiparams, pos);
+		// makeAndAddVizSprite(m_midiparams, pos);
 	}
 }

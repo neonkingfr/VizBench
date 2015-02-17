@@ -53,6 +53,7 @@ FFGLPluginDef* post2emptya;
 FFGLPluginDef* post2emptyb;
 FFGLPluginDef* post2palette;
 
+// I don't think these initial values actually matter
 int	ffWidth = 640;
 int	ffHeight = 480;
 
@@ -178,7 +179,7 @@ void loadffglplugindef(std::string ffgldir, std::string dllnm)
 }
 
 bool
-ends_with(std::string s, std::string suff)
+NosuchEndsWith(std::string s, std::string suff)
 {
 	unsigned int nchars = suff.size();
 	std::string suffix = (s.size()>nchars) ? s.substr(s.size()-nchars).c_str() : "";
@@ -213,7 +214,7 @@ void loadffdir(std::string ffdir)
 
     std::string pathexpr = ffdir + "\\*";
 	std::wstring wpath = s2ws(pathexpr);
-    hFind = FindFirstFile(wpath.c_str(), &ffd);
+    hFind = FindFirstFile(pathexpr.c_str(), &ffd);
 
     if (INVALID_HANDLE_VALUE == hFind)
     {
@@ -224,10 +225,11 @@ void loadffdir(std::string ffdir)
             filesize.LowPart = ffd.nFileSizeLow;
             filesize.HighPart = ffd.nFileSizeHigh;
 
-			std::wstring wcfname = ffd.cFileName;
-			std::string cfname = NosuchToLower(ws2s(wcfname));
+			// std::wstring wcfname = ffd.cFileName;
+			// std::string cfname = NosuchToLower(ws2s(wcfname));
+			std::string cfname = NosuchToLower(ffd.cFileName);
 
-			if ( ends_with(cfname,".dll") ) {
+			if ( NosuchEndsWith(cfname,".dll") ) {
 	            loadffplugindef(ffdir,cfname.c_str());
 			} else {
 				DEBUGPRINT1(("Ignoring %s, not .dll",cfname.c_str()));
@@ -256,7 +258,7 @@ void loadffgldir(std::string ffgldir)
     std::string pathexpr = ffgldir + "\\*";
 	std::wstring wpath = s2ws(pathexpr);
 
-    hFind = FindFirstFile(wpath.c_str(), &ffd);
+    hFind = FindFirstFile(pathexpr.c_str(), &ffd);
 
     if (INVALID_HANDLE_VALUE == hFind)
     {
@@ -267,10 +269,11 @@ void loadffgldir(std::string ffgldir)
             filesize.LowPart = ffd.nFileSizeLow;
             filesize.HighPart = ffd.nFileSizeHigh;
 
-			std::wstring wcfname = ffd.cFileName;
-			std::string cfname = NosuchToLower(ws2s(wcfname));
+			// std::wstring wcfname = ffd.cFileName;
+			// std::string cfname = NosuchToLower(ws2s(wcfname));
+			std::string cfname = NosuchToLower(ffd.cFileName);
 
-			if ( ends_with(cfname,".dll") ) {
+			if ( NosuchEndsWith(cfname,".dll") ) {
 	            loadffglplugindef(ffgldir,cfname.c_str());
 			}
         }
@@ -615,31 +618,17 @@ ff_passthru(ProcessOpenGLStruct *pGL)
 
 extern "C" {
 bool
-default_setdll(std::string dllpath)
+vizlet_setdll(std::string dllpath)
 {
-	NosuchDebugSetLogDirFile(ManifoldLogDir(),"ffutil.debug");
-
 	dllpath = NosuchToLower(dllpath);
-	std::string basename = dllpath;
 
-	size_t lastslash = dllpath.find_last_of("/\\");
-	size_t lastdot = dllpath.find_last_of(".");
-	if ( lastslash == dllpath.npos || lastdot == dllpath.npos ) {
-		DEBUGPRINT(("Hey!  dllpath in default_setdll doesn't have slash or dot!?"));
-		return FALSE;
-	}
-	std::string dir = dllpath.substr(0,lastslash);
-	if ( lastdot > lastslash ) {
-		basename = dllpath.substr(lastslash+1,lastdot-lastslash-1);
-	}
-
-	NosuchCurrentDir = dir;
-
-	struct _stat statbuff;
-	int e = _stat(dir.c_str(),&statbuff);
-	if ( ! (e == 0 && (statbuff.st_mode | _S_IFDIR) != 0) ) {
-		DEBUGPRINT(("Hey! No directory %s!?",dir.c_str()));
-		return FALSE;
+	size_t pos = dllpath.find_last_of("/\\");
+	if ( pos != dllpath.npos && pos > 0 ) {
+		std::string parent = dllpath.substr(0,pos);
+		pos = dllpath.substr(0,pos-1).find_last_of("/\\");
+		if ( pos != parent.npos && pos > 0) {
+			SetVizPath(parent.substr(0,pos));
+		}
 	}
 
 	return TRUE;

@@ -7,21 +7,21 @@
 
 NosuchOscTcpInput::NosuchOscTcpInput(std::string host, int port, NosuchOscListener* processor) : NosuchOscInput(processor) {
 	DEBUGPRINT2(("NosuchOscTcpInput constructor"));
-	_oscmsg = new NosuchSocketMemory(128);
-	DEBUGPRINT(("NosuchOscTcpInput _oscmsg=%lx",(long)_oscmsg));
+	m_oscmsg = new NosuchSocketMemory(128);
+	DEBUGPRINT(("NosuchOscTcpInput _oscmsg=%lx",(long)m_oscmsg));
 	mi_Socket = new NosuchSocket();
-	_myhost = host;
-	_myport = port;
+	m_myhost = host;
+	m_myport = port;
 }
 
 NosuchOscTcpInput::~NosuchOscTcpInput() {
-	delete _oscmsg;
+	delete m_oscmsg;
 	delete mi_Socket;
 }
 
 int
 NosuchOscTcpInput::Listen() {
-    mi_Socket->Listen(0, _myport, 0, 0);
+    mi_Socket->Listen(0, m_myport, 0, 0);
     return 0;
 }
 
@@ -130,10 +130,10 @@ NosuchOscTcpInput::ProcessOneOscMessage( const char *source, NosuchSocketMemory*
         return 0;
     }
     int oscsize = (int)(pend - pbegin - 1);
-    char *oscp = _oscmsg->GetBuffer();
-    if ( _oscmsg->GetLength() != 0 ) {
+    char *oscp = m_oscmsg->GetBuffer();
+    if ( m_oscmsg->GetLength() != 0 ) {
         DEBUGPRINT(("HEY, _oscmsg isn't empty!?"));
-        _oscmsg->DeleteLeft(_oscmsg->GetLength());
+        m_oscmsg->DeleteLeft(m_oscmsg->GetLength());
     }
     if ( ! IS_SLIP_END(*pbegin) || ! IS_SLIP_END(*pend) ) {
         // This indicates SlipBoundaries isn't doing its job.
@@ -144,25 +144,25 @@ NosuchOscTcpInput::ProcessOneOscMessage( const char *source, NosuchSocketMemory*
     int bytesleft = oscsize;
     while ( bytesleft > 0 ) {
         if ( IS_SLIP_ESC(*p) && bytesleft>1 && IS_SLIP_ESC2(*(p+1)) ) {
-            _oscmsg->Append(p,1);
+            m_oscmsg->Append(p,1);
             p += 2;
             bytesleft -= 2;
         } else if ( IS_SLIP_ESC(*p) && bytesleft>1 && IS_SLIP_END(*(p+1)) ) {
-            _oscmsg->Append(p+1,1);
+            m_oscmsg->Append(p+1,1);
             p += 2;
             bytesleft -= 2;
         } else {
-            _oscmsg->Append(p,1);
+            m_oscmsg->Append(p,1);
             p += 1;
             bytesleft -= 1;
         }
     }
     buff->DeleteLeft(oscsize+2);
 
-    osc::ReceivedPacket rp( _oscmsg->GetBuffer(), _oscmsg->GetLength() );
+    osc::ReceivedPacket rp( m_oscmsg->GetBuffer(), m_oscmsg->GetLength() );
 	ProcessReceivedPacket(source,rp);
 
-    _oscmsg->DeleteLeft(_oscmsg->GetLength());
+    m_oscmsg->DeleteLeft(m_oscmsg->GetLength());
     return 1;
 }
 

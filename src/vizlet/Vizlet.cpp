@@ -55,7 +55,7 @@
 
 // These functions need to be defined in a vizlet's source file.
 extern std::string vizlet_name();
-extern void vizlet_setdll(std::string(dllpath));
+extern bool vizlet_setdll(std::string(dllpath));
 CFFGLPluginInfo& vizlet_plugininfo();
 
 void vizlet_setid(CFFGLPluginInfo& plugininfo, std::string name)
@@ -92,8 +92,8 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserv
 		// Initialize once for each new process.
 		// Return FALSE if we fail to load DLL.
 		dllpathstr = NosuchToLower(dllpathstr);
-		if ( ! default_setdll(dllpathstr) ) {
-			DEBUGPRINT(("default_setdll failed"));
+		if ( ! vizlet_setdll(dllpathstr) ) {
+			DEBUGPRINT(("vizlet_setdll failed"));
 			return FALSE;
 		}
 		vizlet_setdll(dllpathstr);
@@ -122,28 +122,28 @@ Vizlet::Vizlet() {
 
 	VizParams::Initialize();
 
-	_defaultparams = new AllVizParams(true);
-	_useparamcache = false;
+	m_defaultparams = new AllVizParams(true);
+	m_useparamcache = false;
 
-	AllVizParams* spdefault = getAllVizParams(VizParamPath("default"));
-	if ( spdefault ) {
-		_defaultparams->applyVizParamsFrom(spdefault);
-	}
+	// AllVizParams* spdefault = getAllVizParams(VizParamPath("default"));
+	// if ( spdefault ) {
+	// 	m_defaultparams->applyVizParamsFrom(spdefault);
+	// }
 
-	_callbacksInitialized = false;
-	_passthru = true;
-	_call_RealProcessOpenGL = false;
-	_spritelist = new VizSpriteList();
-	_defaultmidiparams = defaultParams();
-	// _frame = 0;
+	m_callbacksInitialized = false;
+	m_passthru = true;
+	m_call_RealProcessOpenGL = false;
+	m_spritelist = new VizSpriteList();
+	m_defaultmidiparams = defaultParams();
+	m_framenum = 0;
 
-	_vizserver = VizServer::GetServer();
+	m_vizserver = VizServer::GetServer();
 
-	_viztag = vizlet_name();
+	m_viztag = vizlet_name();
 
-	_af = ApiFilter(_viztag.c_str());
-	_mf = MidiFilter();  // ALL Midi
-	_cf = CursorFilter();  // ALL Cursors
+	m_af = ApiFilter(m_viztag.c_str());
+	m_mf = MidiFilter();  // ALL Midi
+	m_cf = CursorFilter();  // ALL Cursors
 
 	// These are default values, which can be overridden by the config file.
 
@@ -152,7 +152,7 @@ Vizlet::Vizlet() {
 #ifdef PALETTE_PYTHON
 	_recompileFunc = NULL;
 	_python_enabled = FALSE;
-	_python_events_disabled = TRUE;
+	m_python_events_disabled = TRUE;
 	NosuchLockInit(&python_mutex,"python");
 #endif
 
@@ -162,16 +162,18 @@ Vizlet::Vizlet() {
 	json_cond = PTHREAD_COND_INITIALIZER;
 	json_pending = false;
 
-	_disabled = false;
-	_disable_on_exception = false;
+	m_disabled = false;
+	m_disable_on_exception = false;
 
-	_stopped = false;
+	m_stopped = false;
 
 	// The most common reason for being disabled at this point
 	// is when the config JSON file can't be parsed.
-	if ( _disabled ) {
+	if ( m_disabled ) {
 		DEBUGPRINT(("WARNING! Vizlet (viztag=%s) has been disabled!",VizTag().c_str()));
 	}
+
+	SetTimeSupported(true);
 
 	SetMinInputs(1);
 	SetMaxInputs(1);
@@ -183,8 +185,14 @@ Vizlet::Vizlet() {
 
 Vizlet::~Vizlet()
 {
-	DEBUGPRINT1(("=== Vizlet destructor is called viztag=%s", _viztag.c_str()));
+	DEBUGPRINT1(("=== Vizlet destructor is called viztag=%s", m_viztag.c_str()));
 	_stopstuff();
+}
+
+DWORD Vizlet::SetTime(double tm) {
+	m_time = tm;
+	m_vizserver->SetTime(tm);
+	return FF_SUCCESS;
 }
 
 DWORD Vizlet::SetParameter(const SetParameterStruct* pParam) {
@@ -202,7 +210,7 @@ DWORD Vizlet::SetParameter(const SetParameterStruct* pParam) {
 	case 0:		// shape
 		if ( VizTag() != std::string(pParam->u.NewTextValue) ) {
 			SetVizTag(pParam->u.NewTextValue);
-			_af = ApiFilter(VizTag().c_str());
+			m_af = ApiFilter(VizTag().c_str());
 			ChangeVizTag(pParam->u.NewTextValue);
 		}
 		r = FF_SUCCESS;
@@ -286,33 +294,33 @@ void vizlet_keystroke(void* data,int key, int downup) {
 	v->processKeystroke(key,downup);
 }
 
-void Vizlet::advanceCursorTo(VizCursor* c, int tm) {
-	_vizserver->AdvanceCursorTo(c,tm);
+void Vizlet::advanceCursorTo(VizCursor* c, double tm) {
+	m_vizserver->AdvanceCursorTo(c,tm);
 }
 
 void Vizlet::ChangeVizTag(const char* p) {
-	_vizserver->ChangeVizTag(Handle(),p);
+	m_vizserver->ChangeVizTag(Handle(),p);
 }
 
 void Vizlet::_startApiCallbacks(ApiFilter af, void* data) {
-	NosuchAssert(_vizserver);
-	_vizserver->AddJsonCallback(Handle(),af,vizlet_json,data);
+	NosuchAssert(m_vizserver);
+	m_vizserver->AddJsonCallback(Handle(),af,vizlet_json,data);
 }
 
 void Vizlet::_startMidiCallbacks(MidiFilter mf, void* data) {
-	NosuchAssert(_vizserver);
-	_vizserver->AddMidiInputCallback(Handle(),mf,vizlet_midiinput,data);
-	_vizserver->AddMidiOutputCallback(Handle(),mf,vizlet_midioutput,data);
+	NosuchAssert(m_vizserver);
+	m_vizserver->AddMidiInputCallback(Handle(),mf,vizlet_midiinput,data);
+	m_vizserver->AddMidiOutputCallback(Handle(),mf,vizlet_midioutput,data);
 }
 
 void Vizlet::_startCursorCallbacks(CursorFilter cf, void* data) {
-	NosuchAssert(_vizserver);
-	_vizserver->AddCursorCallback(Handle(),cf,vizlet_cursor,data);
+	NosuchAssert(m_vizserver);
+	m_vizserver->AddCursorCallback(Handle(),cf,vizlet_cursor,data);
 }
 
 void Vizlet::_startKeystrokeCallbacks(void* data) {
-	NosuchAssert(_vizserver);
-	_vizserver->AddKeystrokeCallback(Handle(),vizlet_keystroke,data);
+	NosuchAssert(m_vizserver);
+	m_vizserver->AddKeystrokeCallback(Handle(),vizlet_keystroke,data);
 }
 
 void Vizlet::_stopCallbacks() {
@@ -322,36 +330,31 @@ void Vizlet::_stopCallbacks() {
 }
 
 void Vizlet::_stopApiCallbacks() {
-	NosuchAssert(_vizserver);
-	_vizserver->RemoveJsonCallback(Handle());
+	NosuchAssert(m_vizserver);
+	m_vizserver->RemoveJsonCallback(Handle());
 }
 
 void Vizlet::_stopMidiCallbacks() {
-	NosuchAssert(_vizserver);
-	_vizserver->RemoveMidiInputCallback(Handle());
-	_vizserver->RemoveMidiOutputCallback(Handle());
+	NosuchAssert(m_vizserver);
+	m_vizserver->RemoveMidiInputCallback(Handle());
+	m_vizserver->RemoveMidiOutputCallback(Handle());
 }
 
 void Vizlet::_stopCursorCallbacks() {
-	NosuchAssert(_vizserver);
-	_vizserver->RemoveCursorCallback(Handle());
+	NosuchAssert(m_vizserver);
+	m_vizserver->RemoveCursorCallback(Handle());
 }
 
-int Vizlet::MilliNow() {
-	if ( _vizserver == NULL ) {
-		DEBUGPRINT(("Vizlet::MilliNow() - _vizserver is NULL!"));
-		return 0;
-	} else {
-		return _vizserver->MilliNow();
-	}
+double Vizlet::GetTime() {
+	return m_time;
 }
 
-int Vizlet::CurrentClick() {
-	if ( _vizserver == NULL ) {
+int Vizlet::SchedulerCurrentClick() {
+	if ( m_vizserver == NULL ) {
 		DEBUGPRINT(("Vizlet::CurrentClick() - _vizserver is NULL!"));
 		return 0;
 	} else {
-		return _vizserver->CurrentClick();
+		return m_vizserver->SchedulerCurrentClick();
 	}
 }
 
@@ -359,7 +362,7 @@ void Vizlet::SendMidiMsg() {
 	DEBUGPRINT(("Vizlet::SendMidiMsg called - this should go away eventually"));
 	MidiMsg* msg = MidiNoteOn::make(1,80,100);
 	// _vizserver->MakeNoteOn(1,80,100);
-	_vizserver->SendMidiMsg(msg);
+	m_vizserver->SendMidiMsg(msg);
 }
 
 
@@ -403,16 +406,16 @@ DWORD Vizlet::InitGL(const FFGLViewportStruct *vp) {
 }
 
 void Vizlet::_stopstuff() {
-	if ( _stopped )
+	if ( m_stopped )
 		return;
-	_stopped = true;
+	m_stopped = true;
 	_stopCallbacks();
-	if ( _vizserver ) {
-		int ncb = _vizserver->NumCallbacks();
-		int mcb = _vizserver->MaxCallbacks();
+	if ( m_vizserver ) {
+		int ncb = m_vizserver->NumCallbacks();
+		int mcb = m_vizserver->MaxCallbacks();
 		DEBUGPRINT1(("Vizlet::_stopstuff - VizServer has %d callbacks, max=%d!",ncb,mcb));
 		if ( ncb == 0 && mcb > 0 ) {
-			_vizserver->Stop();
+			m_vizserver->Stop();
 		}
 	}
 }
@@ -423,11 +426,11 @@ DWORD Vizlet::DeInitGL() {
 }
 
 void Vizlet::AddVizSprite(VizSprite* s) {
-	_spritelist->add(s,defaultParams()->nsprites);
+	m_spritelist->add(s,defaultParams()->nsprites);
 }
 
 void Vizlet::DrawVizSprites() {
-	_spritelist->draw(&graphics);
+	m_spritelist->draw(&graphics);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -436,51 +439,53 @@ void Vizlet::DrawVizSprites() {
 
 void
 Vizlet::QueueMidiPhrase(MidiPhrase* ph, click_t clk) {
-	_vizserver->QueueMidiPhrase(ph,clk);
+	m_vizserver->QueueMidiPhrase(ph,clk);
 }
 
 void
 Vizlet::QueueMidiMsg(MidiMsg* m, click_t clk) {
-	_vizserver->QueueMidiMsg(m,clk);
+	m_vizserver->QueueMidiMsg(m,clk);
 }
 
 void
 Vizlet::QueueClear() {
-	_vizserver->QueueClear();
+	m_vizserver->QueueClear();
 }
 
 void
 Vizlet::StartVizServer() {
-	if ( ! _vizserver->Started() ) {
-		_vizserver->Start();
-		srand( _vizserver->MilliNow() );
+	if ( ! m_vizserver->Started() ) {
+		m_vizserver->Start();
+		srand( (unsigned int)(m_vizserver->GetTime()) );
 	}
 }
 
 void
 Vizlet::InitCallbacks() {
-	if ( ! _callbacksInitialized ) {
+	if ( ! m_callbacksInitialized ) {
 
-		_startApiCallbacks(_af,(void*)this);
-		_startMidiCallbacks(_mf,(void*)this);
-		_startCursorCallbacks(_cf,(void*)this);
+		_startApiCallbacks(m_af,(void*)this);
+		_startMidiCallbacks(m_mf,(void*)this);
+		_startCursorCallbacks(m_cf,(void*)this);
 		_startKeystrokeCallbacks((void*)this);
 
-		_callbacksInitialized = true;
+		m_callbacksInitialized = true;
 	}
 }
 
 DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 {
-	if ( _stopped ) {
+	if ( m_stopped ) {
 		return FF_SUCCESS;
 	}
-	if ( _disabled ) {
+	if ( m_disabled ) {
 		return FF_SUCCESS;
 	}
 
 	StartVizServer();
 	InitCallbacks();
+
+	m_framenum++;
 
 #ifdef FRAMELOOPINGTEST
 	static int framenum = 0;
@@ -500,7 +505,7 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 	}
 	NosuchUnlock(&json_mutex,"json");
 
-	if ( _passthru && pGL != NULL ) {
+	if ( m_passthru && pGL != NULL ) {
 		if ( ! ff_passthru(pGL) ) {
 			return FF_FAIL;
 		}
@@ -522,9 +527,9 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 		glScaled(2.0,2.0,1.0);
 		glTranslated(-0.5,-0.5,0.0);
 
-		int milli = MilliNow();
+		double tm = GetTime();
 		bool r;
-		if (_call_RealProcessOpenGL) {
+		if (m_call_RealProcessOpenGL) {
 			// This is used when adapting to existing FFGL plugin code
 			r = (RealProcessOpenGL(pGL)==FF_SUCCESS);
 		}
@@ -535,8 +540,8 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 		glDisable(GL_TEXTURE_2D);
 		glColor4f(1.f,1.f,1.f,1.f); //restore default color
 
-		_spritelist->advanceTo(milli);
-		processAdvanceTimeTo(milli);
+		m_spritelist->advanceTo(tm);
+		processAdvanceTimeTo(tm);
 
 		if ( ! r ) {
 			DEBUGPRINT(("Palette::draw returned failure? (r=%d)\n",r));
@@ -550,9 +555,9 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 		gotexception = true;
 	}
 
-	if ( gotexception && _disable_on_exception ) {
+	if ( gotexception && m_disable_on_exception ) {
 		DEBUGPRINT(("DISABLING Vizlet due to exception!!!!!"));
-		_disabled = true;
+		m_disabled = true;
 	}
 
 	UnlockVizlet();
@@ -592,16 +597,16 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 }
 
 void Vizlet::DrawNotesDown() {
-	_vizserver->LockNotesDown();
+	m_vizserver->LockNotesDown();
 	try {
 		CATCH_NULL_POINTERS;
-		_drawnotes(_vizserver->NotesDown());
+		_drawnotes(m_vizserver->NotesDown());
 	} catch (NosuchException& e) {
 		DEBUGPRINT(("NosuchException while drawing notes: %s",e.message()));
 	} catch (...) {
 		DEBUGPRINT(("Some other kind of exception occured while drawing notes!?"));
 	}
-	_vizserver->UnlockNotesDown();
+	m_vizserver->UnlockNotesDown();
 }
 
 void Vizlet::LockVizlet() {
@@ -621,8 +626,8 @@ std::string Vizlet::processJsonAndCatchExceptions(std::string meth, cJSON *param
 		if ( meth == "echo"  ) {
 			std::string val = jsonNeedString(params,"value");
 			r = jsonStringResult(val,id);
-		} else if ( meth == "millinow"  ) {
-			r = jsonIntResult(MilliNow(),id);
+		} else if ( meth == "time"  ) {
+			r = jsonDoubleResult(GetTime(),id);
 		} else if ( meth == "name"  ) {
 		    std::string nm = CopyFFString16((const char *)(vizlet_plugininfo().GetPluginInfo()->PluginName));
 			r = jsonStringResult(nm,id);
@@ -657,10 +662,8 @@ std::string Vizlet::submitJsonForProcessing(std::string method, cJSON *params, c
 
 	bool err = false;
 	while ( json_pending ) {
-		DEBUGPRINT2(("####### Waiting for json_cond! MilliNow()=%d",MilliNow()));
 		int e = pthread_cond_wait(&json_cond, &json_mutex);
 		if ( e ) {
-			DEBUGPRINT2(("####### ERROR from pthread_cond_wait e=%d now=%d",e,MilliNow()));
 			err = true;
 			break;
 		}
@@ -676,8 +679,8 @@ std::string Vizlet::submitJsonForProcessing(std::string method, cJSON *params, c
 
 AllVizParams*
 Vizlet::findAllVizParams(std::string cachename) {
-	std::map<std::string,AllVizParams*>::iterator it = _paramcache.find(cachename);
-	if ( it == _paramcache.end() ) {
+	std::map<std::string,AllVizParams*>::iterator it = m_paramcache.find(cachename);
+	if ( it == m_paramcache.end() ) {
 		return NULL;
 	}
 	return it->second;
@@ -713,19 +716,19 @@ Vizlet::VizPath2ConfigName(std::string path) {
 
 std::string
 Vizlet::VizParamPath(std::string configname) {
-	if (!ends_with(configname, ".json")) {
+	if (!NosuchEndsWith(configname, ".json")) {
 		configname += ".json";
 	}
-	return NosuchConfigPath("params/"+configname);
+	return VizConfigPath("params\\"+configname);
 }
 
 AllVizParams*
 Vizlet::getAllVizParams(std::string path) {
-	if (_useparamcache) {
-		std::map<std::string, AllVizParams*>::iterator it = _paramcache.find(path);
-		if (it == _paramcache.end()) {
-			_paramcache[path] = readVizParams(path);
-			return _paramcache[path];
+	if (m_useparamcache) {
+		std::map<std::string, AllVizParams*>::iterator it = m_paramcache.find(path);
+		if (it == m_paramcache.end()) {
+			m_paramcache[path] = readVizParams(path);
+			return m_paramcache[path];
 		}
 		else {
 			return it->second;
@@ -772,7 +775,7 @@ VizSprite*
 Vizlet::makeAndInitVizSprite(AllVizParams* p, NosuchPos pos) {
 
 	VizSprite* s = VizSprite::makeVizSprite(p);
-	s->frame = FrameSeq();
+	s->m_framenum = FrameNum();
 
 	double movedir;
 	if ( p->movedirrandom.get() ) {
@@ -785,9 +788,8 @@ Vizlet::makeAndInitVizSprite(AllVizParams* p, NosuchPos pos) {
 		movedir = p->movedir.get();
 	}
 
-	DEBUGPRINT1(("makeAndAddVizSprite pos=%.4f   %.4f   %.4f",pos.x,pos.y,pos.z));
-	s->initVizSpriteState(MilliNow(),Handle(),pos,movedir);
-	// AddVizSprite(s);
+	s->initVizSpriteState(GetTime(),Handle(),pos,movedir);
+	DEBUGPRINT1(("Vizlet::makeAndInitVizSprite size=%f",s->m_state.size));
 	return s;
 }
 
@@ -828,31 +830,31 @@ VizSprite* Vizlet::defaultMidiVizSprite(MidiMsg* m) {
 		pos.y = (m->Pitch()-minpitch) / float(maxpitch-minpitch);
 		pos.z = (m->Velocity()*m->Velocity()) / (128.0*128.0);
 
-		_defaultmidiparams->shape.set("circle");
+		m_defaultmidiparams->shape.set("circle");
 
 		double fadetime = 5.0;
-		_defaultmidiparams->movedir.set(180.0);
-		_defaultmidiparams->speedinitial.set(0.2);
-		_defaultmidiparams->sizeinitial.set(0.1);
-		_defaultmidiparams->sizefinal.set(0.0);
-		_defaultmidiparams->sizetime.set(fadetime);
+		m_defaultmidiparams->movedir.set(180.0);
+		m_defaultmidiparams->speedinitial.set(0.2);
+		m_defaultmidiparams->sizeinitial.set(0.1);
+		m_defaultmidiparams->sizefinal.set(0.0);
+		m_defaultmidiparams->sizetime.set(fadetime);
 
-		_defaultmidiparams->lifetime.set(fadetime);
+		m_defaultmidiparams->lifetime.set(fadetime);
 
 		// control color with channel
 		NosuchColor clr = channelColor(m->Channel());
 		double hue = clr.hue();
 
-		_defaultmidiparams->alphainitial.set(1.0);
-		_defaultmidiparams->alphafinal.set(0.0);
-		_defaultmidiparams->alphatime.set(fadetime);
+		m_defaultmidiparams->alphainitial.set(1.0);
+		m_defaultmidiparams->alphafinal.set(0.0);
+		m_defaultmidiparams->alphatime.set(fadetime);
 
-		_defaultmidiparams->hueinitial.set(hue);
-		_defaultmidiparams->huefinal.set(hue);
-		_defaultmidiparams->huefillinitial.set(hue);
-		_defaultmidiparams->huefillfinal.set(hue);
+		m_defaultmidiparams->hueinitial.set(hue);
+		m_defaultmidiparams->huefinal.set(hue);
+		m_defaultmidiparams->huefillinitial.set(hue);
+		m_defaultmidiparams->huefillfinal.set(hue);
 
-		s = makeAndAddVizSprite(_defaultmidiparams, pos);
+		s = makeAndAddVizSprite(m_defaultmidiparams, pos);
 	}
 	return s;
 }

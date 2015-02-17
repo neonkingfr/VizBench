@@ -53,28 +53,28 @@ private:
 	float col2x(int col);
 	float row2y(int row);
 	float CellDepth(LifeCell& cell);
-	void fakeCellBirth(int r, int c, LifeCell& cell);
+	void fakeCellBirth(int r, int c);
 	void addCellSprite(int r, int c);
 	void DeleteCellAndTouching(int r, int c);
 	void SetSize(int rows, int cols);
 
 	// Put private things here.
-	AllVizParams* _params;
-	AllVizParams* _cellparams;
-	NosuchLife* _life;
-	LifeCellData* _data;
-	float _deepestdepth;
-	LifeCell* _deepestcell;
-	int _ncols;
-	int _nrows;
-	long _gen;
-	int _savedkey;
-	int _savedrow;
-	int _savedcol;
-	long _cellseq;
-	bool _doage;
-	bool _sprites;
-	int _sparseness;
+	AllVizParams* m_params;
+	AllVizParams* m_cellparams;
+	NosuchLife* m_life;
+	LifeCellData* m_data;
+	float m_deepestdepth;
+	LifeCell* m_deepestcell;
+	int m_ncols;
+	int m_nrows;
+	long m_gen;
+	int m_savedkey;
+	int m_savedrow;
+	int m_savedcol;
+	long m_cellseq;
+	bool m_doage;
+	bool m_sprites;
+	int m_sparseness;
 };
 
 #endif

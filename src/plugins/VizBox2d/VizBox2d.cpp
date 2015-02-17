@@ -1,17 +1,9 @@
-#include "NosuchDebug.h"
-#include "NosuchUtil.h"
-#include "ffutil.h"
-
 #include "Vizlet.h"
 #include "VizBox2d.h"
-#include "NosuchOsc.h"
-
-#include "VizSprite.h"
-#include "VizServer.h"
 
 static CFFGLPluginInfo PluginInfo ( 
 	VizBox2d::CreateInstance,	// Create method
-	"V607",		// Plugin unique ID
+	"VZBX",		// Plugin unique ID
 	"VizBox2d",	// Plugin name	
 	1,			// API major version number
 	000,		// API minor version number	
@@ -24,13 +16,12 @@ static CFFGLPluginInfo PluginInfo (
 
 std::string vizlet_name() { return "VizBox2d"; }
 CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
-void vizlet_setdll(std::string dll) { }
 
 VizBox2d::VizBox2d() : Vizlet() {
-	_params = defaultParams();
-	_params->shape.set("circle");
-	_params->speedinitial.set(0.1);
-	_params->nsprites.set(5000);
+	m_params = defaultParams();
+	m_params->shape.set("circle");
+	m_params->speedinitial.set(0.1);
+	m_params->nsprites.set(5000);
 	box2d_setup();
 }
 
@@ -100,11 +91,11 @@ void VizBox2d::OutlineToBody(VizSpriteOutline* so) {
 	fixtureDef.restitution = 1.0f;
 
 	b2BodyDef bodydef;
-	DEBUGPRINT(("bodydef position set %.4f %.4f",so->state.pos.x, so->state.pos.y));
+	DEBUGPRINT(("bodydef position set %.4f %.4f",so->m_state.pos.x, so->m_state.pos.y));
 	// bodydef.type = b2_dynamicBody;
-	bodydef.position.Set((float32)(so->state.pos.x), (float32)(so->state.pos.y));
+	bodydef.position.Set((float32)(so->m_state.pos.x), (float32)(so->m_state.pos.y));
 
-	b2Body* b = _world->CreateBody(&bodydef);
+	b2Body* b = m_world->CreateBody(&bodydef);
 	b->CreateFixture(&fixtureDef);
 
 	delete b2points;
@@ -120,47 +111,47 @@ void VizBox2d::processKeystroke(int key, int downup) {
 		float32 x = (rand() % 1000) / 1000.0f;
 		float32 y = (rand() % 1000) / 1000.0f;
 		b2Body* b = _makeDynamicBody(b2Vec2(0.4f+0.2f*x,0.9f+0.1f*y));
-		_bodies.push_back(b);
+		m_bodies.push_back(b);
 	}
 	if ( key == 32 || key == 82 ) {   // spacebar or 'r'
 		float32 x = (rand() % 1000) / 1000.0f;
 		float32 y = (rand() % 1000) / 1000.0f;
 		b2Body* b = _makeDynamicBody(b2Vec2(x,y));
-		_bodies.push_back(b);
+		m_bodies.push_back(b);
 	}
 	if ( key == 266 || key == 65 ) {
 		// Snapshot current VizSpriteOutlines
 		int noutlines = 0;
-		int newest_frameseq = -1;
+		int newest_framenum = -1;
 		// We assume the sprite list is sorted with most recent ones at the beginning
 		VizSpriteList* sl = GetVizSpriteList();
 		sl->lock_read();
-		for ( std::list<VizSprite*>::iterator i = sl->sprites.begin(); i!=sl->sprites.end(); i++ ) {
+		for ( std::list<VizSprite*>::iterator i = sl->m_sprites.begin(); i!=sl->m_sprites.end(); i++ ) {
 			VizSprite* s = *i;
 			NosuchAssert(s);
 			VizSpriteOutline* so = (VizSpriteOutline*)s;
 			if ( so ) {
-				if ( newest_frameseq < 0 ) {
-					newest_frameseq = so->frame;
+				if ( newest_framenum < 0 ) {
+					newest_framenum = so->m_framenum;
 				}
-				if ( so->frame != newest_frameseq ) {
+				if ( so->m_framenum != newest_framenum ) {
 					break;
 				}
 				noutlines++;
-				DEBUGPRINT(("Should be snapshotting outine at %.4f,%.4f with npoints=%d frame=%d",so->state.pos.x,so->state.pos.y,so->Npoints(),so->frame));
+				DEBUGPRINT(("Should be snapshotting outine at %.4f,%.4f with npoints=%d frame=%d",so->m_state.pos.x,so->m_state.pos.y,so->Npoints(),so->m_framenum));
 				OutlineToBody(so);
 			}
 		}
-		DEBUGPRINT(("Should be snapshotting %d outines, frameseq=%d",noutlines,FrameSeq()));
+		DEBUGPRINT(("Should be snapshotting %d outines, framenum=%d",noutlines,FrameNum()));
 		sl->unlock();
 	}
 	if ( key == 70 || key == 71 ) {   // 'f' or 'g'
 #define OLDSTYLE
 #ifdef OLDSTYLE
-		for (std::vector<b2Body*>::const_iterator iter=_bodies.begin();iter!=_bodies.end();++iter) {
+		for (std::vector<b2Body*>::const_iterator iter=m_bodies.begin();iter!=m_bodies.end();++iter) {
 			b2Body* b = *iter;
 #else
-		for ( b2Body* b: _bodies ) {
+		for ( b2Body* b: m_bodies ) {
 #endif
 			float32 fx = (rand() % 1000 - 500) / 10000000.0f;
 			float32 fy = (rand() % 1000 - 500) / 10000000.0f;
@@ -190,16 +181,16 @@ std::string VizBox2d::processJson(std::string meth, cJSON *json, const char *id)
 			float32 x = (rand() % 1000) / 1000.0f;
 			float32 y = (rand() % 1000) / 1000.0f;
 			b2Body* b = _makeDynamicBody(b2Vec2(x, y));
-			_bodies.push_back(b);
+			m_bodies.push_back(b);
 		}
 		return jsonOK(id);
 	}
 	if (meth == "push") {
 #ifdef OLDSTYLE
-		for (std::vector<b2Body*>::const_iterator iter=_bodies.begin();iter!=_bodies.end();++iter) {
+		for (std::vector<b2Body*>::const_iterator iter=m_bodies.begin();iter!=m_bodies.end();++iter) {
 			b2Body* b = *iter;
 #else
-		for ( b2Body* b: _bodies ) {
+		for ( b2Body* b: m_bodies ) {
 #endif
 			float32 fx = (rand() % 1000 - 500) / 10000000.0f;
 			float32 fy = (rand() % 1000 - 500) / 10000000.0f;
@@ -225,7 +216,7 @@ bool VizBox2d::processDraw() {
 	glColor4f(1.0,1.0,0.0,0.5);
 	glLineWidth((GLfloat)1.0f);
 	glEnableClientState(GL_VERTEX_ARRAY);
-	_world->DrawDebugData();
+	m_world->DrawDebugData();
 	glDisableClientState(GL_VERTEX_ARRAY);
 
 	DrawVizSprites();
@@ -258,15 +249,15 @@ void VizBox2d::_drawBody(b2Body* b) {
 // with your rendering engine in your game engine.
 void VizBox2d::box2d_setup()
 {
-	// _gravity = b2Vec2(0.0f, -1.0f);
-	_gravity = b2Vec2(0.0f, 0.0f);
-	_world = new b2World(_gravity);
+	// m_gravity = b2Vec2(0.0f, -1.0f);
+	m_gravity = b2Vec2(0.0f, 0.0f);
+	m_world = new b2World(m_gravity);
 
 	// Define the ground body.
 	b2BodyDef groundBodyDef;
 	groundBodyDef.position.Set(0.5f, 0.05f);
 
-	b2Body* groundBody = _world->CreateBody(&groundBodyDef);
+	b2Body* groundBody = m_world->CreateBody(&groundBodyDef);
 
 	b2PolygonShape groundBox;
 	groundBox.SetAsBox(0.5f, 0.01f);
@@ -275,26 +266,26 @@ void VizBox2d::box2d_setup()
 #if 0
 	// Add a couple of balls to the simulation
 	b2Body* b = _makeDynamicBody(b2Vec2(0.40f, 0.9f));
-	_bodies.push_back(b);
+	m_bodies.push_back(b);
 	b = _makeDynamicBody(b2Vec2(0.5f, 0.8f));
-	_bodies.push_back(b);
+	m_bodies.push_back(b);
 #endif
 
 	// Prepare for simulation. Typically we use a time step of 1/60 of a
 	// second (60Hz) and 10 iterations. This provides a high quality simulation
 	// in most game scenarios.
-	_timeStep = 1.0f / 60.0f;
-	_velocityIterations = 6;
-	_positionIterations = 2;
+	m_timeStep = 1.0f / 60.0f;
+	m_velocityIterations = 6;
+	m_positionIterations = 2;
 	
 	// _body->ApplyLinearImpulse(b2Vec2(0.0f,0.2f),b2Vec2(0.0f,0.0f),true);
 	// _body->ApplyAngularImpulse(1.0f,true);
 
 	//in constructor, usually
-	_world->SetDebugDraw( &_debugdraw );
+	m_world->SetDebugDraw( &m_debugdraw );
 
 	//somewhere appropriate
-	_debugdraw.SetFlags(b2Draw::e_shapeBit
+	m_debugdraw.SetFlags(b2Draw::e_shapeBit
 						| b2Draw::e_jointBit
 						// | b2Draw::e_aabbBit
 						| b2Draw::e_pairBit
@@ -310,7 +301,7 @@ VizBox2d::_makeDynamicBody(b2Vec2 pos) {
 
 	bodyDef.type = b2_dynamicBody;
 	bodyDef.position = pos;
-	b = _world->CreateBody(&bodyDef);
+	b = m_world->CreateBody(&bodyDef);
 
 #define TJT_CIRCLE
 #ifdef TJT_CIRCLE
@@ -339,5 +330,5 @@ void VizBox2d::box2d_step()
 {
 	// Instruct the world to perform a single step of simulation.
 	// It is generally best to keep the time step and iterations fixed.
-	_world->Step(_timeStep, _velocityIterations, _positionIterations);
+	m_world->Step(m_timeStep, m_velocityIterations, m_positionIterations);
 }

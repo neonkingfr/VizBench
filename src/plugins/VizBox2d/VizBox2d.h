@@ -3,7 +3,7 @@
 
 #include <Box2D/Box2D.h>
 #include <Box2D/Common/b2Math.h>
-#include <DebugDraw.h>
+#include "DebugDraw.h"
 
 class VizBox2d : public Vizlet
 {
@@ -24,22 +24,22 @@ public:
 private:
 	// Put private things here.
 
-	b2World *_world;
-	b2Vec2 _gravity;
-	float32 _timeStep;
-	int32 _velocityIterations;
-	int32 _positionIterations;
-	std::vector<b2Body*> _bodies;
-	VizDebugDraw _debugdraw;
-	int _vaoId;
-	int _vboId;
+	b2World *m_world;
+	b2Vec2 m_gravity;
+	float32 m_timeStep;
+	int32 m_velocityIterations;
+	int32 m_positionIterations;
+	std::vector<b2Body*> m_bodies;
+	VizDebugDraw m_debugdraw;
+	int m_vaoId;
+	int m_vboId;
 
 	void box2d_setup();
 	void box2d_step();
 	void _drawBody(b2Body* b);
 	b2Body* _makeDynamicBody(b2Vec2 pos);
 
-	AllVizParams* _params;
+	AllVizParams* m_params;
 };
 
 #endif

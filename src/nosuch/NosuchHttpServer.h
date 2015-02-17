@@ -44,7 +44,7 @@ public:
 	NosuchHttpServer(NosuchJsonListener* jproc, int port, std::string htmldir, int timeout, int idletime);
 	NosuchHttpServer::~NosuchHttpServer();
 	void Check();
-	void SetHtmlDir(std::string d) { _htmldir = d; }
+	void SetHtmlDir(std::string d) { m_htmldir = d; }
 	void RespondToGetOrPost(NosuchSocketConnection*);
 	void InitializeWebSocket(NosuchSocketConnection *kd);
 	void CloseWebSocket(NosuchSocketConnection *kd);
@@ -62,11 +62,11 @@ private:
 	std::list<NosuchSocketConnection *> _WebSocket_Clients;
 	// void AddWebSocketClient(NosuchSocketConnection* conn);
 
-	NosuchJsonListener* _json_processor;
-	NosuchSocket* _listening_socket;
-	std::string _htmldir;
-	bool _shouldbeshutdown;
-	bool _shutdowncomplete;
+	NosuchJsonListener* m_json_processor;
+	NosuchSocket* m_listening_socket;
+	std::string m_htmldir;
+	bool m_shouldbeshutdown;
+	bool m_shutdowncomplete;
 };
 
 #endif

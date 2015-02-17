@@ -1,0 +1,11 @@
++ a=one
++ echo 'Handling one...'
++ '[' '!' -f one000000.ppm ']'
++ quiet='-hide_banner -loglevel quiet'
++ cameraflip=
++ paletteflip='-vf hflip'
++ echo 'Merging frames...'
++ echo 'Constructing final video...'
++ c:/local/ffmpeg/bin/ffmpeg.exe -hide_banner -loglevel quiet -r 60 -i one%6d.ppm -b:v 60000000 one_one.m4v
++ echo 'Final video: '
++ ls -l one_one.m4v

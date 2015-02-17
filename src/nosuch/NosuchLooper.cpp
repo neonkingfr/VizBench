@@ -4,7 +4,7 @@
 
 NosuchLooper::NosuchLooper() {
 	DEBUGPRINT2(("NosuchLooper constructor"));
-	_last_click = 0;
+	m_last_click = 0;
 	NosuchLockInit(&_looper_mutex,"looper");
 }
 
@@ -16,9 +16,9 @@ std::string
 NosuchLooper::DebugString() {
 	Lock();
 	std::string s;
-	std::vector<NosuchLoop*>::iterator it = _loops.begin();
+	std::vector<NosuchLoop*>::iterator it = m_loops.begin();
 	int n = 0;
-	for(; it != _loops.end(); it++) {
+	for(; it != m_loops.end(); it++) {
 		NosuchLoop *lp = *it;
 		NosuchAssert(lp);
 		s += NosuchSnprintf("Loop %d\n%s",n++,lp->DebugString("   ").c_str());
@@ -30,28 +30,28 @@ NosuchLooper::DebugString() {
 void
 NosuchLooper::AddLoop(NosuchLoop* loop) {
 	Lock();
-	_loops.push_back(loop);
+	m_loops.push_back(loop);
 	Unlock();
 }
 
 void
 NosuchLooper::AdvanceClickTo(click_t click, NosuchScheduler* sched) {
 	Lock();
-	int nclicks = click - _last_click;
+	int nclicks = click - m_last_click;
 	static int last_printed_click = 0;
-	if ( click >= (last_printed_click+10*sched->ClicksPerSecond) ) {
+	if ( click >= (last_printed_click+10*sched->m_ClicksPerSecond) ) {
 		DEBUGPRINT1(("NosuchLooper::AdvanceClickTo click=%d now=%d",click,Pt_Time()));
 		last_printed_click = click;
 	}
 	while ( nclicks-- > 0 ) {
-		std::vector<NosuchLoop*>::iterator it = _loops.begin();
-		for(; it != _loops.end(); it++) {
+		std::vector<NosuchLoop*>::iterator it = m_loops.begin();
+		for(; it != m_loops.end(); it++) {
 			NosuchLoop* lp = *it;
 			NosuchAssert(lp);
 			lp->AdvanceClickBy1();
 		}
 	}
-	_last_click = click;
+	m_last_click = click;
 	Unlock();
 }
 
@@ -67,7 +67,7 @@ loopevent_compare (SchedEvent* first, SchedEvent* second)
 void
 NosuchLoop::SendMidiLoopOutput(MidiMsg* mm) {
 #if 0
-	_vizlet->SendMidiMsg();
+	m_vizlet->SendMidiMsg();
 	// _vizlet->scheduler()->SendMidiMsg(mm,id());
 	// noticeMidiOutput(mm,XXX);
 #endif
@@ -76,10 +76,10 @@ NosuchLoop::SendMidiLoopOutput(MidiMsg* mm) {
 std::string
 NosuchLoop::DebugString(std::string indent) {
 	Lock();
-	SchedEventIterator it = _events.begin();
+	SchedEventIterator it = m_events.begin();
 	int n = 0;
-	std::string s = NosuchSnprintf("Loop id=%d {\n",_id);
-	for(; it != _events.end(); it++) {
+	std::string s = NosuchSnprintf("Loop id=%d {\n",m_id);
+	for(; it != m_events.end(); it++) {
 		SchedEvent* ep = *it;
 		NosuchAssert(ep);
 		s += (indent+NosuchSnprintf("   Event %d = %s\n",n++,ep->DebugString().c_str()));
@@ -93,8 +93,8 @@ int
 NosuchLoop::AddLoopEvent(SchedEvent* e) {
 	int nn;
 	Lock();
-	_events.push_back(e);
-	_events.sort(loopevent_compare);
+	m_events.push_back(e);
+	m_events.sort(loopevent_compare);
 	nn = NumNotes();
 	Unlock();
 	return nn;
@@ -113,18 +113,18 @@ isMatchingOff(SchedEvent* ev, MidiNoteOn* note) {
 
 void NosuchLoop::AdvanceClickBy1() {
 	Lock();
-	_click++;
-	int clicklength = QuarterNoteClicks * _looplength;
-	if ( _click > clicklength ) {
-		_click = 0;
+	m_click++;
+	int clicklength = QuarterNoteClicks * m_looplength;
+	if ( m_click > clicklength ) {
+		m_click = 0;
 	}
 
-	SchedEventIterator it = _events.begin();
-	for(; it != _events.end(); ) {
+	SchedEventIterator it = m_events.begin();
+	for(; it != m_events.end(); ) {
 
 		SchedEvent* ev = *it;
 		NosuchAssert(ev);
-		if ( ev->click != _click ) {
+		if ( ev->click != m_click ) {
 			it++;
 			continue;
 		}
@@ -150,7 +150,7 @@ void NosuchLoop::AdvanceClickBy1() {
 			if ( noteon->Velocity() < MIN_LOOP_VELOCITY ) {
 
 				DEBUGPRINT1(("Note Velocity is < 5, should be removing"));
-				it = _events.erase(it);
+				it = m_events.erase(it);
 				incrementit = false;
 
 				// the noteon pointer is still valid, we
@@ -160,7 +160,7 @@ void NosuchLoop::AdvanceClickBy1() {
 				SchedEventIterator offit = findNoteOff(noteon,it);
 				delete noteon;
 
-				if ( offit != _events.end() ) {
+				if ( offit != m_events.end() ) {
 					SchedEvent* evoff = *offit;
 					bool updateit = false;
 					if ( offit == it ) {
@@ -171,7 +171,7 @@ void NosuchLoop::AdvanceClickBy1() {
 					MidiNoteOff* noteoff = (MidiNoteOff*)(evoff->u.midimsg);
 					NosuchAssert(noteoff);
 					delete noteoff;
-					offit = _events.erase(offit);
+					offit = m_events.erase(offit);
 					if ( updateit ) {
 						it = offit;
 					}
@@ -197,7 +197,7 @@ void NosuchLoop::AdvanceClickBy1() {
 			} else {
 				SendMidiLoopOutput(noteon);
 				// Fade the velocity
-				double fade = _loopfade;
+				double fade = m_loopfade;
 				DEBUGPRINT1(("Fading velocity, vel=%d fade=%.4f",(int)(noteon->Velocity()),fade));
 				noteon->Velocity((int)(noteon->Velocity()*fade));
 			}
@@ -230,27 +230,27 @@ NosuchLoop::findNoteOff(MidiNoteOn* noteon, SchedEventIterator& it) {
 	// Look for the matching noteoff, IF it exists in the loop.
 	SchedEventIterator offit = it;
 	MidiNoteOff* noteoff = NULL;
-	for( ; offit != _events.end(); offit++ ) {
+	for( ; offit != m_events.end(); offit++ ) {
 		if ( isMatchingOff(*offit,noteon) ) {
 			return offit;
 		}
 	}
 	// Didn't find it yet, scan from beginning
-	offit = _events.begin();
-	for( ; offit != _events.end(); offit++ ) {
+	offit = m_events.begin();
+	for( ; offit != m_events.end(); offit++ ) {
 		if ( isMatchingOff(*offit,noteon) ) {
 			return offit;
 		}
 	}
-	return _events.end();
+	return m_events.end();
 }
 
 SchedEventIterator
 NosuchLoop::oldestNoteOn() {
-	SchedEventIterator it = _events.begin();
+	SchedEventIterator it = m_events.begin();
 	click_t oldest = INT_MAX;
 	SchedEventIterator oldest_it;
-	for( ; it != _events.end(); it++ ) {
+	for( ; it != m_events.end(); it++ ) {
 		SchedEvent* ev = *it;
 		NosuchAssert(ev);
 		if ( ev->eventtype() != SchedEvent::MIDIMSG ) {
@@ -268,7 +268,7 @@ NosuchLoop::oldestNoteOn() {
 	if ( oldest < INT_MAX ) {
 		return oldest_it;
 	} else {
-		return _events.end();
+		return m_events.end();
 	}
 }
 
@@ -286,7 +286,7 @@ NosuchLoop::removeNote(SchedEventIterator it) {
 	MidiNoteOn* noteon = (MidiNoteOn*)ev->u.midimsg;
 	NosuchAssert(noteon);
 
-	it = _events.erase(it);
+	it = m_events.erase(it);
 	SchedEventIterator offit = findNoteOff(noteon,it);
 	delete noteon;
 }
@@ -295,23 +295,23 @@ void
 NosuchLoop::removeOldestNoteOn() {
 	Lock();
 	SchedEventIterator it = oldestNoteOn();
-	if ( it == _events.end() ) {
+	if ( it == m_events.end() ) {
 		DEBUGPRINT(("Hmmm, removeOldestNoteOn didn't find an oldest note!?"));
 		Unlock();
 		return;
 	}
 	MidiNoteOn* noteon = (MidiNoteOn*)((*it)->u.midimsg);
 	NosuchAssert(noteon);
-	it = _events.erase(it);
+	it = m_events.erase(it);
 	SchedEventIterator offit = findNoteOff(noteon,it);
 	delete noteon;
-	if ( offit == _events.end() ) {
+	if ( offit == m_events.end() ) {
 		DEBUGPRINT(("Hmmm, removeOldestNoteOn didn't find noteoff for oldest note!?"));
 	} else {
 		SchedEvent* ev = *offit;
 		MidiNoteOff* noteoff = (MidiNoteOff*)(ev->u.midimsg);
 		NosuchAssert(noteoff);
-		_events.erase(offit);
+		m_events.erase(offit);
 		delete noteoff;
 
 		DEBUGPRINT1(("NEW DELETE CODE IN removeOldestNoteOn"));
@@ -330,10 +330,10 @@ NosuchLoop::NumNotes() {
 
 void
 NosuchLoop::NumEvents(int& nnotes, int& ncontrollers) {
-	SchedEventIterator it = _events.begin();
+	SchedEventIterator it = m_events.begin();
 	nnotes = 0;
 	ncontrollers = 0;
-	for(; it != _events.end(); it++ ) {
+	for(; it != m_events.end(); it++ ) {
 		SchedEvent* ev = *it;
 		NosuchAssert(ev);
 		if ( ev->eventtype() != SchedEvent::MIDIMSG ) {
@@ -363,8 +363,8 @@ NosuchLoop::Clear() {
 void
 NosuchLoop::ClearNoLock() {
 	while ( true ) {
-		SchedEventIterator it = _events.begin();
-		if ( it == _events.end() ) {
+		SchedEventIterator it = m_events.begin();
+		if ( it == m_events.end() ) {
 			break;
 		}
 		SchedEvent* ev = *it;
@@ -387,7 +387,7 @@ NosuchLoop::ClearNoLock() {
 			break;
 			}
 		}
-		_events.erase(it);
+		m_events.erase(it);
 		delete ev;
 	}
 }

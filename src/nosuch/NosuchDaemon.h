@@ -24,14 +24,14 @@ public:
 	void SendAllWebSocketClients(std::string msg);
 
 private:
-	bool _network_thread_created;
+	bool m_network_thread_created;
 	bool daemon_shutting_down;
 	pthread_t _network_thread;
-	NosuchOscManager* _oscinput;
-	NosuchHttpServer* _httpserver;
+	NosuchOscManager* m_oscinput;
+	NosuchHttpServer* m_httpserver;
 	// std::list<VizletHttpClient*> _httpclients;
 
-	bool _listening;
+	bool m_listening;
 };
 
 #endif

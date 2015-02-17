@@ -14,7 +14,7 @@ NosuchOscInput::NosuchOscInput(NosuchOscListener* p) {
 
     // _enabled = 0;
 	DEBUGPRINT2(("NosuchOscInput constructor"));
-	_processor = p;
+	m_processor = p;
 }
 
 NosuchOscInput::~NosuchOscInput() {
@@ -34,7 +34,7 @@ NosuchOscInput::processOscBundle( const char *source, const osc::ReceivedBundle&
 		if( i->IsBundle() ) {
             processOscBundle( source, osc::ReceivedBundle(*i) );
 		} else {
-	        _processor->processOsc( source, osc::ReceivedMessage(*i) );
+	        m_processor->processOsc( source, osc::ReceivedMessage(*i) );
 		}
     }
 }

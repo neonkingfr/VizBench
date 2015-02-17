@@ -115,6 +115,7 @@ void NosuchPrintTime(const char *prefix);
 // void NosuchFree(std::string s);
 int NosuchNetworkInit();
 
+std::string NosuchReplaceAll(std::string instr, std::string toreplace, std::string replacement);
 std::vector<std::string> NosuchSplitOnAnyChar(std::string s, std::string sepchars);
 std::vector<std::string> NosuchSplitOnString(const std::string& s, const std::string& delim, const bool keep_empty = false);
 std::string NosuchToLower(std::string s);

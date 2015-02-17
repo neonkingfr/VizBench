@@ -1,6 +1,8 @@
 #ifndef _VIZLET_H
 #define _VIZLET_H
 
+#define VIZLET
+
 #include "ffutil.h"
 #include "FFGL.h"
 #include "FFGLPluginSDK.h"
@@ -43,34 +45,35 @@ public:
 	Vizlet();
 	virtual ~Vizlet();
 
-	std::string VizTag() { return _viztag; }
-	void SetVizTag(std::string s) { _viztag = s; }
+	std::string VizTag() { return m_viztag; }
+	void SetVizTag(std::string s) { m_viztag = s; }
 	VizSprite* makeAndInitVizSprite(AllVizParams* sp, NosuchPos pos);
 	VizSprite* makeAndAddVizSprite(AllVizParams* sp, NosuchPos pos);
 
-	void SetPassthru(bool b) { _passthru = b; }
+	void SetPassthru(bool b) { m_passthru = b; }
 
-	VizServer* vizserver() { return _vizserver; }
+	VizServer* vizserver() { return m_vizserver; }
 	void StartVizServer();
 	void InitCallbacks();
 	void ChangeVizTag(const char* newtag);
-	void advanceCursorTo(VizCursor* c, int tm);
-	int MilliNow();
-	click_t CurrentClick();
+	void advanceCursorTo(VizCursor* c, double tm);
+	// int MilliTime();
+	double GetTime();
+	click_t SchedulerCurrentClick();
 	void LockVizlet();
 	void UnlockVizlet();
-	void DisableVizlet() { _disabled = true; }
+	void DisableVizlet() { m_disabled = true; }
 
 	void QueueMidiMsg(MidiMsg* m, click_t clk);
 	void QueueMidiPhrase(MidiPhrase* ph, click_t clk);
 	void QueueClear();
 
-	std::string MidiInputName(size_t n) { return _vizserver->MidiInputName(n);  }
-	std::string MidiOutputName(size_t n) { return _vizserver->MidiOutputName(n);  }
+	std::string MidiInputName(size_t n) { return m_vizserver->MidiInputName(n);  }
+	std::string MidiOutputName(size_t n) { return m_vizserver->MidiOutputName(n);  }
 
 	int MidiInputNumberOf(std::string name) {
 		for (size_t n = 0; ; n++) {
-			const char* nm = _vizserver->MidiInputName(n);
+			const char* nm = m_vizserver->MidiInputName(n);
 			if (nm == NULL) {
 				break;
 			}
@@ -83,7 +86,7 @@ public:
 
 	int MidiOutputNumberOf(std::string name) {
 		for (size_t n = 0; ; n++) {
-			const char* nm = _vizserver->MidiOutputName(n);
+			const char* nm = m_vizserver->MidiOutputName(n);
 			if (nm == NULL) {
 				break;
 			}
@@ -96,7 +99,7 @@ public:
 
 	void AddVizSprite(VizSprite* s);
 	void DrawVizSprites();
-	VizSpriteList* GetVizSpriteList() { return _spritelist; }
+	VizSpriteList* GetVizSpriteList() { return m_spritelist; }
 	VizSprite* MakeVizSprite(AllVizParams* sp);
 	std::string VizParamPath(std::string configname);
 	std::string VizPath2ConfigName(std::string path);
@@ -105,7 +108,7 @@ public:
 	AllVizParams* checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, std::time_t& lastupdate);
 	VizSprite* defaultMidiVizSprite(MidiMsg* m);
 
-	AllVizParams* defaultParams() { return _defaultparams; }
+	AllVizParams* defaultParams() { return m_defaultparams; }
 
 	void SetDefaults();
 
@@ -161,7 +164,7 @@ public:
 	virtual bool processDraw() { return false;  }
 	virtual void processDrawNote(MidiMsg* m) { }
 	virtual void processAdvanceClickTo(int click) { }
-	virtual void processAdvanceTimeTo(int milli) { }
+	virtual void processAdvanceTimeTo(double tm) { }
 
 	NosuchGraphics graphics;
 
@@ -171,7 +174,7 @@ public:
 
 	void SendMidiMsg();
 	void DrawNotesDown();
-	int FrameSeq() { return _vizserver->FrameSeq(); }
+	int FrameNum() { return m_framenum; }
 
 	std::string json_result;
 
@@ -179,11 +182,11 @@ protected:
 
 	void* Handle() { return (void*)this; }
 
-	bool _call_RealProcessOpenGL;
+	bool m_call_RealProcessOpenGL;
 
-	ApiFilter _af;
-	MidiFilter _mf;
-	CursorFilter _cf;
+	ApiFilter m_af;
+	MidiFilter m_mf;
+	CursorFilter m_cf;
 	
 	pthread_mutex_t json_mutex;
 	pthread_cond_t json_cond;
@@ -209,6 +212,8 @@ private:
 	virtual DWORD SetParameter(const SetParameterStruct* pParam);
 	virtual DWORD GetParameter(DWORD dwIndex);
 	virtual char* GetParameterDisplay(DWORD dwIndex);
+	virtual DWORD SetTime(double time);
+
 	/////////////////////////////////////////////////////
 
 	void _stopstuff();
@@ -222,24 +227,25 @@ private:
 	void _startKeystrokeCallbacks(void* data);
 	void _stopKeystrokeCallbacks();
 
-	// int _frame;
-	bool _passthru;
-	bool _stopped;
-	bool _disabled;
-	bool _disable_on_exception;
-	VizServer* _vizserver;
-	bool _callbacksInitialized;
-	std::string _viztag;
-	VizSpriteList* _spritelist;
-	AllVizParams* _defaultparams;
-	AllVizParams* _defaultmidiparams;
-	bool _useparamcache;
-	std::map<std::string, AllVizParams*> _paramcache;
-
 	void _drawnotes(std::list<MidiMsg*>& notes);
 
+	int m_framenum;
+	double m_time;
+	bool m_passthru;
+	bool m_stopped;
+	bool m_disabled;
+	bool m_disable_on_exception;
+	VizServer* m_vizserver;
+	bool m_callbacksInitialized;
+	std::string m_viztag;
+	VizSpriteList* m_spritelist;
+	AllVizParams* m_defaultparams;
+	AllVizParams* m_defaultmidiparams;
+	bool m_useparamcache;
+	std::map<std::string, AllVizParams*> m_paramcache;
+
 #define DISPLEN 128
-	char _disp[DISPLEN];
+	char m_disp[DISPLEN];
 };
 
 std::string dll_pathname();

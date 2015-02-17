@@ -21,9 +21,9 @@ public:
 	}
 
 	void setrgb(int r,int g,int b) {
-		_red = r;
-		_green = g;
-		_blue = b;
+		m_red = r;
+		m_green = g;
+		m_blue = b;
 		_ToHLS();
 	}
 
@@ -31,18 +31,18 @@ public:
 		if ( h > 360.0 ) {
 			DEBUGPRINT(("Hey, hue in NosuchColor > 360?"));
 		}
-		_hue = h;
-		_luminance = l;
-		_saturation = s;
+		m_hue = h;
+		m_luminance = l;
+		m_saturation = s;
 		_ToRGB();
 	}
 	
-	int r() { return _red; }
-	int g() { return _green; }
-	int b() { return _blue; }
-	double hue() { return _hue; }
-	double luminance() { return _luminance; }
-	double saturation() { return _saturation; }
+	int r() { return m_red; }
+	int g() { return m_green; }
+	int b() { return m_blue; }
+	double hue() { return m_hue; }
+	double luminance() { return m_luminance; }
+	double saturation() { return m_saturation; }
 
 	int _min(int a, int b) {
 		if ( a < b )
@@ -59,49 +59,49 @@ public:
 	};
 
 	void _ToHLS() {
-		double minval = _min(_red, _min(_green, _blue));
-		double maxval = _max(_red, _max(_green, _blue));
+		double minval = _min(m_red, _min(m_green, m_blue));
+		double maxval = _max(m_red, _max(m_green, m_blue));
 		double mdiff = maxval-minval;
 		double msum = maxval + minval;
-		_luminance = msum / 510;
+		m_luminance = msum / 510;
 		if ( maxval == minval ) {
-			_saturation = 0;
-			_hue = 0;
+			m_saturation = 0;
+			m_hue = 0;
 		} else {
-			double rnorm = (maxval - _red) / mdiff;
-			double gnorm = (maxval - _green) / mdiff;
-			double bnorm = (maxval - _blue) / mdiff;
-			if ( _luminance <= .5 ) {
-				_saturation = mdiff/msum;
+			double rnorm = (maxval - m_red) / mdiff;
+			double gnorm = (maxval - m_green) / mdiff;
+			double bnorm = (maxval - m_blue) / mdiff;
+			if ( m_luminance <= .5 ) {
+				m_saturation = mdiff/msum;
 			} else {
-				_saturation = mdiff / (510 - msum);
+				m_saturation = mdiff / (510 - msum);
 			}
 			// _saturation = (_luminance <= .5) ? (mdiff/msum) : (mdiff / (510 - msum));
-			if ( _red == maxval ) {
-				_hue = 60 * (6 + bnorm - gnorm);
-			} else if ( _green == maxval ) {
-				_hue = 60 * (2 + rnorm - bnorm);
-			} else if ( _blue == maxval ) {
-				_hue = 60 * (4 + gnorm - rnorm);
+			if ( m_red == maxval ) {
+				m_hue = 60 * (6 + bnorm - gnorm);
+			} else if ( m_green == maxval ) {
+				m_hue = 60 * (2 + rnorm - bnorm);
+			} else if ( m_blue == maxval ) {
+				m_hue = 60 * (4 + gnorm - rnorm);
 			}
-			_hue = fmod(_hue, 360.0);
+			m_hue = fmod(m_hue, 360.0);
 		}
 	}
 
 	void _ToRGB() {
-		if ( _saturation == 0 ) {
-			_red = _green = _blue = (int)(_luminance * 255);
+		if ( m_saturation == 0 ) {
+			m_red = m_green = m_blue = (int)(m_luminance * 255);
 		} else {
 			double rm2;
-			if ( _luminance <= 0.5 ) {
-				rm2 = _luminance + _luminance * _saturation;
+			if ( m_luminance <= 0.5 ) {
+				rm2 = m_luminance + m_luminance * m_saturation;
 			} else {
-				rm2 = _luminance + _saturation - _luminance * _saturation;
+				rm2 = m_luminance + m_saturation - m_luminance * m_saturation;
 			}
-			double rm1 = 2 * _luminance - rm2;
-			_red = _ToRGB1(rm1, rm2, _hue + 120);
-			_green = _ToRGB1(rm1, rm2, _hue);
-			_blue = _ToRGB1(rm1, rm2, _hue - 120);
+			double rm1 = 2 * m_luminance - rm2;
+			m_red = _ToRGB1(rm1, rm2, m_hue + 120);
+			m_green = _ToRGB1(rm1, rm2, m_hue);
+			m_blue = _ToRGB1(rm1, rm2, m_hue - 120);
 		}
 	}
 
@@ -124,12 +124,12 @@ public:
 	}
 
 private:
-	int _red;  // 0 to 255
-	int _green;  // 0 to 255
-	int _blue;  // 0 to 255
-	double _hue;   // 0.0 to 360.0
-	double _luminance;  // 0.0 to 1.0
-	double _saturation;  // 0.0 to 1.0
+	int m_red;  // 0 to 255
+	int m_green;  // 0 to 255
+	int m_blue;  // 0 to 255
+	double m_hue;   // 0.0 to 360.0
+	double m_luminance;  // 0.0 to 1.0
+	double m_saturation;  // 0.0 to 1.0
 
 };
 

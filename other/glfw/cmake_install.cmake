@@ -1,4 +1,4 @@
-# Install script for directory: C:/local/manifold/src/glfw
+# Install script for directory: C:/Users/tjt/Documents/GitHub/VizBench/other/glfw
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -28,21 +28,19 @@ IF(NOT CMAKE_INSTALL_COMPONENT)
 ENDIF(NOT CMAKE_INSTALL_COMPONENT)
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
-  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "C:/local/manifold/src/glfw/include/GLFW" FILES_MATCHING REGEX "/glfw3\\.h$" REGEX "/glfw3native\\.h$")
+  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/include/GLFW" FILES_MATCHING REGEX "/glfw3\\.h$" REGEX "/glfw3native\\.h$")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/glfw" TYPE FILE FILES
-    "C:/local/manifold/src/glfw/src/glfwConfig.cmake"
-    "C:/local/manifold/src/glfw/src/glfwConfigVersion.cmake"
+    "C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src/glfwConfig.cmake"
+    "C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src/glfwConfigVersion.cmake"
     )
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  INCLUDE("C:/local/manifold/src/glfw/src/cmake_install.cmake")
-  INCLUDE("C:/local/manifold/src/glfw/examples/cmake_install.cmake")
-  INCLUDE("C:/local/manifold/src/glfw/tests/cmake_install.cmake")
+  INCLUDE("C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src/cmake_install.cmake")
 
 ENDIF(NOT CMAKE_INSTALL_LOCAL_ONLY)
 
@@ -52,7 +50,7 @@ ELSE(CMAKE_INSTALL_COMPONENT)
   SET(CMAKE_INSTALL_MANIFEST "install_manifest.txt")
 ENDIF(CMAKE_INSTALL_COMPONENT)
 
-FILE(WRITE "C:/local/manifold/src/glfw/${CMAKE_INSTALL_MANIFEST}" "")
+FILE(WRITE "C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/${CMAKE_INSTALL_MANIFEST}" "")
 FOREACH(file ${CMAKE_INSTALL_MANIFEST_FILES})
-  FILE(APPEND "C:/local/manifold/src/glfw/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
+  FILE(APPEND "C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
 ENDFOREACH(file)

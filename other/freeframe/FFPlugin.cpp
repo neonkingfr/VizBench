@@ -43,7 +43,8 @@ bool FFPluginDef::Load(std::string Path)
     Free();
 
 	std::wstring wPath = s2ws(Path);
-    m_hInst = LoadLibrary(wPath.c_str());
+    // m_hInst = LoadLibrary(wPath.c_str());
+    m_hInst = LoadLibrary(Path.c_str());
     if ( m_hInst == NULL ) {
         dwError = GetLastError();
         DEBUGPRINT(("LoadLibrary of %s failed, dwError = %d\n",Path.c_str(),dwError));

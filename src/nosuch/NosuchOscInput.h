@@ -36,11 +36,11 @@ public:
 	    if( rp.IsBundle() ) {
 	        processOscBundle( source, osc::ReceivedBundle(rp) );
 		} else {
-	        _processor->processOsc( source, osc::ReceivedMessage(rp) );
+	        m_processor->processOsc( source, osc::ReceivedMessage(rp) );
 		}
 	}
 
-	NosuchOscListener* _processor;
+	NosuchOscListener* m_processor;
 };
 
 #endif

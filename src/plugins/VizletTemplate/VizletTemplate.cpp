@@ -1,13 +1,5 @@
-#include "NosuchDebug.h"
-#include "NosuchUtil.h"
-#include "ffutil.h"
-
 #include "Vizlet.h"
 #include "VizletTemplate.h"
-#include "NosuchOsc.h"
-
-#include "VizSprite.h"
-#include "VizServer.h"
 
 static CFFGLPluginInfo PluginInfo ( 
 	VizletTemplate::CreateInstance,	// Create method
@@ -18,13 +10,12 @@ static CFFGLPluginInfo PluginInfo (
 	1,			// Plugin major version number
 	000,		// Plugin minor version number
 	FF_EFFECT,	// Plugin type
-	"VizletTemplate: a sample visual synth",	// description
-	"by Tim Thompson - me@timthompson.com" 			// About
+	"VizletTemplate: a sample vizlet",			// description
+	"by Tim Thompson - me@timthompson.com" 		// About
 );
 
 std::string vizlet_name() { return "VizletTemplate"; }
 CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
-void vizlet_setdll(std::string dll) { }
 
 VizletTemplate::VizletTemplate() : Vizlet() {
 }

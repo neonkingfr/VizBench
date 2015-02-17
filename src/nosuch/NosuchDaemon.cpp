@@ -50,26 +50,26 @@ NosuchDaemon::NosuchDaemon(
 	DEBUGPRINT2(("NosuchDaemon CONSTRUCTOR!"));
 
 	daemon_shutting_down = false;
-	_httpserver = NULL;
-	_oscinput = NULL;
-	_listening = false;
-	_network_thread_created = false;
+	m_httpserver = NULL;
+	m_oscinput = NULL;
+	m_listening = false;
+	m_network_thread_created = false;
 
 	if ( NosuchNetworkInit() ) {
 		DEBUGPRINT(("Unable to initialize networking in NosuchDaemon constructor, there will be no listeners"));
 		return;
 	}
 
-	_listening = true;
+	m_listening = true;
 
-	_httpserver = new NosuchHttpServer(jsonproc, http_port, html_dir, 60, 60000);
+	m_httpserver = new NosuchHttpServer(jsonproc, http_port, html_dir, 60, 60000);
 
 	if ( osc_port < 0 || oscproc == NULL ) {
 		DEBUGPRINT(("NOT listening for OSC because oscport<0 or missing"));
-		_oscinput = NULL;
+		m_oscinput = NULL;
 	} else {
-		_oscinput = new NosuchOscManager(oscproc,osc_host,osc_port);
-		_oscinput->Listen();
+		m_oscinput = new NosuchOscManager(oscproc,osc_host,osc_port);
+		m_oscinput->Listen();
 	}
 
 	DEBUGPRINT2(("About to use pthread_create in NosuchDaemon"));
@@ -77,35 +77,35 @@ NosuchDaemon::NosuchDaemon(
 	if (err) {
 		NosuchErrorOutput("pthread_create failed!? err=%d",err);
 	} else {
-		_network_thread_created = true;
+		m_network_thread_created = true;
 	}
 }
 
 NosuchDaemon::~NosuchDaemon()
 {
 	daemon_shutting_down = true;
-	if ( _network_thread_created ) {
+	if ( m_network_thread_created ) {
 		// pthread_detach(_network_thread);
 		pthread_join(_network_thread,NULL);
 	}
 
-	NosuchAssert(_httpserver != NULL);
+	NosuchAssert(m_httpserver != NULL);
 
-	delete _httpserver;
-	_httpserver = NULL;
+	delete m_httpserver;
+	m_httpserver = NULL;
 
-	if ( _oscinput ) {
-		_oscinput->UnListen();
-		delete _oscinput;
-		_oscinput = NULL;
+	if ( m_oscinput ) {
+		m_oscinput->UnListen();
+		delete m_oscinput;
+		m_oscinput = NULL;
 	}
 }
 
 void
 NosuchDaemon::SendAllWebSocketClients(std::string msg)
 {
-	if ( _httpserver ) {
-		_httpserver->SendAllWebSocketClients(msg);
+	if ( m_httpserver ) {
+		m_httpserver->SendAllWebSocketClients(msg);
 	}
 }
 
@@ -119,26 +119,26 @@ void *NosuchDaemon::network_input_threadfunc(void *arg)
 	}
 	while (daemon_shutting_down == false ) {
 
-		if ( ! _listening ) {
+		if ( ! m_listening ) {
 			Sleep(100);
 			continue;
 		}
-		if ( _httpserver ) {
-			if ( _httpserver->ShouldBeShutdown() ) {
-				_httpserver->Shutdown();
-				delete _httpserver;
-				_httpserver = NULL;
+		if ( m_httpserver ) {
+			if ( m_httpserver->ShouldBeShutdown() ) {
+				m_httpserver->Shutdown();
+				delete m_httpserver;
+				m_httpserver = NULL;
 			} else {
-				_httpserver->Check();
+				m_httpserver->Check();
 			}
 		}
-		if ( _oscinput ) {
-			if ( _oscinput->ShouldBeShutdown() ) {
-				_oscinput->Shutdown();
-				delete _oscinput;
-				_oscinput = NULL;
+		if ( m_oscinput ) {
+			if ( m_oscinput->ShouldBeShutdown() ) {
+				m_oscinput->Shutdown();
+				delete m_oscinput;
+				m_oscinput = NULL;
 			} else {
-				_oscinput->Check();
+				m_oscinput->Check();
 			}
 		}
 		Sleep(1);

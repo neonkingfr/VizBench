@@ -62,8 +62,8 @@ public:
 class MidiMsg {
 public:
 	MidiMsg() {
-		_inport = -1;
-		_outport = -1;
+		m_inport = -1;
+		m_outport = -1;
 	}
 	virtual ~MidiMsg() {
 	}
@@ -76,10 +76,10 @@ public:
 	virtual int Velocity() { return -1; }
 	virtual int Controller() { return -1; }
 	virtual int Value(int val = NO_VALUE) { return NO_VALUE; }
-	int InputPort() { return _inport; }
-	int OutputPort() { return _outport; }
-	void SetInputPort(int n) { _inport = n; }
-	void SetOutputPort(int n) { _outport = n; }
+	int InputPort() { return m_inport; }
+	int OutputPort() { return m_outport; }
+	void SetInputPort(int n) { m_inport = n; }
+	void SetOutputPort(int n) { m_outport = n; }
 	bool isSameAs(MidiMsg* m) {
 		NosuchAssert(m);
 		switch (MidiType()) {
@@ -117,13 +117,13 @@ public:
 	}
 protected:
 	MidiMsg* finishclone(MidiMsg* m) {
-		m->_inport = _inport;
-		m->_outport = _outport;
+		m->m_inport = m_inport;
+		m->m_outport = m_outport;
 		return m;
 	}
 	virtual std::string DebugString() = 0;
-	int _inport;   // MIDI input port
-	int _outport;  // MIDI output port
+	int m_inport;   // MIDI input port
+	int m_outport;  // MIDI output port
 };
 
 
@@ -132,7 +132,7 @@ public:
 	ChanMsg(int ch) : MidiMsg() {
 		NosuchAssert(ch>=1 && ch<=16);
 		DEBUGPRINT2(("ChanMsg constructor"));
-		_chan = ch;
+		m_chan = ch;
 	}
 	virtual ~ChanMsg() {
 		DEBUGPRINT2(("ChanMsg destructor"));
@@ -145,9 +145,9 @@ public:
 	virtual int Velocity() { return -1; }
 	virtual int Controller() { return -1; }
 	virtual int Value(int v = NO_VALUE) { return NO_VALUE; }
-	int Channel() { return _chan; }
+	int Channel() { return m_chan; }
 protected:
-	int _chan;   // 1-based
+	int m_chan;   // 1-based
 	virtual std::string DebugString() = 0;
 };
 
@@ -159,12 +159,12 @@ public:
 		return m;
 	};
 	PmMessage PortMidiMessage() {
-		return Pm_Message(0x80 | (_chan-1), _pitch, _velocity);
+		return Pm_Message(0x80 | (m_chan-1), m_pitch, m_velocity);
 	}
 	int MidiType() { return MIDI_NOTE_OFF; }
-	int Pitch() { return _pitch; }
-	int Pitch(int np) { _pitch = np;  return _pitch; }
-	int Velocity() { return _velocity; }
+	int Pitch() { return m_pitch; }
+	int Pitch(int np) { m_pitch = np;  return m_pitch; }
+	int Velocity() { return m_velocity; }
 	MidiNoteOff* clone() {
 		MidiNoteOff* newm = MidiNoteOff::make(Channel(),Pitch(),Velocity());
 		finishclone(newm);
@@ -175,15 +175,15 @@ protected:
 		return NoteString();
 	}
 	std::string NoteString() {
-		return NosuchSnprintf("-p%dc%dv%d",_pitch,_chan,_velocity);
+		return NosuchSnprintf("-p%dc%dv%d",m_pitch,m_chan,m_velocity);
 	}
 private:
 	MidiNoteOff(int ch, int p, int v) : ChanMsg(ch) {
-		_pitch = p;
-		_velocity = v;
+		m_pitch = p;
+		m_velocity = v;
 	};
-	int _pitch;
-	int _velocity;
+	int m_pitch;
+	int m_velocity;
 };
 
 class MidiNoteOn : public ChanMsg {
@@ -203,33 +203,33 @@ public:
 		return newm;
 	};
 	PmMessage PortMidiMessage() {
-		return Pm_Message(0x90 | (_chan-1), _pitch, _velocity);
+		return Pm_Message(0x90 | (m_chan-1), m_pitch, m_velocity);
 	}
 	PmMessage PortMidiMessageOff() {
-		return Pm_Message(0x80 | (_chan-1), _pitch, 0);
+		return Pm_Message(0x80 | (m_chan-1), m_pitch, 0);
 	}
 	int MidiType() { return MIDI_NOTE_ON; }
-	int Pitch() { return _pitch; }
-	int Pitch(int np) { _pitch = np;  return _pitch; }
-	int Velocity() { return _velocity; }
-	int Velocity(int v) { _velocity = v; return _velocity; }
+	int Pitch() { return m_pitch; }
+	int Pitch(int np) { m_pitch = np;  return m_pitch; }
+	int Velocity() { return m_velocity; }
+	int Velocity(int v) { m_velocity = v; return m_velocity; }
 
 protected:
 	std::string DebugString() {
 		return NoteString();
 	}
 	std::string NoteString() {
-		return NosuchSnprintf("+p%dc%dv%d",_pitch,_chan,_velocity);
+		return NosuchSnprintf("+p%dc%dv%d",m_pitch,m_chan,m_velocity);
 	}
 
 private:
 	MidiNoteOn(int ch, int p, int v) : ChanMsg(ch) {
 		DEBUGPRINT2(("MidiNoteOn constructor"));
-		_pitch = p;
-		_velocity = v;
+		m_pitch = p;
+		m_velocity = v;
 	};
-	int _pitch;
-	int _velocity;
+	int m_pitch;
+	int m_velocity;
 };
 
 class MidiController : public ChanMsg {
@@ -239,16 +239,16 @@ public:
 		return m;
 	};
 	PmMessage PortMidiMessage() {
-		return Pm_Message(0xb0 | (_chan-1), _controller, _value);
+		return Pm_Message(0xb0 | (m_chan-1), m_controller, m_value);
 	}
 	int MidiType() { return MIDI_CONTROL; }
-	int Controller() { return _controller; }
+	int Controller() { return m_controller; }
 	int Value(int v = NO_VALUE) {
 		if ( v >= 0 ) {
 			NosuchAssert(v <= 127);
-			_value = v;
+			m_value = v;
 		}
-		return _value;
+		return m_value;
 	}
 	MidiController* clone() {
 		MidiController* newm = MidiController::make(Channel(),Controller(),Value());
@@ -257,15 +257,15 @@ public:
 	};
 protected:
 	std::string DebugString() {
-		return NosuchSnprintf("Controller ch=%d ct=%d v=%d",_chan,_controller,_value);
+		return NosuchSnprintf("Controller ch=%d ct=%d v=%d",m_chan,m_controller,m_value);
 	}
 private:
 	MidiController(int ch, int ctrl, int v) : ChanMsg(ch) {
-		_controller = ctrl;
-		_value = v;
+		m_controller = ctrl;
+		m_value = v;
 	};
-	int _controller;
-	int _value;
+	int m_controller;
+	int m_value;
 };
 
 class MidiChanPressure : public ChanMsg {
@@ -275,15 +275,15 @@ public:
 		return m;
 	};
 	PmMessage PortMidiMessage() {
-		return Pm_Message(0xb0 | (_chan-1), _value, 0);
+		return Pm_Message(0xb0 | (m_chan-1), m_value, 0);
 	}
 	int MidiType() { return MIDI_CHANNEL_AT; }
 	int Value(int v = NO_VALUE) {
 		if ( v >= 0 ) {
 			NosuchAssert(v <= 127);
-			_value = v;
+			m_value = v;
 		}
-		return _value;
+		return m_value;
 	}
 	MidiChanPressure* clone() {
 		MidiChanPressure* newm = MidiChanPressure::make(Channel(),Value());
@@ -292,13 +292,13 @@ public:
 	};
 protected:
 	std::string DebugString() {
-		return NosuchSnprintf("ChanPressure ch=%d v=%d",_chan,_value);
+		return NosuchSnprintf("ChanPressure ch=%d v=%d",m_chan,m_value);
 	}
 private:
 	MidiChanPressure(int ch, int v) : ChanMsg(ch) {
-		_value = v;
+		m_value = v;
 	};
-	int _value;
+	int m_value;
 };
 
 class MidiPressure : public ChanMsg {
@@ -308,17 +308,17 @@ public:
 		return m;
 	};
 	PmMessage PortMidiMessage() {
-		return Pm_Message(0xb0 | (_chan-1), _pitch, _value);
+		return Pm_Message(0xb0 | (m_chan-1), m_pitch, m_value);
 	}
 	int MidiType() { return MIDI_POLY_AT; }
-	int Pitch() { return _pitch; }
-	int Pitch(int np) { _pitch = np;  return _pitch; }
+	int Pitch() { return m_pitch; }
+	int Pitch(int np) { m_pitch = np;  return m_pitch; }
 	int Value(int v = NO_VALUE) {
 		if ( v >= 0 ) {
 			NosuchAssert(v <= 127);
-			_value = v;
+			m_value = v;
 		}
-		return _value;
+		return m_value;
 	}
 	MidiPressure* clone() {
 		MidiPressure* newm = MidiPressure::make(Channel(),Pitch(),Value());
@@ -327,15 +327,15 @@ public:
 	};
 protected:
 	std::string DebugString() {
-		return NosuchSnprintf("Pressure ch=%d pitch=%d v=%d",_chan,_pitch,_value);
+		return NosuchSnprintf("Pressure ch=%d pitch=%d v=%d",m_chan,m_pitch,m_value);
 	}
 private:
 	MidiPressure(int ch, int p, int v) : ChanMsg(ch) {
-		_pitch = p;
-		_value = v;
+		m_pitch = p;
+		m_value = v;
 	};
-	int _pitch;
-	int _value;
+	int m_pitch;
+	int m_value;
 };
 
 class MidiProgramChange : public ChanMsg {
@@ -347,15 +347,15 @@ public:
 	};
 	PmMessage PortMidiMessage() {
 		// Both channel and value going out are 0-based
-		return Pm_Message(0xc0 | (_chan-1), _value-1, 0);
+		return Pm_Message(0xc0 | (m_chan-1), m_value-1, 0);
 	}
 	int MidiType() { return MIDI_PROGRAM; }
 	int Value(int v = NO_VALUE) {
 		if ( v > 0 ) {
 			NosuchAssert(v<=128);  // program change value is 1-based
-			_value = v;
+			m_value = v;
 		}
-		return _value;
+		return m_value;
 	}
 	MidiProgramChange* clone() {
 		MidiProgramChange* newm = MidiProgramChange::make(Channel(),Value());
@@ -364,14 +364,14 @@ public:
 	};
 protected:
 	std::string DebugString() {
-		return NosuchSnprintf("ProgramChange ch=%d v=%d",_chan,_value);
+		return NosuchSnprintf("ProgramChange ch=%d v=%d",m_chan,m_value);
 	}
 private:
 	MidiProgramChange(int ch, int v) : ChanMsg(ch) {
 		NosuchAssert(v>0);  // program change value is 1-based
-		_value = v;
+		m_value = v;
 	};
-	int _value;   // 1-based
+	int m_value;   // 1-based
 };
 
 class MidiPitchBend : public ChanMsg {
@@ -388,16 +388,16 @@ public:
 // The value 0 (0x00 0x00) means, "bend as low as possible,"
 // and, similarly, 16383 (0x7F 0x7F) is to "bend as high as possible."
 
-		NosuchAssert(_value >= 0 && _value <= 16383);
-		return Pm_Message(0xe0 | (_chan-1), _value & 0x7f, (_value>>7) & 0x7f);
+		NosuchAssert(m_value >= 0 && m_value <= 16383);
+		return Pm_Message(0xe0 | (m_chan-1), m_value & 0x7f, (m_value>>7) & 0x7f);
 	}
 	int MidiType() { return MIDI_PITCHBEND; }
 	int Value(int v = NO_VALUE) {
 		if ( v >= 0 ) {
 			NosuchAssert(v >= 0 && v <= 16383);
-			_value = v;
+			m_value = v;
 		}
-		return _value;
+		return m_value;
 	}
 	MidiPitchBend* clone() {
 		MidiPitchBend* newm = MidiPitchBend::make(Channel(),Value());
@@ -406,14 +406,14 @@ public:
 	};
 protected:
 	std::string DebugString() {
-		return NosuchSnprintf("PitchBend ch=%d v=%d",_chan,_value);
+		return NosuchSnprintf("PitchBend ch=%d v=%d",m_chan,m_value);
 	}
 private:
 	MidiPitchBend(int ch, int v) : ChanMsg(ch) {
 		NosuchAssert(v >= 0 && v <= 16383);
 		Value(v);
 	};
-	int _value;   // from 0 to 16383
+	int m_value;   // from 0 to 16383
 };
 
 class MidiPhraseUnit {

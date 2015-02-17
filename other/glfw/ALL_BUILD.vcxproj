@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGUID>{E43F8BD0-EE03-4382-8F35-AA3AF223E370}</ProjectGUID>
+    <ProjectGUID>{15540BB9-4F62-4999-87B6-4288E4999B61}</ProjectGUID>
     <Keyword>Win32Proj</Keyword>
     <Platform>Win32</Platform>
     <ProjectName>ALL_BUILD</ProjectName>
@@ -99,7 +99,59 @@
     </Midl>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CustomBuild Include="CMakeFiles\ALL_BUILD.rule">
+    <CustomBuild Include="CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/Users/tjt/Documents/GitHub/VizBench/other/glfw -BC:/Users/tjt/Documents/GitHub/VizBench/other/glfw --check-stamp-file C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/CMakeLists.txt;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeLists.txt;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\2.8.12.1\CMakeSystem.cmake;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\2.8.12.1\CMakeCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeGenericSystem.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\WindowsPaths.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-MSVC.cmake;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\2.8.12.1\CMakeRCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeRCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindOpenGL.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindThreads.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckIncludeFiles.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckLibraryExists.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckSymbolExists.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindDoxygen.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\config.h.in;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\glfwConfig.cmake.in;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\glfwConfigVersion.cmake.in;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\cmake_uninstall.cmake.in;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\generate.stamp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/Users/tjt/Documents/GitHub/VizBench/other/glfw -BC:/Users/tjt/Documents/GitHub/VizBench/other/glfw --check-stamp-file C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/CMakeLists.txt;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeLists.txt;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\2.8.12.1\CMakeSystem.cmake;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\2.8.12.1\CMakeCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeGenericSystem.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\WindowsPaths.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-MSVC.cmake;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\2.8.12.1\CMakeRCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeRCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindOpenGL.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindThreads.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckIncludeFiles.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckLibraryExists.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckSymbolExists.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindDoxygen.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\config.h.in;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\glfwConfig.cmake.in;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\glfwConfigVersion.cmake.in;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\cmake_uninstall.cmake.in;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\generate.stamp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/Users/tjt/Documents/GitHub/VizBench/other/glfw -BC:/Users/tjt/Documents/GitHub/VizBench/other/glfw --check-stamp-file C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/CMakeLists.txt;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeLists.txt;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\2.8.12.1\CMakeSystem.cmake;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\2.8.12.1\CMakeCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeGenericSystem.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\WindowsPaths.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-MSVC.cmake;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\2.8.12.1\CMakeRCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeRCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindOpenGL.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindThreads.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckIncludeFiles.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckLibraryExists.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckSymbolExists.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindDoxygen.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\config.h.in;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\glfwConfig.cmake.in;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\glfwConfigVersion.cmake.in;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\cmake_uninstall.cmake.in;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\generate.stamp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/Users/tjt/Documents/GitHub/VizBench/other/glfw -BC:/Users/tjt/Documents/GitHub/VizBench/other/glfw --check-stamp-file C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/CMakeLists.txt;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeLists.txt;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\2.8.12.1\CMakeSystem.cmake;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\2.8.12.1\CMakeCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeGenericSystem.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\WindowsPaths.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-MSVC.cmake;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\2.8.12.1\CMakeRCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeRCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindOpenGL.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindThreads.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckIncludeFiles.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckLibraryExists.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckSymbolExists.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindDoxygen.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\config.h.in;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\glfwConfig.cmake.in;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\src\glfwConfigVersion.cmake.in;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\cmake_uninstall.cmake.in;C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\generate.stamp</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="CMakeFiles\8cf36046d69a865a9cf87dee9de221b2\ALL_BUILD.rule">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Build all projects</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
 :cmEnd
@@ -108,8 +160,8 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/local/manifold/src/glfw/CMakeFiles/ALL_BUILD.rule;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\local\manifold\src\glfw\CMakeFiles\ALL_BUILD</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/CMakeFiles/8cf36046d69a865a9cf87dee9de221b2/ALL_BUILD.rule;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\ALL_BUILD</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Build all projects</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
 :cmEnd
@@ -118,8 +170,8 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/local/manifold/src/glfw/CMakeFiles/ALL_BUILD.rule;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\local\manifold\src\glfw\CMakeFiles\ALL_BUILD</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/CMakeFiles/8cf36046d69a865a9cf87dee9de221b2/ALL_BUILD.rule;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\ALL_BUILD</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Build all projects</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
 :cmEnd
@@ -128,8 +180,8 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:/local/manifold/src/glfw/CMakeFiles/ALL_BUILD.rule;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\local\manifold\src\glfw\CMakeFiles\ALL_BUILD</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/CMakeFiles/8cf36046d69a865a9cf87dee9de221b2/ALL_BUILD.rule;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\ALL_BUILD</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Build all projects</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
 :cmEnd
@@ -138,140 +190,19 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:/local/manifold/src/glfw/CMakeFiles/ALL_BUILD.rule;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\local\manifold\src\glfw\CMakeFiles\ALL_BUILD</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/CMakeFiles/8cf36046d69a865a9cf87dee9de221b2/ALL_BUILD.rule;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\Users\tjt\Documents\GitHub\VizBench\other\glfw\CMakeFiles\ALL_BUILD</Outputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="CMakeLists.txt">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule C:/local/manifold/src/glfw/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
-"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/local/manifold/src/glfw -BC:/local/manifold/src/glfw --check-stamp-file C:\local\manifold\src\glfw\CMakeFiles\generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/local/manifold/src/glfw/CMakeLists.txt;C:\local\manifold\src\glfw\CMakeLists.txt;C:\local\manifold\src\glfw\CMakeFiles\CMakeSystem.cmake;C:\local\manifold\src\glfw\CMakeFiles\CMakeCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeGenericSystem.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\WindowsPaths.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-cl.cmake;C:\local\manifold\src\glfw\CMakeFiles\CMakeCPlatform.cmake;C:\local\manifold\src\glfw\CMakeFiles\CMakeCXXPlatform.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\cl.cmake;C:\local\manifold\src\glfw\CMakeFiles\CMakeRCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeRCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindOpenGL.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindThreads.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckIncludeFiles.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckLibraryExists.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindDoxygen.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\local\manifold\src\glfw\docs\Doxyfile.in;C:\local\manifold\src\glfw\src\config.h.in;C:\local\manifold\src\glfw\src\glfwConfig.cmake.in;C:\local\manifold\src\glfw\src\glfwConfigVersion.cmake.in;C:\local\manifold\src\glfw\cmake_uninstall.cmake.in;C:\local\manifold\src\glfw\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\local\manifold\src\glfw\CMakeFiles\generate.stamp</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule C:/local/manifold/src/glfw/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
-"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/local/manifold/src/glfw -BC:/local/manifold/src/glfw --check-stamp-file C:\local\manifold\src\glfw\CMakeFiles\generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/local/manifold/src/glfw/CMakeLists.txt;C:\local\manifold\src\glfw\CMakeLists.txt;C:\local\manifold\src\glfw\CMakeFiles\CMakeSystem.cmake;C:\local\manifold\src\glfw\CMakeFiles\CMakeCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeGenericSystem.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\WindowsPaths.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-cl.cmake;C:\local\manifold\src\glfw\CMakeFiles\CMakeCPlatform.cmake;C:\local\manifold\src\glfw\CMakeFiles\CMakeCXXPlatform.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\cl.cmake;C:\local\manifold\src\glfw\CMakeFiles\CMakeRCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeRCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindOpenGL.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindThreads.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckIncludeFiles.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckLibraryExists.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindDoxygen.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\local\manifold\src\glfw\docs\Doxyfile.in;C:\local\manifold\src\glfw\src\config.h.in;C:\local\manifold\src\glfw\src\glfwConfig.cmake.in;C:\local\manifold\src\glfw\src\glfwConfigVersion.cmake.in;C:\local\manifold\src\glfw\cmake_uninstall.cmake.in;C:\local\manifold\src\glfw\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\local\manifold\src\glfw\CMakeFiles\generate.stamp</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule C:/local/manifold/src/glfw/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
-"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/local/manifold/src/glfw -BC:/local/manifold/src/glfw --check-stamp-file C:\local\manifold\src\glfw\CMakeFiles\generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:/local/manifold/src/glfw/CMakeLists.txt;C:\local\manifold\src\glfw\CMakeLists.txt;C:\local\manifold\src\glfw\CMakeFiles\CMakeSystem.cmake;C:\local\manifold\src\glfw\CMakeFiles\CMakeCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeGenericSystem.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\WindowsPaths.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-cl.cmake;C:\local\manifold\src\glfw\CMakeFiles\CMakeCPlatform.cmake;C:\local\manifold\src\glfw\CMakeFiles\CMakeCXXPlatform.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\cl.cmake;C:\local\manifold\src\glfw\CMakeFiles\CMakeRCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeRCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindOpenGL.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindThreads.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckIncludeFiles.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckLibraryExists.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindDoxygen.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\local\manifold\src\glfw\docs\Doxyfile.in;C:\local\manifold\src\glfw\src\config.h.in;C:\local\manifold\src\glfw\src\glfwConfig.cmake.in;C:\local\manifold\src\glfw\src\glfwConfigVersion.cmake.in;C:\local\manifold\src\glfw\cmake_uninstall.cmake.in;C:\local\manifold\src\glfw\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\local\manifold\src\glfw\CMakeFiles\generate.stamp</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule C:/local/manifold/src/glfw/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
-"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/local/manifold/src/glfw -BC:/local/manifold/src/glfw --check-stamp-file C:\local\manifold\src\glfw\CMakeFiles\generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:/local/manifold/src/glfw/CMakeLists.txt;C:\local\manifold\src\glfw\CMakeLists.txt;C:\local\manifold\src\glfw\CMakeFiles\CMakeSystem.cmake;C:\local\manifold\src\glfw\CMakeFiles\CMakeCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeGenericSystem.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\WindowsPaths.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-cl.cmake;C:\local\manifold\src\glfw\CMakeFiles\CMakeCPlatform.cmake;C:\local\manifold\src\glfw\CMakeFiles\CMakeCXXPlatform.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\cl.cmake;C:\local\manifold\src\glfw\CMakeFiles\CMakeRCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeRCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindOpenGL.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindThreads.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckIncludeFiles.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CheckLibraryExists.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindDoxygen.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\local\manifold\src\glfw\docs\Doxyfile.in;C:\local\manifold\src\glfw\src\config.h.in;C:\local\manifold\src\glfw\src\glfwConfig.cmake.in;C:\local\manifold\src\glfw\src\glfwConfigVersion.cmake.in;C:\local\manifold\src\glfw\cmake_uninstall.cmake.in;C:\local\manifold\src\glfw\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\local\manifold\src\glfw\CMakeFiles\generate.stamp</Outputs>
-    </CustomBuild>
+    <None Include="CMakeFiles\ALL_BUILD" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="C:\local\manifold\src\glfw\CMakeFiles\ALL_BUILD" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="C:/local/manifold/src/glfw/ZERO_CHECK.vcxproj">
-      <Project>E396DDF0-30F6-4151-AC5D-DFAD4647F4D9</Project>
+    <ProjectReference Include="C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/ZERO_CHECK.vcxproj">
+      <Project>5583451E-6EB3-4B54-BEA0-B9CAA5902A5C</Project>
     </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/tests/accuracy.vcxproj">
-      <Project>E84578B8-029C-435D-915E-5F8C2D1D516D</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/examples/boing.vcxproj">
-      <Project>48BA52F8-C166-4F1C-BEA4-66A49D600575</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/tests/clipboard.vcxproj">
-      <Project>F2966E53-9ABA-40C9-AB9D-2BB86B5D5442</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/tests/defaults.vcxproj">
-      <Project>A84A7DF2-2E45-4887-87AC-F81EE4919D43</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/tests/events.vcxproj">
-      <Project>0D7AB2B7-0585-4044-BE6E-962F2F83E8D9</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/tests/fsaa.vcxproj">
-      <Project>AFF5C079-54AF-4651-B3BB-B941163134DC</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/tests/gamma.vcxproj">
-      <Project>DB37E584-288E-4811-A362-773CB0FDAE09</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/examples/gears.vcxproj">
-      <Project>B9395606-BEF8-4B90-A6CD-375624110FF3</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/src/glfw.vcxproj">
-      <Project>9F1AE77F-E446-4AE9-9C2C-2DF650D55241</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/tests/glfwinfo.vcxproj">
-      <Project>7F834191-05A2-46F7-9E37-BC5A7FC8DF73</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/examples/heightmap.vcxproj">
-      <Project>0444F9BA-C3EA-443F-A74E-1321C00B2EBA</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/tests/iconify.vcxproj">
-      <Project>E22E51E1-048E-4184-A7EB-8EA47D851C44</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/tests/joysticks.vcxproj">
-      <Project>AC3D1B47-D4F8-41A2-9161-AE541665F979</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/tests/modes.vcxproj">
-      <Project>9B8CC571-42F2-4125-8D98-A6AB358279A5</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/tests/peter.vcxproj">
-      <Project>D36C21EF-39F9-4907-B625-1373F1CBEDF7</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/tests/reopen.vcxproj">
-      <Project>0B722843-BDAD-465D-8552-4B7E1FC058E6</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/tests/sharing.vcxproj">
-      <Project>0B10EE9E-0F11-4137-9A0E-BBC25165E50E</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/examples/simple.vcxproj">
-      <Project>71690F34-67BB-4DE7-8456-04E68349CB3B</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/examples/splitview.vcxproj">
-      <Project>76ACF529-EA7D-4B80-B7C9-39E284CA91A5</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/tests/tearing.vcxproj">
-      <Project>ED186A30-F0CB-4786-BD51-7F3FDA18A2D4</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/tests/threads.vcxproj">
-      <Project>0B95F9C5-4F8B-44EB-8A8A-314041D10ADC</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/tests/title.vcxproj">
-      <Project>C94E40FA-0D92-4DB3-8BB8-018BA17EF148</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/examples/wave.vcxproj">
-      <Project>3636C22B-329A-489F-9DD6-17A3CA876F6A</Project>
-    </ProjectReference>
-    <ProjectReference Include="C:/local/manifold/src/glfw/tests/windows.vcxproj">
-      <Project>A3C55541-3218-47E3-BE09-8DB35C8C02EA</Project>
+    <ProjectReference Include="C:/Users/tjt/Documents/GitHub/VizBench/other/glfw/src/glfw.vcxproj">
+      <Project>CBA63B0B-3AE1-4FED-8AFB-6BCB9D60FE5D</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

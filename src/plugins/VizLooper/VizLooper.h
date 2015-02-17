@@ -21,14 +21,14 @@ private:
 	// Put private things here.
 
 	void _midiVizSprite(MidiMsg* m);
-	AllVizParams* _midiparams;
-	std::string _spriteparamspath;
-	bool _autoloadparams;
-	std::time_t _lastfileupdate;
-	std::time_t _lastfilecheck;
+	AllVizParams* m_midiparams;
+	std::string m_spriteparamspath;
+	bool m_autoloadparams;
+	std::time_t m_lastfileupdate;
+	std::time_t m_lastfilecheck;
 
-	int _midiin;
-	int _midiout;
+	int m_midiin;
+	int m_midiout;
 };
 
 #endif

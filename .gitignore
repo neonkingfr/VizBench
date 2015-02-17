@@ -1,5 +1,17 @@
-src/oldpalette
+build/*/*/Release
+build/*/*/Debug
+bin/FFFF.exe
+bin/VizServer.dll
+binDebug/FFFF.exe
+binDebug/VizServer.dll
+binRelease/FFFF.exe
+binRelease/VizServer.dll
+ffglpluginsDebug/Viz*.dll
+ffglpluginsRelease/Viz*.dll
+ffglplugins/Viz*.dll
+ffglplugins/EmptyA.dll
 src/palette
+src/oldpalette
 src/zlib/contrib
 src/pthreads-win32-2.8.0
 src/cvblobslib/doc
@@ -39,7 +51,6 @@ Thumbs.db
 *.log
 *.sbr
 obj/
-[Rr]elease*/
 _ReSharper*/
 [Tt]est[Rr]esult*
 patches/alchemy
@@ -60,7 +71,6 @@ bin/pd
 *.exp
 *.manifest
 *.res
-vs2010/VizDll/Debug/VizDll_manifest.rc
 log/debug.txt
 log/*.debug
 vs2012/winsocktest

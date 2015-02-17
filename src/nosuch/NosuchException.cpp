@@ -38,17 +38,17 @@
 static char NosuchExceptionBuffer[EXCEPTION_BUFFER_SIZE];
 
 NosuchException::NosuchException( const char *fmt, ...) {
-	_msg = NosuchExceptionBuffer;
+	m_msg = NosuchExceptionBuffer;
 	va_list args;
 
 	va_start(args, fmt);
-	vsnprintf_s(_msg,EXCEPTION_BUFFER_SIZE,EXCEPTION_BUFFER_SIZE,fmt,args);
+	vsnprintf_s(m_msg,EXCEPTION_BUFFER_SIZE,EXCEPTION_BUFFER_SIZE,fmt,args);
 
-	size_t lng = strlen(_msg);
-	if ( lng > 0 && _msg[lng-1] == '\n' )
-		_msg[lng-1] = '\0';
+	size_t lng = strlen(m_msg);
+	if ( lng > 0 && m_msg[lng-1] == '\n' )
+		m_msg[lng-1] = '\0';
 
-	DEBUGPRINT1(("NosuchException constructor - %s",_msg));
+	DEBUGPRINT1(("NosuchException constructor - %s",m_msg));
 
 	va_end(args);
 }

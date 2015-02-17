@@ -15,73 +15,73 @@ NosuchOscManager::NosuchOscManager(NosuchOscListener* server, std::string host, 
 	DEBUGPRINT2(("NosuchOscManager constructor port=%d",port));
 	// _seq = -1;
 	// _tcp = new NosuchOscTcpInput(host,port);
-	_tcp = NULL;
-	_udp = new NosuchOscUdpInput(host,port,server);
-	_shouldbeshutdown = false;
-	_shutdowncomplete = false;
+	m_tcp = NULL;
+	m_udp = new NosuchOscUdpInput(host,port,server);
+	m_shouldbeshutdown = false;
+	m_shutdowncomplete = false;
 }
 
 NosuchOscManager::~NosuchOscManager() {
-	if ( _tcp )
-		delete _tcp;
-	if ( _udp )
-		delete _udp;
+	if ( m_tcp )
+		delete m_tcp;
+	if ( m_udp )
+		delete m_udp;
 }
 
 void
 NosuchOscManager::Shutdown() {
 	DEBUGPRINT(("NosuchOscManager::Shutdown called, closing listening_socket"));
 	UnListen();
-	_shutdowncomplete = true;
+	m_shutdowncomplete = true;
 }
 
 bool NosuchOscManager::IsShutdownComplete() {
-	return _shutdowncomplete;
+	return m_shutdowncomplete;
 }
 
 bool NosuchOscManager::ShouldBeShutdown() {
-	return _shouldbeshutdown;
+	return m_shouldbeshutdown;
 }
 
 void
 NosuchOscManager::SetShouldBeShutdown(bool b) {
-	_shouldbeshutdown = b;
-	_shutdowncomplete = false;
+	m_shouldbeshutdown = b;
+	m_shutdowncomplete = false;
 }
 
 void
 NosuchOscManager::Check() {
-	if ( _tcp )
-		_tcp->Check();
-	if ( _udp )
-		_udp->Check();
+	if ( m_tcp )
+		m_tcp->Check();
+	if ( m_udp )
+		m_udp->Check();
 }
 
 void
 NosuchOscManager::UnListen() {
-	if ( _tcp )
-		_tcp->UnListen();
-	if ( _udp )
-		_udp->UnListen();
+	if ( m_tcp )
+		m_tcp->UnListen();
+	if ( m_udp )
+		m_udp->UnListen();
 }
 
 int
 NosuchOscManager::Listen() {
 	int e;
-	if ( _tcp ) {
-		if ( (e=_tcp->Listen()) != 0 ) {
+	if ( m_tcp ) {
+		if ( (e=m_tcp->Listen()) != 0 ) {
 			if ( e == WSAEADDRINUSE ) {
-				NosuchErrorOutput("TCP port/address (%d/%s) is already in use?",_tcp->Port(),_tcp->Host().c_str());
+				NosuchErrorOutput("TCP port/address (%d/%s) is already in use?",m_tcp->Port(),m_tcp->Host().c_str());
 			} else {
 				NosuchErrorOutput("Error in _tcp->Listen = %d\n",e);
 			}
 			return e;
 		}
 	}
-	if ( _udp ) {
-		if ( (e=_udp->Listen()) != 0 ) {
+	if ( m_udp ) {
+		if ( (e=m_udp->Listen()) != 0 ) {
 			if ( e == WSAEADDRINUSE ) {
-				NosuchErrorOutput("UDP port/address (%d/%s) is already in use?",_udp->Port(),_udp->Host().c_str());
+				NosuchErrorOutput("UDP port/address (%d/%s) is already in use?",m_udp->Port(),m_udp->Host().c_str());
 			} else {
 				NosuchErrorOutput("Error in _udp->Listen = %d\n",e);
 			}
