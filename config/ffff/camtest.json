@@ -1,0 +1,29 @@
+{
+"pipeline": [
+	{
+		"plugin": "Threshhold",
+		"params": {
+		}
+	}
+# ,
+# 	{
+# 		"plugin": "Twisted",
+# 		"params": {
+# 		}
+# 	}
+# ,
+# 	{
+# 		"viztag": "p4",
+# 		"plugin": "Blur",
+# 		"params": {
+# 		}
+# 	}
+# ,
+# 	{
+# 		"viztag": "p5",
+# 		"plugin": "Edge Detection",
+# 		"params": {
+# 		}
+# 	}
+]
+}

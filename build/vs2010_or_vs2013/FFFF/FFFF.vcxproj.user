@@ -4,8 +4,9 @@
     <LocalDebuggerCommand>$(VIZBENCH)\bin\FFFF.exe</LocalDebuggerCommand>
     <LocalDebuggerWorkingDirectory>$(VIZBENCH)\bin</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>vizexample2</LocalDebuggerCommandArguments>
-    <LocalDebuggerEnvironment>FFMPEGFILE=ffmpegfileX</LocalDebuggerEnvironment>
+    <LocalDebuggerCommandArguments>camtest</LocalDebuggerCommandArguments>
+    <LocalDebuggerEnvironment>
+    </LocalDebuggerEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerCommand>$(VIZBENCH)\bin\FFFF.exe</LocalDebuggerCommand>

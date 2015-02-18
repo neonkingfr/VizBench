@@ -27,6 +27,7 @@ src/opencv
 html/polymer-tutorial
 html/palette
 patches
+recording
 vstplugins
 vs2010/ipch
 *.debug

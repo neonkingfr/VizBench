@@ -5,5 +5,7 @@
   "window_y": 50,
   "window_width": 1024,
   "window_height": 768,
-  "showfps": 1
+  "showfps": 1,
+  "camera": 1,
+  "foo": 0
 }
