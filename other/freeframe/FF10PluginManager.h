@@ -22,6 +22,7 @@
 
 
 #include "FF10.h"
+#include "opencv/cv.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,7 +114,8 @@ public:
 	///
 	/// \param	pVideoInfo	A pointer to a VideoInfoStruct (see definition in FreeFrame.h) containing information 
 	///						about the width, height, depth, and orientation of the images the plugin is going to receive.
-	void SetVideoInfo(const VideoInfoStruct* pVideoInfo);
+	// virtual bool SetVideoInfo(const VideoInfoStruct* pVideoInfo) { return false; }
+
 
 protected:
 
@@ -190,6 +192,9 @@ protected:
 	/// \param	supported	The plugin indicates whether it supports the SetTime function by passing true or false (1 or 0)
 	void SetTimeSupported(bool supported);
 
+	// CvSize m_imagesize;
+	// IplImage* m_image;
+
 private:
 		
 	// Structure for keeping information about each plugin parameter
@@ -214,7 +219,6 @@ private:
   // Time capability
   bool m_timeSupported;
 
-  VideoInfoStruct m_VideoInfo;
 };
 
 

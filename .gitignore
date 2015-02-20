@@ -6,6 +6,8 @@ binDebug/FFFF.exe
 binDebug/VizServer.dll
 binRelease/FFFF.exe
 binRelease/VizServer.dll
+ffplugins/Viz*.dll
+ffpluginsDebug/Viz*.dll
 ffglpluginsDebug/Viz*.dll
 ffglpluginsRelease/Viz*.dll
 ffglplugins/Viz*.dll

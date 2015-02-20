@@ -236,7 +236,9 @@ DWORD instantiate(const VideoInfoStruct *pVideoInfo)
 		}
 
 		// Saving data in the VideoInfoStruct in an internal data structure
-		pInstance->SetVideoInfo(pVideoInfo);
+		if (pInstance->SetVideoInfo(pVideoInfo) == FF_FAIL) {
+			return FF_FAIL;
+		}
 
 		return DWORD(pInstance);
 	}

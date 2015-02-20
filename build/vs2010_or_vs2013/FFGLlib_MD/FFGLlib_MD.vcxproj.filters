@@ -262,6 +262,8 @@
     <ClInclude Include="..\..\..\other\cJSON\cJSON.h">
       <Filter>Header Files\cJSON</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\Viz\vizletutil.h" />
+    <ClInclude Include="..\..\..\src\Viz\vizletutil.h">
+      <Filter>Header Files\viz</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

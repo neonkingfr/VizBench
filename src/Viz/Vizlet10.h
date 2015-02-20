@@ -14,8 +14,9 @@
 #include "NosuchColor.h"
 #include "NosuchJSON.h"
 #include "NosuchHttpServer.h"
-#include "VizSprite.h"
+// #include "VizSprite.h"
 #include "VizParams.h"
+#include "AllVizParams.h"
 #include "VizServer.h"
 #include <ctime>
 
@@ -43,12 +44,14 @@ class Vizlet10 : public NosuchOscListener,
 {
 public:
 	Vizlet10();
+
 	virtual ~Vizlet10();
 
 	std::string VizTag() { return m_viztag; }
 	void SetVizTag(std::string s) { m_viztag = s; }
-	VizSprite* makeAndInitVizSprite(AllVizParams* sp, NosuchPos pos);
-	VizSprite* makeAndAddVizSprite(AllVizParams* sp, NosuchPos pos);
+
+	// VizSprite* makeAndInitVizSprite(AllVizParams* sp, NosuchPos pos);
+	// VizSprite* makeAndAddVizSprite(AllVizParams* sp, NosuchPos pos);
 
 	void SetPassthru(bool b) { m_passthru = b; }
 
@@ -67,6 +70,14 @@ public:
 	void QueueMidiMsg(MidiMsg* m, click_t clk);
 	void QueueMidiPhrase(MidiPhrase* ph, click_t clk);
 	void QueueClear();
+
+	DWORD SetVideoInfo(const VideoInfoStruct* pvi);
+	IplImage* FrameImage();
+	DWORD ProcessFrame(void* pFrame);
+	DWORD ProcessFrameCopy(ProcessFrameCopyStruct* pFrameData);
+	VideoInfoStruct* GetVideoInfo() {
+		return &m_VideoInfo;
+	}
 
 	std::string MidiInputName(size_t n) { return m_vizserver->MidiInputName(n);  }
 	std::string MidiOutputName(size_t n) { return m_vizserver->MidiOutputName(n);  }
@@ -97,16 +108,18 @@ public:
 		return -1;
 	}
 
-	void AddVizSprite(VizSprite* s);
-	void DrawVizSprites();
-	VizSpriteList* GetVizSpriteList() { return m_spritelist; }
-	VizSprite* MakeVizSprite(AllVizParams* sp);
+	// void AddVizSprite(VizSprite* s);
+	// void DrawVizSprites();
+	// VizSpriteList* GetVizSpriteList() { return m_spritelist; }
+	// VizSprite* MakeVizSprite(AllVizParams* sp);
+
 	std::string VizParamPath(std::string configname);
 	std::string VizPath2ConfigName(std::string path);
 	AllVizParams* getAllVizParams(std::string path);
 	AllVizParams* findAllVizParams(std::string cachename);
 	AllVizParams* checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, std::time_t& lastupdate);
-	VizSprite* defaultMidiVizSprite(MidiMsg* m);
+
+	// VizSprite* defaultMidiVizSprite(MidiMsg* m);
 
 	AllVizParams* defaultParams() { return m_defaultparams; }
 
@@ -160,10 +173,18 @@ public:
 	virtual void processKeystroke(int key, int downup) { }
 	/////////////////////////////////////////////////////
 
-	virtual bool processDraw() { return false;  }
-	virtual void processDrawNote(MidiMsg* m) { }
+	// virtual bool processDraw() { return false;  }
+	// virtual void processDrawNote(MidiMsg* m) { }
+
 	virtual void processAdvanceClickTo(int click) { }
 	virtual void processAdvanceTimeTo(double tm) { }
+
+	virtual bool processFrame24Bit() {
+		return false;
+	}
+	virtual bool processFrame32Bit() {
+		return false;
+	}
 
 	NosuchGraphics graphics;
 
@@ -172,10 +193,13 @@ public:
 	///////////////////////////////////////////////////
 
 	void SendMidiMsg();
-	void DrawNotesDown();
+	// void DrawNotesDown();
 	int FrameNum() { return m_framenum; }
 
 	std::string json_result;
+
+	CvSize m_imagesize;
+	IplImage* m_image;
 
 protected:	
 
@@ -221,8 +245,9 @@ private:
 	void _startKeystrokeCallbacks(void* data);
 	void _stopKeystrokeCallbacks();
 
-	void _drawnotes(std::list<MidiMsg*>& notes);
+	// void _drawnotes(std::list<MidiMsg*>& notes);
 
+	VideoInfoStruct m_VideoInfo;
 	int m_framenum;
 	double m_time;
 	bool m_passthru;
@@ -232,7 +257,9 @@ private:
 	VizServer* m_vizserver;
 	bool m_callbacksInitialized;
 	std::string m_viztag;
-	VizSpriteList* m_spritelist;
+
+	// VizSpriteList* m_spritelist;
+
 	AllVizParams* m_defaultparams;
 	AllVizParams* m_defaultmidiparams;
 	bool m_useparamcache;

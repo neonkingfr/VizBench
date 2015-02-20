@@ -34,10 +34,8 @@ CFF10PluginManager::CFF10PluginManager()
 	m_pFirst = NULL;
 	m_pLast = NULL;
 
-	m_VideoInfo.BitDepth = FF_DEPTH_24;
-	m_VideoInfo.FrameHeight = 0;
-	m_VideoInfo.FrameWidth = 0;
-	m_VideoInfo.Orientation = FF_ORIENTATION_TL;
+	// m_image = NULL;
+	// m_imagesize = cvSize(0,0);
 
 }
 
@@ -206,11 +204,4 @@ void* CFF10PluginManager::GetParamDefault(DWORD dwIndex) const
 bool CFF10PluginManager::GetTimeSupported() const
 {
   return m_timeSupported;
-}
-
-void CFF10PluginManager::SetVideoInfo(const VideoInfoStruct* pVideoInfo)
-{
-	if (pVideoInfo != NULL) {
-		memcpy(&m_VideoInfo, pVideoInfo, sizeof(VideoInfoStruct));
-	}
 }

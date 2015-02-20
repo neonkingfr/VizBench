@@ -11,10 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{16DC6F63-FBCD-4A85-A625-2239E64D374F}</ProjectGuid>
+    <ProjectGuid>{37803E11-D0A3-4BD9-80D3-587545AA8F21}</ProjectGuid>
     <RootNamespace>Manifold</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>Vizlet10Template</ProjectName>
+    <ProjectName>Viz10Example1</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -73,7 +73,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\src\plugins\Vizlet10Template;..\..\..\src\params;..\..\..\src\misclib;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\cJSON;..\..\..\other\freeframe;..\..\..\other\osc\include;..\..\..\other\portmidi\porttime;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;..\..\..\other\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\plugins\Viz10Example1;..\..\..\src\params;..\..\..\src\misclib;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\cJSON;..\..\..\other\freeframe;..\..\..\other\osc\include;..\..\..\other\portmidi\porttime;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;..\..\..\other\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;VIZBENCH_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -109,7 +109,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\src\freeframe;..\..\..\src\Vizlet10Template;..\..\..\src\cJSON;..\..\..\src\osc\include;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\src\portmidi\porttime;..\..\..\src\portmidi\pm_common;..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\include;C:\Python26\include;..\..\..\src\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\freeframe;..\..\..\src\Viz10Example1;..\..\..\src\cJSON;..\..\..\src\osc\include;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\src\portmidi\porttime;..\..\..\src\portmidi\pm_common;..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\include;C:\Python26\include;..\..\..\src\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;VIZBENCH_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -121,10 +121,10 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>VizLib.lib;pthreadVC2.lib;winmm.lib;OpenGL32.lib;Glu32.lib;Ws2_32.lib;VizServer.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Debug\Vizlet10Template.dll</OutputFile>
+      <OutputFile>Debug\Viz10Example1.dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\lib;..\..\..\src\freeglut-2.6.0\VisualStudio2008Static\Release;c:\Python26\libs;..\VizLib\Debug;..\VizServer\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ModuleDefinitionFile>Vizlet10Template.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>Viz10Example1.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -133,7 +133,7 @@
       <Profile>true</Profile>
     </Link>
     <PostBuildEvent>
-      <Command>copy Debug\Vizlet10Template.dll ..\..\..\ffglplugins\Vizlet10Template.dll</Command>
+      <Command>copy Debug\Viz10Example1.dll ..\..\..\ffglplugins\Viz10Example1.dll</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -188,7 +188,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>OpenGL32.lib;pthreadVC2.lib;freeglut_static.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Release\Vizlet10Template.dll</OutputFile>
+      <OutputFile>Release\Viz10Example1.dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\..\Source\pthreads-win32-2.8.0\Pre-built.2\lib;..\..\..\..\Source\freeglut-2.6.0\VisualStudio2008Static\Release;C:\Python26\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -208,10 +208,10 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\plugins\Vizlet10Template\Vizlet10Template.cpp" />
+    <ClCompile Include="..\..\..\src\plugins\Viz10Example1\Viz10Example1.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\plugins\Vizlet10Template\Vizlet10Template.h" />
+    <ClInclude Include="..\..\..\src\plugins\Viz10Example1\Viz10Example1.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VizServer\VizServer.vcxproj">

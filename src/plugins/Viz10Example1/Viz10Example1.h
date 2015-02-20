@@ -1,11 +1,11 @@
-#ifndef _Vizlet10Template_H
-#define _Vizlet10Template_H
+#ifndef _Viz10Example1_H
+#define _Viz10Example1_H
 
-class Vizlet10Template : public Vizlet10
+class Viz10Example1 : public Vizlet10
 {
 public:
-	Vizlet10Template();
-	~Vizlet10Template();
+	Viz10Example1();
+	~Viz10Example1();
 
 	static DWORD __stdcall CreateInstance(CFreeFrame10Plugin **ppInstance);
 

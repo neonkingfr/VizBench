@@ -86,7 +86,7 @@ public:
 	/// \param		pFrame		Pointer to the frame that has to be processed by the plugin.
 	/// \return					The default implementation always returns FF_FAIL. 
 	///							A custom implementation must be provided by every specific plugin.
-	virtual DWORD ProcessFrame(void* pFrame);
+	virtual DWORD ProcessFrame(void* pFrame) { return FF_FAIL; }
 
 	/// Default implementation of the FreeFrame processFrameCopy instance specific function. This function processes 
 	/// the input frame(s) by possibly performing copy operations. This default implementation always returns FF_FAIL. 
@@ -97,19 +97,17 @@ public:
 	///							the description in the FreeFrame specification).
 	/// \return					The default implementation always returns FF_FAIL. 
 	///							A custom implementation must be provided by every specific plugin.
-	virtual DWORD ProcessFrameCopy(ProcessFrameCopyStruct* pFrameData);
+	virtual DWORD ProcessFrameCopy(ProcessFrameCopyStruct* pFrameData) { return FF_FAIL; }
 
-	/// Default implementation of the FreeFrame getInputStatus instance specific function. This function is called 
-	/// to know whether a given input is currently in use. For the default implementation every input is always in use. 
-	/// A custom implementation may be provided by every specific plugin.
-	///
-	/// \param		dwIndex		The index of the input whose status is queried.
-	///							It should be in the range [Minimum number of inputs, Maximum number of inputs).
-	/// \return					The default implementation always returns FF_FF_INPUT_INUSE or FF_FAIL if the index 
-	///							is out of range. A custom implementation may be provided by every specific plugin.
+	virtual DWORD SetVideoInfo(const VideoInfoStruct* pvi) {
+		return FF_FAIL;
+	}
+
 	virtual DWORD GetInputStatus(DWORD dwIndex);
 
 	virtual DWORD ResolumeDeactivate() { return FF_FAIL; }
+
+	IplImage* FrameImage();
 
 	/// The only public data field CFreeFrame10Plugin contains is m_pPlugin, a pointer to the plugin instance. 
 	/// Subclasses may use this pointer for self-referencing (e.g., a plugin may pass this pointer to external modules, 

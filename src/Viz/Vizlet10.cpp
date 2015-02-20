@@ -132,9 +132,18 @@ Vizlet10::Vizlet10() {
 	m_callbacksInitialized = false;
 	m_passthru = true;
 	// m_call_RealProcessOpenGL = false;
-	m_spritelist = new VizSpriteList();
+
+	// m_spritelist = new VizSpriteList();
 	m_defaultmidiparams = defaultParams();
 	m_framenum = 0;
+
+	m_image = NULL;
+	m_imagesize = cvSize(0,0);
+
+	m_VideoInfo.BitDepth = FF_DEPTH_24;
+	m_VideoInfo.FrameHeight = 0;
+	m_VideoInfo.FrameWidth = 0;
+	m_VideoInfo.Orientation = FF_ORIENTATION_TL;
 
 	m_vizserver = VizServer::GetServer();
 
@@ -364,6 +373,7 @@ void Vizlet10::SendMidiMsg() {
 }
 
 
+#if 0
 void
 Vizlet10::_drawnotes(std::list<MidiMsg*>& notes) {
 
@@ -374,6 +384,7 @@ Vizlet10::_drawnotes(std::list<MidiMsg*>& notes) {
 		}
 	}
 }
+#endif
 
 void Vizlet10::_stopstuff() {
 	if ( m_stopped )
@@ -390,6 +401,7 @@ void Vizlet10::_stopstuff() {
 	}
 }
 
+#if 0
 void Vizlet10::AddVizSprite(VizSprite* s) {
 	m_spritelist->add(s,defaultParams()->nsprites);
 }
@@ -397,6 +409,7 @@ void Vizlet10::AddVizSprite(VizSprite* s) {
 void Vizlet10::DrawVizSprites() {
 	m_spritelist->draw(&graphics);
 }
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Methods
@@ -438,20 +451,112 @@ Vizlet10::InitCallbacks() {
 	}
 }
 
-#if 0
-DWORD Vizlet10::ProcessOpenGL(ProcessOpenGLStruct *pGL)
+DWORD Vizlet10::SetVideoInfo(const VideoInfoStruct* pvi)
 {
-	if ( m_stopped ) {
-		return FF_SUCCESS;
-	}
-	if ( m_disabled ) {
-		return FF_SUCCESS;
-	}
+	if (pvi) {
+		memcpy(&m_VideoInfo, pvi, sizeof(VideoInfoStruct));
 
+		int bytes;
+		if (pvi->BitDepth == 1) {
+			bytes = 3;
+		}
+		else if (pvi->BitDepth == 2) {
+			bytes = 4;
+		}
+		else {
+			// this shouldn't happen if the host is checking the capabilities properly
+			return FF_FAIL;
+		}
+
+		m_imagesize = cvSize(pvi->FrameWidth, pvi->FrameHeight);
+		m_image = cvCreateImageHeader(m_imagesize, IPL_DEPTH_8U, bytes);
+		return FF_SUCCESS;
+	}
+	return FF_FAIL;
+}
+
+IplImage* Vizlet10::FrameImage() {
+	return m_image;
+}
+
+DWORD Vizlet10::ProcessFrame(void* pFrame)
+{
+	if (m_stopped) {
+		return FF_SUCCESS;
+	}
+	if (m_disabled) {
+		return FF_SUCCESS;
+	}
 	StartVizServer();
 	InitCallbacks();
 
 	m_framenum++;
+
+	NosuchLock(&json_mutex, "json");
+	if (json_pending) {
+		// Execute json stuff and generate response
+
+		json_result = processJsonAndCatchExceptions(json_method, json_params, json_id);
+		json_pending = false;
+		int e = pthread_cond_signal(&json_cond);
+		if (e) {
+			DEBUGPRINT(("ERROR from pthread_cond_signal e=%d\n", e));
+		}
+	}
+	NosuchUnlock(&json_mutex, "json");
+
+	LockVizlet();
+
+	bool gotexception = false;
+	try {
+		CATCH_NULL_POINTERS;
+
+		VideoInfoStruct* vid = GetVideoInfo();
+		bool r;
+		switch (vid->BitDepth) {
+		case 1:
+			m_image->origin = 1;
+			m_image->imageData = (char*)pFrame;
+			r = processFrame24Bit();
+			break;
+		case 2:
+			m_image->origin = 1;
+			m_image->imageData = (char*)pFrame;
+			r = processFrame32Bit();
+			break;
+		default:
+			r = false;
+			break;
+		}
+		if (!r) {
+			DEBUGPRINT(("Vizlet10::processFrame* returned failure? (r=%d)\n", r));
+			gotexception = true;
+		}
+	}
+	catch (NosuchException& e) {
+		DEBUGPRINT(("NosuchException in Palette::draw : %s", e.message()));
+		gotexception = true;
+	}
+	catch (...) {
+		DEBUGPRINT(("UNKNOWN Exception in Palette::draw!"));
+		gotexception = true;
+	}
+
+	if (gotexception && m_disable_on_exception) {
+		DEBUGPRINT(("DISABLING Vizlet due to exception!!!!!"));
+		m_disabled = true;
+	}
+
+	UnlockVizlet();
+
+	return FF_SUCCESS;
+}
+
+DWORD Vizlet10::ProcessFrameCopy(ProcessFrameCopyStruct* pFrameData) {
+	return FF_FAIL;
+}
+
+#if 0
 
 #ifdef FRAMELOOPINGTEST
 	static int framenum = 0;
@@ -561,7 +666,6 @@ DWORD Vizlet10::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 	
 	return FF_SUCCESS;
 }
-#endif
 
 void Vizlet10::DrawNotesDown() {
 	m_vizserver->LockNotesDown();
@@ -575,6 +679,7 @@ void Vizlet10::DrawNotesDown() {
 	}
 	m_vizserver->UnlockNotesDown();
 }
+#endif
 
 void Vizlet10::LockVizlet() {
 	NosuchLock(&vizlet10_mutex,"Vizlet10");
@@ -731,6 +836,7 @@ Vizlet10::checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, 
 }
 
 
+#if 0
 VizSprite*
 Vizlet10::makeAndAddVizSprite(AllVizParams* p, NosuchPos pos) {
 		VizSprite* s = makeAndInitVizSprite(p,pos);
@@ -825,3 +931,4 @@ VizSprite* Vizlet10::defaultMidiVizSprite(MidiMsg* m) {
 	}
 	return s;
 }
+#endif
