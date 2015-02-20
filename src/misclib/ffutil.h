@@ -32,7 +32,7 @@
 #include "FFGLPlugin.h"
 #include "FFGL.h"
 #include "FFGLLib.h"
-#include "FFPlugin.h"
+#include "FF10Plugin.h"
 #include "FreeFrame.h"
 
 #include <FFGLFBO.h>
@@ -42,15 +42,16 @@
 #define NPREPLUGINS 3
 #define MAXFFGLRUNNING 10
 
-class FFPluginDef;
+class FF10PluginDef;
 class FFGLPluginDef;
 
-extern int nffplugindefs;
-extern FFPluginDef *ffplugindefs[MAXPLUGINS];
+extern int nff10plugindefs;
+extern FF10PluginDef *ff10plugindefs[MAXPLUGINS];
+// extern FF10PluginDef *preplugins[NPREPLUGINS];
+
 extern int nffglplugindefs;
 extern FFGLPluginDef *ffglplugindefs[MAXPLUGINS];
 
-extern FFPluginDef *preplugins[NPREPLUGINS];
 extern FFGLViewportStruct fboViewport;
 extern FFGLViewportStruct windowViewport;
 extern FFGLFBO fbo1;
@@ -58,11 +59,6 @@ extern FFGLFBO fbo2;
 extern FFGLFBO* fbo_input;
 extern FFGLFBO* fbo_output;
 
-extern FFGLPluginDef* post2trails;
-extern FFGLPluginDef* post2flip;
-extern FFGLPluginDef* post2emptya;
-extern FFGLPluginDef* post2emptyb;
-extern FFGLPluginDef* post2palette;
 extern double curFrameTime;
 
 extern FFGLTextureStruct mapTexture;

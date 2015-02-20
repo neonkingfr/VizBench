@@ -185,7 +185,7 @@ int ffffMain(std::string config)
 
 	glfwSetKeyCallback(F->window, key_callback);
 
-	F->loadPluginDefs(VizPath(ffpath), VizPath(ffglpath), ffgl_width, ffgl_height);
+	F->loadFFPlugins(VizPath(ffpath), VizPath(ffglpath), ffgl_width, ffgl_height);
 
 	bool use_camera = FALSE;
 	if (camera_index < 0) {

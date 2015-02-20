@@ -40,18 +40,12 @@
 
 double curFrameTime = 0.0;
 
-int nffplugindefs;
-FFPluginDef *ffplugindefs[MAXPLUGINS];
+int nff10plugindefs;
+FF10PluginDef *ff10plugindefs[MAXPLUGINS];
 int nffglplugindefs;
 FFGLPluginDef *ffglplugindefs[MAXPLUGINS];
 
-FFPluginDef *preplugins[NPREPLUGINS];
-
-FFGLPluginDef* post2trails;
-FFGLPluginDef* post2flip;
-FFGLPluginDef* post2emptya;
-FFGLPluginDef* post2emptyb;
-FFGLPluginDef* post2palette;
+FF10PluginDef *preplugins[NPREPLUGINS];
 
 // I don't think these initial values actually matter
 int	ffWidth = 640;
@@ -84,11 +78,11 @@ CopyFFString16(const char *src)
     return std::string(buff);
 }
 
-FFPluginDef *
-findffplugin(std::string nm) {
-    for ( int n=0; n<nffplugindefs; n++ ) {
-        if ( ffplugindefs[n]->name == nm ) {
-            return ffplugindefs[n];
+FF10PluginDef *
+findff10plugin(std::string nm) {
+    for ( int n=0; n<nff10plugindefs; n++ ) {
+        if ( ff10plugindefs[n]->name == nm ) {
+            return ff10plugindefs[n];
         }
     }
     return NULL;
@@ -105,17 +99,6 @@ findffglplugin(std::string nm) {
     return NULL;
 }
 
-FFParameterDef *
-findffparam(FFPluginDef* ff, std::string nm) {
-    for ( int i=0; i<ff->m_numparams; i++ ) {
-        FFParameterDef* pp = &(ff->m_paramdefs[i]);
-        if ( pp->name == nm ) {
-            return pp;
-        }
-    }
-    return NULL;
-}
-
 FFGLParameterDef *
 findffglparam(FFGLPluginDef* ffgl, std::string nm) {
     for ( int i=0; i<ffgl->m_numparams; i++ ) {
@@ -127,56 +110,6 @@ findffglparam(FFGLPluginDef* ffgl, std::string nm) {
     return NULL;
 }
 
-void loadffplugindef(std::string ffdir, std::string dllnm)
-{
-    FFPluginDef *ffplugin = new FFPluginDef();
-    std::string dll_fname = ffdir + "/" + dllnm;
-
-    if ( ! ffplugin->Load(dll_fname) ) {
-        DEBUGPRINT(("Unable to load %s\n",dll_fname.c_str()));
-    } else {
-        DEBUGPRINT1(("LOADED! %s\n",dll_fname.c_str()));
-        ffplugin->m_dll = dllnm;
-        ffplugin->name = ffplugin->GetPluginName();
-        const PluginInfoStruct *pi = ffplugin->GetInfo();
-        // printf("pi version = %d %d\n",pi->APIMajorVersion,pi->APIMinorVersion);
-        char nm[17];
-        memcpy(nm,pi->PluginName,16);
-        nm[16] = 0;
-        // printf("pi name = %s\n",nm);
-        VideoInfoStruct vis = {ffWidth,ffHeight,FF_DEPTH_24,FF_ORIENTATION_TL};
-        int i = ffplugin->Instantiate(&vis);
-
-        ffplugindefs[nffplugindefs] = ffplugin;
-        ffplugin->m_instanceid = i;
-        // printf("INSTANTIATED!  dll=%s name=%s instanceid = %d\n",dll.c_str(),nm,i);
-
-        plugMainUnion u = ffplugin->m_pff(FF_GETPARAMETER, (DWORD)0, (DWORD)ffplugin->m_instanceid);
-        // printf("GETPARAMETER ZERO = %f\n",u.fvalue);
-		DEBUGPRINT1(("Loaded FF plugin file=%s name=%s",dll_fname.c_str(),ffplugin->name.c_str()));
-
-        nffplugindefs++;
-    }
-}
-
-void loadffglplugindef(std::string ffgldir, std::string dllnm)
-{
-    FFGLPluginDef *plugin = FFGLPluginDef::NewPluginDef();
-
-    std::string dll_fname = ffgldir + "/" + dllnm;
-
-    const char *dll = dll_fname.c_str();
-    if ( plugin->Load(dll) == FF_FAIL ) {
-        DEBUGPRINT(("Unable to load %s\n",dll));
-    } else {
-        plugin->m_dll = dllnm;
-        plugin->name = plugin->GetPluginName();
-		DEBUGPRINT(("Loaded FFGL plugin file=%s name=%s",dll,plugin->name.c_str()));
-        ffglplugindefs[nffglplugindefs] = plugin;
-        nffglplugindefs++;
-    }
-    return;
-}
 
 bool
 NosuchEndsWith(std::string s, std::string suff)
@@ -203,111 +136,6 @@ std::string &trim(std::string &s) {
         return ltrim(rtrim(s));
 }
 
-void loadffdir(std::string ffdir)
-{
-    WIN32_FIND_DATA ffd;
-    LARGE_INTEGER filesize;
-
-    HANDLE hFind = INVALID_HANDLE_VALUE;
-    DWORD dwError=0;
-    int nfound = 0;
-
-    std::string pathexpr = ffdir + "\\*";
-	std::wstring wpath = s2ws(pathexpr);
-    hFind = FindFirstFile(pathexpr.c_str(), &ffd);
-
-    if (INVALID_HANDLE_VALUE == hFind)
-    {
-        return;
-    }
-    do {
-        if ( ! (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ) {
-            filesize.LowPart = ffd.nFileSizeLow;
-            filesize.HighPart = ffd.nFileSizeHigh;
-
-			// std::wstring wcfname = ffd.cFileName;
-			// std::string cfname = NosuchToLower(ws2s(wcfname));
-			std::string cfname = NosuchToLower(ffd.cFileName);
-
-			if ( NosuchEndsWith(cfname,".dll") ) {
-	            loadffplugindef(ffdir,cfname.c_str());
-			} else {
-				DEBUGPRINT1(("Ignoring %s, not .dll",cfname.c_str()));
-			}
-        }
-    }
-    while (FindNextFile(hFind, &ffd) != 0);
-
-    dwError = GetLastError();
-    if (dwError != ERROR_NO_MORE_FILES) {
-        DEBUGPRINT(("loadffdir, dwError=%ld",dwError));
-    }
-
-    FindClose(hFind);
-}
-
-void loadffgldir(std::string ffgldir)
-{
-    WIN32_FIND_DATA ffd;
-    LARGE_INTEGER filesize;
-
-    HANDLE hFind = INVALID_HANDLE_VALUE;
-    DWORD dwError=0;
-    int nfound = 0;
-
-    std::string pathexpr = ffgldir + "\\*";
-	std::wstring wpath = s2ws(pathexpr);
-
-    hFind = FindFirstFile(pathexpr.c_str(), &ffd);
-
-    if (INVALID_HANDLE_VALUE == hFind)
-    {
-        return;
-    }
-    do {
-        if ( ! (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ) {
-            filesize.LowPart = ffd.nFileSizeLow;
-            filesize.HighPart = ffd.nFileSizeHigh;
-
-			// std::wstring wcfname = ffd.cFileName;
-			// std::string cfname = NosuchToLower(ws2s(wcfname));
-			std::string cfname = NosuchToLower(ffd.cFileName);
-
-			if ( NosuchEndsWith(cfname,".dll") ) {
-	            loadffglplugindef(ffgldir,cfname.c_str());
-			}
-        }
-    }
-    while (FindNextFile(hFind, &ffd) != 0);
-
-    dwError = GetLastError();
-    if (dwError != ERROR_NO_MORE_FILES) {
-        DEBUGPRINT(("loadffgldir, dwError=%ld",dwError));
-    }
-
-    FindClose(hFind);
-}
-
-void loadffglpath(std::string path) {
-	std::vector<std::string> dirs = NosuchSplitOnString(path,";");
-	for ( size_t i=0; i<dirs.size(); i++ ) {
-		loadffgldir(dirs[i]);
-	}
-}
-
-void loadffpath(std::string path) {
-	std::vector<std::string> dirs = NosuchSplitOnString(path,";");
-	for ( size_t i=0; i<dirs.size(); i++ ) {
-		loadffdir(dirs[i]);
-	}
-}
-
-const char *ffglplugin_fname(const char *fn)
-{
-    static char fname[256];
-    sprintf_s(fname,sizeof(fname),"ffglplugins/%s",fn);
-    return fname;
-}
 
 FFGLTextureStruct CreateOpenGLTexture(int textureWidth, int textureHeight)
 {

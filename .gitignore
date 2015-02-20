@@ -10,6 +10,7 @@ ffglpluginsDebug/Viz*.dll
 ffglpluginsRelease/Viz*.dll
 ffglplugins/Viz*.dll
 ffglplugins/EmptyA.dll
+ffglplugins/AVFFGLTrails.dll
 src/palette
 src/oldpalette
 src/zlib/contrib

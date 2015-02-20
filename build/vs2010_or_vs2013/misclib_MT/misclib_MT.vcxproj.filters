@@ -88,18 +88,6 @@
     <ClCompile Include="..\..\..\other\freeframe\FFGLPluginSDK.cpp">
       <Filter>Source Files\freeframe</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFPlugin.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\WinPluginInstance.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\vizlet\Vizlet.cpp">
-      <Filter>Source Files\vizlet</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\vizlet\VizSprite.cpp">
-      <Filter>Source Files\vizlet</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\params\VizParams.cpp">
       <Filter>Source Files\params</Filter>
     </ClCompile>
@@ -113,6 +101,18 @@
       <Filter>Source Files\params</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\other\freeframe\FFGLShader.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FF10Plugin.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\Vizlet.cpp">
+      <Filter>Source Files\viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizSprite.cpp">
+      <Filter>Source Files\viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FFGLWinPluginInstance.cpp">
       <Filter>Source Files\freeframe</Filter>
     </ClCompile>
   </ItemGroup>
@@ -150,9 +150,6 @@
     <Filter Include="Source Files\params">
       <UniqueIdentifier>{8ae1248b-1898-4c34-92d1-83a3acf6c850}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\vizlet">
-      <UniqueIdentifier>{c6167b56-f0fa-4394-a8ba-724a0d9a691e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{6ea54e5a-a4e5-4701-a28e-180e800d7704}</UniqueIdentifier>
     </Filter>
@@ -171,8 +168,11 @@
     <Filter Include="Header Files\params">
       <UniqueIdentifier>{b927d1a4-287b-473c-98a4-67bce2839e31}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\vizlet">
-      <UniqueIdentifier>{1712b254-95b3-4031-a407-b75c54abc565}</UniqueIdentifier>
+    <Filter Include="Source Files\viz">
+      <UniqueIdentifier>{74e2af03-e8c3-4c52-a17c-8007a52d8792}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\viz">
+      <UniqueIdentifier>{c243583c-4cde-42a0-bf57-eb8b2d997317}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -184,9 +184,6 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\vizlet\Vizlet.h">
-      <Filter>Header Files\vizlet</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\other\freeframe\FFGL.h">
       <Filter>Header Files\freeframe</Filter>
     </ClInclude>
@@ -206,9 +203,6 @@
       <Filter>Header Files\freeframe</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\other\freeframe\FFGLPluginSDK.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FFPlugin.h">
       <Filter>Header Files\freeframe</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\misclib\ffutil.h">
@@ -271,9 +265,6 @@
     <ClInclude Include="..\..\..\src\nosuch\NosuchGraphics.h">
       <Filter>Header Files\nosuch</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\vizlet\VizSprite.h">
-      <Filter>Header Files\vizlet</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\params\VizParams.h">
       <Filter>Header Files\params</Filter>
     </ClInclude>
@@ -288,6 +279,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\other\freeframe\FFGLShader.h">
       <Filter>Header Files\freeframe</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\other\freeframe\FF10Plugin.h">
+      <Filter>Header Files\freeframe</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\Vizlet.h">
+      <Filter>Header Files\viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizServer.h">
+      <Filter>Header Files\viz</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

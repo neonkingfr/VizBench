@@ -43,14 +43,14 @@ public:
 
 	std::string GetParameterName(int paramNum);
 	FFGLParameterDef* findparamdef(std::string pnm);
-	int FFGLPluginDef::getParamNum(std::string pnm);
+	int getParamNum(std::string pnm);
 
 	std::string name;
 	std::string m_dll;
 
 	int m_numparams;  
 	FFGLParameterDef *m_paramdefs;
-	FF_Main_FuncPtr m_ffPluginMain;
+	FF_Main_FuncPtr m_mainfunc;
   
 protected:
   
@@ -84,17 +84,18 @@ public:
 	DWORD InstantiateGL(const FFGLViewportStruct *vp);
 	DWORD DeInstantiateGL();
 
-	void enable(){ _enabled = true; }
-	void disable() { _enabled = false; }
-	bool isEnabled(){ return _enabled; }
-	std::string name() { return _name; }
+	void enable(){ m_enabled = true; }
+	void disable() { m_enabled = false; }
+	bool isEnabled(){ return m_enabled; }
+	std::string name() { return m_name; }
 	FFGLPluginDef* plugindef() { return m_plugindef; }
+	DWORD instanceid() { return m_instanceid; }
 
 	FFGLPluginInstance* next;
 
 private:
-	std::string _name;
-	bool _enabled;
+	std::string m_name;
+	bool m_enabled;
 	FFGLPluginDef* m_plugindef;
 	FFGLParameterInstance *m_params;
 	FF_Main_FuncPtr m_main;
@@ -102,7 +103,7 @@ private:
 	//many plugins will return 0x00000000 as the first valid instance,
 	//so we use 0xFFFFFFFF to represent an uninitialized/invalid instance
 	enum { INVALIDINSTANCE=0xFFFFFFFF };
-	DWORD m_ffInstanceID;
+	DWORD m_instanceid;
 };
 
 #endif
