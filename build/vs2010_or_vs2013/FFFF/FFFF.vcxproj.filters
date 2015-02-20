@@ -13,12 +13,24 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Source Files\freeframe">
+      <UniqueIdentifier>{c1e113ba-c9c7-430b-8316-6f87bc556968}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\FFFF\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\FFFF\FFFF.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FF10Plugin.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FFGLPlugin.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\FFFF\ffffutil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -34,6 +46,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\FFFF\FFFF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\FFFF\ffffutil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

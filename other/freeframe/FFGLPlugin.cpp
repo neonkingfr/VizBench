@@ -1,6 +1,7 @@
 #include "NosuchUtil.h"
 #include "NosuchException.h"
 
+#include <ffffutil.h>
 #include "FFGLPlugin.h"
 
 #include <stdio.h>

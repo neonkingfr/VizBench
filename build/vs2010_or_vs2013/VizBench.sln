@@ -63,6 +63,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VizShader", "VizShader\VizS
 		{A0901BA3-9B41-40B9-BE2E-1C62F48B3E14} = {A0901BA3-9B41-40B9-BE2E-1C62F48B3E14}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FF10lib_MD", "FF10lib_MD\FF10lib_MD.vcxproj", "{328B01E0-5830-42EB-AE3C-D2C27C875770}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -328,6 +330,24 @@ Global
 		{24C1F8FE-FADE-42EF-815D-5C2B70D734C5}.StaticRelease|Win32.Build.0 = Release|Win32
 		{24C1F8FE-FADE-42EF-815D-5C2B70D734C5}.WithOpenPGM|Win32.ActiveCfg = Release|Win32
 		{24C1F8FE-FADE-42EF-815D-5C2B70D734C5}.WithOpenPGM|Win32.Build.0 = Release|Win32
+		{328B01E0-5830-42EB-AE3C-D2C27C875770}.Debug|Win32.ActiveCfg = Debug|Win32
+		{328B01E0-5830-42EB-AE3C-D2C27C875770}.Debug|Win32.Build.0 = Debug|Win32
+		{328B01E0-5830-42EB-AE3C-D2C27C875770}.DebugDLL|Win32.ActiveCfg = Debug|Win32
+		{328B01E0-5830-42EB-AE3C-D2C27C875770}.DebugDLL|Win32.Build.0 = Debug|Win32
+		{328B01E0-5830-42EB-AE3C-D2C27C875770}.Release Trace|Win32.ActiveCfg = Release|Win32
+		{328B01E0-5830-42EB-AE3C-D2C27C875770}.Release Trace|Win32.Build.0 = Release|Win32
+		{328B01E0-5830-42EB-AE3C-D2C27C875770}.Release|Win32.ActiveCfg = Release|Win32
+		{328B01E0-5830-42EB-AE3C-D2C27C875770}.Release|Win32.Build.0 = Release|Win32
+		{328B01E0-5830-42EB-AE3C-D2C27C875770}.ReleaseDLL|Win32.ActiveCfg = Release|Win32
+		{328B01E0-5830-42EB-AE3C-D2C27C875770}.ReleaseDLL|Win32.Build.0 = Release|Win32
+		{328B01E0-5830-42EB-AE3C-D2C27C875770}.ReleaseMinDependency|Win32.ActiveCfg = Release|Win32
+		{328B01E0-5830-42EB-AE3C-D2C27C875770}.ReleaseMinDependency|Win32.Build.0 = Release|Win32
+		{328B01E0-5830-42EB-AE3C-D2C27C875770}.StaticDebug|Win32.ActiveCfg = Debug|Win32
+		{328B01E0-5830-42EB-AE3C-D2C27C875770}.StaticDebug|Win32.Build.0 = Debug|Win32
+		{328B01E0-5830-42EB-AE3C-D2C27C875770}.StaticRelease|Win32.ActiveCfg = Release|Win32
+		{328B01E0-5830-42EB-AE3C-D2C27C875770}.StaticRelease|Win32.Build.0 = Release|Win32
+		{328B01E0-5830-42EB-AE3C-D2C27C875770}.WithOpenPGM|Win32.ActiveCfg = Release|Win32
+		{328B01E0-5830-42EB-AE3C-D2C27C875770}.WithOpenPGM|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -40,9 +40,6 @@
     <Filter Include="Source Files\oscpack\osc">
       <UniqueIdentifier>{2b2d6f75-7ed8-40fa-9d85-00374f507fa8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\freeframe">
-      <UniqueIdentifier>{dbc52cd3-df51-4a85-8e31-fada6e7e8827}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\portmidi">
       <UniqueIdentifier>{e8a9b146-7f2f-458b-b7ed-596b5f710c3b}</UniqueIdentifier>
     </Filter>
@@ -66,15 +63,6 @@
     </Filter>
     <Filter Include="Source Files\params">
       <UniqueIdentifier>{39fc717c-b954-4a05-9c2a-7f7e5b39944f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\flate">
-      <UniqueIdentifier>{db9db1f8-3a0c-40df-adbe-3bcf4204ca49}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\misclib\params">
-      <UniqueIdentifier>{42831e5f-3cd9-40d5-b5fd-09bfc054b8ba}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\freeframe">
-      <UniqueIdentifier>{63f1fe97-6ed0-4288-b2a3-c301b9029f77}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -119,33 +107,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\Viz\VizServer.h">
       <Filter>Header Files\Viz</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FFGL.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FFGLExtensions.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FFGLFBO.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FFGLPlugin.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FFGLPluginInfo.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FFGLPluginManager.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FFGLPluginSDK.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FFGLShader.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FF10Plugin.h">
-      <Filter>Header Files\freeframe</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -236,27 +197,6 @@
     <ClCompile Include="..\..\..\other\oscpack\osc\OscTypes.cpp">
       <Filter>Source Files\oscpack\osc</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFGL.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFGLExtensions.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFGLFBO.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFGLPlugin.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFGLPluginInfo.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFGLPluginManager.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFGLPluginSDK.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\other\portmidi\pm_win\pmwin.c">
       <Filter>Source Files\portmidi\pm_win</Filter>
     </ClCompile>
@@ -265,9 +205,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\other\portmidi\pm_common\portmidi.c">
       <Filter>Source Files\portmidi\pm_common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\misclib\ffutil.cpp">
-      <Filter>Source Files\misclib</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\other\portmidi\porttime\ptwinmm.c">
       <Filter>Source Files\portmidi\porttime</Filter>
@@ -286,15 +223,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\params\AllVizParams.cpp">
       <Filter>Source Files\params</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\flate\flate.c">
-      <Filter>Source Files\flate</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FF10Plugin.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFGLWinPluginInstance.cpp">
-      <Filter>Source Files\freeframe</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

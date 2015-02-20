@@ -13,9 +13,6 @@
     <ClCompile Include="..\..\..\src\misclib\UT_Mutex.cpp">
       <Filter>Source Files\misclib</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\misclib\ffutil.cpp">
-      <Filter>Source Files\misclib</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\nosuch\midifile.cpp">
       <Filter>Source Files\nosuch</Filter>
     </ClCompile>
@@ -76,9 +73,6 @@
     <ClCompile Include="..\..\..\other\freeframe\FFGLFBO.cpp">
       <Filter>Source Files\freeframe</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFGLPlugin.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\other\freeframe\FFGLPluginInfo.cpp">
       <Filter>Source Files\freeframe</Filter>
     </ClCompile>
@@ -101,9 +95,6 @@
       <Filter>Source Files\params</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\other\freeframe\FFGLShader.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FF10Plugin.cpp">
       <Filter>Source Files\freeframe</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\Viz\Vizlet.cpp">
@@ -193,9 +184,6 @@
     <ClInclude Include="..\..\..\other\freeframe\FFGLFBO.h">
       <Filter>Header Files\freeframe</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FFGLPlugin.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\other\freeframe\FFGLPluginInfo.h">
       <Filter>Header Files\freeframe</Filter>
     </ClInclude>
@@ -278,9 +266,6 @@
       <Filter>Header Files\nosuch</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\other\freeframe\FFGLShader.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FF10Plugin.h">
       <Filter>Header Files\freeframe</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\Viz\Vizlet.h">

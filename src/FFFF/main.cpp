@@ -44,8 +44,9 @@
 #include "resource.h"
 
 #include "stdint.h"
-#include "ffutil.h"
 #include "FFGLPlugin.h"
+#include "FF10Plugin.h"
+#include "ffffutil.h"
 #include "Timer.h"
 
 // #include "Python.h"

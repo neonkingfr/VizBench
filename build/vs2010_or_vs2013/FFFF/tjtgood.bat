@@ -1,1 +1,0 @@
-cl /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D "WIN32" /D "NDEBUG" /D "_LIB" /D "_CRT_SECURE_NO_WARNINGS" /D "_UNICODE" /D "UNICODE" /Gm- /EHa /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fp"Release\misclib.pch" /Fa"Release\" /Fo"Release\" /Fd"Release\vc100.pdb" /Gd /analyze- /errorReport:queue tjttest.cpp

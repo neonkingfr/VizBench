@@ -2,7 +2,7 @@
 "pipeline": [
 	{ "ff10plugin": "Glow", "enabled": 1, "params": { } },
 	{ "ff10plugin": "Posterize", "enabled": 1, "params": { } },
-	{ "ffglplugin": "Threshhold", "enabled": 0, "params": { } }
+	{ "ffglplugin": "VizExample2", "enabled": 1, "params": { } }
 # ,
 # 	{
 # 		"plugin": "Twisted",

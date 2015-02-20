@@ -13,6 +13,9 @@
     <ClCompile Include="..\..\..\src\misclib\UT_Mutex.cpp">
       <Filter>Source Files\misclib</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\misclib\ffutil.cpp">
+      <Filter>Source Files\misclib</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\src\nosuch\midifile.cpp">
       <Filter>Source Files\nosuch</Filter>
     </ClCompile>
@@ -64,24 +67,6 @@
     <ClCompile Include="..\..\..\other\oscpack\osc\OscTypes.cpp">
       <Filter>Source Files\oscpack\osc</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFGL.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFGLExtensions.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFGLFBO.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFGLPluginInfo.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFGLPluginManager.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFGLPluginSDK.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\params\VizParams.cpp">
       <Filter>Source Files\params</Filter>
     </ClCompile>
@@ -94,20 +79,17 @@
     <ClCompile Include="..\..\..\src\params\AllVizParams.cpp">
       <Filter>Source Files\params</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFGLShader.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\Viz\Vizlet.cpp">
       <Filter>Source Files\viz</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\Viz\VizSprite.cpp">
       <Filter>Source Files\viz</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFGLWinPluginInstance.cpp">
+    <ClCompile Include="..\..\..\other\freeframe\FF10.cpp">
       <Filter>Source Files\freeframe</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\misclib\ffutil.cpp">
-      <Filter>Source Files\misclib</Filter>
+    <ClCompile Include="..\..\..\other\freeframe\FF10PluginInfo.cpp">
+      <Filter>Source Files\freeframe</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -178,24 +160,6 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\other\freeframe\FFGL.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FFGLExtensions.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FFGLFBO.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FFGLPluginInfo.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FFGLPluginManager.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FFGLPluginSDK.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\misclib\ffutil.h">
       <Filter>Header Files\misclib</Filter>
     </ClInclude>
@@ -268,16 +232,25 @@
     <ClInclude Include="..\..\..\src\nosuch\NosuchLife.h">
       <Filter>Header Files\nosuch</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FFGLShader.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\Viz\Vizlet.h">
       <Filter>Header Files\viz</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\Viz\VizServer.h">
       <Filter>Header Files\viz</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FFGLPluginManager_inl.h">
+    <ClInclude Include="..\..\..\other\freeframe\FF10PluginSDK.h">
+      <Filter>Header Files\freeframe</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\other\freeframe\FF10PluginInfo.h">
+      <Filter>Header Files\freeframe</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\other\freeframe\FF10PluginManager.h">
+      <Filter>Header Files\freeframe</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\other\freeframe\FF10PluginManager_inl.h">
+      <Filter>Header Files\freeframe</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\other\freeframe\FF10.h">
       <Filter>Header Files\freeframe</Filter>
     </ClInclude>
   </ItemGroup>

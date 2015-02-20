@@ -71,7 +71,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\src\mmtt;..\..\..\other\glfw\include;..\..\..\src\misclib;..\..\..\src\vizlet1;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\osc\include;..\..\..\other\freeframe;..\..\..\other\portmidi\porttime;..\..\..\other\cJSON;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;..\..\..\other\opencv\build\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\FFFF;..\..\..\other\glfw\include;..\..\..\src\misclib;..\..\..\src\vizlet1;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\osc\include;..\..\..\other\freeframe;..\..\..\other\portmidi\porttime;..\..\..\other\cJSON;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;..\..\..\other\opencv\build\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -204,6 +204,9 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\other\freeframe\FF10Plugin.cpp" />
+    <ClCompile Include="..\..\..\other\freeframe\FFGLPlugin.cpp" />
+    <ClCompile Include="..\..\..\src\FFFF\ffffutil.cpp" />
     <ClCompile Include="..\..\..\src\FFFF\main.cpp" />
     <ClCompile Include="..\..\..\src\FFFF\FFFF.cpp" />
   </ItemGroup>
@@ -215,6 +218,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\FFFF\FFFF.h" />
+    <ClInclude Include="..\..\..\src\FFFF\ffffutil.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VizServer\VizServer.vcxproj">

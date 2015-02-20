@@ -1,13 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FFGL.cpp
+// FF10.cpp
 //
 // FreeFrame is an open-source cross-platform real-time video effects plugin system.
 // It provides a framework for developing video effects plugins and hosts on Windows, 
 // Linux and Mac OSX. 
 // 
-// FreeFrameGL (FFGL) is an extension to the FreeFrame spec to support video processing
-// with OpenGL on Windows, Linux, and Mac OSX.
-//
 // Copyright (c) 2002, 2003, 2004, 2006 www.freeframe.org
 // All rights reserved. 
 //
@@ -54,9 +51,6 @@
 // and implementation of FreeFrame SDK methods by Gualtiero Volpe
 // email: Gualtiero.Volpe@poste.it
 //
-// FFGL upgrade by Trey Harrison
-// email: trey@harrisondigitalmedia.com
-//
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -64,7 +58,7 @@
 // Includes 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "FFGLPluginSDK.h"
+#include "FF10PluginSDK.h"
 #include <memory.h>
 #include "NosuchDebug.h"
 #include "VizServer.h"
@@ -73,9 +67,9 @@
 // Static and extern variables used in the FreeFrame SDK 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-extern CFFGLPluginInfo* g_CurrPluginInfo;
+extern CFF10PluginInfo* g_CurrPluginInfo;
 
-static CFreeFrameGLPlugin* s_pPrototype = NULL;
+static CFreeFrame10Plugin* s_pPrototype = NULL;
 static VizServer* s_vizserver = NULL;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -83,19 +77,19 @@ static VizServer* s_vizserver = NULL;
 // Such function are called by the plugMain function, the only function a plugin exposes.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void *FFGLgetInfo() 
+void *FF10getInfo() 
 {
 	return (void *)(g_CurrPluginInfo->GetPluginInfo());
 }
 
-DWORD FFGLinitialise()
+DWORD FF10initialise()
 {
 	if (g_CurrPluginInfo==NULL)
 		return FF_FAIL;
 
 	if (s_pPrototype==NULL) {
 		//get the instantiate function pointer
-		FPCREATEINSTANCEGL *pInstantiate = g_CurrPluginInfo->GetFactoryMethod();
+		FPCREATEINSTANCE10 *pInstantiate = g_CurrPluginInfo->GetFactoryMethod();
 
 		//call the instantiate function
 		DWORD dwRet = pInstantiate(&s_pPrototype);
@@ -110,9 +104,9 @@ DWORD FFGLinitialise()
 	return FF_SUCCESS; 
 }
 
-DWORD FFGLdeInitialise()
+DWORD FF10deInitialise()
 {
-	DEBUGPRINT1(("FFGLdeInitialise in FFGL.cpp called"));
+	DEBUGPRINT1(("FF10deInitialise in FF10.cpp called"));
 	if (s_pPrototype != NULL) {
 		delete s_pPrototype;
 		s_pPrototype = NULL;
@@ -120,30 +114,30 @@ DWORD FFGLdeInitialise()
 	return FF_SUCCESS;
 }
 
-DWORD FFGLgetNumParameters() 
+DWORD getNumParameters() 
 {
 	if (s_pPrototype == NULL) {
-		DWORD dwRet = FFGLinitialise();
+		DWORD dwRet = FF10initialise();
 		if (dwRet == FF_FAIL) return FF_FAIL;
 	}
 
 	return (DWORD) s_pPrototype->GetNumParams();
 }
 							
-char* FFGLgetParameterName(DWORD index)
+char* getParameterName(DWORD index)
 {
 	if (s_pPrototype == NULL) {
-		DWORD dwRet = FFGLinitialise();
+		DWORD dwRet = FF10initialise();
 		if (dwRet == FF_FAIL) return NULL;
 	}
 	
 	return s_pPrototype->GetParamName(index);
 }
 
-DWORD FFGLgetParameterDefault(DWORD index)
+DWORD getParameterDefault(DWORD index)
 {
 	if (s_pPrototype == NULL) {
-		DWORD dwRet = FFGLinitialise();
+		DWORD dwRet = FF10initialise();
 		if (dwRet == FF_FAIL) return FF_FAIL;
 	}
 
@@ -156,13 +150,13 @@ DWORD FFGLgetParameterDefault(DWORD index)
 	}
 }
 
-DWORD FFGLgetPluginCaps(DWORD index)
+DWORD getPluginCaps(DWORD index)
 {
 	int MinInputs = -1;
 	int MaxInputs = -1;
 
 	if (s_pPrototype == NULL) {
-		DWORD dwRet = FFGLinitialise();
+		DWORD dwRet = FF10initialise();
 		if (dwRet == FF_FAIL) return FF_FAIL;
 	}
 
@@ -179,15 +173,6 @@ DWORD FFGLgetPluginCaps(DWORD index)
 
 	case FF_CAP_PROCESSFRAMECOPY:
 		return FF_FALSE;
-
-	case FF_CAP_PROCESSOPENGL:
-		return FF_TRUE;
-
-	case FF_CAP_SETTIME:
-		if (s_pPrototype->GetTimeSupported())
-			return FF_TRUE;
-		else
-			return FF_FALSE;
 
 	case FF_CAP_MINIMUMINPUTFRAMES:
 		MinInputs = s_pPrototype->GetMinInputs();
@@ -209,29 +194,33 @@ DWORD FFGLgetPluginCaps(DWORD index)
 	return FF_FAIL;
 }
 
-void *FFGLgetExtendedInfo()
+void *getExtendedInfo()
 {
 	return (void *)(g_CurrPluginInfo->GetPluginExtendedInfo());
 }
 
-DWORD FFGLgetParameterType(DWORD index)
+DWORD getParameterType(DWORD index)
 {
 	if (s_pPrototype == NULL) {
-		DWORD dwRet = FFGLinitialise();
+		DWORD dwRet = FF10initialise();
 		if (dwRet == FF_FAIL) return FF_FAIL;
 	}
 	
 	return s_pPrototype->GetParamType(index);
 }
 
-DWORD instantiateGL(const FFGLViewportStruct *pGLViewport)
+DWORD instantiate(const VideoInfoStruct *pVideoInfo)
 {
-	if (g_CurrPluginInfo==NULL || pGLViewport==NULL)
+	if (g_CurrPluginInfo == NULL || pVideoInfo == NULL) {
 	    return FF_FAIL;
+	}
+
+	return FF_FAIL;
+#if 0
 
 	// If the plugin is not initialized, initialize it
 	if (s_pPrototype == NULL) {
-		DWORD dwRet = FFGLinitialise();
+		DWORD dwRet = FF10initialise();
 		if ((dwRet == FF_FAIL) || (s_pPrototype == NULL))
 			return FF_FAIL;
 	}
@@ -282,12 +271,16 @@ DWORD instantiateGL(const FFGLViewportStruct *pGLViewport)
 	delete pInstance;
 
 	return FF_FAIL;
+
+#endif
 }
 
-DWORD deInstantiateGL(void *instanceID)
+DWORD deInstantiate(void *instanceID)
 {
-	DEBUGPRINT(("deInstantiateGL in FFGL.cpp called"));
-	CFreeFrameGLPlugin *p = (CFreeFrameGLPlugin *)instanceID;
+	DEBUGPRINT(("deInstantiateGL in FF10.cpp called"));
+	return FF_FAIL;
+#if 0
+	CFreeFrame10Plugin *p = (CFreeFrame10Plugin *)instanceID;
 
 	if (p != NULL) {
 		p->DeInitGL();
@@ -297,6 +290,7 @@ DWORD deInstantiateGL(void *instanceID)
 	}
 
 	return FF_FAIL;
+#endif
 }
 
 
@@ -322,47 +316,47 @@ plugMainUnion plugMain(DWORD functionCode, DWORD inputValue, DWORD instanceID)
 	plugMainUnion retval;
 
 	// declare pPlugObj - pointer to this instance
-	CFreeFrameGLPlugin* pPlugObj;
+	CFreeFrame10Plugin* pPlugObj;
 
-	// typecast DWORD into pointer to a CFreeFrameGLPlugin
-	pPlugObj = (CFreeFrameGLPlugin*) instanceID;
+	// typecast DWORD into pointer to a CFreeFrame10Plugin
+	pPlugObj = (CFreeFrame10Plugin*) instanceID;
 
  switch (functionCode) {
 
 	case FF_GETINFO:
-		retval.PISvalue = (PluginInfoStruct*)FFGLgetInfo();
+		retval.PISvalue = (PluginInfoStruct*)FF10getInfo();
 		break;
 
 	case FF_INITIALISE:
-		retval.ivalue = FFGLinitialise();
+		retval.ivalue = FF10initialise();
 		break;
 
 	case FF_DEINITIALISE:
-		retval.ivalue = FFGLdeInitialise();	
+		retval.ivalue = FF10deInitialise();	
 		break;
 
 	case FF_GETNUMPARAMETERS:
-		retval.ivalue = FFGLgetNumParameters();
+		retval.ivalue = getNumParameters();
 		break;
 
 	case FF_GETPARAMETERNAME:
-		retval.svalue = FFGLgetParameterName(inputValue);
+		retval.svalue = getParameterName(inputValue);
 		break;
 	
 	case FF_GETPARAMETERDEFAULT:
-		retval.ivalue = FFGLgetParameterDefault(inputValue);
+		retval.ivalue = getParameterDefault(inputValue);
 		break;
 
 	case FF_GETPLUGINCAPS:
-		retval.ivalue = FFGLgetPluginCaps(inputValue);
+		retval.ivalue = getPluginCaps(inputValue);
 		break;
 
 	case FF_GETEXTENDEDINFO: 
-		retval.ivalue = (DWORD) FFGLgetExtendedInfo();
+		retval.ivalue = (DWORD) getExtendedInfo();
 		break;
 
 	case FF_GETPARAMETERTYPE:		
-		retval.ivalue = FFGLgetParameterType(inputValue);
+		retval.ivalue = getParameterType(inputValue);
 		break;
 
 	case FF_GETPARAMETERDISPLAY:
@@ -386,13 +380,13 @@ plugMainUnion plugMain(DWORD functionCode, DWORD inputValue, DWORD instanceID)
 			retval.ivalue = FF_FAIL;
 		break;
 		
-	case FF_INSTANTIATEGL:
-		retval.ivalue = (DWORD)instantiateGL((const FFGLViewportStruct *)inputValue);
+	case FF_INSTANTIATE:
+		retval.ivalue = (DWORD)instantiate((const VideoInfoStruct *)inputValue);
 		break;
 
-	case FF_DEINSTANTIATEGL:
+	case FF_DEINSTANTIATE:
 		if (pPlugObj != NULL)
-			retval.ivalue = deInstantiateGL(pPlugObj);
+			retval.ivalue = deInstantiate(pPlugObj);
 		else
 			retval.ivalue = FF_FAIL;
 		break;
@@ -404,34 +398,10 @@ plugMainUnion plugMain(DWORD functionCode, DWORD inputValue, DWORD instanceID)
 			retval.ivalue = FF_FAIL;
 		break;
 
-	case FF_PROCESSOPENGL:
-		if (pPlugObj != NULL) {
-			ProcessOpenGLStruct *pogls = (ProcessOpenGLStruct *)inputValue;
-			if (pogls!=NULL)
-				retval.ivalue = pPlugObj->ProcessOpenGL(pogls);
-			else
-				retval.ivalue = FF_FAIL;
-		} else {
-			retval.ivalue = FF_FAIL;
-		}
-		break;
-
-	case FF_SETTIME:
-		if (pPlugObj != NULL) {
-			double *inputTime = (double *)inputValue;
-			if (inputTime!=NULL)
-				retval.ivalue = pPlugObj->SetTime(*inputTime);
-			else
-				retval.ivalue = FF_FAIL;
-		} else {
-			retval.ivalue = FF_FAIL;
-		}
-		break;
-
-	//these old FF functions must always fail for FFGL plugins
-	case FF_INSTANTIATE:
-	case FF_DEINSTANTIATE:
 	case FF_PROCESSFRAME:
+		retval.ivalue = FF_FAIL;
+		break;
+
 	case FF_PROCESSFRAMECOPY:
 		retval.ivalue = FF_FAIL;
 		break;

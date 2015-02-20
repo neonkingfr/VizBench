@@ -1,1 +1,0 @@
-cl /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_CRT_SECURE_NO_WARNINGS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_UNICODE" /D "UNICODE" /Gm- /EHa /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fp"Release\FFFF.pch" /Fa"Release\" /Fo"Release\" /Fd"Release\vc100.pdb" /Gd /analyze- /errorReport:queue tjttest.cpp

@@ -9,7 +9,7 @@
 
 #include "VizServer.h"
 
-#include "ffutil.h"
+#include "ffffutil.h"
 
 int FFGLinit();
 int FFGLinit2(int width, int height);
@@ -32,18 +32,7 @@ FFGLParameterDef* findffglparam(FFGLPluginDef* ff, std::string nm);
 
 void non_of_init(int x, int y, int w, int h);
 
-#if 0
-void joyinit(int millipoll);
-void joyrelease();
-void joycheck();
-void joyanalog(int jn, int axis, int v);
-void joybutton(int jn, int jb, int v);
-
-void http_init(int port, int timeout);
-void http_check();
-void http_send(char *s);
-void http_sendto_slip(char *host, int port, const char *data, int size);
-#endif
+bool do_ffgl_plugin(FFGLPluginInstance* plugin1,int which);
 
 class FFFF;
 class FFFFHttp;
