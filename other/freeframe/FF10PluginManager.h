@@ -107,6 +107,14 @@ public:
 	/// This method is called by a the host to determine whether the plugin supports the SetTime function
 	bool GetTimeSupported() const;
 
+	/// This method is called to provide the plugin with information about the images it is going to process. 
+	/// It is usually called by the default implementations of the FreeFrame global functions once the host 
+	/// communicated the format of the images that have to be processed.
+	///
+	/// \param	pVideoInfo	A pointer to a VideoInfoStruct (see definition in FreeFrame.h) containing information 
+	///						about the width, height, depth, and orientation of the images the plugin is going to receive.
+	void SetVideoInfo(const VideoInfoStruct* pVideoInfo);
+
 protected:
 
 	///	The standard constructor of CFF10PluginManager. 
@@ -205,6 +213,8 @@ private:
 
   // Time capability
   bool m_timeSupported;
+
+  VideoInfoStruct m_VideoInfo;
 };
 
 

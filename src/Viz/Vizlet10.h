@@ -1,10 +1,11 @@
-#ifndef _VIZLET_H
-#define _VIZLET_H
+#ifndef _VIZLET10_H
+#define _VIZLET10_H
 
-#define VIZLET
+#define VIZLET10
 
-#include "FFGL.h"
-#include "FFGLPluginSDK.h"
+// #include "ffutil.h"
+#include "FF10.h"
+#include "FF10PluginSDK.h"
 
 #include "osc/OscOutboundPacketStream.h"
 #include "NosuchOscInput.h"
@@ -18,7 +19,7 @@
 #include "VizServer.h"
 #include <ctime>
 
-class Vizlet;
+class Vizlet10;
 class VizletHttpServer;
 class UT_SharedMem;
 class MMTT_SharedMemHeader;
@@ -32,17 +33,17 @@ struct OutlineMem;
 #define MAGIC_VAL_FOR_OVERRIDE_PARAMS -2
 #define MAGIC_VAL_FOR_PALETTE_PARAMS -1
 
-class Vizlet : public NosuchOscListener,
+class Vizlet10 : public NosuchOscListener,
 					public NosuchJsonListener,
 					public NosuchMidiInputListener,
 					public NosuchMidiOutputListener,
 					public CursorListener,
 					public KeystrokeListener,
-					public CFreeFrameGLPlugin
+					public CFreeFrame10Plugin
 {
 public:
-	Vizlet();
-	virtual ~Vizlet();
+	Vizlet10();
+	virtual ~Vizlet10();
 
 	std::string VizTag() { return m_viztag; }
 	void SetVizTag(std::string s) { m_viztag = s; }
@@ -159,7 +160,6 @@ public:
 	virtual void processKeystroke(int key, int downup) { }
 	/////////////////////////////////////////////////////
 
-	virtual DWORD RealProcessOpenGL(ProcessOpenGLStruct* pGL) { return FF_FAIL; }
 	virtual bool processDraw() { return false;  }
 	virtual void processDrawNote(MidiMsg* m) { }
 	virtual void processAdvanceClickTo(int click) { }
@@ -181,15 +181,13 @@ protected:
 
 	void* Handle() { return (void*)this; }
 
-	bool m_call_RealProcessOpenGL;
-
 	ApiFilter m_af;
 	MidiFilter m_mf;
 	CursorFilter m_cf;
 	
 	pthread_mutex_t json_mutex;
 	pthread_cond_t json_cond;
-	pthread_mutex_t vizlet_mutex;
+	pthread_mutex_t vizlet10_mutex;
 
 	bool json_pending;
 	std::string json_method;
@@ -204,10 +202,7 @@ protected:
 private:
 
 	/////////////////////////////////////////////////////
-	// methods for CFreeFrameGLPlugin
-	virtual DWORD ProcessOpenGL(ProcessOpenGLStruct *pGL);
-	virtual DWORD InitGL(const FFGLViewportStruct *vp);
-	virtual DWORD DeInitGL();
+	// methods for CFreeFrame10Plugin
 	virtual DWORD SetParameter(const SetParameterStruct* pParam);
 	virtual DWORD GetParameter(DWORD dwIndex);
 	virtual char* GetParameterDisplay(DWORD dwIndex);

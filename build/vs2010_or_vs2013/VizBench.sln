@@ -19,12 +19,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VizExample1", "VizExample1\
 		{A0901BA3-9B41-40B9-BE2E-1C62F48B3E14} = {A0901BA3-9B41-40B9-BE2E-1C62F48B3E14}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "misclib_MD", "misclib_MD\misclib_MD.vcxproj", "{A0901BA3-9B41-40B9-BE2E-1C62F48B3E14}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VizletTemplate", "VizletTemplate\VizletTemplate.vcxproj", "{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A0901BA3-9B41-40B9-BE2E-1C62F48B3E14} = {A0901BA3-9B41-40B9-BE2E-1C62F48B3E14}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FFGLlib_MD", "FFGLlib_MD\FFGLlib_MD.vcxproj", "{A0901BA3-9B41-40B9-BE2E-1C62F48B3E14}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VizExample3", "VizExample3\VizExample3.vcxproj", "{D89918B0-D97D-45FB-B34A-32702A6AFCC1}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -56,7 +51,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VizShaderMaker", "VizShader
 		{A0901BA3-9B41-40B9-BE2E-1C62F48B3E14} = {A0901BA3-9B41-40B9-BE2E-1C62F48B3E14}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "misclib_MT", "misclib_MT\misclib_MT.vcxproj", "{D35B747A-8620-4B4F-95C6-D32F53ABE8A3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FFGLlib_MT", "FFGLlib_MT\FFGLlib_MT.vcxproj", "{D35B747A-8620-4B4F-95C6-D32F53ABE8A3}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VizShader", "VizShader\VizShader.vcxproj", "{24C1F8FE-FADE-42EF-815D-5C2B70D734C5}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -64,6 +59,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VizShader", "VizShader\VizS
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FF10lib_MD", "FF10lib_MD\FF10lib_MD.vcxproj", "{328B01E0-5830-42EB-AE3C-D2C27C875770}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Vizlet10Template", "Vizlet10Template\Vizlet10Template.vcxproj", "{16DC6F63-FBCD-4A85-A625-2239E64D374F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{328B01E0-5830-42EB-AE3C-D2C27C875770} = {328B01E0-5830-42EB-AE3C-D2C27C875770}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VizletGLTemplate", "VizletGLTemplate\VizletGLTemplate.vcxproj", "{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A0901BA3-9B41-40B9-BE2E-1C62F48B3E14} = {A0901BA3-9B41-40B9-BE2E-1C62F48B3E14}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -168,24 +173,6 @@ Global
 		{A0901BA3-9B41-40B9-BE2E-1C62F48B3E14}.StaticRelease|Win32.Build.0 = Release|Win32
 		{A0901BA3-9B41-40B9-BE2E-1C62F48B3E14}.WithOpenPGM|Win32.ActiveCfg = Release|Win32
 		{A0901BA3-9B41-40B9-BE2E-1C62F48B3E14}.WithOpenPGM|Win32.Build.0 = Release|Win32
-		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.Debug|Win32.ActiveCfg = Debug|Win32
-		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.Debug|Win32.Build.0 = Debug|Win32
-		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.DebugDLL|Win32.ActiveCfg = Debug|Win32
-		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.DebugDLL|Win32.Build.0 = Debug|Win32
-		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.Release Trace|Win32.ActiveCfg = Release|Win32
-		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.Release Trace|Win32.Build.0 = Release|Win32
-		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.Release|Win32.ActiveCfg = Release|Win32
-		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.Release|Win32.Build.0 = Release|Win32
-		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.ReleaseDLL|Win32.ActiveCfg = Release|Win32
-		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.ReleaseDLL|Win32.Build.0 = Release|Win32
-		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.ReleaseMinDependency|Win32.ActiveCfg = Release|Win32
-		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.ReleaseMinDependency|Win32.Build.0 = Release|Win32
-		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.StaticDebug|Win32.ActiveCfg = Debug|Win32
-		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.StaticDebug|Win32.Build.0 = Debug|Win32
-		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.StaticRelease|Win32.ActiveCfg = Release|Win32
-		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.StaticRelease|Win32.Build.0 = Release|Win32
-		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.WithOpenPGM|Win32.ActiveCfg = Release|Win32
-		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.WithOpenPGM|Win32.Build.0 = Release|Win32
 		{D89918B0-D97D-45FB-B34A-32702A6AFCC1}.Debug|Win32.ActiveCfg = Debug|Win32
 		{D89918B0-D97D-45FB-B34A-32702A6AFCC1}.Debug|Win32.Build.0 = Debug|Win32
 		{D89918B0-D97D-45FB-B34A-32702A6AFCC1}.DebugDLL|Win32.ActiveCfg = Debug|Win32
@@ -348,6 +335,42 @@ Global
 		{328B01E0-5830-42EB-AE3C-D2C27C875770}.StaticRelease|Win32.Build.0 = Release|Win32
 		{328B01E0-5830-42EB-AE3C-D2C27C875770}.WithOpenPGM|Win32.ActiveCfg = Release|Win32
 		{328B01E0-5830-42EB-AE3C-D2C27C875770}.WithOpenPGM|Win32.Build.0 = Release|Win32
+		{16DC6F63-FBCD-4A85-A625-2239E64D374F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{16DC6F63-FBCD-4A85-A625-2239E64D374F}.Debug|Win32.Build.0 = Debug|Win32
+		{16DC6F63-FBCD-4A85-A625-2239E64D374F}.DebugDLL|Win32.ActiveCfg = Debug|Win32
+		{16DC6F63-FBCD-4A85-A625-2239E64D374F}.DebugDLL|Win32.Build.0 = Debug|Win32
+		{16DC6F63-FBCD-4A85-A625-2239E64D374F}.Release Trace|Win32.ActiveCfg = Release|Win32
+		{16DC6F63-FBCD-4A85-A625-2239E64D374F}.Release Trace|Win32.Build.0 = Release|Win32
+		{16DC6F63-FBCD-4A85-A625-2239E64D374F}.Release|Win32.ActiveCfg = Release|Win32
+		{16DC6F63-FBCD-4A85-A625-2239E64D374F}.Release|Win32.Build.0 = Release|Win32
+		{16DC6F63-FBCD-4A85-A625-2239E64D374F}.ReleaseDLL|Win32.ActiveCfg = Release|Win32
+		{16DC6F63-FBCD-4A85-A625-2239E64D374F}.ReleaseDLL|Win32.Build.0 = Release|Win32
+		{16DC6F63-FBCD-4A85-A625-2239E64D374F}.ReleaseMinDependency|Win32.ActiveCfg = Release|Win32
+		{16DC6F63-FBCD-4A85-A625-2239E64D374F}.ReleaseMinDependency|Win32.Build.0 = Release|Win32
+		{16DC6F63-FBCD-4A85-A625-2239E64D374F}.StaticDebug|Win32.ActiveCfg = Debug|Win32
+		{16DC6F63-FBCD-4A85-A625-2239E64D374F}.StaticDebug|Win32.Build.0 = Debug|Win32
+		{16DC6F63-FBCD-4A85-A625-2239E64D374F}.StaticRelease|Win32.ActiveCfg = Release|Win32
+		{16DC6F63-FBCD-4A85-A625-2239E64D374F}.StaticRelease|Win32.Build.0 = Release|Win32
+		{16DC6F63-FBCD-4A85-A625-2239E64D374F}.WithOpenPGM|Win32.ActiveCfg = Release|Win32
+		{16DC6F63-FBCD-4A85-A625-2239E64D374F}.WithOpenPGM|Win32.Build.0 = Release|Win32
+		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.Debug|Win32.Build.0 = Debug|Win32
+		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.DebugDLL|Win32.ActiveCfg = Debug|Win32
+		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.DebugDLL|Win32.Build.0 = Debug|Win32
+		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.Release Trace|Win32.ActiveCfg = Release|Win32
+		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.Release Trace|Win32.Build.0 = Release|Win32
+		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.Release|Win32.ActiveCfg = Release|Win32
+		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.Release|Win32.Build.0 = Release|Win32
+		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.ReleaseDLL|Win32.ActiveCfg = Release|Win32
+		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.ReleaseDLL|Win32.Build.0 = Release|Win32
+		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.ReleaseMinDependency|Win32.ActiveCfg = Release|Win32
+		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.ReleaseMinDependency|Win32.Build.0 = Release|Win32
+		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.StaticDebug|Win32.ActiveCfg = Debug|Win32
+		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.StaticDebug|Win32.Build.0 = Debug|Win32
+		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.StaticRelease|Win32.ActiveCfg = Release|Win32
+		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.StaticRelease|Win32.Build.0 = Release|Win32
+		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.WithOpenPGM|Win32.ActiveCfg = Release|Win32
+		{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}.WithOpenPGM|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

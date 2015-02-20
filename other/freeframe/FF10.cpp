@@ -211,10 +211,35 @@ DWORD getParameterType(DWORD index)
 
 DWORD instantiate(const VideoInfoStruct *pVideoInfo)
 {
-	if (g_CurrPluginInfo == NULL || pVideoInfo == NULL) {
-	    return FF_FAIL;
-	}
+	if (g_CurrPluginInfo != NULL) {
+		if (s_pPrototype == NULL) {
+			DWORD dwRet = FF10initialise();
+			if ((dwRet == FF_FAIL) || s_pPrototype == NULL) {
+				return FF_FAIL;
+			}
+		}
+		// Creating plugin instance
+		CFreeFrame10Plugin* pInstance = NULL;
+		DWORD dwRet = (*(g_CurrPluginInfo->GetFactoryMethod()))(&pInstance);
+		if ((dwRet == FF_FAIL) || (pInstance == NULL)) return FF_FAIL;
+		pInstance->m_pPlugin = pInstance;
 
+		// Initializing instance with default values
+		for (int i = 0; i < s_pPrototype->GetNumParams(); ++i) {
+			DWORD dwType = s_pPrototype->GetParamType(DWORD(i));
+			void* pValue = s_pPrototype->GetParamDefault(DWORD(i));
+			SetParameterStruct ParamStruct;
+			ParamStruct.ParameterNumber = DWORD(i);
+			memcpy(&ParamStruct.u.NewParameterValue, pValue, 4);
+			dwRet = pInstance->SetParameter(&ParamStruct);
+			if (dwRet == FF_FAIL) return FF_FAIL;
+		}
+
+		// Saving data in the VideoInfoStruct in an internal data structure
+		pInstance->SetVideoInfo(pVideoInfo);
+
+		return DWORD(pInstance);
+	}
 	return FF_FAIL;
 #if 0
 
@@ -399,7 +424,10 @@ plugMainUnion plugMain(DWORD functionCode, DWORD inputValue, DWORD instanceID)
 		break;
 
 	case FF_PROCESSFRAME:
-		retval.ivalue = FF_FAIL;
+		if (pPlugObj != NULL)
+			retval.ivalue = pPlugObj->ProcessFrame((void*)inputValue);
+		else
+			retval.ivalue = FF_FAIL;
 		break;
 
 	case FF_PROCESSFRAMECOPY:

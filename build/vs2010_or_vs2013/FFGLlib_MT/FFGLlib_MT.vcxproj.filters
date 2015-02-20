@@ -193,9 +193,6 @@
     <ClInclude Include="..\..\..\other\freeframe\FFGLPluginSDK.h">
       <Filter>Header Files\freeframe</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\misclib\ffutil.h">
-      <Filter>Header Files\misclib</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\misclib\sha1.h">
       <Filter>Header Files\misclib</Filter>
     </ClInclude>

@@ -106,8 +106,8 @@
     <ClCompile Include="..\..\..\other\freeframe\FFGLWinPluginInstance.cpp">
       <Filter>Source Files\freeframe</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\misclib\ffutil.cpp">
-      <Filter>Source Files\misclib</Filter>
+    <ClCompile Include="..\..\..\src\Viz\vizletutil.cpp">
+      <Filter>Source Files\viz</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -153,9 +153,6 @@
     <Filter Include="Header Files\freeframe">
       <UniqueIdentifier>{89814e34-4b8c-434d-bad5-b33a5b69e5b8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\misclib">
-      <UniqueIdentifier>{df551db6-58b9-4763-948b-7875711ef140}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\nosuch">
       <UniqueIdentifier>{f57a1a45-7602-42a1-a7df-2e7b51c1e739}</UniqueIdentifier>
     </Filter>
@@ -195,24 +192,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\other\freeframe\FFGLPluginSDK.h">
       <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\misclib\ffutil.h">
-      <Filter>Header Files\misclib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\misclib\sha1.h">
-      <Filter>Header Files\misclib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\misclib\stdint.h">
-      <Filter>Header Files\misclib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\misclib\UT_Mutex.h">
-      <Filter>Header Files\misclib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\misclib\UT_SharedMem.h">
-      <Filter>Header Files\misclib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\misclib\XGetopt.h">
-      <Filter>Header Files\misclib</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\nosuch\NosuchSocket.h">
       <Filter>Header Files\nosuch</Filter>
@@ -280,5 +259,9 @@
     <ClInclude Include="..\..\..\other\freeframe\FFGLPluginManager_inl.h">
       <Filter>Header Files\freeframe</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\other\cJSON\cJSON.h">
+      <Filter>Header Files\cJSON</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\vizletutil.h" />
   </ItemGroup>
 </Project>

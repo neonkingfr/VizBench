@@ -39,11 +39,10 @@
 #include "NosuchUtil.h"
 #include "NosuchMidi.h"
 #include "NosuchScheduler.h"
-#include "Vizlet.h"
-#include "Vizletutil.h"
+#include "Vizlet10.h"
+#include "Vizlet10util.h"
 #include "NosuchJSON.h"
 
-#include "FFGLLib.h"
 #include "osc/OscOutboundPacketStream.h"
 #include "osc/OscReceivedElements.h"
 #include "NosuchOsc.h"
@@ -54,11 +53,11 @@
 #ifdef _WIN32
 
 // These functions need to be defined in a vizlet's source file.
-extern std::string vizlet_name();
-extern bool vizlet_setdll(std::string(dllpath));
-CFFGLPluginInfo& vizlet_plugininfo();
+extern std::string vizlet10_name();
+extern bool vizlet10_setdll(std::string(dllpath));
+CFF10PluginInfo& vizlet10_plugininfo();
 
-void vizlet_setid(CFFGLPluginInfo& plugininfo, std::string name)
+void vizlet10_setid(CFF10PluginInfo& plugininfo, std::string name)
 {
 	char id[5];
 	// Compute a hash of the plugin name and use two 4-bit values
@@ -92,14 +91,14 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserv
 		// Initialize once for each new process.
 		// Return FALSE if we fail to load DLL.
 		dllpathstr = NosuchToLower(dllpathstr);
-		if ( ! vizlet_setdll(dllpathstr) ) {
-			DEBUGPRINT(("vizlet_setdll failed"));
+		if ( ! vizlet10_setdll(dllpathstr) ) {
+			DEBUGPRINT(("vizlet10_setdll failed"));
 			return FALSE;
 		}
-		vizlet_setdll(dllpathstr);
-		std::string s = vizlet_name();
-		DEBUGPRINT1(("After vizlet_setdll, dllpathstr=%s vizlet_name=%s",dllpathstr.c_str(),s.c_str()));
-		vizlet_setid(vizlet_plugininfo(),s);
+		vizlet10_setdll(dllpathstr);
+		std::string s = vizlet10_name();
+		DEBUGPRINT1(("After vizlet10_setdll, dllpathstr=%s vizlet10_name=%s",dllpathstr.c_str(),s.c_str()));
+		vizlet10_setid(vizlet10_plugininfo(),s);
 		DEBUGPRINT1(("DLL_PROCESS_ATTACH dll=%s",dllpath));
 	}
 	if (ul_reason_for_call == DLL_PROCESS_DETACH ) {
@@ -116,9 +115,9 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserv
 
 #endif
 
-Vizlet::Vizlet() {
+Vizlet10::Vizlet10() {
 
-	DEBUGPRINT1(("=== Vizlet constructor, dll_pathname=%s",dll_pathname().c_str()));
+	DEBUGPRINT1(("=== Vizlet10 constructor, dll_pathname=%s",dll_pathname().c_str()));
 
 	VizParams::Initialize();
 
@@ -132,14 +131,14 @@ Vizlet::Vizlet() {
 
 	m_callbacksInitialized = false;
 	m_passthru = true;
-	m_call_RealProcessOpenGL = false;
+	// m_call_RealProcessOpenGL = false;
 	m_spritelist = new VizSpriteList();
 	m_defaultmidiparams = defaultParams();
 	m_framenum = 0;
 
 	m_vizserver = VizServer::GetServer();
 
-	m_viztag = vizlet_name();
+	m_viztag = vizlet10_name();
 
 	m_af = ApiFilter(m_viztag.c_str());
 	m_mf = MidiFilter();  // ALL Midi
@@ -156,7 +155,7 @@ Vizlet::Vizlet() {
 	NosuchLockInit(&python_mutex,"python");
 #endif
 
-	NosuchLockInit(&vizlet_mutex,"vizlet");
+	NosuchLockInit(&vizlet10_mutex,"vizlet");
 
 	NosuchLockInit(&json_mutex,"json");
 	json_cond = PTHREAD_COND_INITIALIZER;
@@ -170,7 +169,7 @@ Vizlet::Vizlet() {
 	// The most common reason for being disabled at this point
 	// is when the config JSON file can't be parsed.
 	if ( m_disabled ) {
-		DEBUGPRINT(("WARNING! Vizlet (viztag=%s) has been disabled!",VizTag().c_str()));
+		DEBUGPRINT(("WARNING! Vizlet10 (viztag=%s) has been disabled!",VizTag().c_str()));
 	}
 
 	SetTimeSupported(true);
@@ -183,26 +182,25 @@ Vizlet::Vizlet() {
 #endif
 }
 
-Vizlet::~Vizlet()
+Vizlet10::~Vizlet10()
 {
-	DEBUGPRINT1(("=== Vizlet destructor is called viztag=%s", m_viztag.c_str()));
+	DEBUGPRINT1(("=== Vizlet10 destructor is called viztag=%s", m_viztag.c_str()));
 	_stopstuff();
 }
 
-DWORD Vizlet::SetTime(double tm) {
+DWORD Vizlet10::SetTime(double tm) {
 	m_time = tm;
 	m_vizserver->SetTime(tm);
 	return FF_SUCCESS;
 }
 
-DWORD Vizlet::SetParameter(const SetParameterStruct* pParam) {
+DWORD Vizlet10::SetParameter(const SetParameterStruct* pParam) {
 
 	return FF_FAIL;
 #ifdef VIZTAG_PARAMETER
 	DWORD r = FF_FAIL;
 
-	// Sometimes SetParameter is called before ProcessOpenGL,
-	// so make sure the VizServer is started.
+	// make sure the VizServer is started.
 	StartVizServer();
 	InitCallbacks();
 
@@ -219,7 +217,7 @@ DWORD Vizlet::SetParameter(const SetParameterStruct* pParam) {
 #endif
 }
 
-DWORD Vizlet::GetParameter(DWORD n) {
+DWORD Vizlet10::GetParameter(DWORD n) {
 #ifdef VIZTAG_PARAMETER
 	switch ( n ) {
 	case 0:		// shape
@@ -229,7 +227,7 @@ DWORD Vizlet::GetParameter(DWORD n) {
 	return FF_FAIL;
 }
 
-char* Vizlet::GetParameterDisplay(DWORD n)
+char* Vizlet10::GetParameterDisplay(DWORD n)
 {
 #ifdef VIZTAG_PARAMETER
 	switch ( n ) {
@@ -242,20 +240,20 @@ char* Vizlet::GetParameterDisplay(DWORD n)
 	return "";
 }
 
-const char* vizlet_json(void* data,const char *method, cJSON* params, const char* id) {
-	Vizlet* v = (Vizlet*)data;
+const char* vizlet10_json(void* data,const char *method, cJSON* params, const char* id) {
+	Vizlet10* v = (Vizlet10*)data;
 	if ( v == NULL ) {
-		static std::string err = error_json(-32000,"v is NULL is vizlet_json?",id);
+		static std::string err = error_json(-32000,"v is NULL is vizlet10_json?",id);
 		return err.c_str();
 	}
 	else {
 		// A few methods are built-in.  If it isn't one of those,
 		// it is given to the plugin to handle.
 		if (std::string(method) == "description") {
-			std::string desc = vizlet_plugininfo().GetPluginExtendedInfo()->Description;
+			std::string desc = vizlet10_plugininfo().GetPluginExtendedInfo()->Description;
 			v->json_result = jsonStringResult(desc, id);
 		} else if (std::string(method) == "about") {
-			std::string desc = vizlet_plugininfo().GetPluginExtendedInfo()->About;
+			std::string desc = vizlet10_plugininfo().GetPluginExtendedInfo()->About;
 			v->json_result = jsonStringResult(desc, id);
 		} else {
 			v->json_result = v->processJsonAndCatchExceptions(std::string(method), params, id);
@@ -264,102 +262,102 @@ const char* vizlet_json(void* data,const char *method, cJSON* params, const char
 	}
 }
 
-void vizlet_osc(void* data,const char *source, const osc::ReceivedMessage& m) {
-	Vizlet* v = (Vizlet*)data;
+void vizlet10_osc(void* data,const char *source, const osc::ReceivedMessage& m) {
+	Vizlet10* v = (Vizlet10*)data;
 	NosuchAssert(v);
 	v->processOsc(source,m);
 }
 
-void vizlet_midiinput(void* data,MidiMsg* m) {
-	Vizlet* v = (Vizlet*)data;
+void vizlet10_midiinput(void* data,MidiMsg* m) {
+	Vizlet10* v = (Vizlet10*)data;
 	NosuchAssert(v);
 	v->processMidiInput(m);
 }
 
-void vizlet_midioutput(void* data,MidiMsg* m) {
-	Vizlet* v = (Vizlet*)data;
+void vizlet10_midioutput(void* data,MidiMsg* m) {
+	Vizlet10* v = (Vizlet10*)data;
 	NosuchAssert(v);
 	v->processMidiOutput(m);
 }
 
-void vizlet_cursor(void* data,VizCursor* c, int downdragup) {
-	Vizlet* v = (Vizlet*)data;
+void vizlet10_cursor(void* data,VizCursor* c, int downdragup) {
+	Vizlet10* v = (Vizlet10*)data;
 	NosuchAssert(v);
 	v->processCursor(c,downdragup);
 }
 
-void vizlet_keystroke(void* data,int key, int downup) {
-	Vizlet* v = (Vizlet*)data;
+void vizlet10_keystroke(void* data,int key, int downup) {
+	Vizlet10* v = (Vizlet10*)data;
 	NosuchAssert(v);
 	v->processKeystroke(key,downup);
 }
 
-void Vizlet::advanceCursorTo(VizCursor* c, double tm) {
+void Vizlet10::advanceCursorTo(VizCursor* c, double tm) {
 	m_vizserver->AdvanceCursorTo(c,tm);
 }
 
-void Vizlet::ChangeVizTag(const char* p) {
+void Vizlet10::ChangeVizTag(const char* p) {
 	m_vizserver->ChangeVizTag(Handle(),p);
 }
 
-void Vizlet::_startApiCallbacks(ApiFilter af, void* data) {
+void Vizlet10::_startApiCallbacks(ApiFilter af, void* data) {
 	NosuchAssert(m_vizserver);
-	m_vizserver->AddJsonCallback(Handle(),af,vizlet_json,data);
+	m_vizserver->AddJsonCallback(Handle(),af,vizlet10_json,data);
 }
 
-void Vizlet::_startMidiCallbacks(MidiFilter mf, void* data) {
+void Vizlet10::_startMidiCallbacks(MidiFilter mf, void* data) {
 	NosuchAssert(m_vizserver);
-	m_vizserver->AddMidiInputCallback(Handle(),mf,vizlet_midiinput,data);
-	m_vizserver->AddMidiOutputCallback(Handle(),mf,vizlet_midioutput,data);
+	m_vizserver->AddMidiInputCallback(Handle(),mf,vizlet10_midiinput,data);
+	m_vizserver->AddMidiOutputCallback(Handle(),mf,vizlet10_midioutput,data);
 }
 
-void Vizlet::_startCursorCallbacks(CursorFilter cf, void* data) {
+void Vizlet10::_startCursorCallbacks(CursorFilter cf, void* data) {
 	NosuchAssert(m_vizserver);
-	m_vizserver->AddCursorCallback(Handle(),cf,vizlet_cursor,data);
+	m_vizserver->AddCursorCallback(Handle(),cf,vizlet10_cursor,data);
 }
 
-void Vizlet::_startKeystrokeCallbacks(void* data) {
+void Vizlet10::_startKeystrokeCallbacks(void* data) {
 	NosuchAssert(m_vizserver);
-	m_vizserver->AddKeystrokeCallback(Handle(),vizlet_keystroke,data);
+	m_vizserver->AddKeystrokeCallback(Handle(),vizlet10_keystroke,data);
 }
 
-void Vizlet::_stopCallbacks() {
+void Vizlet10::_stopCallbacks() {
 	_stopApiCallbacks();
 	_stopMidiCallbacks();
 	_stopCursorCallbacks();
 }
 
-void Vizlet::_stopApiCallbacks() {
+void Vizlet10::_stopApiCallbacks() {
 	NosuchAssert(m_vizserver);
 	m_vizserver->RemoveJsonCallback(Handle());
 }
 
-void Vizlet::_stopMidiCallbacks() {
+void Vizlet10::_stopMidiCallbacks() {
 	NosuchAssert(m_vizserver);
 	m_vizserver->RemoveMidiInputCallback(Handle());
 	m_vizserver->RemoveMidiOutputCallback(Handle());
 }
 
-void Vizlet::_stopCursorCallbacks() {
+void Vizlet10::_stopCursorCallbacks() {
 	NosuchAssert(m_vizserver);
 	m_vizserver->RemoveCursorCallback(Handle());
 }
 
-double Vizlet::GetTime() {
+double Vizlet10::GetTime() {
 	return m_time;
 }
 
-int Vizlet::SchedulerCurrentClick() {
+int Vizlet10::SchedulerCurrentClick() {
 	if ( m_vizserver == NULL ) {
-		DEBUGPRINT(("Vizlet::CurrentClick() - _vizserver is NULL!"));
+		DEBUGPRINT(("Vizlet10::CurrentClick() - _vizserver is NULL!"));
 		return 0;
 	} else {
 		return m_vizserver->SchedulerCurrentClick();
 	}
 }
 
-void Vizlet::SendMidiMsg() {
-	DEBUGPRINT(("Vizlet::SendMidiMsg called - this should go away eventually"));
+void Vizlet10::SendMidiMsg() {
+	DEBUGPRINT(("Vizlet10::SendMidiMsg called - this should go away eventually"));
 	MidiMsg* msg = MidiNoteOn::make(1,80,100);
 	// _vizserver->MakeNoteOn(1,80,100);
 	m_vizserver->SendMidiMsg(msg);
@@ -367,7 +365,7 @@ void Vizlet::SendMidiMsg() {
 
 
 void
-Vizlet::_drawnotes(std::list<MidiMsg*>& notes) {
+Vizlet10::_drawnotes(std::list<MidiMsg*>& notes) {
 
 	for ( std::list<MidiMsg*>::const_iterator ci = notes.begin(); ci != notes.end(); ) {
 		MidiMsg* m = *ci++;
@@ -377,35 +375,7 @@ Vizlet::_drawnotes(std::list<MidiMsg*>& notes) {
 	}
 }
 
-#if 0
-		if (m->MidiType() != MIDI_NOTE_ON ) {
-			continue;
-		}
-		int pitch = m->Pitch();
-		float y = pitch  / 128.0f;
-		y = y * 2.0f - 1.0f;
-		float x = _x;
-		_x += 0.01f;
-		if ( _x >= 1.0 ) {
-			_x = -0.9f;
-		}
-		float sz = 0.15f;
-
-		glBegin(GL_LINE_LOOP);
-		glVertex3f(x-sz, y-sz, 0.0f);	// Top Left
-		glVertex3f(x-sz, y+sz, 0.0f);	// Top Right
-		glVertex3f(x+sz, y+sz, 0.0f);	// Bottom Right
-		glVertex3f(x+sz, y-sz, 0.0f);	// Bottom Left
-		glEnd();
-	}
-}
-#endif
-
-DWORD Vizlet::InitGL(const FFGLViewportStruct *vp) {
-	return FF_SUCCESS;
-}
-
-void Vizlet::_stopstuff() {
+void Vizlet10::_stopstuff() {
 	if ( m_stopped )
 		return;
 	m_stopped = true;
@@ -413,23 +383,18 @@ void Vizlet::_stopstuff() {
 	if ( m_vizserver ) {
 		int ncb = m_vizserver->NumCallbacks();
 		int mcb = m_vizserver->MaxCallbacks();
-		DEBUGPRINT1(("Vizlet::_stopstuff - VizServer has %d callbacks, max=%d!",ncb,mcb));
+		DEBUGPRINT1(("Vizlet10::_stopstuff - VizServer has %d callbacks, max=%d!",ncb,mcb));
 		if ( ncb == 0 && mcb > 0 ) {
 			m_vizserver->Stop();
 		}
 	}
 }
 
-DWORD Vizlet::DeInitGL() {
-	_stopstuff();
-	return FF_SUCCESS;
-}
-
-void Vizlet::AddVizSprite(VizSprite* s) {
+void Vizlet10::AddVizSprite(VizSprite* s) {
 	m_spritelist->add(s,defaultParams()->nsprites);
 }
 
-void Vizlet::DrawVizSprites() {
+void Vizlet10::DrawVizSprites() {
 	m_spritelist->draw(&graphics);
 }
 
@@ -438,22 +403,22 @@ void Vizlet::DrawVizSprites() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-Vizlet::QueueMidiPhrase(MidiPhrase* ph, click_t clk) {
+Vizlet10::QueueMidiPhrase(MidiPhrase* ph, click_t clk) {
 	m_vizserver->QueueMidiPhrase(ph,clk);
 }
 
 void
-Vizlet::QueueMidiMsg(MidiMsg* m, click_t clk) {
+Vizlet10::QueueMidiMsg(MidiMsg* m, click_t clk) {
 	m_vizserver->QueueMidiMsg(m,clk);
 }
 
 void
-Vizlet::QueueClear() {
+Vizlet10::QueueClear() {
 	m_vizserver->QueueClear();
 }
 
 void
-Vizlet::StartVizServer() {
+Vizlet10::StartVizServer() {
 	if ( ! m_vizserver->Started() ) {
 		m_vizserver->Start();
 		srand( (unsigned int)(m_vizserver->GetTime()) );
@@ -461,7 +426,7 @@ Vizlet::StartVizServer() {
 }
 
 void
-Vizlet::InitCallbacks() {
+Vizlet10::InitCallbacks() {
 	if ( ! m_callbacksInitialized ) {
 
 		_startApiCallbacks(m_af,(void*)this);
@@ -473,7 +438,8 @@ Vizlet::InitCallbacks() {
 	}
 }
 
-DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
+#if 0
+DWORD Vizlet10::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 {
 	if ( m_stopped ) {
 		return FF_SUCCESS;
@@ -556,7 +522,7 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 	}
 
 	if ( gotexception && m_disable_on_exception ) {
-		DEBUGPRINT(("DISABLING Vizlet due to exception!!!!!"));
+		DEBUGPRINT(("DISABLING Vizlet10 due to exception!!!!!"));
 		m_disabled = true;
 	}
 
@@ -595,8 +561,9 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 	
 	return FF_SUCCESS;
 }
+#endif
 
-void Vizlet::DrawNotesDown() {
+void Vizlet10::DrawNotesDown() {
 	m_vizserver->LockNotesDown();
 	try {
 		CATCH_NULL_POINTERS;
@@ -609,15 +576,15 @@ void Vizlet::DrawNotesDown() {
 	m_vizserver->UnlockNotesDown();
 }
 
-void Vizlet::LockVizlet() {
-	NosuchLock(&vizlet_mutex,"Vizlet");
+void Vizlet10::LockVizlet() {
+	NosuchLock(&vizlet10_mutex,"Vizlet10");
 }
 
-void Vizlet::UnlockVizlet() {
-	NosuchUnlock(&vizlet_mutex,"Vizlet");
+void Vizlet10::UnlockVizlet() {
+	NosuchUnlock(&vizlet10_mutex,"Vizlet10");
 }
 
-std::string Vizlet::processJsonAndCatchExceptions(std::string meth, cJSON *params, const char *id) {
+std::string Vizlet10::processJsonAndCatchExceptions(std::string meth, cJSON *params, const char *id) {
 	std::string r;
 	try {
 		CATCH_NULL_POINTERS;
@@ -629,7 +596,7 @@ std::string Vizlet::processJsonAndCatchExceptions(std::string meth, cJSON *param
 		} else if ( meth == "time"  ) {
 			r = jsonDoubleResult(GetTime(),id);
 		} else if ( meth == "name"  ) {
-		    std::string nm = CopyFFString16((const char *)(vizlet_plugininfo().GetPluginInfo()->PluginName));
+		    std::string nm = CopyFFString16((const char *)(vizlet10_plugininfo().GetPluginInfo()->PluginName));
 			r = jsonStringResult(nm,id);
 		} else if ( meth == "dllpathname"  ) {
 			r = jsonStringResult(dll_pathname(),id);
@@ -648,11 +615,11 @@ std::string Vizlet::processJsonAndCatchExceptions(std::string meth, cJSON *param
 	return r;
 }
 
-std::string Vizlet::submitJsonForProcessing(std::string method, cJSON *params, const char *id) {
+std::string Vizlet10::submitJsonForProcessing(std::string method, cJSON *params, const char *id) {
 
-	// We want JSON requests to be interpreted in the main thread of the FFGL plugin,
+	// We want JSON requests to be interpreted in the main thread of the plugin,
 	// so we stuff the request into json_* variables and wait for the main thread to
-	// pick it up (in ProcessOpenGL)
+	// pick it up (in Process*)
 	NosuchLock(&json_mutex,"json");
 
 	json_pending = true;
@@ -678,7 +645,7 @@ std::string Vizlet::submitJsonForProcessing(std::string method, cJSON *params, c
 }
 
 AllVizParams*
-Vizlet::findAllVizParams(std::string cachename) {
+Vizlet10::findAllVizParams(std::string cachename) {
 	std::map<std::string,AllVizParams*>::iterator it = m_paramcache.find(cachename);
 	if ( it == m_paramcache.end() ) {
 		return NULL;
@@ -702,7 +669,7 @@ readVizParams(std::string path) {
 }
 
 std::string
-Vizlet::VizPath2ConfigName(std::string path) {
+Vizlet10::VizPath2ConfigName(std::string path) {
 	size_t pos = path.find_last_of("/\\");
 	if (pos != path.npos) {
 		path = path.substr(pos+1);
@@ -715,7 +682,7 @@ Vizlet::VizPath2ConfigName(std::string path) {
 }
 
 std::string
-Vizlet::VizParamPath(std::string configname) {
+Vizlet10::VizParamPath(std::string configname) {
 	if (!NosuchEndsWith(configname, ".json")) {
 		configname += ".json";
 	}
@@ -723,7 +690,7 @@ Vizlet::VizParamPath(std::string configname) {
 }
 
 AllVizParams*
-Vizlet::getAllVizParams(std::string path) {
+Vizlet10::getAllVizParams(std::string path) {
 	if (m_useparamcache) {
 		std::map<std::string, AllVizParams*>::iterator it = m_paramcache.find(path);
 		if (it == m_paramcache.end()) {
@@ -740,7 +707,7 @@ Vizlet::getAllVizParams(std::string path) {
 }
 
 AllVizParams*
-Vizlet::checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, std::time_t& lastupdate) {
+Vizlet10::checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, std::time_t& lastupdate) {
 	std::time_t throttle = 1;  // don't check more often than this number of seconds
 	std::time_t tm = time(0);
 	if ((tm - lastcheck) < throttle) {
@@ -765,14 +732,14 @@ Vizlet::checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, st
 
 
 VizSprite*
-Vizlet::makeAndAddVizSprite(AllVizParams* p, NosuchPos pos) {
+Vizlet10::makeAndAddVizSprite(AllVizParams* p, NosuchPos pos) {
 		VizSprite* s = makeAndInitVizSprite(p,pos);
 		AddVizSprite(s);
 		return s;
 }
 
 VizSprite*
-Vizlet::makeAndInitVizSprite(AllVizParams* p, NosuchPos pos) {
+Vizlet10::makeAndInitVizSprite(AllVizParams* p, NosuchPos pos) {
 
 	VizSprite* s = VizSprite::makeVizSprite(p);
 	s->m_framenum = FrameNum();
@@ -789,17 +756,17 @@ Vizlet::makeAndInitVizSprite(AllVizParams* p, NosuchPos pos) {
 	}
 
 	s->initVizSpriteState(GetTime(),Handle(),pos,movedir);
-	DEBUGPRINT1(("Vizlet::makeAndInitVizSprite size=%f",s->m_state.size));
+	DEBUGPRINT1(("Vizlet10::makeAndInitVizSprite size=%f",s->m_state.size));
 	return s;
 }
 
 NosuchColor
-Vizlet::channelColor(int ch) {
+Vizlet10::channelColor(int ch) {
 	double hue = (ch * 360.0f) / 16.0f;
 	return NosuchColor(hue,0.5,1.0);
 }
 
-double Vizlet::movedirDegrees(AllVizParams* p) {
+double Vizlet10::movedirDegrees(AllVizParams* p) {
 
 	if ( p->movedirrandom.get() ) {
 		double f = ((double)(rand()))/ RAND_MAX;
@@ -814,7 +781,7 @@ double Vizlet::movedirDegrees(AllVizParams* p) {
 	return p->movedir.get();
 }
 
-VizSprite* Vizlet::defaultMidiVizSprite(MidiMsg* m) {
+VizSprite* Vizlet10::defaultMidiVizSprite(MidiMsg* m) {
 
 	int minpitch = 0;
 	int maxpitch = 127;
@@ -822,7 +789,7 @@ VizSprite* Vizlet::defaultMidiVizSprite(MidiMsg* m) {
 
 	if ( m->MidiType() == MIDI_NOTE_ON ) {
 		if ( m->Velocity() == 0 ) {
-			DEBUGPRINT(("Vizlet1 sees noteon with 0 velocity, ignoring"));
+			DEBUGPRINT(("Vizlet101 sees noteon with 0 velocity, ignoring"));
 			return s;
 		}
 		NosuchPos pos;

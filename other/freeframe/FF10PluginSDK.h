@@ -78,7 +78,27 @@ public:
 	/// \return					The default implementation always returns FF_FAIL. 
 	///							A custom implementation must be provided by every specific plugin
 	virtual DWORD GetParameter(DWORD dwIndex);
-	
+
+	/// Default implementation of the FreeFrame processFrame instance specific function. This function performs 
+	///	in place processing of the frame passed as parameter. This default implementation always returns FF_FAIL. 
+	/// A custom implementation must be provided by every specific plugin.
+	///
+	/// \param		pFrame		Pointer to the frame that has to be processed by the plugin.
+	/// \return					The default implementation always returns FF_FAIL. 
+	///							A custom implementation must be provided by every specific plugin.
+	virtual DWORD ProcessFrame(void* pFrame);
+
+	/// Default implementation of the FreeFrame processFrameCopy instance specific function. This function processes 
+	/// the input frame(s) by possibly performing copy operations. This default implementation always returns FF_FAIL. 
+	/// A custom implementation must be provided by every specific plugin supporting processFrameCopy processing mode. 
+	/// In case only in place processing is supported the empty default implementation will suit.
+	///
+	/// \param		pFrameData	Pointer to a ProcessFrameCopyStruct structure (see the definition in FreeFrame.h and 
+	///							the description in the FreeFrame specification).
+	/// \return					The default implementation always returns FF_FAIL. 
+	///							A custom implementation must be provided by every specific plugin.
+	virtual DWORD ProcessFrameCopy(ProcessFrameCopyStruct* pFrameData);
+
 	/// Default implementation of the FreeFrame getInputStatus instance specific function. This function is called 
 	/// to know whether a given input is currently in use. For the default implementation every input is always in use. 
 	/// A custom implementation may be provided by every specific plugin.

@@ -1,6 +1,3 @@
-#ifndef FFUTIL_H
-#define FFUTIL_H
-
 /*
 	Copyright (c) 2011-2013 Tim Thompson <me@timthompson.com>
 
@@ -28,14 +25,49 @@
 	WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <string>
-#include "FFGL.h"
-#include "FFGLPlugin.h"
-#include "FFGLLib.h"
+#include <functional> 
+#include <cctype>
+#include <algorithm>
 
-std::string CopyFFString16(const char *src);
-#define FFString CopyFFString16
-bool ff_passthru(ProcessOpenGLStruct *pGL);
-extern "C" { bool vizlet_setdll(std::string dllpath); }
+#include "NosuchDebug.h"
+#include "NosuchUtil.h"
+#include "vizlet10util.h"
 
-#endif
+#include <sys/types.h>
+#include <sys/stat.h>
+
+extern "C" {
+bool
+vizlet10_setdll(std::string dllpath)
+{
+	dllpath = NosuchToLower(dllpath);
+
+	size_t pos = dllpath.find_last_of("/\\");
+	if ( pos != dllpath.npos && pos > 0 ) {
+		std::string parent = dllpath.substr(0,pos);
+		pos = dllpath.substr(0,pos-1).find_last_of("/\\");
+		if ( pos != parent.npos && pos > 0) {
+			SetVizPath(parent.substr(0,pos));
+		}
+	}
+
+	return TRUE;
+}
+}
+
+std::string
+CopyFFString16(const char *src)
+{
+    static char buff[17];   // static shouldn't be needed, hack to try to figure something out?
+
+	int cnt = 0;
+	for ( int n=0; n<16; n++ ) {
+		buff[n] = src[n];
+		if ( buff[n] == 0 ) {
+			break;
+		}
+	}
+    buff[16] = 0;
+    return std::string(buff);
+}
+

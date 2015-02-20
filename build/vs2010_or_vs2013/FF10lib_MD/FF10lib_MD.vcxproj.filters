@@ -13,9 +13,6 @@
     <ClCompile Include="..\..\..\src\misclib\UT_Mutex.cpp">
       <Filter>Source Files\misclib</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\misclib\ffutil.cpp">
-      <Filter>Source Files\misclib</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\nosuch\midifile.cpp">
       <Filter>Source Files\nosuch</Filter>
     </ClCompile>
@@ -79,9 +76,6 @@
     <ClCompile Include="..\..\..\src\params\AllVizParams.cpp">
       <Filter>Source Files\params</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\Viz\Vizlet.cpp">
-      <Filter>Source Files\viz</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\Viz\VizSprite.cpp">
       <Filter>Source Files\viz</Filter>
     </ClCompile>
@@ -90,6 +84,18 @@
     </ClCompile>
     <ClCompile Include="..\..\..\other\freeframe\FF10PluginInfo.cpp">
       <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\Vizlet10.cpp">
+      <Filter>Source Files\viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FF10PluginManager.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FF10PluginSDK.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\vizlet10util.cpp">
+      <Filter>Source Files\viz</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -129,9 +135,6 @@
     <Filter Include="Header Files">
       <UniqueIdentifier>{6ea54e5a-a4e5-4701-a28e-180e800d7704}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\cJSON">
-      <UniqueIdentifier>{26927c05-7808-4e81-8c30-5ac941aa1973}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\freeframe">
       <UniqueIdentifier>{89814e34-4b8c-434d-bad5-b33a5b69e5b8}</UniqueIdentifier>
     </Filter>
@@ -150,6 +153,9 @@
     <Filter Include="Source Files\viz">
       <UniqueIdentifier>{c6167b56-f0fa-4394-a8ba-724a0d9a691e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\cJSON">
+      <UniqueIdentifier>{775d385d-55a3-4c35-aedf-466f84c25ac2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\..\bin\genparams.py">
@@ -160,9 +166,6 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\misclib\ffutil.h">
-      <Filter>Header Files\misclib</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\misclib\sha1.h">
       <Filter>Header Files\misclib</Filter>
     </ClInclude>
@@ -252,6 +255,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\other\freeframe\FF10.h">
       <Filter>Header Files\freeframe</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\other\cJSON\cJSON.h">
+      <Filter>Header Files\cJSON</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

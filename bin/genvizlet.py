@@ -1,6 +1,6 @@
 # This script generates the source code and Visual Studio project
 # for a new Vizlet plugin.  The VizletTemplate directory contains the 
-# basis for it.
+# basis for it.  If the -v argument is 10, then Vizlet10Template is used
 
 import sys
 import os
@@ -18,7 +18,7 @@ def generate(vizletname,vizletid,pathin,pathout):
 	lines = fin.readlines()
 
 	for ln in lines:
-		ln = ln.replace("VizletTemplate",vizletname)
+		ln = ln.replace(VizletTemplate,vizletname)
 		ln = ln.replace("VZID",vizletid)
 		fout.write(ln)
 
@@ -35,6 +35,7 @@ parser.add_argument("-i", "--id", help="4-character FFGL plugin ID")
 parser.add_argument("-f", "--force",
 		help="Force overwriting of an existing project", action="store_true")
 parser.add_argument("-b", "--builddir", help="Visual Studio build directory")
+parser.add_argument("-v", "--viztype", help="Either 10 or GL")
 
 args = parser.parse_args()
 
@@ -42,9 +43,15 @@ nm = args.name
 id = args.id
 force = args.force
 builddir = args.builddir
+viztype = args.viztype
+
+if not viztype:
+	viztype = "GL"
+
+VizletTemplate = "Vizlet" + viztype + "Template"
 
 if not builddir:
-	builddir = "build/vs2013"
+	builddir = "build/vs2010_or_vs2013"
 
 if not nm[0].isupper():
 	print("The plugin name needs to start with an uppercase letter!")
@@ -57,8 +64,8 @@ if not manifold:
 
 os.chdir(manifold)
 
-projdir = os.path.join(manifold,builddir,"VizletTemplate")
-srcdir = os.path.join(manifold,"src","plugins","VizletTemplate")
+projdir = os.path.join(manifold,builddir,VizletTemplate)
+srcdir = os.path.join(manifold,"src","plugins",VizletTemplate)
 blddir = os.path.join(manifold,builddir)
 
 # Make sure various directories exist
@@ -108,11 +115,11 @@ for dir in [toprojdir, tosrcdir]:
 
 print "========== Generating FFGL plugin:%s id:%s" % (nm,id)
 
-generate(nm, id, projdir+"/VizletTemplate.def", toprojdir+"/"+nm+".def")
-generate(nm, id, projdir+"/VizletTemplate.vcxproj", toprojdir+"/"+nm+".vcxproj")
-generate(nm, id, projdir+"/VizletTemplate.vcxproj.filters", toprojdir+"/"+nm+".vcxproj.filters")
+generate(nm, id, projdir+"/FFPlugins.def", toprojdir+"/FFPlugins.def")
+generate(nm, id, projdir+"/"+VizletTemplate+".vcxproj", toprojdir+"/"+nm+".vcxproj")
+generate(nm, id, projdir+"/"+VizletTemplate+".vcxproj.filters", toprojdir+"/"+nm+".vcxproj.filters")
 
-generate(nm, id, srcdir+"/VizletTemplate.cpp", tosrcdir+"/"+nm+".cpp")
-generate(nm, id, srcdir+"/VizletTemplate.h", tosrcdir+"/"+nm+".h")
+generate(nm, id, srcdir+"/"+VizletTemplate+".cpp", tosrcdir+"/"+nm+".cpp")
+generate(nm, id, srcdir+"/"+VizletTemplate+".h", tosrcdir+"/"+nm+".h")
 
 sys.exit(0)

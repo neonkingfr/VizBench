@@ -1,7 +1,6 @@
 #ifndef FFGLPlugin_H
 #define FFGLPlugin_H
 
-#include "ffutil.h"
 #include "NosuchDebug.h"
 #include <FFGL.h>
 #include <string>

@@ -31,12 +31,29 @@
 
 #include "NosuchDebug.h"
 #include "NosuchUtil.h"
-#include "ffutil.h"
+#include "vizletutil.h"
 
-// #include <opencv/cv.h>
-// #include <opencv/highgui.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+
+extern "C" {
+bool
+vizlet_setdll(std::string dllpath)
+{
+	dllpath = NosuchToLower(dllpath);
+
+	size_t pos = dllpath.find_last_of("/\\");
+	if ( pos != dllpath.npos && pos > 0 ) {
+		std::string parent = dllpath.substr(0,pos);
+		pos = dllpath.substr(0,pos-1).find_last_of("/\\");
+		if ( pos != parent.npos && pos > 0) {
+			SetVizPath(parent.substr(0,pos));
+		}
+	}
+
+	return TRUE;
+}
+}
 
 std::string
 CopyFFString16(const char *src)
@@ -93,23 +110,4 @@ ff_passthru(ProcessOpenGLStruct *pGL)
 
 	glDisable(GL_TEXTURE_2D);
 	return true;
-}
-
-extern "C" {
-bool
-vizlet_setdll(std::string dllpath)
-{
-	dllpath = NosuchToLower(dllpath);
-
-	size_t pos = dllpath.find_last_of("/\\");
-	if ( pos != dllpath.npos && pos > 0 ) {
-		std::string parent = dllpath.substr(0,pos);
-		pos = dllpath.substr(0,pos-1).find_last_of("/\\");
-		if ( pos != parent.npos && pos > 0) {
-			SetVizPath(parent.substr(0,pos));
-		}
-	}
-
-	return TRUE;
-}
 }

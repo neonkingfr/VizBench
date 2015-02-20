@@ -187,6 +187,8 @@
     <ClCompile Include="..\..\..\other\cJSON\cJSON.cpp" />
     <ClCompile Include="..\..\..\other\freeframe\FF10.cpp" />
     <ClCompile Include="..\..\..\other\freeframe\FF10PluginInfo.cpp" />
+    <ClCompile Include="..\..\..\other\freeframe\FF10PluginManager.cpp" />
+    <ClCompile Include="..\..\..\other\freeframe\FF10PluginSDK.cpp" />
     <ClCompile Include="..\..\..\other\oscpack\ip\IpEndpointName.cpp" />
     <ClCompile Include="..\..\..\other\oscpack\ip\win32\NetworkingUtils.cpp" />
     <ClCompile Include="..\..\..\other\oscpack\ip\win32\UdpSocket.cpp" />
@@ -197,7 +199,6 @@
     <ClCompile Include="..\..\..\other\osc\src\OscBundle.cpp" />
     <ClCompile Include="..\..\..\other\osc\src\OscMessage.cpp" />
     <ClCompile Include="..\..\..\other\osc\src\OscSender.cpp" />
-    <ClCompile Include="..\..\..\src\misclib\ffutil.cpp" />
     <ClCompile Include="..\..\..\src\misclib\sha1.c" />
     <ClCompile Include="..\..\..\src\misclib\UT_Mutex.cpp" />
     <ClCompile Include="..\..\..\src\misclib\UT_SharedMem.cpp" />
@@ -212,7 +213,8 @@
     <ClCompile Include="..\..\..\src\nosuch\NosuchUtil.cpp" />
     <ClCompile Include="..\..\..\src\params\AllVizParams.cpp" />
     <ClCompile Include="..\..\..\src\params\VizParams.cpp" />
-    <ClCompile Include="..\..\..\src\Viz\Vizlet.cpp" />
+    <ClCompile Include="..\..\..\src\Viz\Vizlet10.cpp" />
+    <ClCompile Include="..\..\..\src\Viz\vizlet10util.cpp" />
     <ClCompile Include="..\..\..\src\Viz\VizSprite.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -220,12 +222,12 @@
     <Text Include="..\..\..\src\params\AllVizParams.list" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\other\cJSON\cJSON.h" />
     <ClInclude Include="..\..\..\other\freeframe\FF10.h" />
     <ClInclude Include="..\..\..\other\freeframe\FF10PluginInfo.h" />
     <ClInclude Include="..\..\..\other\freeframe\FF10PluginManager.h" />
     <ClInclude Include="..\..\..\other\freeframe\FF10PluginManager_inl.h" />
     <ClInclude Include="..\..\..\other\freeframe\FF10PluginSDK.h" />
-    <ClInclude Include="..\..\..\src\misclib\ffutil.h" />
     <ClInclude Include="..\..\..\src\misclib\sha1.h" />
     <ClInclude Include="..\..\..\src\misclib\stdint.h" />
     <ClInclude Include="..\..\..\src\misclib\UT_Mutex.h" />

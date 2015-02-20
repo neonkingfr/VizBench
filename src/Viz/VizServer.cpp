@@ -26,7 +26,6 @@
 	*/
 
 #include "NosuchUtil.h"
-#include "ffutil.h"
 #include <VizServer.h>
 #include <AllVizParams.h>
 #include <NosuchUtil.h>

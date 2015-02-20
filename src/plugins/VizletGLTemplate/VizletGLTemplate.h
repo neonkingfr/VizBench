@@ -1,11 +1,11 @@
-#ifndef _MyViz_H
-#define _MyViz_H
+#ifndef _VizletGLTemplate_H
+#define _VizletGLTemplate_H
 
-class MyViz : public Vizlet
+class VizletGLTemplate : public Vizlet
 {
 public:
-	MyViz();
-	~MyViz();
+	VizletGLTemplate();
+	~VizletGLTemplate();
 
 	static DWORD __stdcall CreateInstance(CFreeFrameGLPlugin **ppInstance);
 

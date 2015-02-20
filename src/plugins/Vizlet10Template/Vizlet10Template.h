@@ -1,13 +1,13 @@
-#ifndef _VizletTemplate_H
-#define _VizletTemplate_H
+#ifndef _Vizlet10Template_H
+#define _Vizlet10Template_H
 
-class VizletTemplate : public Vizlet
+class Vizlet10Template : public Vizlet10
 {
 public:
-	VizletTemplate();
-	~VizletTemplate();
+	Vizlet10Template();
+	~Vizlet10Template();
 
-	static DWORD __stdcall CreateInstance(CFreeFrameGLPlugin **ppInstance);
+	static DWORD __stdcall CreateInstance(CFreeFrame10Plugin **ppInstance);
 
 	std::string processJson(std::string meth, cJSON *jsonparams, const char *id);
 	void processMidiInput(MidiMsg* m);
@@ -15,6 +15,8 @@ public:
 	void processCursor(VizCursor* c, int downdragup);
 	bool processDraw();
 	void processDrawNote(MidiMsg* m);
+	DWORD ProcessFrame(void* pFrame);
+	DWORD ProcessFrameCopy(ProcessFrameCopyStruct* pFrameData);
 
 private:
 	// Put private things here.

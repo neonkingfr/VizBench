@@ -11,10 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{A0901BA3-9B41-40B9-BE2E-1C62F48B3E14}</ProjectGuid>
-    <Keyword>misclib</Keyword>
-    <RootNamespace>misclib</RootNamespace>
-    <ProjectName>misclib_MD</ProjectName>
+    <ProjectGuid>{D35B747A-8620-4B4F-95C6-D32F53ABE8A3}</ProjectGuid>
+    <Keyword>FFGLlib</Keyword>
+    <RootNamespace>FFGLlib</RootNamespace>
+    <ProjectName>FFGLlib_MT</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -61,18 +61,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)\$(ProjectName)\$(Configuration)\</OutDir>
-    <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
-    <PreLinkEventUseInBuild>false</PreLinkEventUseInBuild>
-    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
-    <CustomBuildBeforeTargets>
-    </CustomBuildBeforeTargets>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)\$(ProjectName)\$(Configuration)\</OutDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
-    <CustomBuildBeforeTargets>
-    </CustomBuildBeforeTargets>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -95,20 +89,10 @@
       </IgnoreSpecificDefaultLibraries>
     </Lib>
     <PreBuildEvent>
-      <Command>..\..\..\bin\prebuildmisclib.bat $(Configuration) $(ProjectName)</Command>
-    </PreBuildEvent>
-    <CustomBuildStep>
       <Command>
       </Command>
-    </CustomBuildStep>
-    <CustomBuildStep>
-      <Message>
-      </Message>
-      <Outputs>
-      </Outputs>
-      <Inputs>
-      </Inputs>
-    </CustomBuildStep>
+      <Message>See FFGLlib_MD for build event for genparams.py</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -139,7 +123,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\..\src\vizlet;..\..\..\src\params;..\..\..\src\mmtt;..\..\..\src\misclib;..\..\..\src\Viz;..\..\..\src\nosuch;..\..\..\other\cJSON;..\..\..\other\freeframe;..\..\..\other\portmidi\pm_common;..\..\..\other\portmidi\porttime;..\..\..\other\osc\include;..\..\..\other\opencv\build\include;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>Async</ExceptionHandling>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -151,20 +135,10 @@
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
     <PreBuildEvent>
-      <Command>..\..\..\bin\prebuildmisclib.bat $(Configuration) $(ProjectName)</Command>
-    </PreBuildEvent>
-    <CustomBuildStep>
       <Command>
       </Command>
-    </CustomBuildStep>
-    <CustomBuildStep>
-      <Message>
-      </Message>
-      <Outputs>
-      </Outputs>
-      <Inputs>
-      </Inputs>
-    </CustomBuildStep>
+      <Message>See FFGLlib_MD for build event</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -203,7 +177,6 @@
     <ClCompile Include="..\..\..\other\osc\src\OscBundle.cpp" />
     <ClCompile Include="..\..\..\other\osc\src\OscMessage.cpp" />
     <ClCompile Include="..\..\..\other\osc\src\OscSender.cpp" />
-    <ClCompile Include="..\..\..\src\misclib\ffutil.cpp" />
     <ClCompile Include="..\..\..\src\misclib\sha1.c" />
     <ClCompile Include="..\..\..\src\misclib\UT_Mutex.cpp" />
     <ClCompile Include="..\..\..\src\misclib\UT_SharedMem.cpp" />
@@ -231,10 +204,8 @@
     <ClInclude Include="..\..\..\other\freeframe\FFGLFBO.h" />
     <ClInclude Include="..\..\..\other\freeframe\FFGLPluginInfo.h" />
     <ClInclude Include="..\..\..\other\freeframe\FFGLPluginManager.h" />
-    <ClInclude Include="..\..\..\other\freeframe\FFGLPluginManager_inl.h" />
     <ClInclude Include="..\..\..\other\freeframe\FFGLPluginSDK.h" />
     <ClInclude Include="..\..\..\other\freeframe\FFGLShader.h" />
-    <ClInclude Include="..\..\..\src\misclib\ffutil.h" />
     <ClInclude Include="..\..\..\src\misclib\sha1.h" />
     <ClInclude Include="..\..\..\src\misclib\stdint.h" />
     <ClInclude Include="..\..\..\src\misclib\UT_Mutex.h" />
