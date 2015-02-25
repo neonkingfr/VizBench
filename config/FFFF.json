@@ -1,6 +1,7 @@
 {
 #  "ffglpath": "ffglplugins;ffglplugins_resolume",
   "ffglpath": "ffglplugins",
+  "ff10path": "ffplugins;ffplugins_loopycam",
   "window_x": 50,
   "window_y": 50,
   "window_width": 1024,

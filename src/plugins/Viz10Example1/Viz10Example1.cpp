@@ -44,10 +44,6 @@ void Viz10Example1::processMidiOutput(MidiMsg* m) {
 	// DEBUGPRINT(("Viz10Example1::processMidiOutput"));
 }
 
-// bool Viz10Example1::processDraw() {
-// 	return true;
-// }
-
 bool Viz10Example1::processFrame24Bit() {
 	cvFlip(FrameImage());
 	return true;
@@ -55,29 +51,4 @@ bool Viz10Example1::processFrame24Bit() {
 
 bool Viz10Example1::processFrame32Bit() {
 	return false;
-}
-
-#if 0
-DWORD Viz10Example1::ProcessFrame(void* pFrame) {
-
-	switch (m_VideoInfo.BitDepth) {
-	case 1:
-		m_image->origin = 1;
-		m_image->imageData = (char*)pFrame;
-		return processFrame24Bit();
-	case 2:
-		m_image->origin = 1;
-		m_image->imageData = (char*)pFrame;
-		return processFrame32Bit();
-	default:
-		return FF_FAIL;
-	}
-}
-
-DWORD Viz10Example1::ProcessFrameCopy(ProcessFrameCopyStruct* pFrameData) {
-	return FF_FAIL;
-}
-#endif
-
-void Viz10Example1::processDrawNote(MidiMsg* m) {
 }

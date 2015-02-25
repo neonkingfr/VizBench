@@ -13,8 +13,6 @@ public:
 	void processMidiInput(MidiMsg* m);
 	void processMidiOutput(MidiMsg* m);
 	void processCursor(VizCursor* c, int downdragup);
-	bool processDraw();
-	void processDrawNote(MidiMsg* m);
 	bool processFrame24Bit();
 	bool processFrame32Bit();
 

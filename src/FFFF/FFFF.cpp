@@ -347,7 +347,7 @@ FFFF::clearPipeline()
 }
 
 void
-FFFF::loadFFPlugins(std::string ffpath, std::string ffglpath, int ffgl_width, int ffgl_height)
+FFFF::loadFFPlugins(std::string ff10path, std::string ffglpath, int ffgl_width, int ffgl_height)
 {
     nff10plugindefs = 0;
     nffglplugindefs = 0;
@@ -358,8 +358,7 @@ FFFF::loadFFPlugins(std::string ffpath, std::string ffglpath, int ffgl_width, in
 		return;
 	}
 
-    // loadplugins();
-    loadffpath(ffpath);
+    loadff10path(ff10path);
 
     DEBUGPRINT(("%d FF plugins, %d FFGL plugins\n",nff10plugindefs,nffglplugindefs));
 }
@@ -871,6 +870,21 @@ std::string FFFF::FFGLPipelineList(bool only_enabled) {
 	return r;
 }
 
+std::string FFFF::FF10PipelineList(bool only_enabled) {
+	std::string r = "[";
+	std::string sep = "";
+	for ( FF10PluginInstance* p=m_ff10pipeline; p!=NULL; p=p->next ) {
+		bool enabled = p->isEnabled();
+		if ( only_enabled==false || enabled==true ) {
+			r += (sep + "{ \"plugin\":\""+p->plugindef()->GetPluginName()+"\", \"instance\":\"" + p->name() + "\", "
+				+ " \"enabled\": " + (p->isEnabled()?"1":"0") + "  }");
+			sep = ", ";
+		}
+	}
+	r = r + "]";
+	return r;
+}
+
 std::string FFFF::FF10ParamList(std::string plugin, const char* id) {
     FF10PluginDef* p = findff10plugin(plugin);
 	if ( !p ) {
@@ -1051,6 +1065,25 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 {
 	std::string err;
 
+	if (meth == "apis") {
+		return jsonStringResult("time;clicknow;show;hide;echo"
+			";enable(instance);disable(instance);delete(instance)"
+			";ffgladd(plugin,instance,autoenable,params)"
+			";ff10add(plugin,instance,autoenable,params)"
+			";ffglparamset(instance,param,val)"
+			";ff10paramset(instance,param,val)"
+			";ffglparamget(instance,param)"
+			";ff10paramget(instance,param)"
+			";ff10paramlist(plugin)"
+			";ffglparamlist(plugin)"
+			";ff10paramvals(instance)"
+			";ffglparamvals(instance)"
+			";ffglpipeline"
+			";ff10pipeline"
+			";ffglplugins"
+			";ff10plugins"
+			, id);
+	}
 	if ( meth == "time"  ) {
 		return jsonDoubleResult(m_vizserver->GetTime(),id);
 	}
@@ -1084,12 +1117,23 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	if ( meth == "name" ) {
 		return jsonStringResult("FFFF",id);
 	}
-	if ( meth == "add" ) {
+	if ( meth == "add" || meth == "ffgladd" ) {
 		std::string plugin = jsonNeedString(params,"plugin");
 		std::string iname = jsonNeedString(params,"instance");
 		bool autoenable = (jsonNeedInt(params,"autoenable",1) != 0);
 		cJSON* pparams = jsonGetObject(params, "params");
 		FFGLPluginInstance* pi = FFGLAddToPipeline(plugin,iname,autoenable,pparams);
+		if ( ! pi ) {
+			throw NosuchException("Unable to add plugin '%s'",plugin.c_str());
+		}
+		return jsonStringResult(iname,id);
+	}
+	if ( meth == "ff10add" ) {
+		std::string plugin = jsonNeedString(params,"plugin");
+		std::string iname = jsonNeedString(params,"instance");
+		bool autoenable = (jsonNeedInt(params,"autoenable",1) != 0);
+		cJSON* pparams = jsonGetObject(params, "params");
+		FF10PluginInstance* pi = FF10AddToPipeline(plugin,iname,autoenable,pparams);
 		if ( ! pi ) {
 			throw NosuchException("Unable to add plugin '%s'",plugin.c_str());
 		}
@@ -1129,44 +1173,49 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		if ( pd == NULL ) {
 			throw NosuchException("No parameter '%s' in plugin '%s'",param.c_str(),instance.c_str());
 		}
-
-		std::string s = pi->GetParameterDisplay(pd->num);
-		DEBUGPRINT(("get API, display=%s",s.c_str()));
-		float v;
-		switch(pd->type){
-		case FF_TYPE_TEXT:
-			return jsonStringResult(s,id);
-			break;
-		case FF_TYPE_BOOLEAN:
-			v = pi->GetBoolParameter(pd->num);
-			return jsonDoubleResult(v,id);
-		case FF_TYPE_STANDARD:
-		default:
-			v = pi->GetFloatParameter(pd->num);
-			return jsonDoubleResult(v,id);
-		}
-		throw NosuchException("UNIMPLEMENTED parameter type (%d) in get API!",pd->type);
+		return pi->getParamJsonResult(pd, pi, id);
 	}
-	if ( meth == "ff10list" || meth == "ff10plugins" ) {
+	if ( meth == "ff10paramset" ) {
+		std::string instance = jsonNeedString(params,"instance");
+		std::string param = jsonNeedString(params,"param");
+		float val = (float) jsonNeedDouble(params,"val");
+		FF10PluginInstance* pi = FF10NeedPluginInstance(instance);
+		if ( ! pi->setparam(param,val) ) {
+			throw NosuchException("Unable to find or set parameter '%s' in instance '%s'",param.c_str(),instance.c_str());
+		}
+		return jsonOK(id);
+	}
+	if ( meth == "ff10paramget" ) {
+		std::string instance = jsonNeedString(params,"instance");
+		std::string param = jsonNeedString(params,"param");
+		FF10PluginInstance* pi = FF10NeedPluginInstance(instance);
+		FF10ParameterDef* pd = pi->plugindef()->findparamdef(param);
+		if ( pd == NULL ) {
+			throw NosuchException("No parameter '%s' in plugin '%s'",param.c_str(),instance.c_str());
+		}
+		return pi->getParamJsonResult(pd, pi, id);
+	}
+	if ( meth == "ff10plugins" ) {
 		return jsonResult(FF10List().c_str(),id);
 	}
-	if ( meth == "ffgllist" || meth == "ffglplugins" ) {
+	if ( meth == "ffglplugins" ) {
 		return jsonResult(FFGLList().c_str(),id);
 	}
-	if ( meth == "pipelinelist" || meth == "instancelist" || meth == "ffglpipelinelist" ) {
+	if ( meth == "ffglpipeline" ) {
 		bool only_enabled = (jsonNeedInt(params,"enabled",0) != 0);  // default is to list everything
 		return jsonResult(FFGLPipelineList(only_enabled).c_str(),id);
 	}
-	if ( meth == "ff10pipelinelist" ) {
+	if ( meth == "ff10pipeline" ) {
 		bool only_enabled = (jsonNeedInt(params,"enabled",0) != 0);  // default is to list everything
-		return jsonResult(FFGLPipelineList(only_enabled).c_str(),id);
+		return jsonResult(FF10PipelineList(only_enabled).c_str(),id);
 	}
-	if ( meth == "ffparamlist" || meth == "ffglparamlist" ) {
+	if ( meth == "ffglparamlist" ) {
 		return FFGLParamList(jsonNeedString(params,"plugin"),id);
 	}
 	if ( meth == "ff10paramlist" ) {
 		return FF10ParamList(jsonNeedString(params,"plugin"),id);
 	}
+#if 0
 	if ( meth == "ffglparamlist" ) {
 		std::string plugin = jsonNeedString(params,"plugin","");
 		std::string instance = jsonNeedString(params,"instance","");
@@ -1185,6 +1234,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		}
 		return FF10ParamList(plugin,id);
 	}
+#endif
 	if ( meth == "ffglparamvals" ) {
 		std::string instance = jsonNeedString(params,"instance","");
 		FFGLPluginInstance* pi = FFGLNeedPluginInstance(instance);   // throws an exception if it doesn't exist

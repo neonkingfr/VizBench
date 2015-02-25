@@ -1,10 +1,10 @@
 #ifndef _FFFF_H
 #define _FFFF_H
 
-#include "pthread.h"
 #include "NosuchDebug.h"
 #include "NosuchException.h"
-#include "opencv/cv.h"
+#include <pthread.h>
+#include <opencv/cv.h>
 #include <GLFW/glfw3.h>
 
 #include "VizServer.h"
@@ -20,7 +20,6 @@ extern int 		camWidth;
 extern int 		camHeight;
 extern int		ffWidth;
 extern int		ffHeight;
-extern int		CV_interp;
 
 void loadffplugindef(std::string fn);
 
@@ -132,7 +131,7 @@ private:
 
 };
 
-void loadffpath(std::string ffpath);
+void loadff10path(std::string ffpath);
 void loadffglpath(std::string ffglpath);
 int FFGLinit2();
 

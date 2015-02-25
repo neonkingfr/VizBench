@@ -7,12 +7,14 @@ binDebug/VizServer.dll
 binRelease/FFFF.exe
 binRelease/VizServer.dll
 ffplugins/Viz*.dll
+ffplugins_loopycam
 ffpluginsDebug/Viz*.dll
 ffglpluginsDebug/Viz*.dll
 ffglpluginsRelease/Viz*.dll
 ffglplugins/Viz*.dll
 ffglplugins/EmptyA.dll
 ffglplugins/AVFFGLTrails.dll
+src/PyLoopyCam/presets_*
 src/palette
 src/oldpalette
 src/zlib/contrib

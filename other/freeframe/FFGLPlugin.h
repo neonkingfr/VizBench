@@ -76,6 +76,8 @@ public:
 	bool setparam(std::string pnm, float v);
 	bool setparam(std::string pnm, std::string v);
 	float getparam(std::string pnm);
+	std::string getParamJsonResult(FFGLParameterDef* pd, FFGLPluginInstance* pi, const char* id);
+
 	DWORD CallProcessOpenGL(ProcessOpenGLStructTag &t);
 
 	//calls plugMain(FF_INSTANTIATEGL) and assigns

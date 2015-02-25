@@ -260,14 +260,14 @@ const char* vizlet10_json(void* data,const char *method, cJSON* params, const ch
 		// it is given to the plugin to handle.
 		if (std::string(method) == "description") {
 			std::string desc = vizlet10_plugininfo().GetPluginExtendedInfo()->Description;
-			v->json_result = jsonStringResult(desc, id);
+			v->m_json_result = jsonStringResult(desc, id);
 		} else if (std::string(method) == "about") {
 			std::string desc = vizlet10_plugininfo().GetPluginExtendedInfo()->About;
-			v->json_result = jsonStringResult(desc, id);
+			v->m_json_result = jsonStringResult(desc, id);
 		} else {
-			v->json_result = v->processJsonAndCatchExceptions(std::string(method), params, id);
+			v->m_json_result = v->processJsonAndCatchExceptions(std::string(method), params, id);
 		}
-		return v->json_result.c_str();
+		return v->m_json_result.c_str();
 	}
 }
 
@@ -372,20 +372,6 @@ void Vizlet10::SendMidiMsg() {
 	m_vizserver->SendMidiMsg(msg);
 }
 
-
-#if 0
-void
-Vizlet10::_drawnotes(std::list<MidiMsg*>& notes) {
-
-	for ( std::list<MidiMsg*>::const_iterator ci = notes.begin(); ci != notes.end(); ) {
-		MidiMsg* m = *ci++;
-		if (m->MidiType() == MIDI_NOTE_ON) {
-			processDrawNote(m);
-		}
-	}
-}
-#endif
-
 void Vizlet10::_stopstuff() {
 	if ( m_stopped )
 		return;
@@ -400,16 +386,6 @@ void Vizlet10::_stopstuff() {
 		}
 	}
 }
-
-#if 0
-void Vizlet10::AddVizSprite(VizSprite* s) {
-	m_spritelist->add(s,defaultParams()->nsprites);
-}
-
-void Vizlet10::DrawVizSprites() {
-	m_spritelist->draw(&graphics);
-}
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Methods
@@ -496,7 +472,7 @@ DWORD Vizlet10::ProcessFrame(void* pFrame)
 	if (json_pending) {
 		// Execute json stuff and generate response
 
-		json_result = processJsonAndCatchExceptions(json_method, json_params, json_id);
+		m_json_result = processJsonAndCatchExceptions(json_method, json_params, json_id);
 		json_pending = false;
 		int e = pthread_cond_signal(&json_cond);
 		if (e) {
@@ -529,21 +505,21 @@ DWORD Vizlet10::ProcessFrame(void* pFrame)
 			break;
 		}
 		if (!r) {
-			DEBUGPRINT(("Vizlet10::processFrame* returned failure? (r=%d)\n", r));
+			DEBUGPRINT(("Vizlet10::ProcessFrame* returned failure? (r=%d)\n", r));
 			gotexception = true;
 		}
 	}
 	catch (NosuchException& e) {
-		DEBUGPRINT(("NosuchException in Palette::draw : %s", e.message()));
+		DEBUGPRINT(("NosuchException in Vizlet10::ProcessFrame : %s", e.message()));
 		gotexception = true;
 	}
 	catch (...) {
-		DEBUGPRINT(("UNKNOWN Exception in Palette::draw!"));
+		DEBUGPRINT(("UNKNOWN Exception in Vizlet10::ProcessFrame!"));
 		gotexception = true;
 	}
 
 	if (gotexception && m_disable_on_exception) {
-		DEBUGPRINT(("DISABLING Vizlet due to exception!!!!!"));
+		DEBUGPRINT(("DISABLING Vizlet10 due to exception!!!!!"));
 		m_disabled = true;
 	}
 
@@ -555,131 +531,6 @@ DWORD Vizlet10::ProcessFrame(void* pFrame)
 DWORD Vizlet10::ProcessFrameCopy(ProcessFrameCopyStruct* pFrameData) {
 	return FF_FAIL;
 }
-
-#if 0
-
-#ifdef FRAMELOOPINGTEST
-	static int framenum = 0;
-	static bool framelooping = FALSE;
-#endif
-
-	NosuchLock(&json_mutex,"json");
-	if (json_pending) {
-		// Execute json stuff and generate response
-	
-		json_result = processJsonAndCatchExceptions(json_method, json_params, json_id);
-		json_pending = false;
-		int e = pthread_cond_signal(&json_cond);
-		if ( e ) {
-			DEBUGPRINT(("ERROR from pthread_cond_signal e=%d\n",e));
-		}
-	}
-	NosuchUnlock(&json_mutex,"json");
-
-	if ( m_passthru && pGL != NULL ) {
-		if ( ! ff_passthru(pGL) ) {
-			return FF_FAIL;
-		}
-	}
-
-	LockVizlet();
-
-	// _frame++;
-
-	bool gotexception = false;
-	try {
-		CATCH_NULL_POINTERS;
-
-		glDisable(GL_TEXTURE_2D); 
-		glEnable(GL_BLEND); 
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-		glLineWidth((GLfloat)1.0f);
-
-		glScaled(2.0,2.0,1.0);
-		glTranslated(-0.5,-0.5,0.0);
-
-		double tm = GetTime();
-		bool r;
-		if (m_call_RealProcessOpenGL) {
-			// This is used when adapting to existing FFGL plugin code
-			r = (RealProcessOpenGL(pGL)==FF_SUCCESS);
-		}
-		else {
-			r = processDraw();			// Call the vizlet's processDraw()
-		}
-
-		glDisable(GL_TEXTURE_2D);
-		glColor4f(1.f,1.f,1.f,1.f); //restore default color
-
-		m_spritelist->advanceTo(tm);
-		processAdvanceTimeTo(tm);
-
-		if ( ! r ) {
-			DEBUGPRINT(("Palette::draw returned failure? (r=%d)\n",r));
-			gotexception = true;
-		}
-	} catch (NosuchException& e ) {
-		DEBUGPRINT(("NosuchException in Palette::draw : %s",e.message()));
-		gotexception = true;
-	} catch (...) {
-		DEBUGPRINT(("UNKNOWN Exception in Palette::draw!"));
-		gotexception = true;
-	}
-
-	if ( gotexception && m_disable_on_exception ) {
-		DEBUGPRINT(("DISABLING Vizlet10 due to exception!!!!!"));
-		m_disabled = true;
-	}
-
-	UnlockVizlet();
-
-	glDisable(GL_BLEND); 
-	glEnable(GL_TEXTURE_2D); 
-	// END NEW CODE
-
-#ifdef FRAMELOOPINGTEST
-	int w = Texture.Width;
-	int h = Texture.Height;
-#define NFRAMES 300
-	static GLubyte* pixelArray[NFRAMES];
-	if ( framelooping ) {
-		glRasterPos2i(-1,-1);
-		glDrawPixels(w,h,GL_RGB,GL_UNSIGNED_BYTE,pixelArray[framenum]);
-		framenum = (framenum+1)%NFRAMES;
-	} else {
-		if ( framenum < NFRAMES ) {
-			pixelArray[framenum] = new GLubyte[w*h*3];
-			glReadPixels(0,0,w,h,GL_RGB,GL_UNSIGNED_BYTE,pixelArray[framenum]);
-			framenum++;
-		} else {
-			framelooping = TRUE;
-			framenum = 0;
-		}
-	}
-#endif
-
-	//disable texturemapping
-	glDisable(GL_TEXTURE_2D);
-	
-	//restore default color
-	glColor4d(1.f,1.f,1.f,1.f);
-	
-	return FF_SUCCESS;
-}
-
-void Vizlet10::DrawNotesDown() {
-	m_vizserver->LockNotesDown();
-	try {
-		CATCH_NULL_POINTERS;
-		_drawnotes(m_vizserver->NotesDown());
-	} catch (NosuchException& e) {
-		DEBUGPRINT(("NosuchException while drawing notes: %s",e.message()));
-	} catch (...) {
-		DEBUGPRINT(("Some other kind of exception occured while drawing notes!?"));
-	}
-	m_vizserver->UnlockNotesDown();
-}
-#endif
 
 void Vizlet10::LockVizlet() {
 	NosuchLock(&vizlet10_mutex,"Vizlet10");
@@ -741,12 +592,12 @@ std::string Vizlet10::submitJsonForProcessing(std::string method, cJSON *params,
 		}
 	}
 	if ( err ) {
-		json_result = error_json(-32000,"Error waiting for json!?");
+		m_json_result = error_json(-32000,"Error waiting for json!?");
 	}
 
 	NosuchUnlock(&json_mutex,"json");
 
-	return json_result.c_str();
+	return m_json_result.c_str();
 }
 
 AllVizParams*
@@ -834,101 +685,3 @@ Vizlet10::checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, 
 	lastupdate = statbuff.st_mtime;
 	return p;
 }
-
-
-#if 0
-VizSprite*
-Vizlet10::makeAndAddVizSprite(AllVizParams* p, NosuchPos pos) {
-		VizSprite* s = makeAndInitVizSprite(p,pos);
-		AddVizSprite(s);
-		return s;
-}
-
-VizSprite*
-Vizlet10::makeAndInitVizSprite(AllVizParams* p, NosuchPos pos) {
-
-	VizSprite* s = VizSprite::makeVizSprite(p);
-	s->m_framenum = FrameNum();
-
-	double movedir;
-	if ( p->movedirrandom.get() ) {
-		movedir = 360.0f * ((double)(rand()))/ RAND_MAX;
-	} else if ( p->movefollowcursor.get() ) {
-		// eventually, keep track of cursor movement direction
-		// for the moment it's random
-		movedir = 360.0f * ((double)(rand()))/ RAND_MAX;
-	} else {
-		movedir = p->movedir.get();
-	}
-
-	s->initVizSpriteState(GetTime(),Handle(),pos,movedir);
-	DEBUGPRINT1(("Vizlet10::makeAndInitVizSprite size=%f",s->m_state.size));
-	return s;
-}
-
-NosuchColor
-Vizlet10::channelColor(int ch) {
-	double hue = (ch * 360.0f) / 16.0f;
-	return NosuchColor(hue,0.5,1.0);
-}
-
-double Vizlet10::movedirDegrees(AllVizParams* p) {
-
-	if ( p->movedirrandom.get() ) {
-		double f = ((double)(rand()))/ RAND_MAX;
-		return f * 360.0f;
-	}
-	if ( p->movefollowcursor.get() ) {
-		// eventually, keep track of cursor movement direction
-		// for the moment it's random
-		double f = ((double)(rand()))/ RAND_MAX;
-		return f * 360.0f;
-	}
-	return p->movedir.get();
-}
-
-VizSprite* Vizlet10::defaultMidiVizSprite(MidiMsg* m) {
-
-	int minpitch = 0;
-	int maxpitch = 127;
-	VizSprite* s = NULL;
-
-	if ( m->MidiType() == MIDI_NOTE_ON ) {
-		if ( m->Velocity() == 0 ) {
-			DEBUGPRINT(("Vizlet101 sees noteon with 0 velocity, ignoring"));
-			return s;
-		}
-		NosuchPos pos;
-		pos.x = 0.9f;
-		pos.y = (m->Pitch()-minpitch) / float(maxpitch-minpitch);
-		pos.z = (m->Velocity()*m->Velocity()) / (128.0*128.0);
-
-		m_defaultmidiparams->shape.set("circle");
-
-		double fadetime = 5.0;
-		m_defaultmidiparams->movedir.set(180.0);
-		m_defaultmidiparams->speedinitial.set(0.2);
-		m_defaultmidiparams->sizeinitial.set(0.1);
-		m_defaultmidiparams->sizefinal.set(0.0);
-		m_defaultmidiparams->sizetime.set(fadetime);
-
-		m_defaultmidiparams->lifetime.set(fadetime);
-
-		// control color with channel
-		NosuchColor clr = channelColor(m->Channel());
-		double hue = clr.hue();
-
-		m_defaultmidiparams->alphainitial.set(1.0);
-		m_defaultmidiparams->alphafinal.set(0.0);
-		m_defaultmidiparams->alphatime.set(fadetime);
-
-		m_defaultmidiparams->hueinitial.set(hue);
-		m_defaultmidiparams->huefinal.set(hue);
-		m_defaultmidiparams->huefillinitial.set(hue);
-		m_defaultmidiparams->huefillfinal.set(hue);
-
-		s = makeAndAddVizSprite(m_defaultmidiparams, pos);
-	}
-	return s;
-}
-#endif

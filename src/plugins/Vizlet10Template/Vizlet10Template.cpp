@@ -41,39 +41,10 @@ void Vizlet10Template::processMidiInput(MidiMsg* m) {
 void Vizlet10Template::processMidiOutput(MidiMsg* m) {
 }
 
-bool Vizlet10Template::processDraw() {
+bool Vizlet10Template::processFrame24Bit() {
 	return true;
 }
 
-bool Vizlet10Template::processFrame24Bit() {
-	return false;
-}
-
 bool Vizlet10Template::processFrame32Bit() {
-	return false;
-}
-
-#if 0
-DWORD Vizlet10Template::ProcessFrame(void* pFrame) {
-
-	switch (m_VideoInfo.BitDepth) {
-	case 1:
-		m_image->origin = 1;
-		m_image->imageData = (char*)pFrame;
-		return processFrame24Bit();
-	case 2:
-		m_image->origin = 1;
-		m_image->imageData = (char*)pFrame;
-		return processFrame32Bit();
-	default:
-		return FF_FAIL;
-	}
-}
-
-DWORD Vizlet10Template::ProcessFrameCopy(ProcessFrameCopyStruct* pFrameData) {
-	return FF_FAIL;
-}
-#endif
-
-void Vizlet10Template::processDrawNote(MidiMsg* m) {
+	return true;
 }

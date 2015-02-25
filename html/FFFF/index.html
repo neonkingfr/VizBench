@@ -112,7 +112,6 @@ function get_and_update_value(varname) {
 		} else if ( r.error ) {
 			place.innerHTML = ("Method: "+meth+"  Error! id:" + r.id + " msg="+r.error.message);
 		} else {
-			// alert("get/update value, varname="+varname);
 			place.innerHTML = ("Status: OK");
 			dojo.byId("value_"+varname).innerHTML = format_value(varname,r);
 		}
@@ -423,7 +422,7 @@ dojo.addOnLoad(setup);
 
 		return (result,error)
 
-	(pipelinelist,error) = ffff_api("pipelinelist",{})
+	(pipelinelist,error) = ffff_api("ffglpipeline",{})
 
 	print "pipelinelist=",pipelinelist
 	print "error=",error

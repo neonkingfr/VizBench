@@ -50,9 +50,6 @@ public:
 	std::string VizTag() { return m_viztag; }
 	void SetVizTag(std::string s) { m_viztag = s; }
 
-	// VizSprite* makeAndInitVizSprite(AllVizParams* sp, NosuchPos pos);
-	// VizSprite* makeAndAddVizSprite(AllVizParams* sp, NosuchPos pos);
-
 	void SetPassthru(bool b) { m_passthru = b; }
 
 	VizServer* vizserver() { return m_vizserver; }
@@ -78,6 +75,8 @@ public:
 	VideoInfoStruct* GetVideoInfo() {
 		return &m_VideoInfo;
 	}
+	int FrameWidth() { return m_VideoInfo.FrameWidth; }
+	int FrameHeight() { return m_VideoInfo.FrameHeight; }
 
 	std::string MidiInputName(size_t n) { return m_vizserver->MidiInputName(n);  }
 	std::string MidiOutputName(size_t n) { return m_vizserver->MidiOutputName(n);  }
@@ -173,9 +172,6 @@ public:
 	virtual void processKeystroke(int key, int downup) { }
 	/////////////////////////////////////////////////////
 
-	// virtual bool processDraw() { return false;  }
-	// virtual void processDrawNote(MidiMsg* m) { }
-
 	virtual void processAdvanceClickTo(int click) { }
 	virtual void processAdvanceTimeTo(double tm) { }
 
@@ -188,15 +184,11 @@ public:
 
 	NosuchGraphics graphics;
 
-	///////////////////////////////////////////////////
-	// Factory method
-	///////////////////////////////////////////////////
-
 	void SendMidiMsg();
 	// void DrawNotesDown();
 	int FrameNum() { return m_framenum; }
 
-	std::string json_result;
+	std::string m_json_result;
 
 	CvSize m_imagesize;
 	IplImage* m_image;

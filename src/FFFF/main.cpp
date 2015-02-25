@@ -53,8 +53,6 @@
 
 FFFF* F;
 
-int CV_interp = CV_INTER_NN;  // or CV_INTER_LINEAR
-
 int 				camWidth;
 int 				camHeight;
 
@@ -139,7 +137,7 @@ int ffffMain(std::string config)
 	jsonSetDebugConfig(j);
 
 	// Allow the config to override the default paths for these
-	std::string ffpath = jsonNeedString(j, "ffpath", "ffplugins");
+	std::string ff10path = jsonNeedString(j, "ff10path", "ffplugins");
 	std::string ffglpath = jsonNeedString(j, "ffglpath", "ffglplugins");
 
 	// Remove shell expansion, because I want things to be the same between the
@@ -186,7 +184,7 @@ int ffffMain(std::string config)
 
 	glfwSetKeyCallback(F->window, key_callback);
 
-	F->loadFFPlugins(VizPath(ffpath), VizPath(ffglpath), ffgl_width, ffgl_height);
+	F->loadFFPlugins(ff10path, ffglpath, ffgl_width, ffgl_height);
 
 	bool use_camera = FALSE;
 	if (camera_index < 0) {

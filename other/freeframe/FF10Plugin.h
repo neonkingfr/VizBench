@@ -84,7 +84,7 @@ public:
 	bool setparam(std::string pnm, float v);
 	bool setparam(std::string pnm, std::string v);
 	float getparam(std::string pnm);
-	DWORD CallProcessFrame(ProcessOpenGLStructTag &t);
+	std::string getParamJsonResult(FF10ParameterDef* pd, FF10PluginInstance* pi, const char* id);
 
 	void enable(){ m_enabled = true; }
 	void disable() { m_enabled = false; }

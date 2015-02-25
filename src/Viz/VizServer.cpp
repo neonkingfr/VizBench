@@ -171,7 +171,6 @@ public:
 	VizServerApiCallback* findprefix(std::string prefix) {
 		std::map<void*, VizServerApiCallback*>::iterator it;
 		// All comparisons here are case-insensitive
-		prefix = NosuchToLower(prefix);
 		for (it = this->begin(); it != this->end(); it++) {
 			VizServerApiCallback* sscb = it->second;
 			if (NosuchToLower(sscb->m_af.prefix) == prefix) {
@@ -307,6 +306,7 @@ methodPrefixProcess(std::string method, std::string& prefix, std::string& suffix
 		prefix = "";
 		suffix = method;
 	}
+	prefix = NosuchToLower(prefix);
 }
 
 std::string
@@ -347,7 +347,7 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 
 	methodPrefixProcess(fullmethod, prefix, api);
 
-	if (prefix == "VizServer") {
+	if (prefix == "vizserver") {
 		if (api == "apis") {
 			return jsonStringResult("clearmidi;allnotesoff;play_midifile;set_midifile(file);set_clickspersecond(clicks);set_midioutput(index)", id);
 		}

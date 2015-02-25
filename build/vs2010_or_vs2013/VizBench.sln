@@ -75,6 +75,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Viz10Example1", "Viz10Examp
 		{328B01E0-5830-42EB-AE3C-D2C27C875770} = {328B01E0-5830-42EB-AE3C-D2C27C875770}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Viz10LoopyCam", "Viz10LoopyCam\Viz10LoopyCam.vcxproj", "{9BF905F1-C4EB-4F60-9F83-CC707777E678}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -394,6 +396,24 @@ Global
 		{37803E11-D0A3-4BD9-80D3-587545AA8F21}.StaticRelease|Win32.Build.0 = Release|Win32
 		{37803E11-D0A3-4BD9-80D3-587545AA8F21}.WithOpenPGM|Win32.ActiveCfg = Release|Win32
 		{37803E11-D0A3-4BD9-80D3-587545AA8F21}.WithOpenPGM|Win32.Build.0 = Release|Win32
+		{9BF905F1-C4EB-4F60-9F83-CC707777E678}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9BF905F1-C4EB-4F60-9F83-CC707777E678}.Debug|Win32.Build.0 = Debug|Win32
+		{9BF905F1-C4EB-4F60-9F83-CC707777E678}.DebugDLL|Win32.ActiveCfg = Debug|Win32
+		{9BF905F1-C4EB-4F60-9F83-CC707777E678}.DebugDLL|Win32.Build.0 = Debug|Win32
+		{9BF905F1-C4EB-4F60-9F83-CC707777E678}.Release Trace|Win32.ActiveCfg = Release|Win32
+		{9BF905F1-C4EB-4F60-9F83-CC707777E678}.Release Trace|Win32.Build.0 = Release|Win32
+		{9BF905F1-C4EB-4F60-9F83-CC707777E678}.Release|Win32.ActiveCfg = Release|Win32
+		{9BF905F1-C4EB-4F60-9F83-CC707777E678}.Release|Win32.Build.0 = Release|Win32
+		{9BF905F1-C4EB-4F60-9F83-CC707777E678}.ReleaseDLL|Win32.ActiveCfg = Release|Win32
+		{9BF905F1-C4EB-4F60-9F83-CC707777E678}.ReleaseDLL|Win32.Build.0 = Release|Win32
+		{9BF905F1-C4EB-4F60-9F83-CC707777E678}.ReleaseMinDependency|Win32.ActiveCfg = Release|Win32
+		{9BF905F1-C4EB-4F60-9F83-CC707777E678}.ReleaseMinDependency|Win32.Build.0 = Release|Win32
+		{9BF905F1-C4EB-4F60-9F83-CC707777E678}.StaticDebug|Win32.ActiveCfg = Debug|Win32
+		{9BF905F1-C4EB-4F60-9F83-CC707777E678}.StaticDebug|Win32.Build.0 = Debug|Win32
+		{9BF905F1-C4EB-4F60-9F83-CC707777E678}.StaticRelease|Win32.ActiveCfg = Release|Win32
+		{9BF905F1-C4EB-4F60-9F83-CC707777E678}.StaticRelease|Win32.Build.0 = Release|Win32
+		{9BF905F1-C4EB-4F60-9F83-CC707777E678}.WithOpenPGM|Win32.ActiveCfg = Release|Win32
+		{9BF905F1-C4EB-4F60-9F83-CC707777E678}.WithOpenPGM|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

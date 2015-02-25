@@ -232,7 +232,9 @@ DWORD instantiate(const VideoInfoStruct *pVideoInfo)
 			ParamStruct.ParameterNumber = DWORD(i);
 			memcpy(&ParamStruct.u.NewParameterValue, pValue, 4);
 			dwRet = pInstance->SetParameter(&ParamStruct);
-			if (dwRet == FF_FAIL) return FF_FAIL;
+			if (dwRet == FF_FAIL) {
+				return FF_FAIL;
+			}
 		}
 
 		// Saving data in the VideoInfoStruct in an internal data structure
@@ -243,63 +245,6 @@ DWORD instantiate(const VideoInfoStruct *pVideoInfo)
 		return DWORD(pInstance);
 	}
 	return FF_FAIL;
-#if 0
-
-	// If the plugin is not initialized, initialize it
-	if (s_pPrototype == NULL) {
-		DWORD dwRet = FF10initialise();
-		if ((dwRet == FF_FAIL) || (s_pPrototype == NULL))
-			return FF_FAIL;
-	}
-		
-	if ( s_vizserver == NULL ) {
-		s_vizserver = VizServer::GetServer();
-		s_vizserver->Start();
-	}
-
-	//get the instantiate function pointer
-	FPCREATEINSTANCEGL *pInstantiate = g_CurrPluginInfo->GetFactoryMethod();
-
-	CFreeFrameGLPlugin *pInstance = NULL;
-
-	//call the instantiate function
-	DWORD dwRet = pInstantiate(&pInstance);
-
-	//make sure the instantiate call worked
-	if ((dwRet == FF_FAIL) || (pInstance == NULL))
-		return FF_FAIL;
-
-	pInstance->m_pPlugin = pInstance;
-
-	// Initializing instance with default values
-	int nparams = s_pPrototype->GetNumParams();
-	for (int i = 0; i < nparams; ++i) {
-		//DWORD dwType = s_pPrototype->GetParamType(DWORD(i));
-		void* pValue = s_pPrototype->GetParamDefault(DWORD(i));
-		SetParameterStruct ParamStruct;
-		ParamStruct.ParameterNumber = DWORD(i);
-		memcpy(&ParamStruct.u.NewParameterValue, pValue, 4);
-		dwRet = pInstance->SetParameter(&ParamStruct);
-		if (dwRet == FF_FAIL) {
-			//SetParameter failed, delete the instance
-			delete pInstance;
-			return FF_FAIL;
-		}
-	}
-
-	//call the InitGL method
-	if (pInstance->InitGL(pGLViewport)==FF_SUCCESS) {
-		//succes? we're done.
-		return (DWORD)pInstance;
-	}
-
-	//InitGL failed, delete the instance
-	pInstance->DeInitGL();
-	delete pInstance;
-
-	return FF_FAIL;
-
-#endif
 }
 
 DWORD deInstantiate(void *instanceID)

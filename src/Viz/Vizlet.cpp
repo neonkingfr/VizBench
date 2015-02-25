@@ -253,14 +253,14 @@ const char* vizlet_json(void* data,const char *method, cJSON* params, const char
 		// it is given to the plugin to handle.
 		if (std::string(method) == "description") {
 			std::string desc = vizlet_plugininfo().GetPluginExtendedInfo()->Description;
-			v->json_result = jsonStringResult(desc, id);
+			v->m_json_result = jsonStringResult(desc, id);
 		} else if (std::string(method) == "about") {
 			std::string desc = vizlet_plugininfo().GetPluginExtendedInfo()->About;
-			v->json_result = jsonStringResult(desc, id);
+			v->m_json_result = jsonStringResult(desc, id);
 		} else {
-			v->json_result = v->processJsonAndCatchExceptions(std::string(method), params, id);
+			v->m_json_result = v->processJsonAndCatchExceptions(std::string(method), params, id);
 		}
-		return v->json_result.c_str();
+		return v->m_json_result.c_str();
 	}
 }
 
@@ -496,7 +496,7 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 	if (json_pending) {
 		// Execute json stuff and generate response
 	
-		json_result = processJsonAndCatchExceptions(json_method, json_params, json_id);
+		m_json_result = processJsonAndCatchExceptions(json_method, json_params, json_id);
 		json_pending = false;
 		int e = pthread_cond_signal(&json_cond);
 		if ( e ) {
@@ -669,12 +669,12 @@ std::string Vizlet::submitJsonForProcessing(std::string method, cJSON *params, c
 		}
 	}
 	if ( err ) {
-		json_result = error_json(-32000,"Error waiting for json!?");
+		m_json_result = error_json(-32000,"Error waiting for json!?");
 	}
 
 	NosuchUnlock(&json_mutex,"json");
 
-	return json_result.c_str();
+	return m_json_result.c_str();
 }
 
 AllVizParams*

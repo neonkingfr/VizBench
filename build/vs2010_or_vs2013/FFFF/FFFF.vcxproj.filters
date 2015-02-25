@@ -16,6 +16,9 @@
     <Filter Include="Source Files\freeframe">
       <UniqueIdentifier>{c1e113ba-c9c7-430b-8316-6f87bc556968}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\freeframe">
+      <UniqueIdentifier>{ceb8619b-0013-4a28-99c9-eb1c6ca23047}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\FFFF\main.cpp">
@@ -50,6 +53,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\FFFF\ffffutil.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\other\freeframe\FF10Plugin.h">
+      <Filter>Header Files\freeframe</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\other\freeframe\FFGLPlugin.h">
+      <Filter>Header Files\freeframe</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,5 +1,6 @@
 #include "NosuchUtil.h"
 #include "NosuchException.h"
+#include "NosuchJson.h"
 
 #include <ffffutil.h>
 #include "FFGLPlugin.h"
@@ -104,6 +105,25 @@ float FFGLPluginInstance::getparam(std::string pnm)
 	}
     DEBUGPRINT(("Didn't find FFGL parameter pnm=%s\n",pnm.c_str()));
 	return 0.0;
+}
+
+std::string FFGLPluginInstance::getParamJsonResult(FFGLParameterDef* pd, FFGLPluginInstance* pi, const char* id)
+{
+	std::string s = pi->GetParameterDisplay(pd->num);
+	float v;
+	switch (pd->type){
+	case FF_TYPE_TEXT:
+		return jsonStringResult(s, id);
+		break;
+	case FF_TYPE_BOOLEAN:
+		v = pi->GetBoolParameter(pd->num);
+		return jsonDoubleResult(v, id);
+	case FF_TYPE_STANDARD:
+	default:
+		v = pi->GetFloatParameter(pd->num);
+		return jsonDoubleResult(v, id);
+	}
+	throw NosuchException("UNIMPLEMENTED parameter type (%d) in get API!", pd->type);
 }
 
 void FFGLPluginInstance::SetFloatParameter(int paramNum, float value)
@@ -435,6 +455,6 @@ void loadffgldir(std::string ffgldir)
 void loadffglpath(std::string path) {
 	std::vector<std::string> dirs = NosuchSplitOnString(path, ";");
 	for (size_t i = 0; i<dirs.size(); i++) {
-		loadffgldir(dirs[i]);
+		loadffgldir(VizPath(dirs[i]));
 	}
 }

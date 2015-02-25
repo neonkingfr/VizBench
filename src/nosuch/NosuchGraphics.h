@@ -125,14 +125,6 @@ public:
 	double y;
 };
 
-#if 0
-typedef struct VideoPixel24bitTag {
-	BYTE blue;
-	BYTE green;
-	BYTE red;
-} VideoPixel24bit;
-#endif
-
 typedef struct PointMem {
 	float x;
 	float y;

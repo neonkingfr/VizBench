@@ -23,6 +23,7 @@
 #include "FF10Plugin.h"
 #include "NosuchUtil.h"
 #include "NosuchException.h"
+#include "NosuchJson.h"
 
 // #define VERBOSE 1
 
@@ -266,6 +267,25 @@ float FF10PluginInstance::getparam(std::string pnm)
 	return 0.0;
 }
 
+std::string FF10PluginInstance::getParamJsonResult(FF10ParameterDef* pd, FF10PluginInstance* pi, const char* id)
+{
+	std::string s = pi->GetParameterDisplay(pd->num);
+	float v;
+	switch (pd->type){
+	case FF_TYPE_TEXT:
+		return jsonStringResult(s, id);
+		break;
+	case FF_TYPE_BOOLEAN:
+		v = pi->GetBoolParameter(pd->num);
+		return jsonDoubleResult(v, id);
+	case FF_TYPE_STANDARD:
+	default:
+		v = pi->GetFloatParameter(pd->num);
+		return jsonDoubleResult(v, id);
+	}
+	throw NosuchException("UNIMPLEMENTED parameter type (%d) in get API!", pd->type);
+}
+
 void FF10PluginInstance::SetFloatParameter(int paramNum, float value)
 {
 	//make sure its a float parameter type
@@ -364,7 +384,7 @@ void loadff10plugindef(std::string ffdir, std::string dllnm)
 		DEBUGPRINT1(("LOADED! %s\n", dll_fname.c_str()));
 		plugin->m_dll = dllnm;
 		plugin->name = plugin->GetPluginName();
-		DEBUGPRINT1(("Loaded FF10 plugin file=%s name=%s", dll_fname.c_str(), plugin->name.c_str()));
+		DEBUGPRINT(("Loaded FF10 plugin file=%s name=%s", dll_fname.c_str(), plugin->name.c_str()));
 		ff10plugindefs[nff10plugindefs] = plugin;
 		nff10plugindefs++;
 	}
@@ -413,10 +433,10 @@ void loadffdir(std::string ffdir)
 	FindClose(hFind);
 }
 
-void loadffpath(std::string path) {
+void loadff10path(std::string path) {
 	std::vector<std::string> dirs = NosuchSplitOnString(path, ";");
 	for (size_t i = 0; i<dirs.size(); i++) {
-		loadffdir(dirs[i]);
+		loadffdir(VizPath(dirs[i]));
 	}
 }
 

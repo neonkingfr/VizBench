@@ -175,7 +175,7 @@ public:
 	void DrawNotesDown();
 	int FrameNum() { return m_framenum; }
 
-	std::string json_result;
+	std::string m_json_result;
 
 protected:	
 

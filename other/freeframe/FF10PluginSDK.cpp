@@ -76,34 +76,6 @@ DWORD CFreeFrame10Plugin::GetParameter(DWORD dwIndex)
 	return FF_FAIL;
 }					
 
-#if 0
-IplImage* CFreeFrame10Plugin::FrameImage() {
-	return m_image;
-}
-
-DWORD CFreeFrame10Plugin::ProcessFrame(void* pFrame)
-{
-	VideoInfoStruct* vid = GetVideoInfo();
-	switch (vid->BitDepth) {
-	case 1:
-		m_image->origin = 1;
-		m_image->imageData = (char*)pFrame;
-		return processFrame24Bit();
-	case 2:
-		m_image->origin = 1;
-		m_image->imageData = (char*)pFrame;
-		return processFrame32Bit();
-	default:
-		return FF_FAIL;
-	}
-}
-
-DWORD CFreeFrame10Plugin::ProcessFrameCopy(ProcessFrameCopyStruct* pFrameData)
-{
-	return FF_FAIL;
-}
-#endif
-
 DWORD CFreeFrame10Plugin::GetInputStatus(DWORD dwIndex)
 {
 	if (dwIndex >= (DWORD)GetMaxInputs()) return FF_FAIL;
