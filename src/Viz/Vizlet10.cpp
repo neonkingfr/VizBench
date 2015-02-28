@@ -334,6 +334,7 @@ void Vizlet10::_stopCallbacks() {
 	_stopApiCallbacks();
 	_stopMidiCallbacks();
 	_stopCursorCallbacks();
+	_stopKeystrokeCallbacks();
 }
 
 void Vizlet10::_stopApiCallbacks() {
@@ -350,6 +351,11 @@ void Vizlet10::_stopMidiCallbacks() {
 void Vizlet10::_stopCursorCallbacks() {
 	NosuchAssert(m_vizserver);
 	m_vizserver->RemoveCursorCallback(Handle());
+}
+
+void Vizlet10::_stopKeystrokeCallbacks() {
+	NosuchAssert(m_vizserver);
+	m_vizserver->RemoveKeystrokeCallback(Handle());
 }
 
 double Vizlet10::GetTime() {
@@ -569,35 +575,6 @@ std::string Vizlet10::processJsonAndCatchExceptions(std::string meth, cJSON *par
 		r = error_json(-32000,s.c_str(),id);
 	}
 	return r;
-}
-
-std::string Vizlet10::submitJsonForProcessing(std::string method, cJSON *params, const char *id) {
-
-	// We want JSON requests to be interpreted in the main thread of the plugin,
-	// so we stuff the request into json_* variables and wait for the main thread to
-	// pick it up (in Process*)
-	NosuchLock(&json_mutex,"json");
-
-	json_pending = true;
-	json_method = std::string(method);
-	json_params = params;
-	json_id = id;
-
-	bool err = false;
-	while ( json_pending ) {
-		int e = pthread_cond_wait(&json_cond, &json_mutex);
-		if ( e ) {
-			err = true;
-			break;
-		}
-	}
-	if ( err ) {
-		m_json_result = error_json(-32000,"Error waiting for json!?");
-	}
-
-	NosuchUnlock(&json_mutex,"json");
-
-	return m_json_result.c_str();
 }
 
 AllVizParams*

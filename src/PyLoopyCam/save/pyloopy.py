@@ -108,6 +108,17 @@ class NthEventServer(Thread):
 		self.tm0 = time.time()
 		self.osc_count = 0
 
+		self.ui = None
+
+	def set_ui(self, ui):
+		# print"SET_UI setting ui to ",ui
+		self.ui = ui
+
+	def change_ui(self, cnm, v):
+		if not self.ui:
+			return
+		self.ui.change_ui(cnm, v)
+
 	def send_osc(self, o, apptype):
 		(msg_addr, msg_data) = o
 		if msg_addr == "":
@@ -130,6 +141,7 @@ class NthEventServer(Thread):
 def main():
 
 	debug = True
+	fullscreen = False
 	httpaddr = "127.0.0.1"
 	httpport = 7777
 	rootdir = None 
@@ -147,6 +159,12 @@ def main():
 		else:
 			debug = False
 	
+		if sys.argv[argn] == "-f":
+			fullscreen = True
+			argn += 1
+		else:
+			fullscreen = False
+
 		argn += 1
 
 		for i in range(argn, len	(sys.argv)):
@@ -168,9 +186,16 @@ def main():
 
 		pygame.init()
 
-		width = 250
-		height = 500
-		flags = pygame.SRCALPHA
+		if fullscreen:
+			# width = 1024
+			# height = 600
+			width = 480
+			height = 800
+			flags = pygame.SRCALPHA | pygame.FULLSCREEN
+		else:
+			width = 800
+			height = 480
+			flags = pygame.SRCALPHA
 
 		from panel import NthControlPanel
 		ui = NthControlPanel(width, height, flags)
@@ -183,10 +208,10 @@ def main():
 		except:
 			print "EXCEPT caught in creating Ffff! Exception=", format_exc()
 		
-		# ffff.set_ui(ui)
+		ffff.set_ui(ui)
 		ui.set_ffff(ffff)
-		ui.set_status("")
-		ui.lcd_refresh()
+		ffff.refresh()
+		
 		ui.send_all_values()
 		
 		try:

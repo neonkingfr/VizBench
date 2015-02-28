@@ -20,8 +20,7 @@ public:
 	int _enableXOR;
 	int _border;
 	int _recborder;
-	int _trail;
-	float _trailamount;
+
 	int _currentLoop;
 	int _blackout;
 	int _autoNext;
@@ -56,7 +55,7 @@ public:
 	CvPoint _targetpos[MAX_LOOPS];
 	CvSize _sz[MAX_LOOPS];
 	CvSize _targetsz[MAX_LOOPS];
-	float _sizeFactor[MAX_LOOPS];
+	double _sizeFactor[MAX_LOOPS];
 	IplImage *_szImage[MAX_LOOPS];
 	CvSize _quarterSize;
 	IplImage *_quarterImage;
@@ -89,9 +88,8 @@ public:
 	void _boundPosSize(int *x, int *y, int *w, int *h);
 	void _setautoNext(int v);
 	void _setsmooth(int v);
-	void _setplayfactor(int loopnum, float x);
+	void _setplayfactor(int loopnum, double x);
 	void _resetplayfactor(int loopnum);
-	void _set_trail();
 	void _set_fliph(bool onoff);
 	void set_flipv(bool onoff);
 	void randompositions(double aspect);

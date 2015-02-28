@@ -1,8 +1,8 @@
 {
 "pipeline": [
-	{ "ff10plugin": "Glow", "enabled": 1, "params": { } },
 	{ "ff10plugin": "Viz10LoopyCam", "enabled": 1, "params": { } },
-	{ "ffglplugin": "VizExample2", "enabled": 1, "params": { } },
-	{ "ffglplugin": "Threshhold", "params": { } }
+	{ "ffglplugin": "Twisted", "enabled": 1, "params": { } }
+#	{ "ffglplugin": "VizExample2", "enabled": 1, "params": { } }
+#	{ "ffglplugin": "Threshhold", "params": { } }
 ]
 }

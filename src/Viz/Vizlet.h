@@ -118,8 +118,6 @@ public:
 	std::string processJsonAndCatchExceptions(std::string meth, cJSON *params, const char *id);
 	static bool checkAddrPattern(const char *addr, char *patt);
 
-	std::string submitJsonForProcessing(std::string method, cJSON *params, const char *id);
-
 	/////////////////////////////////////////////////////
 	// These are the things that a Vizlet should override/define.
 	/////////////////////////////////////////////////////

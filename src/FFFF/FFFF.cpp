@@ -95,6 +95,20 @@ FFFF::FFFF() {
 
 	m_fps_accumulator = 0;
 	m_fps_lasttime = -1.0;
+
+	m_dotrail = true;
+	m_trailamount = 0.90f;
+}
+
+void
+FFFF::setupTrails() {
+    FFGLPluginDef* pdef = findffglplugin("Trails");
+	if ( pdef == NULL ) {
+		DEBUGPRINT(("There is no plugin named Trails!?"));
+		return;
+	}
+	m_trailsplugin = FFGLNewPluginInstance(pdef,"Trails");
+	setTrailParams();
 }
 
 void
@@ -159,8 +173,10 @@ FFFF::submitJson(std::string method, cJSON *params, const char* id) {
 	// We want JSON requests to be interpreted in the main thread of the FFGL plugin,
 	// so we stuff the request into _json_* variables and wait for the main thread to
 	// pick it up (in ProcessOpenGL)
+	DEBUGPRINT1(("FFFF::submitJson A meth=%s",method.c_str()));
 	NosuchLock(&_json_mutex,"json");
 
+	DEBUGPRINT1(("FFFF::submitJson B meth=%s",method.c_str()));
 	m_json_pending = true;
 	m_json_method = std::string(method);
 	m_json_params = params;
@@ -193,6 +209,7 @@ FFFF::checkAndExecuteJSON() {
 	NosuchLock(&_json_mutex,"json");
 	if (m_json_pending) {
 		// Execute json stuff and generate response
+		DEBUGPRINT1(("FFFF:executing JSON method=%s",m_json_method.c_str()));
 		m_json_result = executeJsonAndCatchExceptions(m_json_method, m_json_params, m_json_id);
 		m_json_pending = false;
 		int e = pthread_cond_signal(&m_json_cond);
@@ -309,14 +326,16 @@ FFFF::FF10NewPluginInstance(FF10PluginDef* plugdef, std::string inm)
 	FF10PluginInstance* np = new FF10PluginInstance(plugdef,inm);
 
 	const PluginInfoStruct *pi = plugdef->GetInfo();
-	// printf("pi version = %d %d\n",pi->APIMajorVersion,pi->APIMinorVersion);
 	char nm[17];
 	memcpy(nm, pi->PluginName, 16);
 	nm[16] = 0;
 	VideoInfoStruct vis = { ffWidth, ffHeight, FF_DEPTH_24, FF_ORIENTATION_TL };
-	int i = plugdef->Instantiate(&vis);
-	np->setInstanceID(i);
-	// plugMainUnion u = plugin->m_mainfunc(FF_GETPARAMETER, (DWORD)0, (DWORD)plugin->m_instanceid);
+
+	if ( np->Instantiate(&vis)!=FF_SUCCESS ) {
+		delete np;
+		throw NosuchException("Unable to Instantiate !?");
+	}
+	// np->setInstanceID(i);
 	return np;
 }
 
@@ -324,7 +343,8 @@ void
 FFFF::FF10DeletePluginInstance(FF10PluginInstance* p)
 {
 	DEBUGPRINT(("DELETING FF10PluginInstance p=%ld",(long)p));
-	// p->DeInstantiate();
+	// p->plugindef()->DeInstantiate(p->instanceid());
+	p->DeInstantiate();
 	delete p;
 }
 
@@ -347,7 +367,7 @@ FFFF::clearPipeline()
 }
 
 void
-FFFF::loadFFPlugins(std::string ff10path, std::string ffglpath, int ffgl_width, int ffgl_height)
+FFFF::loadAllPluginDefs(std::string ff10path, std::string ffglpath, int ffgl_width, int ffgl_height)
 {
     nff10plugindefs = 0;
     nffglplugindefs = 0;
@@ -442,9 +462,11 @@ FFFF::FFGLAddToPipeline(std::string pluginName, std::string inm, bool autoenable
 		np->enable();
 	}
 
-	for ( cJSON* pn=params->child; pn!=NULL; pn=pn->next ) {
-		NosuchAssert(pn->type == cJSON_Number);
-		np->setparam(pn->string,(float)(pn->valuedouble));
+	if (params) {
+		for (cJSON* pn = params->child; pn != NULL; pn = pn->next) {
+			NosuchAssert(pn->type == cJSON_Number);
+			np->setparam(pn->string, (float)(pn->valuedouble));
+		}
 	}
 
 	return np;
@@ -489,9 +511,11 @@ FFFF::FF10AddToPipeline(std::string pluginName, std::string inm, bool autoenable
 		np->enable();
 	}
 
-	for ( cJSON* pn=params->child; pn!=NULL; pn=pn->next ) {
-		NosuchAssert(pn->type == cJSON_Number);
-		np->setparam(pn->string,(float)(pn->valuedouble));
+	if (params) {
+		for (cJSON* pn = params->child; pn != NULL; pn = pn->next) {
+			NosuchAssert(pn->type == cJSON_Number);
+			np->setparam(pn->string, (float)(pn->valuedouble));
+		}
 	}
 
 	return np;
@@ -662,8 +686,6 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
     unsigned char *pixels_into_pipeline;
     IplImage* img_into_pipeline;
 
-	DEBUGPRINT1(("DOONEFRAME START"));
-	
     //bind the gl texture so we can upload the next video frame
     glBindTexture(GL_TEXTURE_2D, mapTexture.Handle);
 
@@ -753,25 +775,16 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 		if ( ! pi->isEnabled() ) {
 			continue;
 		}
+#if 0
 		if ( nactive == 1 ) {
 			if ( ! do_ffgl_plugin(pi,3) ) {
 				DEBUGPRINT(("DISABLING plugin - Error B in do_ffgl_plugin for plugin=%s",pi->name().c_str()));
 				pi->disable();
-				// return 0;
 			}
 			continue;
 		}
-		if ( pi == lastplugin ) {
-			//deactivate rendering to the fbo
-			//(this re-activates rendering to the window)
-			if ( nactive > 1 ) {
-				fbo_output->UnbindAsRenderTarget(glExtensions);
-			}
-			if ( ! do_ffgl_plugin(pi,2) ) {
-				DEBUGPRINT(("DISABLING plugin - Error C in do_ffgl_plugin for plugin=%s",pi->name().c_str()));
-				pi->disable();
-			}
-		} else if ( pi == firstplugin ) {
+#endif
+		if ( pi == firstplugin ) {
 			if ( ! do_ffgl_plugin(pi,0) ) {
 				DEBUGPRINT(("DISABLING plugin - Error D in do_ffgl_plugin for plugin=%s",pi->name().c_str()));
 				pi->disable();
@@ -782,6 +795,17 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 				pi->disable();
 			}
 		}
+	}
+
+	// The Trails plugin is always the last one
+
+	//deactivate rendering to the fbo
+	//(this re-activates rendering to the window)
+	if ( nactive > 0 ) {
+		fbo_output->UnbindAsRenderTarget(glExtensions);
+	}
+	if ( ! do_ffgl_plugin(m_trailsplugin,2) ) {
+		DEBUGPRINT(("Error C in do_ffgl_plugin for Trails plugin!?"));
 	}
 
 	static GLubyte *data = NULL;
@@ -829,7 +853,6 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 		cvReleaseImage(&img_into_pipeline);
 	}
 
-	DEBUGPRINT1(("DOONEFRAME END"));
 	return true;
 }
 
@@ -1061,29 +1084,55 @@ std::string FFFF::loadFfffPatch(std::string nm, const char* id)
 	return jsonOK(id);
 }
 
+void
+FFFF::setTrailParams()
+{
+	if (m_trailsplugin) {
+		if (m_dotrail) {
+			m_trailsplugin->setparam("Opacity", (float)m_trailamount);
+		}
+		else {
+			m_trailsplugin->setparam("Opacity", 0.0);
+		}
+	}
+}
+
 std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 {
 	std::string err;
 
 	if (meth == "apis") {
-		return jsonStringResult("time;clicknow;show;hide;echo"
-			";enable(instance);disable(instance);delete(instance)"
-			";ffgladd(plugin,instance,autoenable,params)"
-			";ff10add(plugin,instance,autoenable,params)"
-			";ffglparamset(instance,param,val)"
-			";ff10paramset(instance,param,val)"
-			";ffglparamget(instance,param)"
-			";ff10paramget(instance,param)"
-			";ff10paramlist(plugin)"
-			";ffglparamlist(plugin)"
-			";ff10paramvals(instance)"
-			";ffglparamvals(instance)"
-			";ffglpipeline"
-			";ff10pipeline"
-			";ffglplugins"
-			";ff10plugins"
+		return jsonStringResult("time;clicknow;show;hide;echo;"
+			"enable(instance);disable(instance);delete(instance);"
+			"ffgladd(plugin,instance,autoenable,params);"
+			"ff10add(plugin,instance,autoenable,params);"
+			"ffglparamset(instance,param,val);"
+			"ff10paramset(instance,param,val);"
+			"ffglparamget(instance,param);"
+			"ff10paramget(instance,param);"
+			"ff10paramlist(plugin);"
+			"ffglparamlist(plugin);"
+			"ff10paramvals(instance);"
+			"ffglparamvals(instance);"
+			"ffglpipeline;"
+			"ff10pipeline;"
+			"ffglplugins;"
+			"ff10plugins;"
+			"dotrail(onoff);"
+			"trail(amount);"
 			, id);
 	}
+	if (meth == "dotrail") {
+		m_dotrail = (jsonNeedInt(params, "onoff") != 0);
+		setTrailParams();
+		return jsonOK(id);
+	}
+	if (meth == "trail") {
+		m_trailamount = jsonNeedDouble(params, "amount");
+		setTrailParams();
+		return jsonOK(id);
+	}
+
 	if ( meth == "time"  ) {
 		return jsonDoubleResult(m_vizserver->GetTime(),id);
 	}
@@ -1155,10 +1204,15 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		FFGLDeleteFromPipeline(iname);
 		return jsonOK(id);
 	}
+	if ( meth == "clearpipeline" ) {
+		clearPipeline();
+		return jsonOK(id);
+	}
 	if ( meth == "ffglparamset" || meth == "set" ) {
 		std::string instance = jsonNeedString(params,"instance");
 		std::string param = jsonNeedString(params,"param");
 		float val = (float) jsonNeedDouble(params,"val");
+		DEBUGPRINT1(("ffglparamset %s %s %f", instance.c_str(), param.c_str(), val));
 		FFGLPluginInstance* pi = FFGLNeedPluginInstance(instance);
 		if ( ! pi->setparam(param,val) ) {
 			throw NosuchException("Unable to find or set parameter '%s' in instance '%s'",param.c_str(),instance.c_str());

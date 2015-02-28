@@ -247,22 +247,14 @@ DWORD instantiate(const VideoInfoStruct *pVideoInfo)
 	return FF_FAIL;
 }
 
-DWORD deInstantiate(void *instanceID)
+DWORD deInstantiate(CFreeFrame10Plugin *p)
 {
-	DEBUGPRINT(("deInstantiateGL in FF10.cpp called"));
-	return FF_FAIL;
-#if 0
-	CFreeFrame10Plugin *p = (CFreeFrame10Plugin *)instanceID;
-
 	if (p != NULL) {
-		p->DeInitGL();
 		delete p;
-
 		return FF_SUCCESS;
 	}
 
 	return FF_FAIL;
-#endif
 }
 
 

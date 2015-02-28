@@ -80,7 +80,8 @@ FF10ParameterDef*
 FF10PluginDef::findparamdef(std::string pnm)
 {
     for ( int n=0; n<m_numparams; n++ ) {
-		if ( m_paramdefs[n].name == pnm ) {
+		std::string nm = m_paramdefs[n].name;
+		if ( nm == pnm ) {
 			return &(m_paramdefs[n]);
 		}
 	}
@@ -106,6 +107,7 @@ bool FF10PluginDef::LoadParamDefs()
     m_paramdefs = new FF10ParameterDef[np];
     for ( n=0; n<np; n++ ) {
         FF10ParameterDef* p = &(m_paramdefs[n]);
+		p->num = n;
         u = m_mainfunc(FF_GETPARAMETERNAME, n, 0);
 		char rawname[17];
         memcpy(rawname,u.svalue,16);
@@ -131,15 +133,37 @@ bool FF10PluginDef::LoadParamDefs()
     return TRUE;
 }
 
-int FF10PluginDef::Instantiate(VideoInfoStruct *vis)
+DWORD FF10PluginInstance::Instantiate(VideoInfoStruct *vis)
 {
-    plugMainUnion u = m_mainfunc(FF_INSTANTIATE, (DWORD)vis, 0);
-    if ( u.ivalue == FF_FAIL ) {
-        printf("Unable to Instantiate!?\n");
-        return FALSE;
+	if (m_instanceid != INVALIDINSTANCE) {
+		DEBUGPRINT(("HEY!  Instantiate called when already instantiated!?"));
+        //already instantiated
+        return FF_SUCCESS;
+	}
+
+    m_instanceid = m_mainfunc(FF_INSTANTIATE, (DWORD)vis, 0).ivalue;
+    if ( m_instanceid == FF_FAIL ) {
+        DEBUGPRINT(("Unable to Instantiate!?\n"));
+        return FF_FAIL;
     }
-    // printf("SUCCESSFUL Instantiate id=%d\n",u.ivalue);
-    return u.ivalue;
+    DEBUGPRINT(("SUCCESSFUL Instantiate id=%d\n",m_instanceid));
+	DEBUGPRINT(("HEY!!!! should I be setting default param assignments here, like in GL?"));
+    return FF_SUCCESS;
+}
+
+DWORD FF10PluginInstance::DeInstantiate()
+{
+    if (m_instanceid==INVALIDINSTANCE) {
+		DEBUGPRINT(("Hey!  DeInstantiate called when already deleted!?"));
+        return FF_SUCCESS;
+    }
+    DEBUGPRINT(("DeInstantiate id=%d\n",m_instanceid));
+    plugMainUnion u = m_mainfunc(FF_DEINSTANTIATE, 0, (DWORD)m_instanceid);
+    if ( u.ivalue == FF_FAIL ) {
+        DEBUGPRINT(("Unable to Instantiate!?\n"));
+        return false;
+    }
+	return true;
 }
 
 
@@ -207,7 +231,7 @@ bool FF10PluginInstance::setparam(std::string pnm, float v)
 		SetFloatParameter(pnum, v);
 	    return true;
 	} else {
-	    DEBUGPRINT(("Didn't find FF10 parameter pnm=%s in plugin=%s\n",pnm.c_str(),m_plugindef->GetPluginName().c_str()));
+	    DEBUGPRINT(("FF10PluginInstance::setparam float didn't find FF10 parameter pnm=%s in plugin=%s\n",pnm.c_str(),m_plugindef->GetPluginName().c_str()));
 	    return false;
 	}
 }
@@ -219,7 +243,7 @@ bool FF10PluginInstance::setparam(std::string pnm, std::string v)
 		SetStringParameter(pnum, v);
 	    return true;
 	} else {
-	    DEBUGPRINT(("Didn't find FF10 parameter pnm=%s in plugin=%s\n",pnm.c_str(),m_plugindef->GetPluginName().c_str()));
+	    DEBUGPRINT(("FF10PluginInstance::setparam string didn't find FF10 parameter pnm=%s in plugin=%s\n",pnm.c_str(),m_plugindef->GetPluginName().c_str()));
 	    return false;
 	}
 }
@@ -263,7 +287,7 @@ float FF10PluginInstance::getparam(std::string pnm)
 	if (pnum >= 0) {
 		return GetFloatParameter(pnum);
 	}
-	DEBUGPRINT(("Didn't find FF10 parameter pnm=%s\n", pnm.c_str()));
+	DEBUGPRINT(("FF10PluginInstance::getparam didn't find FF10 parameter pnm=%s\n", pnm.c_str()));
 	return 0.0;
 }
 

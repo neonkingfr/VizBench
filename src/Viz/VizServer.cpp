@@ -316,6 +316,7 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 	std::string api;
 	VizServer* ss = VizServer::GetServer();
 
+	DEBUGPRINT1(("VizServer::processJson fullmethod=%s",fullmethod.c_str()));
 	static AllVizParams* allparams = NULL;
 	if (allparams == NULL) {
 		allparams = new AllVizParams(true);
@@ -1424,6 +1425,13 @@ void
 VizServer::RemoveCursorCallback(void* handle) {
 	if (m_cursorprocessor) {
 		m_cursorprocessor->RemoveCursorCallback(handle);
+	}
+}
+
+void
+VizServer::RemoveKeystrokeCallback(void* handle) {
+	if (m_keystrokeprocessor) {
+		m_keystrokeprocessor->RemoveKeystrokeCallback(handle);
 	}
 }
 

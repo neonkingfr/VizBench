@@ -116,6 +116,36 @@ class RandPosValue(NthValue):
 		self.sendlooper("randomposition1")
 		self.sendlooper("nextloop")
 	
+# class RandomPPValue(NthValue):
+# 	
+# 	def __init__(sel# f, panel):
+# 		NthValue.__init__(self, panel, default="")
+# 		
+# 	def display(self):
+# 		return "Param/All"
+# 	
+# 	def dec(self):
+# 		self.panel.set_all_random_params_of_all_plugins(0, 0)
+# 	
+# 	def inc(self):
+# 		self.panel.set_random_plugins(0, 0)
+# 		
+# class RandomPP2Value(NthValue):
+# 	
+# 	def __init__(self, panel):
+# 		NthValue.__init__(self, panel, default="")
+# 		
+# 	def display(self):
+# 		return "Param/Pre"
+# 	
+# 	def inc(self):
+# 		pn = self.panel.value["PresetName"]
+# 		pn.random_presetname()
+# 		self.panel.load_preset()
+# 		
+# 	def dec(self):
+# 		self.panel.set_all_random_params_of_all_plugins(0, 0)
+	
 class RandPrePostValue(NthValue):
 	
 	def __init__(self, panel):
@@ -162,12 +192,11 @@ class PlacementValue(NthValue):
 	
 class OnOffValue(NthValue):
 	
-	def __init__(self, panel, name, api=None, osc=None, default="On"):
+	def __init__(self, panel, name, osc=None, default="On"):
 		self.default = default
 		NthValue.__init__(self, panel, default=default)
 		self.name = name
 		self.osc = osc
-		self.api = api
 		
 	def display(self):
 		return "%3s" % (self.getvalue())
@@ -183,17 +212,14 @@ class OnOffValue(NthValue):
 		self.sendvalue()
 		
 	def sendvalue(self):
-		v = self.getvalue()
-		print "OnOffValue sendvalue v=",v
-		if v == "Off":
-			args = "{\"onoff\": 0}"
-		else:
-			args = "{\"onoff\": 1}"
-		if self.api:
-			self.panel.ffff.sendapi(self.api, args)
+		if self.osc:
+			v = self.getvalue()
+			if v == "Off":
+				self.send(self.osc, [0])
+			else:
+				self.send(self.osc, [1])
 			
 	def toggle(self):
-		print "OnOffValue toggle getvalue=",self.getvalue()
 		if self.getvalue() == "On":
 			self.dec()
 		else:
@@ -201,14 +227,13 @@ class OnOffValue(NthValue):
 	
 class FloatValue(NthValue):
 	
-	def __init__(self, panel, name, osc=None, api=None, default=0.5, min=0.0, max=1.0, delta=0.05):
+	def __init__(self, panel, name, osc=None, default=0.5, min=0.0, max=1.0, delta=0.05):
 		NthValue.__init__(self, panel, default=default)
 		self.min = min
 		self.delta = delta
 		self.max = max
 		self.name = name
 		self.osc = osc
-		self.api = api
 		if self.default > self.max:
 			self.default = self.max
 		if self.default > self.min:
@@ -218,7 +243,6 @@ class FloatValue(NthValue):
 		return "%.3f" % (self.getvalue())
 	
 	def inc(self):
-		print "FloatValue.inc called! name=",self.name
 		v = self.getvalue() + self.delta
 		if v > self.max:
 			v = self.max
@@ -237,10 +261,6 @@ class FloatValue(NthValue):
 	def sendvalue(self):
 		if self.osc:
 			self.send(self.osc, [self.getvalue()])
-		if self.api:
-			v = self.getvalue()
-			args = "{\"val\": "+v+"}"
-			self.panel.ffff.sendapi(self.api, args)
 		
 class IntValue(FloatValue):
 	
@@ -255,17 +275,58 @@ class NumAllValue(IntValue):
 	def __init__(self, panel):
 		IntValue.__init__(self, panel, "NumAll", min=0, max=3, delta=1, default=1)
 		
+	def getvalue(self):
+		npre = self.panel.getnplugins("pre")
+		npost = self.panel.getnplugins("post")
+		nffgl = self.panel.getnplugins("ffgl")
+		return min(npre, npost, nffgl)
+		
+	def setvalue(self, v):
+		self.panel.setnplugins(v, "pre")
+		self.panel.setnplugins(v, "post")
+		if v == 0:
+			self.panel.setnplugins(1, "ffgl")
+			b = self.panel.butt["ffgl"][0]
+			self.panel.set_curr_configmode_and_butt("ffgl", 0, b, updatedisplay=False)
+			self.panel.set_curr_plugin("Shift RGB")
+			plugin = self.panel.ffff.get_ffgl("Shift RGB")
+			if not "Distance" in plugin.param:
+					print "Hey, Distance not in plugin.param?"
+			else:
+				p = plugin.param["Distance"]
+				self.panel.set_param_text_and_send(plugin, p, "0.0")
+		else:
+			self.panel.setnplugins(v, "ffgl")
+		
 class NumPreValue(IntValue):
 	def __init__(self, panel):
 		IntValue.__init__(self, panel, "NumPre", min=0, max=3, delta=1, default=1)
+		
+	def getvalue(self):
+		return self.panel.getnplugins("pre")
+		
+	def setvalue(self, v):
+		self.panel.setnplugins(v, "pre")
 		
 class NumPostValue(IntValue):
 	def __init__(self, panel):
 		IntValue.__init__(self, panel, "NumPost", min=0, max=3, delta=1, default=1)
 		
+	def getvalue(self):
+		return self.panel.getnplugins("post")
+		
+	def setvalue(self, v):
+		self.panel.setnplugins(v, "post")
+		
 class NumFfglValue(IntValue):
 	def __init__(self, panel):
 		IntValue.__init__(self, panel, "NumFfgl", min=1, max=3, delta=1, default=1)
+		
+	def getvalue(self):
+		return self.panel.getnplugins("ffgl")
+		
+	def setvalue(self, v):
+		self.panel.setnplugins(v, "ffgl")
 		
 class SmoothMoveValue(OnOffValue):
 	def __init__(self, panel):
@@ -295,7 +356,7 @@ class PrmStpsValue(IntValue):
 		
 class TrailValue(FloatValue):
 	def __init__(self, panel):
-		FloatValue.__init__(self, panel, "Trail", api="ffff.trail", min=0.5, max=0.99, delta=0.02, default=0.75)
+		FloatValue.__init__(self, panel, "Trail", osc="/looper/trail", min=0.5, max=0.99, delta=0.02, default=0.75)
 		
 	def inc(self):
 		FloatValue.inc(self)
@@ -308,17 +369,10 @@ class TrailValue(FloatValue):
 		if self.realvalue <= 0.5:
 			t = self.panel.value["TrailOn"]
 			t.dec()
-
-	def sendvalue(self):
-		v = self.getvalue()
-		print "TrailValue, v=",v
-		args = "{\"amount\": "+str(v)+"}"
-		self.panel.ffff.sendapi(self.api, args)
-		
 		
 class TrailOnValue(OnOffValue):
 	def __init__(self, panel):
-		OnOffValue.__init__(self, panel, "TrailOn", api="ffff.dotrail", default="On")
+		OnOffValue.__init__(self, panel, "TrailOn", osc="/looper/dotrail", default="On")
 		
 class AllLiveValue(OnOffValue):
 	def __init__(self, panel):
@@ -523,6 +577,46 @@ class PresetSaveValue(NthValue):
 		self.last_saved = fname
 		self.panel.write_preset(fname)
 		self.panel.value["PresetName"].reload_presetlist()
+		
+class ParamThread(Thread):
+	
+	def __init__(self, panel, plugin, p, val):
+		Thread.__init__(self)
+		self.panel = panel
+		self.plugin = plugin
+		if plugin == None:
+			print "Hey, ParamThread initialized with plugin=None?"
+		self.param = p
+		self.beginval = float(p.current_val)
+		self.endval = float(val)
+		self.stepnum = 0
+		self.stopme = False
+		if p.paramthread != None:
+			t = p.paramthread
+			t.stop()
+			t.join()
+		p.paramthread = self
+		
+	def stop(self):
+		self.stopme = True
+		
+	def run(self):
+		plugin = self.plugin
+		if plugin == None:
+			print "Hey, ParamThread called with self.plugin=None?"
+			return
+		while self.stopme == False and self.panel.param_nsteps > 0 and self.stepnum <= self.panel.param_nsteps:
+			val = self.beginval + (self.stepnum * (self.endval - self.beginval)) / self.panel.param_nsteps
+			if plugin == None:
+				print "Hey, ParamThread.run sees plugin=None?  initial plugin=", plugin.name
+				break
+			self.panel.set_param_text_and_send_now(plugin, self.param, "%f" % val)
+			self.stepnum += 1
+			# print "PARAMTHREAD sleeping!? dt=",self.panel.param_dt
+			sleep(self.panel.param_dt)
+		if self.param.paramthread != self:
+			print "HEY!  run ended but paramthread != self!?"
+		self.param.paramthread = None
 		
 class Actions():
 	def __init__(self, panel):
@@ -808,6 +902,7 @@ class ResetActions(Actions):
 			os.system("loopyactivate.bat")
 			self.panel.ffff.hangup_and_reconnect()
 			time.sleep(1.0)
+			self.panel.ffff.refresh()
 			self.panel.send_all_values()
 		elif key == "*":
 			v = self.value("PresetSet")
@@ -867,6 +962,13 @@ class RecordingActions(Actions):
 			self.ffff().recordoverlay(0)
 			self.recording = False
 
+class FingerData:
+	def __init__(self,tm,x,y,id):
+		self.time = tm
+		self.x = x
+		self.y = y
+		self.id = id
+	
 class NthControlPanel():
 
 	def __init__(self, width, height, flags):
@@ -880,9 +982,12 @@ class NthControlPanel():
 		self.lcd_status = ""
 		self.key_is_down = {}
 		self.key_up_mode = {}
-
+		self.param_dt = 0.005
+		self.param_nsteps = 500
 		self.lcdlines = ["", "", "", ""]
 		self.last_xy_action = {}
+		self.last_xy_time = 0.0
+		self.finger_zero = 0
 
 		self.presets = []
 		self.curr_preset = 0
@@ -1000,7 +1105,14 @@ class NthControlPanel():
 			print "HEY, no Pertelian LCD is attached!"
 		else:
 			self.pertelian.backlight(self.pertelian_num, 1)
-
+		self.curr_plugin = None
+		self.nparams = 8
+		self.debug = False
+		self.curr_butt = None
+		
+		# self.curr_configmode = "pre"
+		# self.curr_configmode_index = 0
+		
 		self.color = Color("black")
 		self.bgcolor = Color(0xff, 0xcc, 0x66)
 		NthDrawable.set_default_bgcolor(self.bgcolor)
@@ -1020,11 +1132,33 @@ class NthControlPanel():
 		self.width = width
 		self.height = height
 
+		self.next_control_num = 0
+
+		# sz = (int(width*0.1),int(height*0.1))
+		# b = NthButton(Rect((0,0),sz),"Hello")
+		# self.add(b,offset=(10,10))
+		# self.ui_mode_widget = b
+		# b.set_callback(self.toggle_ui_mode,(0,0))
+
 		self.linesz = height / 21
 
-		sz = (int(width), int(height))
+		pwidth = int(width * 0.333)
+
+		sz = (pwidth, int(height))
 		offset = (0, 0)
+		self.config_pane(sz, offset)
+
+		sz = (pwidth, int(height))
+		offset = (pwidth, 0)
+		self.param_pane(sz, offset)
+
+		sz = (pwidth, int(height))
+		offset = (pwidth * 2, 0)
 		self.controller_pane(sz, offset)
+		
+		self.curr_butt = self.butt["pre"][0]
+		self.curr_configmode = "pre"
+		self.curr_configmode_index = 0
 		
 		self.lcd_clear()
 		self.lcd_write(1, 2, "LoopyCam Starting")
@@ -1034,7 +1168,7 @@ class NthControlPanel():
 	def send_all_values(self):
 		for nm in self.value:
 			v = self.value[nm]
-			print "SENDING value nm=",nm," val=",v.getvalue()
+			# print "SENDING value nm=",nm," val=",v.getvalue()
 			v.sendvalue()
 	
 	def get_value_named(self, nm):
@@ -1093,12 +1227,148 @@ class NthControlPanel():
 		# print "LCD set_status =",self.lcd_status
 		
 	def set_ffff(self, ffff):
+		print "PANEL set_ffff!!"
 		self.ffff = ffff
+		# self.keyproc.set_ffff(ffff)
 
+	def config_pane(self, sz, offset):
+
+		self.butt = {}
+		self.butt["pre"] = []
+		self.butt["post"] = []
+		self.butt["ffgl"] = []
+		
+		th = self.linesz
+		b = NthButton(Rect((0, 0), (sz[0], th)), "Configuration")
+		self.add(b, offset=offset)
+
+		b = NthText(Rect((0, 0), (sz[0], th)), "FF Pre", border=False, bgcolor=self.bgdarker)
+		self.add(b, offset=(0, th))
+
+		for n in range(NPRE):
+			y = (n + 2) * th
+			self.tiny_buttons("pre", n, sz, th, y)
+			
+		b = NthText(Rect((0, 0), (sz[0], th)), "Loops", border=False, bgcolor=self.bgdarker)
+		self.add(b, offset=(0, 5 * th))
+
+		xoff = sz[0] * 0.1
+		bsz = (sz[0] / 2, th)
+		for n in range(8):
+			y = (n + 6) * th
+
+			b = NthText(Rect((0, 0), (xoff, th)), "%d" % n, border=False)
+			self.add(b, offset=(0, y))
+
+			b = NthButton(Rect((0, 0), bsz), "None")
+			self.add(b, offset=(xoff, y))
+
+		b = NthText(Rect((0, 0), (sz[0], th)), "FF Post", border=False, bgcolor=self.bgdarker)
+		self.add(b, offset=(0, 14 * th))
+
+		for n in range(NPOST):
+			y = (n + 15) * th
+			self.tiny_buttons("post", n, sz, th, y)
+
+		b = NthText(Rect((0, 0), (sz[0], th)), "FFGL", border=False, bgcolor=self.bgdarker)
+		self.add(b, offset=(0, 18 * th))
+
+		for n in range(NFFGL):
+			y = (n + 19) * th
+			self.tiny_buttons("ffgl", n, sz, th, y)
+			
+	def tiny_buttons(self, mode, n, sz, th, y):
+		
+		xoff = sz[0] * 0.1
+		b = NthText(Rect((0, 0), (xoff, th)), "%d" % n, border=False)
+		self.add(b, offset=(0, y))
+
+		bsz = (sz[0] / 2, th)
+		b = NthButton(Rect((0, 0), bsz), "None")
+		self.add(b, offset=(xoff, y))
+		b.set_callback(self.plugin_set_current, (mode, n, b))
+		
+		self.butt[mode].append(b)
+		
+		b = NthButton(Rect((0, 0), (th, th)), "R")
+		self.add(b, offset=(sz[0] - 3 * th, y))
+		b.set_callback(self.set_random_plugin, (mode, n, b))
+			
+		b = NthButton(Rect((0, 0), (th, th)), "P")
+		self.add(b, offset=(sz[0] - 2 * th, y))
+		b.set_callback(self.set_random_params, (mode, n, b))
+
+		b = NthButton(Rect((0, 0), (th, th)), "X")
+		self.add(b, offset=(sz[0] - 1 * th, y))
+		b.set_callback(self.set_none_plugin, (mode, n, b))
+		
+	def  set_preff(self, n, nm):
+		if nm != self.butt["pre"][n].text:
+			self.butt["pre"][n].set_text(nm)
+			self.refresh()
+			
+	def set_postff(self, n, nm):
+		if nm != self.butt["post"][n].text:
+			self.butt["post"][n].set_text(nm)
+			self.refresh()
+			
+	def set_postffgl(self, n, nm):
+		if n > 2:
+			print "IGNORING set_postffgl for n=", n
+			return
+		if nm != self.butt["ffgl"][n].text:
+			self.butt["ffgl"][n].set_text(nm)
+			self.refresh()
+		
 	def got_xy(self,x,y,id):
 		tm = time.time()
+		f = FingerData(tm,x,y,id)
 		print "GOTXY! id=",id," xy=",x,y," time=",time.time()
+		
+		if tm > (self.last_xy_time+2.0):
+			self.finger_zero = id
+			print "RESET FINGER_ZERO TO ",id
+			
+		self.last_xy_time = tm
+			
+		if id < self.finger_zero:
+			self.finger_zero = id
+			
+		# self.set_all_random_params_of_all_plugins(0, 0)
+		# self.lcd_refresh()
+		b = self.butt["ffgl"][0]
 
+		# THIS IS THE THING THAT'S SLOWING IT DOWN!
+		self.set_curr_configmode_and_butt("ffgl", 0, b, updatedisplay=False)
+		p = self.curr_plugin
+		# paramnum = ((id - self.finger_zero)*2) % p.num_params()
+		paramnum = 0
+		if not paramnum in self.last_xy_action:
+			self.last_xy_action[paramnum] = tm
+		if tm > (self.last_xy_action[paramnum]+0.05):
+			print "XY ACTION! id=",id," xy=",x,y,"  PARAMNUM=",paramnum," id=",id
+			param = p.get_param_byindex(paramnum)
+			if param:
+				self.set_param_text_and_send_now(p,param,"%lf"%x)
+			self.last_xy_action[paramnum] = tm
+			self.ffff.send_plugin_param(p, param)
+		paramnum += 1
+		if not paramnum in self.last_xy_action:
+			self.last_xy_action[paramnum] = tm
+		if tm > (self.last_xy_action[paramnum]+0.1):
+			param = p.get_param_byindex(paramnum)
+			if param:
+				self.set_param_text_and_send_now(p,param,"%lf"%y)
+				# self.ffff.send_plugin_param(p, param)
+			self.last_xy_action[paramnum] = tm
+		
+		self.lcd_refresh()
+
+	def set_random_params(self, d, ev, random_amount=1.0):
+		self.plugin_set_current(d, ev)
+		self.set_all_params(random_amount=random_amount, updatedisplay=False)
+		self.lcd_refresh()
+		
 	def init_rand(self):
 		self.randnums = []
 		for n in range(100):
@@ -1141,51 +1411,454 @@ class NthControlPanel():
 				t.stop()
 				t.join()
 			
-	def set_all_random_params_of_all_plugins(self, d1, d2, random_amount=1.0):
-		print "====================== all_random_params, random_amount=", random_amount
+	def set_all_random_params_of_current(self, d1, d2, random_amount=1.0):
 		self.start_next_rand()
+		self.set_all_params(random_amount=random_amount)
+		
+	def set_all_random_params_of_all_plugins(self, d1, d2, random_amount=1.0):
+		print "all_random_params, random_amount=", random_amount
+		self.start_next_rand()
+		lastb = None
+		for n in range(NPRE):
+			b = self.butt["pre"][n]
+			b.set_bgcolor(self.bgcolor)
+			if b.text != "None":
+				self.set_curr_configmode_and_butt("pre", n, b, updatedisplay=False)
+				self.set_all_params(random_amount=random_amount, updatedisplay=False)
+				lastb = b
+				
+		for n in range(NPOST):
+			b = self.butt["post"][n]
+			b.set_bgcolor(self.bgcolor)
+			if b.text != "None":
+				self.set_curr_configmode_and_butt("post", n, b, updatedisplay=False)
+				self.set_all_params(random_amount=random_amount, updatedisplay=False)
+				lastb = b
+				
+		for n in range(NFFGL):
+			b = self.butt["ffgl"][n]
+			b.set_bgcolor(self.bgcolor)
+			if b.text != "None":
+				self.set_curr_configmode_and_butt("ffgl", n, b, updatedisplay=False)
+				self.set_all_params(random_amount=random_amount, updatedisplay=False)
+				lastb = b
+				
+		# we assume self.curr_plugin is set to the last randomized plugin
+		if lastb != None:
+			lastb.set_bgcolor(self.highcolor)
 
-		pipeline = self.ffff.ff10_pipeline()
-		for p in pipeline:
-			if p["enabled"]:
-				nm = p["instance"]
-				plugin = self.ffff.get_ff10(nm)
-				self.set_all_params( plugin, 1.0)
+		# self.set_curr_configmode_and_butt(save_mode, save_mode_index, save_butt)
 
-		pipeline = self.ffff.ffgl_pipeline()
-		for p in pipeline:
-			if p["enabled"]:
-				nm = p["instance"]
-				plugin = self.ffff.get_ffgl(nm)
-				self.set_all_params( plugin, 1.0)
-
+	def set_all_default_params(self, d, ev):
+		self.set_all_params()
+		
+	def write_plugin(self, f, plugin):
+		for nm in plugin.param:
+			p = plugin.param[nm]
+			f.write("param:%s:%s\n" % (nm, p.current_val))
+			
+	def preset_fullpath(self, dir, nm):
+		return "presets_%s/%s.lpy" % (dir, nm)
+		
+	def new_presetfile(self):
+		while True:
+			nm = "%02d" % self.lastpresetnum
+			fname = self.preset_fullpath("new", nm)
+			if not os.path.exists(fname):
+				print "NEW_PRESETFILE=", fname
+				return fname
+			self.lastpresetnum += 1
+			
 	def write_preset(self, fname):
-		self.fff.write_preset(fname)
+		f = open(fname, "wb")
+		for n in range(NPRE):
+			b = self.butt["pre"][n]
+			f.write("pre:%d:%s\n" % (n, b.text))
+			self.write_plugin(f, self.ffff.get_ff10(b.text))
+		for n in range(NPOST):
+			b = self.butt["post"][n]
+			f.write("post:%d:%s\n" % (n, b.text))
+			self.write_plugin(f, self.ffff.get_ff10(b.text))
+		for n in range(NFFGL):
+			b = self.butt["ffgl"][n]
+			f.write("ffgl:%d:%s\n" % (n, b.text))
+			self.write_plugin(f, self.ffff.get_ffgl10(b.text))
+		f.close()
 		
 	def load_preset(self):
 		set = self.get_value_named("PresetSet")
-		nm = self.get_value_named("PresetName")
-		self.ffff.read_preset(set,nm)
+		fn = self.get_value_named("PresetName")
+		fname = self.preset_fullpath(set, fn)
+		try:
+			self.read_preset(fname,self)
+			print "After reading preset, nffplugins=",self.ffff.ff10_nplugins()," nffglplugins=",self.ffff.ffgl_nplugins()
+		except:
+			print "Error in loading fname=%s err=%s" % (fname,format_exc())
 			
+	def load_clear_preset(self):
+		fname = self.preset_fullpath("basic", "clear")
+		try:
+			self.read_preset(fname,self)
+		except:
+			print "Unable to load fname=", fname
+			
+	def read_preset(self, fname, panel):
+		self.ffff.read_preset(fname,panel)
+		self.isalllive = True
+		
+	def getnplugins(self, plugtype):
+		np = 0
+		butt = self.butt
+		for n in range(len(butt[plugtype])):
+			if butt[plugtype][n].text != "None":
+				np += 1
+		return np
+		
+	def setnplugins(self, v, plugtype):
+		nactive = 0
+		butt = self.butt
+		nbutt = len(butt[plugtype])
+		for n in range(nbutt):
+			if butt[plugtype][n].text != "None":
+				nactive += 1
+		for n in range(nbutt - 1, -1, -1):
+			b = butt[plugtype][n]
+			if b.text != "None" and nactive > v:
+				nactive -= 1
+				self.set_curr_configmode_and_butt(plugtype, n, b, updatedisplay=False)
+				self.set_curr_plugin("None")
+		for n in range(nbutt):
+			b = butt[plugtype][n]
+			if b.text == "None" and nactive < v:
+				nactive += 1
+				self.set_curr_configmode_and_butt(plugtype, n, b, updatedisplay=False)
+				self.set_random_plugin(0, 0)
+		self.refresh()
+		
 	def set_random_plugins(self, d, ev, type="all"):
-		print "PANEL set_random_plugins type=",type
+		print "PANEL set_random_plugins"
+		lastb = None
+		self.start_next_rand()
+		if type == "all" or type == "pre":
+			for n in range(NPRE):
+				b = self.butt["pre"][n]
+				b.set_bgcolor(self.bgcolor)
+				if b.text != "None":
+					self.set_curr_configmode_and_butt("pre", n, b, updatedisplay=False)
+					self.set_random_plugin(0, 0)
+					lastb = b
+		if type == "all" or type == "post":
+			for n in range(NPOST):
+				b = self.butt["post"][n]
+				b.set_bgcolor(self.bgcolor)
+				if b.text != "None":
+					self.set_curr_configmode_and_butt("post", n, b, updatedisplay=False)
+					self.set_random_plugin(0, 0)
+					lastb = b
+		if type == "all" or type == "ffgl":
+			for n in range(NFFGL):
+				b = self.butt["ffgl"][n]
+				b.set_bgcolor(self.bgcolor)
+				if b.text != "None":
+					self.set_curr_configmode_and_butt("ffgl", n, b, updatedisplay=False)
+					self.set_random_plugin(0, 0)
+					lastb = b
+		# self.set_curr_configmode_and_butt(save_mode, save_mode_index, save_butt)
+		if lastb != None:
+			lastb.set_bgcolor(self.highcolor)
+		self.set_params_current()
+		
+	def set_none_plugin(self, d, ev):
+		(mode, n, b) = d
+		self.plugin_set_current(d, 0)
+		self.curr_configmode = mode
+		self.curr_configmode_index = n
+		plugin = self.ffff.get_ff10("None",create=True)
+		self.curr_plugin = plugin
+		self.set_params_current()
+		self.set_curr_plugin(plugin.name)
+		self.lcd_refresh()
 		
 	def set_random_plugin1(self, d, ev):
-		print "PANEL set_random_plugin1"
+		self.start_next_rand()
+		self.set_random_plugin(d, ev)
 		
 	def set_random_plugin(self, d, ev):
-		print "PANEL set_random_plugin"
+		print "set_random_plugin"
+		if d == 0:
+			self.curr_plugin_random()
+		else:
+			self.plugin_set_current(d, 0)
+			self.curr_plugin_random()
 			
-	def set_all_params(self, plugin, random_amount=0.0):
-		print "SET_ALL_PARAMS ",plugin.name," random_amount=",random_amount
+	def curr_plugin_random(self):
+		if self.curr_configmode == "ffgl":
+			print "CURR_PLUGIN_RANDOM ffgl_nplugins() = ",self.ffff.ffgl_nplugins()
+			# The randint starts at 1, because plugin 0 is "None"
+			i = random.randint(1, self.ffff.ffgl_nplugins() - 1)
+			plugin = self.ffff.find_ffgl_byindex(i)
+		else:
+			i = random.randint(1, self.ffff.ff10_nplugins() - 1)
+			plugin = self.ffff.find_ff10_byindex(i)
+		# print "   random plugin ff=", plugin.name
+		if plugin.name == "None":
+			print "Hey, random plugin = None?"
+		self.curr_plugin = plugin
+		self.set_params_current()
+		self.set_curr_plugin(plugin.name)
+		
+	def set_all_params(self, random_amount=0.0, updatedisplay=True):
+		if self.curr_plugin == None:
+			print "NO CURRENT PLUGIN, set_all_params ignored"
+			return
+		plugin = self.curr_plugin
 		for nm in plugin.param:
 			p = plugin.param[nm]
 			if random_amount > 0.0:
-				v = (float(p.current_val()) + random_amount*random.random()) % 1.0
+				v = (float(p.current_val) + random_amount*random.random()) % 1.0
 				val = "%lf" % v
+				# print "RANDOMIZED param=",p.name," amt=",random_amount," newv=",v
 			else:
 				val = p.default_val
-			self.ffff.change_plugin_param_val(plugin, p, val)
+			# print "SET_ALL_PARAMS plugin=",plugin.name," param=",p.name
+			self.set_param_text_and_send(plugin, p, val)
+		
+		if updatedisplay:
+			self.refresh()
+		# self.ffff.send_plugin_params(self.curr_plugin)
+		
+	def set_one_param(self, index=0, value=0.0):
+		if self.curr_plugin == None:
+			print "NO CURRENT PLUGIN, set_one_param ignored"
+			return
+		plugin = self.curr_plugin
+		for nm in plugin.param:
+			p = plugin.param[nm]
+			if p.index != index:
+				continue
+			self.set_param_text_and_send_now(plugin, p, value)
+		
+		# self.ffff.send_plugin_params(self.curr_plugin)
+		
+	def set_param_text_and_send_now(self, plugin, p, val):
+
+		if plugin.name == "Glow":
+			if p.name == "Floor":
+				ceil = plugin.get_param("Ceiling")
+				if float(val) > float(ceil.current_val):
+					# print "Glow.Floor too high!"
+					return
+			elif p.name == "Ceiling":
+				floor = plugin.get_param("Floor")
+				if float(val) < float(floor.current_val):
+					# print "Glow.Ceiling too low!"
+					return
+		# print "SET_PARAM_NOW plugin=",plugin.name," param=",p.name
+		p.set_current(val)
+		# print "Sending plugin=",plugin.name," param=",p.name," val=",val
+		if plugin == None:
+			print "Hmm, plugin==None in set_param_text_and_send_now?"
+			return
+		if self.curr_plugin != None and plugin.name == self.curr_plugin.name and p.index < len(self.butt_paramval):
+			self.butt_paramval[p.index].set_text(val)
+			# print "SETTING TEXT of button! p.index=",p.index," val=",val
+		self.ffff.send_plugin_param(plugin, p)
+			
+	def set_param_text_and_send(self, plugin, p, val):
+		# print "SET_PARAM_TEXT_AND_SEND, val=",val,"  current=",p.current_val
+		if self.param_dt <= 0.0 or self.param_nsteps <= 1:
+			self.set_param_text_and_send_now(plugin, p, val)
+		else:
+			t = ParamThread(self, plugin, p, val)
+			t.start()
+			print "set_param E"
+
+	def set_params_current(self):
+		
+		for n in range(0, self.nparams):
+			self.butt_paramname[n].visible = False
+			self.butt_paramval[n].visible = False
+			
+		if self.curr_plugin != None:
+			self.butt_plugin_name.set_text(self.curr_plugin.name)
+			for nm in self.curr_plugin.param:
+				p = self.curr_plugin.param[nm]
+				i = p.index
+				if i < len(self.butt_paramname):
+					self.butt_paramname[i].set_text(nm)
+					self.butt_paramval[i].set_text(p.current_val)
+					self.butt_paramname[i].visible = True
+					self.butt_paramval[i].visible = True
+
+	def plugin_set_current(self, d, butt2, dorefresh=True):
+		(mode, n, dummy) = d
+		b = self.butt[mode][n]
+		# print "FFPRE_CURRENT n=", n, " b=", b, " mode=", mode
+		if self.curr_butt != None:
+			self.curr_butt.set_bgcolor(self.bgcolor)  # reset current bgcolor
+		self.set_curr_configmode_and_butt(mode, n, b)
+		if dorefresh:
+			self.refresh()
+		
+	def set_curr_configmode_and_butt(self, mode, n, b, updatedisplay=True):
+		self.curr_configmode = mode 
+		self.curr_butt = b
+		self.curr_configmode_index = n
+		if mode == "ffgl":
+			self.curr_plugin = self.ffff.get_ffgl(b.text)
+		else:
+			self.curr_plugin = self.ffff.get_ff10(b.text)
+		# print "set_curr  PLUGIN =",self.curr_plugin.name
+		if updatedisplay:
+			b.set_bgcolor(self.highcolor)
+			self.set_params_current()
+		
+	def param_pane(self, sz, offset):
+
+		self.butt_paramname = []
+		self.butt_paramval = []
+		th = self.linesz
+		bwidth = sz[0] / 3
+		lmargin = sz[0] / 9
+		
+		b = NthRect(Rect((0, 0), (sz)))
+		b.set_color(self.bgdarker)
+		self.add(b, offset=offset)
+
+		b = NthButton(Rect((0, 0), (sz[0], th)), "Parameters")
+		self.add(b, offset=offset)
+
+		b = NthButton(Rect((0, 0), (bwidth, th)), "Rand Params")
+		self.add(b, offset=(offset[0] + lmargin, offset[1] + sz[1] - 6 * th))
+		b.set_callback(self.set_all_random_params_of_current, 0)
+
+		b = NthButton(Rect((0, 0), (bwidth, th)), "Defaults")
+		self.add(b, offset=(offset[0] + lmargin * 2 + bwidth, offset[1] + sz[1] - 6 * th))
+		b.set_callback(self.set_all_default_params, 0)
+
+		b = NthButton(Rect((0, 0), (bwidth, th)), "Rand Params All")
+		self.add(b, offset=(offset[0] + lmargin, offset[1] + sz[1] - 4 * th))
+		b.set_callback(self.set_all_random_params_of_all_plugins, 0)
+
+		b = NthButton(Rect((0, 0), (bwidth, th)), "Rand Plugin")
+		self.add(b, offset=(offset[0] + lmargin * 2 + bwidth, offset[1] + sz[1] - 4 * th))
+		b.set_callback(self.set_random_plugin1, 0)
+
+		b = NthButton(Rect((0, 0), (bwidth, th)), "Previous Rand")
+		self.add(b, offset=(offset[0] + lmargin, offset[1] + sz[1] - 2 * th))
+		b.set_callback(self.previous_rand, 0)
+		
+		b = NthButton(Rect((0, 0), (bwidth, th)), "Rand Plugins All")
+		self.add(b, offset=(offset[0] + lmargin * 2 + bwidth, offset[1] + sz[1] - 2 * th))
+		b.set_callback(self.set_random_plugins, 0)
+
+		y = offset[1] + 2 * th
+		b = NthText(Rect((0, 0), (bwidth, th)), "Plugin", border=False)
+		self.add(b, offset=(offset[0] + lmargin, y))
+			
+		b = NthButton(Rect((0, 0), (bwidth, th)), "")
+		self.add(b, offset=(offset[0] + bwidth + lmargin * 2, y))
+		self.butt_plugin_name = b
+		b.set_callback(self.plugin_name_change, 0)
+		
+		for n in range(self.nparams):
+			y = offset[1] + (n + 4) * (th * 1.1)
+			pb = NthText(Rect((0, 0), (bwidth, th)), "Param%d" % n, border=False)
+			self.add(pb, offset=(offset[0] + lmargin, y))
+			self.butt_paramname.append(pb)
+			pb.set_callback(self.paramname_down, (pb))
+			
+			vb = NthButton(Rect((0, 0), (bwidth, th)), "Val%d" % n)
+			self.add(vb, offset=(offset[0] + bwidth + lmargin * 2, y))
+			self.butt_paramval.append(vb)
+			vb.set_callback(self.paramval_down, (pb, vb))
+			
+	def plugin_name_change(self, d, ev):
+		if self.curr_plugin == None:
+			self.curr_plugin = self.ffff.get_ff10("None")
+		if self.curr_configmode == "ffgl":
+			plugin = self.ffff.get_ffgl(self.curr_plugin.name)
+		else:
+			plugin = self.ffff.get_ff10(self.curr_plugin.name)
+		if plugin == None:
+			print "plugin_name_change, plugin=None for plugin.name=", self.curr_plugin.name
+			return
+		i = plugin.plugin_index
+		# print "plugin name change, plugin index=", i, "  curr_configmode=", self.curr_configmode
+		if ev.relpos[0] > 0.5:
+			i += 1
+		else:
+			i -= 1
+		if self.curr_configmode == "ffgl":
+			i = i % self.ffff.ffgl_nplugins()
+			# print "   new index=", i
+			plugin = self.ffff.find_ffgl_byindex(i)
+		else:
+			i = i % self.ffff.ff10_nplugins()
+			# print "   new index=", i
+			plugin = self.ffff.find_ff10_byindex(i)
+		# print "   new ff=", plugin.name
+		self.curr_plugin = plugin
+		self.set_params_current()
+		self.set_curr_plugin(plugin.name)
+		
+	def set_curr_plugin(self, nm):
+		i = self.curr_configmode_index
+		m = self.curr_configmode
+		if m == "pre":
+			self.butt["pre"][i].set_text(nm)
+			self.ffff.change_preff(i, nm)
+		elif m == "post":
+			self.butt["post"][i].set_text(nm)
+			self.ffff.change_postff(i, nm)
+		elif m == "ffgl":
+			self.butt["ffgl"][i].set_text(nm)
+			self.ffff.change_ffgl(i, nm)
+		self.refresh()
+		
+	def paramname_down(self, d, ev):
+		pb = d[0]
+		print "param name =", pb.text
+		
+	def paramval_down(self, d, ev):
+		pb = d[0]
+		vb = d[1]
+		plugin = self.curr_plugin
+		if plugin == None:
+			return
+		if not pb.text in plugin.param:
+			print "No such parameter (", pb.text, ") in plugin ", plugin.name, " ??"
+			return
+		p = plugin.param[pb.text]
+		print "curr param val =", p.current_val
+		v = float(vb.text)
+		if ev.relpos[0] > 0.9:
+			v += 0.2
+		elif ev.relpos[0] > 0.8:
+			v += 0.1
+		elif ev.relpos[0] > 0.6:
+			v += 0.05
+		elif ev.relpos[0] > 0.5:
+			v += 0.01
+		elif ev.relpos[0] < 0.1:
+			v -= 0.2
+		elif ev.relpos[0] < 0.2:
+			v -= 0.1
+		elif ev.relpos[0] < 0.4:
+			v -= 0.05
+		elif ev.relpos[0] < 0.5:
+			v -= 0.01
+		else:
+			print "SHOULD NOT GET HERE!?"
+			
+		if v > 1.0:
+			v = 1.0
+		elif v < 0.0:
+			v = 0.0
+		s = "%.5f" % v
+		vb.set_text(s)
+		self.set_param_text_and_send(plugin, p, s)
+		self.refresh()
 		
 	def one_letter(self, sz, offset, row, col):
 
@@ -1289,6 +1962,10 @@ class NthControlPanel():
 		b = NthButton(Rect((0, 0), (sz[0], th)), "Controller")
 		self.add(b, offset=offset)
 
+		b = NthButton(Rect((0, 0), (sz[0] / 2, th)), "Refresh")
+		self.add(b, offset=(offset[0] + sz[0] / 4, offset[1] + sz[1] - 2 * th))
+		b.set_callback(self.control_refresh, 0)
+		
 		for row in range(0, 4):
 			for col in range(0, 20):
 				self.one_letter(sz, offset, row, col)

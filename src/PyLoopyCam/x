@@ -1,0 +1,17 @@
+	def write_plugin(self, f, plugin):
+		for nm in plugin.param:
+			p = plugin.param[nm]
+			f.write("param:%s:%s\n" % (nm, p.current_val))
+			
+	def preset_fullpath(self, dir, nm):
+		return "presets_%s/%s.lpy" % (dir, nm)
+		
+	def new_presetfile(self):
+		while True:
+			nm = "%02d" % self.lastpresetnum
+			fname = self.preset_fullpath("new", nm)
+			if not os.path.exists(fname):
+				print "NEW_PRESETFILE=", fname
+				return fname
+			self.lastpresetnum += 1
+			

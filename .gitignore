@@ -8,6 +8,7 @@ binRelease/FFFF.exe
 binRelease/VizServer.dll
 ffplugins/Viz*.dll
 ffplugins_loopycam
+ffglplugins_loopycam
 ffpluginsDebug/Viz*.dll
 ffglpluginsDebug/Viz*.dll
 ffglpluginsRelease/Viz*.dll

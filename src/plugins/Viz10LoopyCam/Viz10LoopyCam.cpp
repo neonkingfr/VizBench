@@ -47,9 +47,19 @@ std::string Viz10LoopyCam::realProcessJson(std::string meth, cJSON *params, cons
 	Looper* lp = m_looper;
 	if (meth == "apis") {
 		return jsonStringResult("record_on;record_off;record(onoff);play(loopnum,onoff);"
-			"blackout(onoff);randompositions(aspect);randomposition1(aspect)"
+			"blackout(onoff);randompositions(aspect);randomposition1(aspect);"
 			"recordoverlay(onoff);morewindows;lesswindows;"
 			"setwindows(numwindows);fulldisplay;quadrantdisplay;"
+			"alllive(onoff);autonext(n);togglesmooth;setsmooth(v);"
+			"setinterp(v);nextloop;playfactor(loopnum,factor);"
+			"playfactorreset(loopnum);moveamount(amount);"
+			"restart(loopnum);restartrandom(loopnum);"
+			"restartsave(loopnum);restartrestore(loopnum);"
+			"freeze(loopnum);unfreeze(loopnum);"
+			"truncate(loopnum);xor(onoff);border(onoff);"
+			"fliph(onoff);flipv(onoff);recborder(onoff);dotrail(onoff);"
+			"trail(amount);setstart(loopnum,pos);"
+			"setend(loopnum,pos);setreverse(loopnum,onoff);"
 			, id);
 	}
 	if (meth == "record") {
@@ -114,145 +124,151 @@ std::string Viz10LoopyCam::realProcessJson(std::string meth, cJSON *params, cons
 		lp->_quadrantDisplay();
 		return jsonOK(id);
 	}
-#if 0
 	if (meth == "alllive") {
-		int onoff = getAsInt32(nargs, types, arg, 1);
-		_allLive(onoff);
-		// } else if ( s == "sizefactorall" ) {
-		// 	float x = m.getArgAsFloat(0);
-		// 	for ( int n=0; n<MAX_LOOPS; n++ ) {
-		// 		_sizeFactor[n] = x;
-		// 		_changePosSize(n,_pos[n],cvSize((int)(_sz[n].width*_sizeFactor[n]),int(_sz[n].height*_sizeFactor[n])));
-		// }
+		bool onoff = (jsonNeedInt(params, "onoff") != 0);
+		lp->_allLive(onoff);
+		return jsonOK(id);
 	}
 	if (meth == "autonext") {
-		int v = getAsInt32(nargs, types, arg);
-		_setautoNext(v);
+		int v = jsonNeedInt(params, "n");
+		lp->_setautoNext(v);
+		return jsonOK(id);
 	}
 	if (meth == "togglesmooth") {
-		togglesmooth();
+		lp->togglesmooth();
+		return jsonOK(id);
 	}
 	if (meth == "setsmooth") {
-		int v = getAsInt32(nargs, types, arg);
-		setsmooth(v);
+		int v = jsonNeedInt(params, "v");
+		lp->setsmooth(v);
+		return jsonOK(id);
 	}
 	if (meth == "setinterp") {
-		int v = getAsInt32(nargs, types, arg);
-		setinterp(v);
+		int v = jsonNeedInt(params, "v");
+		lp->setinterp(v);
+		return jsonOK(id);
 	}
 	if (meth == "nextloop") {
-		_nextLoop();
+		lp->_nextLoop();
+		return jsonOK(id);
 	}
 	if (meth == "playfactor") {
-		int loopnum = getAsInt32(nargs, types, arg);
-		float x = getAsFloat(nargs, types, arg, 0.5);
-		_setplayfactor(loopnum, x);
+		int loopnum = jsonNeedInt(params, "loopnum");
+		double factor = jsonNeedDouble(params, "factor", 0.5);
+		lp->_setplayfactor(loopnum, factor);
+		return jsonOK(id);
 	}
 	if (meth == "playfactorreset") {
-		int loopnum = getAsInt32(nargs, types, arg);
-		_resetplayfactor(loopnum);
+		int loopnum = jsonNeedInt(params, "loopnum");
+		lp->_resetplayfactor(loopnum);
+		return jsonOK(id);
 	}
 	if (meth == "moveamount") {
-		_moveamount = getAsInt32(nargs, types, arg);
+		lp->_moveamount = jsonNeedInt(params, "amount");
+		return jsonOK(id);
 	}
 	if (meth == "restart") {
-		int loopnum = getAsInt32(nargs, types, arg);
-		if (_validLoopnum(loopnum)) {
-			_restart(loopnum);
+		int loopnum = jsonNeedInt(params, "loopnum");
+		if (lp->validLoopnum(loopnum)) {
+			lp->_restart(loopnum);
 		}
+		return jsonOK(id);
 	}
 	if (meth == "restartrandom") {
-		int loopnum = getAsInt32(nargs, types, arg);
-		if (_validLoopnum(loopnum)) {
-			_restartrandom(loopnum);
+		int loopnum = jsonNeedInt(params, "loopnum");
+		if (lp->validLoopnum(loopnum)) {
+			lp->_restartrandom(loopnum);
 		}
+		return jsonOK(id);
 	}
 	if (meth == "restartsave") {
-		int loopnum = getAsInt32(nargs, types, arg);
-		if (_validLoopnum(loopnum)) {
-			_restartsave(loopnum);
+		int loopnum = jsonNeedInt(params, "loopnum");
+		if (lp->validLoopnum(loopnum)) {
+			lp->_restartsave(loopnum);
 		}
+		return jsonOK(id);
 	}
 	if (meth == "restartrestore") {
-		int loopnum = getAsInt32(nargs, types, arg);
-		if (_validLoopnum(loopnum)) {
-			_restartrestore(loopnum);
+		int loopnum = jsonNeedInt(params, "loopnum");
+		if (lp->validLoopnum(loopnum)) {
+			lp->_restartrestore(loopnum);
 		}
+		return jsonOK(id);
 	}
 	if (meth == "freeze") {
-		int loopnum = getAsInt32(nargs, types, arg);
-		if (_validLoopnum(loopnum)) {
-			_freeze(loopnum, 1);
+		int loopnum = jsonNeedInt(params, "loopnum");
+		if (lp->validLoopnum(loopnum)) {
+			lp->_freeze(loopnum, 1);
 		}
+		return jsonOK(id);
 	}
 	if (meth == "unfreeze") {
-		int loopnum = getAsInt32(nargs, types, arg);
-		if (_validLoopnum(loopnum)) {
-			_freeze(loopnum, 0);
+		int loopnum = jsonNeedInt(params, "loopnum");
+		if (lp->validLoopnum(loopnum)) {
+			lp->_freeze(loopnum, 0);
 		}
+		return jsonOK(id);
 	}
 	if (meth == "truncate") {
-		int loopnum = getAsInt32(nargs, types, arg);
-		if (_validLoopnum(loopnum)) {
-			_truncate(loopnum);
+		int loopnum = jsonNeedInt(params, "loopnum");
+		if (lp->validLoopnum(loopnum)) {
+			lp->_truncate(loopnum);
 		}
+		return jsonOK(id);
 	}
 	if (meth == "xor") {
-		int onoff = getAsInt32(nargs, types, arg);
-		_enableXOR = (onoff ? 1 : 0);
+		bool onoff = (jsonNeedInt(params, "onoff") != 0);
+		lp->_enableXOR = (onoff ? 1 : 0);
+		return jsonOK(id);
 	}
 	if (meth == "border") {
-		int onoff = getAsInt32(nargs, types, arg);
-		_border = (onoff ? 1 : 0);
+		bool onoff = (jsonNeedInt(params, "onoff") != 0);
+		lp->_border = (onoff ? 1 : 0);
+		return jsonOK(id);
 	}
 	if (meth == "fliph") {
-		int onoff = getAsInt32(nargs, types, arg);
-		NS_debug("IGNORING FLIPH onoff=%d\n", onoff);
+		bool onoff = (jsonNeedInt(params, "onoff") != 0);
+		DEBUGPRINT(("IGNORING FLIPH onoff=%d\n", onoff));
 		// set_fliph(onoff!=0);
 		// post2flip->setparam("Horizontal",(float)onoff);
+		return jsonOK(id);
 	}
 	if (meth == "flipv") {
-		int onoff = getAsInt32(nargs, types, arg);
-		NS_debug("IGNORING FLIPV onoff=%d\n", onoff);
+		bool onoff = (jsonNeedInt(params, "onoff") != 0);
+		DEBUGPRINT(("IGNORING FLIPV onoff=%d\n", onoff));
 		// _set_flipv(onoff!=0);
 		// post2flip->setparam("Vertical",(float)onoff);
+		return jsonOK(id);
 	}
 	if (meth == "recborder") {
-		int onoff = getAsInt32(nargs, types, arg);
-		_recborder = (onoff ? 1 : 0);
-	}
-	if (meth == "dotrail") {
-		int onoff = getAsInt32(nargs, types, arg);
-		_trail = (onoff ? 1 : 0);
-		_set_trail();
-	}
-	if (meth == "trail") {
-		float x = getAsFloat(nargs, types, arg);
-		_trailamount = x;
-		_set_trail();
+		bool onoff = (jsonNeedInt(params, "onoff") != 0);
+		lp->_recborder = (onoff ? 1 : 0);
+		return jsonOK(id);
 	}
 	if (meth == "setstart") {
-		int loopnum = getAsInt32(nargs, types, arg);
-		float x = getAsFloat(nargs, types, arg);
-		if (_validLoopnum(loopnum)) {
-			_loop[loopnum].setStartPos(x);
+		int loopnum = jsonNeedInt(params, "loopnum");
+		double pos = jsonNeedDouble(params, "pos");
+		if (lp->validLoopnum(loopnum)) {
+			lp->_loop[loopnum].setStartPos(pos);
 		}
+		return jsonOK(id);
 	}
 	if (meth == "setend") {
-		int loopnum = getAsInt32(nargs, types, arg);
-		float x = getAsFloat(nargs, types, arg);
-		if (_validLoopnum(loopnum)) {
-			_loop[loopnum].setEndPos(x);
+		int loopnum = jsonNeedInt(params, "loopnum");
+		double pos = jsonNeedDouble(params, "pos");
+		if (lp->validLoopnum(loopnum)) {
+			lp->_loop[loopnum].setEndPos(pos);
 		}
+		return jsonOK(id);
 	}
 	if (meth == "setreverse") {
-		int loopnum = getAsInt32(nargs, types, arg);
-		int onoff = getAsInt32(nargs, types, arg);
-		if (_validLoopnum(loopnum)) {
-			_loop[loopnum].setReverse(onoff);
+		int loopnum = jsonNeedInt(params, "loopnum");
+		bool onoff = (jsonNeedInt(params, "onoff") != 0);
+		if (lp->validLoopnum(loopnum)) {
+			lp->_loop[loopnum].setReverse(onoff);
 		}
+		return jsonOK(id);
 	}
-#endif
 	throw NosuchException("Viz10LoopyCam - Unrecognized method '%s'", meth.c_str());
 }
 

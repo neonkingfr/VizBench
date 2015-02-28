@@ -85,7 +85,7 @@ public:
 	FF10PluginInstance* FF10AddToPipeline(std::string pluginName, std::string inm, bool autoenable, cJSON* params);
 	void				FF10DeleteFromPipeline(std::string inm);
 
-	void loadFFPlugins(std::string ffdir, std::string ffgldir, int w, int h);
+	void loadAllPluginDefs(std::string ffdir, std::string ffgldir, int w, int h);
 
 	std::string saveFfffPatch(std::string nm, const char* id);
 	std::string loadFfffPatch(std::string nm, const char* id);
@@ -98,6 +98,7 @@ public:
 	IplImage* getCameraFrame();
 	bool doOneFrame(bool use_camera,int window_width, int window_height);
 	void CheckFPS();
+	void setupTrails();
 
 	void InsertKeystroke(int key, int downup);
 
@@ -125,6 +126,11 @@ private:
 	double m_throttle_lasttime;
 	int m_fps_accumulator;
 	double m_fps_lasttime;
+
+	bool m_dotrail;
+	double m_trailamount;
+	FFGLPluginInstance* m_trailsplugin;
+	void setTrailParams();
 
 	FFGLPluginInstance* m_ffglpipeline;
 	FF10PluginInstance* m_ff10pipeline;

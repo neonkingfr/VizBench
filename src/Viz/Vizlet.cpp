@@ -327,6 +327,7 @@ void Vizlet::_stopCallbacks() {
 	_stopApiCallbacks();
 	_stopMidiCallbacks();
 	_stopCursorCallbacks();
+	_stopKeystrokeCallbacks();
 }
 
 void Vizlet::_stopApiCallbacks() {
@@ -343,6 +344,11 @@ void Vizlet::_stopMidiCallbacks() {
 void Vizlet::_stopCursorCallbacks() {
 	NosuchAssert(m_vizserver);
 	m_vizserver->RemoveCursorCallback(Handle());
+}
+
+void Vizlet::_stopKeystrokeCallbacks() {
+	NosuchAssert(m_vizserver);
+	m_vizserver->RemoveKeystrokeCallback(Handle());
 }
 
 double Vizlet::GetTime() {
@@ -646,35 +652,6 @@ std::string Vizlet::processJsonAndCatchExceptions(std::string meth, cJSON *param
 		r = error_json(-32000,s.c_str(),id);
 	}
 	return r;
-}
-
-std::string Vizlet::submitJsonForProcessing(std::string method, cJSON *params, const char *id) {
-
-	// We want JSON requests to be interpreted in the main thread of the FFGL plugin,
-	// so we stuff the request into json_* variables and wait for the main thread to
-	// pick it up (in ProcessOpenGL)
-	NosuchLock(&json_mutex,"json");
-
-	json_pending = true;
-	json_method = std::string(method);
-	json_params = params;
-	json_id = id;
-
-	bool err = false;
-	while ( json_pending ) {
-		int e = pthread_cond_wait(&json_cond, &json_mutex);
-		if ( e ) {
-			err = true;
-			break;
-		}
-	}
-	if ( err ) {
-		m_json_result = error_json(-32000,"Error waiting for json!?");
-	}
-
-	NosuchUnlock(&json_mutex,"json");
-
-	return m_json_result.c_str();
 }
 
 AllVizParams*

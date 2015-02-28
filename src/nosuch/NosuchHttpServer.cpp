@@ -238,9 +238,9 @@ NosuchHttpServer::Check()
 	int checkcount = 0;
 	bool keepgoing = true;
 
-	while (checkcount < 5 && keepgoing) {
+	while (checkcount < 10 && keepgoing) {
 		checkcount++;
-		keepgoing = false;
+		// keepgoing = false;
 		if (recvMem) {
 			DEBUGPRINT1(("Before ProcessEvents, recvMem=%ld", (long)recvMem));
 		}

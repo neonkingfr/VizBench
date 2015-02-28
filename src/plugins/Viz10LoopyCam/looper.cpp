@@ -1,14 +1,5 @@
 #define _CRT_RAND_S
 
-// #include "Socket.h"
-
-// #include "NSosc.h"
-
-// #include "loopycam.h"
-
-// #include "loopyosc.h"
-// #include "osc/OscReceivedElements.h"
-
 #include <Windows.h>
 #include <opencv/cv.h>
 
@@ -46,9 +37,7 @@ Looper::Looper(int w, int h) {
     _enableXOR = 1;
     _border = 0;
 	_recborder = 0;
-	_trail = 0;
 	_blackout = 0;
-	_trailamount = 0.90f;
     _currentLoop = 0;
     _autoNext = 1;
     // _numPlaying = 1;
@@ -73,7 +62,6 @@ Looper::Looper(int w, int h) {
     }
 	_playing[0] = 2;
     _fullDisplay();
-	_set_trail();
 }
 
 void
@@ -381,7 +369,7 @@ Looper::_setsmooth(int v) {
     _smooth = v;
 }
 void
-Looper::_setplayfactor(int loopnum, float x) {
+Looper::_setplayfactor(int loopnum, double x) {
     if ( validLoopnum(loopnum) ) {
         _loop[loopnum].framerate *= x;
     }
@@ -898,21 +886,6 @@ float getAsFloat(int& nargs, const char* & types, osc::ReceivedMessage::const_it
 	} else {
 		return default;
 	}
-}
-
-
-void
-Looper::_set_trail()
-{
-	DEBUGPRINT(("_set_trail needs work"));
-#if 0
-	if (_trail) {
-		post2trails->setparam("Opacity", _trailamount);
-	}
-	else {
-		post2trails->setparam("Opacity", 0.0);
-	}
-#endif
 }
 
 void

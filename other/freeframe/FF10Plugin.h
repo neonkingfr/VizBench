@@ -21,13 +21,21 @@
 
 std::string CopyFFString(const char* src);
 
-typedef struct FF10ParameterDef {
+class FF10ParameterDef {
+public:
+	FF10ParameterDef() {
+		name = "";
+		num = -1;
+		type = FF_TYPE_STANDARD;
+		default_float_val = 0.0;
+		default_string_val = "";
+	}
 	std::string name;
 	int num;
 	int type;
 	float default_float_val;
 	std::string default_string_val;
-} FF10ParameterDef;
+};
 
 typedef struct FF10ParameterInstance {
 	FF10ParameterDef* _paramdef;
@@ -49,7 +57,10 @@ public:
 	bool	IsLoaded() const;
 	const	PluginInfoStruct *GetInfo() const;
 	bool	GetInfo(PluginInfoStruct& PlugInfo) const;
-	int		Instantiate(VideoInfoStruct *vis);
+
+	// int		Instantiate(VideoInfoStruct *vis);
+	// bool	DeInstantiate(int instanceid);
+
 	std::string	GetPluginName() const;
 
 	std::string GetParameterName(int paramNum);
@@ -86,13 +97,17 @@ public:
 	float getparam(std::string pnm);
 	std::string getParamJsonResult(FF10ParameterDef* pd, FF10PluginInstance* pi, const char* id);
 
+	DWORD		Instantiate(VideoInfoStruct *vis);
+	DWORD	DeInstantiate();
+
 	void enable(){ m_enabled = true; }
 	void disable() { m_enabled = false; }
 	bool isEnabled(){ return m_enabled; }
 	std::string name() { return m_name; }
 	FF10PluginDef* plugindef() { return m_plugindef; }
 	DWORD instanceid() { return m_instanceid; }
-	void setInstanceID(DWORD id) { m_instanceid = id; }
+
+	// void setInstanceID(DWORD id) { m_instanceid = id; }
 
 	FF10PluginInstance* next;
 

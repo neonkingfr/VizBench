@@ -50,17 +50,17 @@ class VFrameLoop {
 
 public:
 	int nframes;
-	float framerate;
-	float pos_within_frame;
+	double framerate;
+	double pos_within_frame;
 	DWORD time_of_loop_start;
 	VFrame* first;	// start of circular list
 	VFrame* nexttoshow;
 	VFrame* start;  // loop starts here
 	VFrame* end;
-	float startpos;
-	float endpos;
+	double startpos;
+	double endpos;
 	int reverse;
-	float savedpos;
+	double savedpos;
 	int frozen;
 
 	VFrameLoop() {
@@ -123,7 +123,7 @@ public:
 		frozen = freeze;
 	};
 
-	void setStartPos(float pos) {
+	void setStartPos(double pos) {
 		if ( reverse ) {
 			endpos = pos;
 		} else {
@@ -132,7 +132,7 @@ public:
 		posChanged();
 	}
 
-	void setEndPos(float pos) {
+	void setEndPos(double pos) {
 		if ( reverse ) {
 			startpos = pos;
 		} else {
@@ -144,7 +144,7 @@ public:
 	void posChanged() {
 		if ( startpos > endpos ) {
 			DEBUGPRINT(("startpos > endpos, switching them"));
-			float t = startpos;
+			double t = startpos;
 			startpos = endpos;
 			endpos = t;
 			reverse = 1 - reverse;
@@ -158,7 +158,7 @@ public:
 		reverse = onoff;
 	}
 
-	VFrame* frameOfPos(float pos) {
+	VFrame* frameOfPos(double pos) {
 		int fnum = int(nframes * pos) % nframes;
 		VFrame* f = first;
 		for ( int n=0; n<fnum; n++ ) {

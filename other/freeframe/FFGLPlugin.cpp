@@ -334,7 +334,6 @@ DWORD FFGLPluginInstance::InstantiateGL(const FFGLViewportStruct *viewport)
 DWORD FFGLPluginInstance::DeInstantiateGL()
 {
     if (m_instanceid==INVALIDINSTANCE) {
-        //already deleted
 		DEBUGPRINT(("Hey!  DeInstantiateGL called when already deleted!?"));
         return FF_SUCCESS;
     }

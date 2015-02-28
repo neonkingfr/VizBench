@@ -1,0 +1,8 @@
+call api ffff.ffglparamset "{\"instance\": \"Twisted\", \"param\":\"Twirl\", \"val\": 0.1}"
+call api ffff.ffglparamset "{\"instance\": \"Twisted\", \"param\":\"Twirl\", \"val\": 0.9}"
+call api ffff.ffglparamset "{\"instance\": \"Twisted\", \"param\":\"Twirl\", \"val\": 0.1}"
+call api ffff.ffglparamset "{\"instance\": \"Twisted\", \"param\":\"Twirl\", \"val\": 0.9}"
+call api ffff.ffglparamset "{\"instance\": \"Twisted\", \"param\":\"Twirl\", \"val\": 0.1}"
+call api ffff.ffglparamset "{\"instance\": \"Twisted\", \"param\":\"Twirl\", \"val\": 0.9}"
+call api ffff.ffglparamset "{\"instance\": \"Twisted\", \"param\":\"Twirl\", \"val\": 0.1}"
+call api ffff.ffglparamset "{\"instance\": \"Twisted\", \"param\":\"Twirl\", \"val\": 0.9}"

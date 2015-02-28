@@ -38,15 +38,13 @@
 
 #define MAXPLUGINS 512
 
-#define NPREPLUGINS 3
-#define MAXFFGLRUNNING 10
+// #define NPREPLUGINS 20
 
 class FF10PluginDef;
 class FFGLPluginDef;
 
 extern int nff10plugindefs;
 extern FF10PluginDef *ff10plugindefs[MAXPLUGINS];
-// extern FF10PluginDef *preplugins[NPREPLUGINS];
 
 extern int nffglplugindefs;
 extern FFGLPluginDef *ffglplugindefs[MAXPLUGINS];

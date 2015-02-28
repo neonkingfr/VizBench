@@ -45,7 +45,7 @@ FF10PluginDef *ff10plugindefs[MAXPLUGINS];
 int nffglplugindefs;
 FFGLPluginDef *ffglplugindefs[MAXPLUGINS];
 
-FF10PluginDef *preplugins[NPREPLUGINS];
+// FF10PluginDef *preplugins[NPREPLUGINS];
 
 // I don't think these initial values actually matter
 int	ffWidth = 640;

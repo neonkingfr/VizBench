@@ -46,6 +46,7 @@ import pygame.pypm
 import os.path
 import os, pygame
 import pickle
+import random
 
 from os.path import isdir, isfile, isabs, abspath
 from urllib import quote, unquote
@@ -172,10 +173,10 @@ def main():
 		height = 500
 		flags = pygame.SRCALPHA
 
-		from panel import NthControlPanel
-		ui = NthControlPanel(width, height, flags)
+		# from panel import NthControlPanel
+		# ui = NthControlPanel(width, height, flags)
 		
-		time.sleep(1.0)
+		# time.sleep(1.0)
 		# pygame.event.set_grab(True)
 
 		try:
@@ -183,23 +184,13 @@ def main():
 		except:
 			print "EXCEPT caught in creating Ffff! Exception=", format_exc()
 		
-		# ffff.set_ui(ui)
-		ui.set_ffff(ffff)
-		ui.set_status("")
-		ui.lcd_refresh()
-		ui.send_all_values()
-		
-		try:
-			ui.start()
-		except:
-			print "EXCEPT caught in ui.start Exception=", format_exc()
-			
-		try:
-			ui.shutdown()
-		except:
-			print "EXCEPT caught in ui.shutdown!"
-			
-		print("NthServer has finished")
+		plugin = ffff.get_ffgl("Twisted")
+		param = plugin.get_param("Twirl")
+		# ffff.set_all_params(plugin,1.0)
+		for nm in plugin.param:
+			p = plugin.param[nm]
+			val = random.random() % 1.0
+			ffff.change_plugin_param_val(plugin,p,val)
 
 	except KeyboardInterrupt:
 		print("KeyboardInterrupt received...\n");
