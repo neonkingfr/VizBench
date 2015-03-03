@@ -5,7 +5,7 @@ class Viz10LoopyCam : public Vizlet10
 {
 public:
 	Viz10LoopyCam();
-	~Viz10LoopyCam();
+	virtual ~Viz10LoopyCam();
 
 	static DWORD __stdcall CreateInstance(CFreeFrame10Plugin **ppInstance);
 
@@ -19,7 +19,7 @@ public:
 private:
 	std::string realProcessJson(std::string meth, cJSON *jsonparams, const char *id);
 	// Put private things here.
-	Looper* m_looper;
+	static Looper* m_looper;
 };
 
 #endif

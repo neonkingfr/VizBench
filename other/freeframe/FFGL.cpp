@@ -286,7 +286,7 @@ DWORD instantiateGL(const FFGLViewportStruct *pGLViewport)
 
 DWORD deInstantiateGL(void *instanceID)
 {
-	DEBUGPRINT(("deInstantiateGL in FFGL.cpp called"));
+	DEBUGPRINT1(("deInstantiateGL in FFGL.cpp called"));
 	CFreeFrameGLPlugin *p = (CFreeFrameGLPlugin *)instanceID;
 
 	if (p != NULL) {

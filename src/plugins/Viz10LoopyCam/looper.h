@@ -15,7 +15,7 @@ public:
 
 	void processFrame24Bit(IplImage* fi);
 
-	IplImage *frameImage;
+	IplImage *m_frameImage;
 
 	int _enableXOR;
 	int _border;
@@ -81,6 +81,7 @@ public:
 	void _fullDisplay();
 	void _allLive(int onoff);
 	void _quadrantDisplay();
+	void debugsize();
 	void _changePosSize(int n, CvPoint pt, CvSize sz, bool boundit = TRUE);
 	void _nextLoop();
 	void _towardtarget(int n, int *nfull);

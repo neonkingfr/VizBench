@@ -25,7 +25,8 @@ Looper::Looper(int w, int h) {
     ffWidth = w;
     ffHeight = h;
     ffSize = cvSize(w,h);
-    frameImage = createImage24ofSize(ffSize);
+	DEBUGPRINT(("Looper::Looper CONSTRUCTOR!"));
+    m_frameImage = createImage24ofSize(ffSize);
 
     for ( int n=0; n<MAX_LOOPS; n++ ) {
         VFrameLoop* fl = &_loop[n];
@@ -33,6 +34,7 @@ Looper::Looper(int w, int h) {
         _recording[n] = 0;
         _playing[n] = 0;
     }
+	// DEBUGPRINT(("Looper::Looper B"));
     srand((unsigned)time(NULL));
     _enableXOR = 1;
     _border = 0;
@@ -48,21 +50,52 @@ Looper::Looper(int w, int h) {
     CvSize sz = ffSize;
     DEBUGPRINT(("Looper frame size = %d,%d",sz.width,sz.height));
     _tmpImage = createImage24ofSize(sz);
+	DEBUGPRINT(("_tmpImage=%d", _tmpImage));
 
     for ( int n=0; n<MAX_LOOPS; n++ ) {
-        _sz[n] = cvSize(0,0);
-        _targetsz[n] = cvSize(0,0);
+        // _sz[n] = cvSize(0,0);
+        // _targetsz[n] = cvSize(0,0);
+        _sz[n] = cvSize(w,h);
+        _targetsz[n] = cvSize(w,h);
         _sizeFactor[n] = 1.0;
         _szImage[n] = NULL;
 		_pos[n] = cvPoint(0,0);
+		_targetpos[n] = cvPoint(0,0);
 
     }
-    for ( int n=0; n<MAX_LOOPS; n++ ) {
-        _randomizeSize(n,0,1.0);
-    }
+	// DEBUGPRINT(("Looper::Looper C"));
+    // for ( int n=0; n<MAX_LOOPS; n++ ) {
+    //   _randomizeSize(n,0,1.0);
+    // }
 	_playing[0] = 2;
     _fullDisplay();
+	// DEBUGPRINT(("Looper::Looper D"));
 }
+
+Looper::~Looper() {
+	DEBUGPRINT(("Looper::Looper DESTRUCTOR, NO FREES?!"));
+	cvReleaseImage(&m_frameImage);
+}
+
+#if 0
+void Looper::debugsize() {
+	if (_pos[0].x != 0) {
+		DEBUGPRINT(("Found it too!"));
+	}
+	if (_sz[0].width == 40) {
+		DEBUGPRINT(("Found it!"));
+	}
+	if (_targetpos[0].x != 0) {
+		DEBUGPRINT(("Found it again!"));
+	}
+	if (_targetsz[0].width != 640) {
+		DEBUGPRINT(("Found it again!"));
+	}
+	for (int n = 0; n < MAX_LOOPS; n++) {
+		DEBUGPRINT(("DEBUGSZ n=%d w=%d h=%d  targetpos[0].x=%d", n, _sz[n].width, _sz[n].height, _targetpos[0].x));
+	}
+}
+#endif
 
 void
 Looper::_quadrantDisplay()
@@ -123,8 +156,9 @@ void
 Looper::_fullDisplay()
 {
     CvSize sz = ffSize;
-    for ( int n=0; n<MAX_LOOPS; n++ ) {
-		// Make each loop a different size
+	// Make each loop other than the first a different size
+    _changePosSize(0,cvPoint(0,0),cvSize(sz.width,sz.height),FALSE);
+    for ( int n=1; n<MAX_LOOPS; n++ ) {
 		int offset = 4;
         _changePosSize(n,cvPoint(sz.width/2,sz.height/2),cvSize(sz.width-offset*n,sz.height-offset*n),FALSE);
     }
@@ -187,6 +221,7 @@ Looper::_changePosSize(int n, CvPoint newpt, CvSize newsz, bool boundit)
 
     // DEBUGPRINT(("Looper changePosSize for n=%d pos=%d,%d  size=%d,%d",n,x,y,w,h));
 
+	// DEBUGPRINT(("changepos A"));
 	if ( boundit ) {
 		// DEBUGPRINT(("Before, aspect ratio is %lf",(double)w/h));
 		double aspectbefore = (double)w/h;
@@ -209,9 +244,12 @@ Looper::_changePosSize(int n, CvPoint newpt, CvSize newsz, bool boundit)
         // DEBUGPRINT(("smooth is 0, jumping to %d,%d",_pos[n].x,_pos[n].y));
         _pos[n] = cvPoint(x,y);
         _sz[n] = cvSize(w,h);
+		DEBUGPRINT(("smooth sz=%d,%d", w, h));
     }
 
+	// DEBUGPRINT(("changepos C"));
     _releaseAndAllocate(n);
+	// DEBUGPRINT(("changepos D"));
 }
 
 void
@@ -270,6 +308,11 @@ Looper::_towardtarget(int n, int *nfull)
         _pos[n].y += d;
         changed = TRUE;
     }
+
+	if (_sz[n].width < 20) {
+		DEBUGPRINT(("HEY! width < 20?"));
+	}
+
     if ( _sz[n].width != _targetsz[n].width ) {
         d = (_targetsz[n].width - _sz[n].width);
         if ( abs(d) > _moveamount )
@@ -285,6 +328,7 @@ Looper::_towardtarget(int n, int *nfull)
         changed = TRUE;
     }
 	if ( changed ) {
+		DEBUGPRINT(("changed n=%d _sz.width=%d height=%d",n,_sz[n].width,_sz[n].height));
         _boundPosSize(&(_pos[n].x),&(_pos[n].y),&(_sz[n].width),&(_sz[n].height));
 	}
 	// If there's more than one full-screen window, make them slightly different sizes
@@ -310,14 +354,24 @@ Looper::_towardtarget(int n, int *nfull)
 void
 Looper::_releaseAndAllocate(int n)
 {
+	// DEBUGPRINT(("Pre release"));
     if ( _sz[n].width != 0 && _sz[n].height != 0 && _szImage[n] != NULL ) {
         // DEBUGPRINT(("ABOUT TO FREE IMAGE of n=%d!",n));
+		IplImage* i = _szImage[n];
+		if (i == NULL) {
+			DEBUGPRINT(("HEY! _szImage[ %d ] = NULL?", n));
+		}
         cvReleaseImage(&_szImage[n]);
     }
 
+	// DEBUGPRINT(("Post release n=%d sz=%d,%d",n,_sz[n].width,_sz[n].height));
     // DEBUGPRINT(("Looper changing size/pos for n=%d pos=%d,%d  size=%d,%d",n,_pos[n].x,_pos[n].y,_sz[n].width,_sz[n].height));
     _szImage[n] = createImage24ofSize(_sz[n]);
+	if (_szImage[n] == NULL) {
+		DEBUGPRINT(("HEY!!!! unable to createImage24ofSize!?"));
+	}
 	// DEBUGPRINT(("created _szImage = %d,%d\n",_szImage[n]->width,_szImage[n]->height));
+	// DEBUGPRINT(("Post create"));
 }
 
 IplImage*
@@ -328,9 +382,6 @@ Looper::createImage24ofSize(CvSize sz)
         DEBUGPRINT(("Hey, createImage24ofSize detects bad size!?"));
     }
     return cvCreateImage( sz, IPL_DEPTH_8U, 3 );
-}
-
-Looper::~Looper() {
 }
 
 void
@@ -669,6 +720,7 @@ Looper::processFrame24Bit(IplImage* fi)
 	// DEBUGPRINT(("process start\n"));
     VFrameLoop* fl = NULL;
 
+	// DEBUGPRINT(("Looper::processFrame A"));
 	if ( _blackout ) {
 		cvZero(fi);
 		return;
@@ -701,6 +753,7 @@ Looper::processFrame24Bit(IplImage* fi)
         }
     }
 	// DEBUGPRINT(("process mid1\n"));
+	// DEBUGPRINT(("Looper::processFrame B"));
 
     IplImage* i2 = NULL;
 
@@ -839,6 +892,7 @@ Looper::processFrame24Bit(IplImage* fi)
 
     }
 
+	// DEBUGPRINT(("Looper::processFrame C"));
 	// DEBUGPRINT(("process mid7\n"));
 
     // CvPoint pt1 = {10,10};

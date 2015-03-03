@@ -100,8 +100,7 @@ class ParamThread(Thread):
 				break
 			self.ffff.set_param_and_send_now(plugin, self.param, "%f" % val)
 			self.stepnum += 1
-			# print "NO sleep for ",self.dt
-			# sleep(self.dt)
+			sleep(self.dt)
 		if self.param.paramthread != self:
 			print "HEY!  run ended but paramthread != self!?"
 		self.param.paramthread = None
@@ -116,12 +115,14 @@ class Ffff(Thread):
 		self.is_registered = False
 		self.time_registered = 0
 
-		self.param_dt = 0.016
-		self.param_nsteps = 60
+		self.param_dt = 0.1
+		self.param_nsteps = 5
 
 		Thread.__init__(self)
 		self.host = host
 		self.sendport = sendport
+
+		self.paramthreads = {}
 
 		# populate the list of available plugins
 		self.ff10_list = {}
@@ -197,6 +198,7 @@ class Ffff(Thread):
 
 	def send_plugin_param(self, plugin, p):
 		api = "ff"+plugin.type+"paramset"
+		print "send_plugin_param "+plugin.name+" param="+p.name+" val="+str(p.current_val())
 		self.sendffff(api,"{\"instance\":\""+plugin.name+"\",\"param\":\""+p.name+"\",\"val\":\""+str(p.current_val())+"\"}")
 		
 	# def set_ui(self, ui):
@@ -249,6 +251,9 @@ class Ffff(Thread):
 		return self.sendffff("ffglpipeline")
 
 	def clearpipeline(self):
+		print "CLEARPIPELINE paramthreads=",self.paramthreads
+		for t in self.paramthreads:
+			t.stop()
 		self.sendffff("clearpipeline")
 
 	def sendvizserver(self, addr, msg=None):
@@ -296,7 +301,13 @@ class Ffff(Thread):
 		plugin = None
 		self.clearpipeline()
 		loopyadded = False
-		for line in f.readlines():
+		presetlines = f.readlines()
+
+		# First, remove any plugins from the pipeline that aren't
+		# in the new preset
+		# XXX - this isn't done
+
+		for line in presetlines:
 			# print "line=",line
 			# NOTE: conversion from unicode to str here
 			line = str(string.replace(line, "\n", ""))
@@ -351,7 +362,7 @@ class Ffff(Thread):
 				paramval = words[2]
 				if plugin:
 					p = plugin.param[paramname]
-					print "PARAM p=",p," paramval=",paramval
+					# print "PARAM p=",p," paramval=",paramval
 					self.change_plugin_param_val(plugin, p, paramval)
 
 	def write_plugin(self, f, plugin):
@@ -415,4 +426,5 @@ class Ffff(Thread):
 		else:
 			t = ParamThread(self, plugin, p, val, self.param_dt, self.param_nsteps)
 			t.start()
+			self.paramthreads[t] = 1
 

@@ -81,9 +81,9 @@ class WindowsValue(NthValue):
 			# artificially freeze first window to avoid bug in loopycam
 			print "ARTIFICIAL FREEZE!"
 			self.panel.isalllive = False
-			self.panel.ffff.record(1)
+			self.ffff().sendlooper("record_on")
 			sleep(0.1)
-			self.panel.ffff.record(0)
+			self.ffff().sendlooper("record_off")
 			
 		if self.getvalue() < 8:
 			self.setvalue(self.getvalue() + 1)
@@ -322,7 +322,7 @@ class TrailOnValue(OnOffValue):
 		
 class AllLiveValue(OnOffValue):
 	def __init__(self, panel):
-		OnOffValue.__init__(self, panel, "AllLive", osc="/looper/alllive", default="On")
+		OnOffValue.__init__(self, panel, "AllLive", api="Viz10LoopyCam.alllive", default="On")
 		
 	def inc(self):
 		OnOffValue.inc(self)
@@ -845,11 +845,11 @@ class RecordingActions(Actions):
 		return [None, s, "/,* = Live,Trail ", "-,+ = Rec,Overlay"]
 	def keydown(self, key):
 		if key == "-":
-			self.ffff().record(1)
+			self.ffff().sendlooper("record_on")
 			self.recording = True
 			self.panel.isalllive = False
 		elif key == "+":
-			self.ffff().recordoverlay(1)
+			self.ffff().sendlooper("recordoverlay_on")
 			self.recording = True
 			self.panel.isalllive = False
 		elif key == "/":
@@ -861,10 +861,10 @@ class RecordingActions(Actions):
 		self.lcd_refresh()
 	def keyup(self, key):
 		if key == "-":
-			self.ffff().record(0)
+			self.ffff().sendlooper("record_off")
 			self.recording = False
 		elif key == "+":
-			self.ffff().recordoverlay(0)
+			self.ffff().sendlooper("recordoverlay_off")
 			self.recording = False
 
 class NthControlPanel():

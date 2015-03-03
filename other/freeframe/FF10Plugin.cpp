@@ -50,6 +50,7 @@ bool FF10PluginDef::Load(std::string Path)
 	std::wstring wPath = s2ws(Path);
     // m_hInst = LoadLibrary(wPath.c_str());
     m_hInst = LoadLibrary(Path.c_str());
+	DEBUGPRINT(("FF10PluginDef Load path=%s",Path.c_str()));
     if ( m_hInst == NULL ) {
         dwError = GetLastError();
         DEBUGPRINT(("LoadLibrary of %s failed, dwError = %d\n",Path.c_str(),dwError));
@@ -105,6 +106,7 @@ bool FF10PluginDef::LoadParamDefs()
     int n;
     m_numparams = np;
     m_paramdefs = new FF10ParameterDef[np];
+	DEBUGPRINT(("----- MALLOC new FF10ParameterDef[np]"));
     for ( n=0; n<np; n++ ) {
         FF10ParameterDef* p = &(m_paramdefs[n]);
 		p->num = n;
@@ -133,8 +135,12 @@ bool FF10PluginDef::LoadParamDefs()
     return TRUE;
 }
 
+void tjtdebug();
+
 DWORD FF10PluginInstance::Instantiate(VideoInfoStruct *vis)
 {
+	DEBUGPRINT1(("Pre Instantiate"));
+	tjtdebug();
 	if (m_instanceid != INVALIDINSTANCE) {
 		DEBUGPRINT(("HEY!  Instantiate called when already instantiated!?"));
         //already instantiated
@@ -143,10 +149,11 @@ DWORD FF10PluginInstance::Instantiate(VideoInfoStruct *vis)
 
     m_instanceid = m_mainfunc(FF_INSTANTIATE, (DWORD)vis, 0).ivalue;
     if ( m_instanceid == FF_FAIL ) {
-        DEBUGPRINT(("Unable to Instantiate!?\n"));
+        DEBUGPRINT(("Unable to Instantiate!? plugin=%s\n",m_name.c_str()));
         return FF_FAIL;
     }
-    DEBUGPRINT(("SUCCESSFUL Instantiate id=%d\n",m_instanceid));
+    DEBUGPRINT1(("SUCCESSFUL Instantiate id=%d\n",m_instanceid));
+	tjtdebug();
 	DEBUGPRINT(("HEY!!!! should I be setting default param assignments here, like in GL?"));
     return FF_SUCCESS;
 }
@@ -157,7 +164,7 @@ DWORD FF10PluginInstance::DeInstantiate()
 		DEBUGPRINT(("Hey!  DeInstantiate called when already deleted!?"));
         return FF_SUCCESS;
     }
-    DEBUGPRINT(("DeInstantiate id=%d\n",m_instanceid));
+    DEBUGPRINT1(("DeInstantiate id=%d\n",m_instanceid));
     plugMainUnion u = m_mainfunc(FF_DEINSTANTIATE, 0, (DWORD)m_instanceid);
     if ( u.ivalue == FF_FAIL ) {
         DEBUGPRINT(("Unable to Instantiate!?\n"));
@@ -217,7 +224,7 @@ std::string FF10PluginDef::GetPluginName() const
 }
 
 FF10PluginInstance::FF10PluginInstance(FF10PluginDef* d, std::string nm) :
-	m_plugindef(d), next(NULL), m_params(NULL), m_name(nm), m_enabled(false),
+	m_plugindef(d), m_params(NULL), m_name(nm), m_enabled(false),
 	m_instanceid(INVALIDINSTANCE) {
 
 	NosuchAssert ( d->m_mainfunc );
@@ -399,6 +406,7 @@ std::string FF10PluginInstance::GetParameterDisplay(int paramNum)
 void loadff10plugindef(std::string ffdir, std::string dllnm)
 {
 	FF10PluginDef *plugin = new FF10PluginDef();
+	DEBUGPRINT(("----- MALLOC new FF10PluginDef"));
 	std::string dll_fname = ffdir + "/" + dllnm;
 
 	if (!plugin->Load(dll_fname)) {

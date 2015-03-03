@@ -59,10 +59,13 @@ const char* FFFF_json(void* data,const char *method, cJSON* params, const char* 
 }
 
 FFFF::FFFF() {
+	m_img1 = NULL;
+	m_img2 = NULL;
+	m_img_into_pipeline = NULL;
 	m_showfps = true;
 	m_capture = NULL;
-	m_ffglpipeline = NULL;
-	m_ff10pipeline = NULL;
+	m_ffglpipeline.clear();
+	m_ff10pipeline.clear();
 	hidden = false;
 
 #ifdef ZRE_TEST
@@ -102,7 +105,7 @@ FFFF::FFFF() {
 
 void
 FFFF::setupTrails() {
-    FFGLPluginDef* pdef = findffglplugin("Trails");
+    FFGLPluginDef* pdef = findffglplugindef("Trails");
 	if ( pdef == NULL ) {
 		DEBUGPRINT(("There is no plugin named Trails!?"));
 		return;
@@ -260,7 +263,7 @@ FFFF::initCamera(int camindex) {
 	    DEBUGPRINT(("Unable to initialize capture from camera index=%d\n",camindex));
 	    return FALSE;
 	}
-	DEBUGPRINT1(("CAMERA detail FPS=%f wid=%f hgt=%f msec=%f ratio=%f fourcc=%f",
+	DEBUGPRINT(("CAMERA detail FPS=%f wid=%f hgt=%f msec=%f ratio=%f fourcc=%f",
 		cvGetCaptureProperty(m_capture,CV_CAP_PROP_FPS),
 		cvGetCaptureProperty(m_capture,CV_CAP_PROP_FRAME_WIDTH),
 		cvGetCaptureProperty(m_capture,CV_CAP_PROP_FRAME_HEIGHT),
@@ -305,6 +308,7 @@ FFGLPluginInstance*
 FFFF::FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string inm)
 {
 	FFGLPluginInstance* np = new FFGLPluginInstance(plugin,inm);
+	DEBUGPRINT(("----- MALLOC new FFGLPluginInstance"));
 	if ( np->InstantiateGL(&fboViewport)!=FF_SUCCESS ) {
 		delete np;
 		throw NosuchException("Unable to InstantiateGL !?");
@@ -315,7 +319,7 @@ FFFF::FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string inm)
 void
 FFFF::FFGLDeletePluginInstance(FFGLPluginInstance* p)
 {
-	DEBUGPRINT(("DELETING FFGLPluginInstance p=%ld",(long)p));
+	DEBUGPRINT(("----- DELETING FFGLPluginInstance p=%ld name=%s",(long)p,p->name().c_str()));
 	p->DeInstantiateGL();
 	delete p;
 }
@@ -324,6 +328,7 @@ FF10PluginInstance*
 FFFF::FF10NewPluginInstance(FF10PluginDef* plugdef, std::string inm)
 {
 	FF10PluginInstance* np = new FF10PluginInstance(plugdef,inm);
+	DEBUGPRINT(("--- MALLOC new FF10PluginInstance = %d",(long)np));
 
 	const PluginInfoStruct *pi = plugdef->GetInfo();
 	char nm[17];
@@ -335,35 +340,33 @@ FFFF::FF10NewPluginInstance(FF10PluginDef* plugdef, std::string inm)
 		delete np;
 		throw NosuchException("Unable to Instantiate !?");
 	}
-	// np->setInstanceID(i);
 	return np;
 }
 
+#if 0
 void
 FFFF::FF10DeletePluginInstance(FF10PluginInstance* p)
 {
-	DEBUGPRINT(("DELETING FF10PluginInstance p=%ld",(long)p));
-	// p->plugindef()->DeInstantiate(p->instanceid());
-	p->DeInstantiate();
+	DEBUGPRINT(("----- DELETING FF10PluginInstance p=%ld name=%s",(long)p,p->name().c_str()));
+	// p->DeInstantiate();  now done in destructor
 	delete p;
 }
+#endif
 
 void
 FFFF::clearPipeline()
 {
-	FF10PluginInstance* nextff10;
-	for ( FF10PluginInstance* p=m_ff10pipeline; p!=NULL; p=nextff10 ) {
-		nextff10 = p->next;
-		FF10DeletePluginInstance(p);
-    }
-	m_ff10pipeline = NULL;
+	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline.begin(); it != m_ff10pipeline.end(); it++) {
+		DEBUGPRINT(("--- deleting FF10PluginInstance *it=%ld", (long)(*it)));
+		delete *it;
+	}
+	m_ff10pipeline.clear();
 
-	FFGLPluginInstance* nextffgl;
-	for ( FFGLPluginInstance* p=m_ffglpipeline; p!=NULL; p=nextffgl ) {
-		nextffgl = p->next;
-		FFGLDeletePluginInstance(p);
-    }
-	m_ffglpipeline = NULL;
+	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline.begin(); it != m_ffglpipeline.end(); it++) {
+		DEBUGPRINT1(("--- deleteing FFGLPluginInstance *it=%ld", (long)(*it)));
+		delete *it;
+	}
+	m_ffglpipeline.clear();
 }
 
 void
@@ -385,9 +388,9 @@ FFFF::loadAllPluginDefs(std::string ff10path, std::string ffglpath, int ffgl_wid
 
 FFGLPluginInstance*
 FFFF::FFGLFindPluginInstance(std::string inm) {
-	for ( FFGLPluginInstance* p=m_ffglpipeline; p!=NULL; p=p->next ) {
-		if ( inm == p->name() ) {
-			return p;
+	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline.begin(); it != m_ffglpipeline.end(); it++) {
+		if ( inm == (*it)->name() ) {
+			return *it;
 		}
 	}
 	return NULL;
@@ -395,9 +398,9 @@ FFFF::FFGLFindPluginInstance(std::string inm) {
 
 FF10PluginInstance*
 FFFF::FF10FindPluginInstance(std::string inm) {
-	for ( FF10PluginInstance* p=m_ff10pipeline; p!=NULL; p=p->next ) {
-		if ( inm == p->name() ) {
-			return p;
+	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline.begin(); it != m_ff10pipeline.end(); it++) {
+		if ( inm == (*it)->name() ) {
+			return *it;
 		}
 	}
 	return NULL;
@@ -428,15 +431,14 @@ FFFF::FFGLAddToPipeline(std::string pluginName, std::string inm, bool autoenable
 
 	// First scan existing pipeline to see if this instanceName is already used
 	FFGLPluginInstance* last = NULL;
-	for ( FFGLPluginInstance* p=m_ffglpipeline; p!=NULL; p=p->next ) {
-		if ( inm == p->name() ) {
+	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline.begin(); it != m_ffglpipeline.end(); it++) {
+		if ( inm == (*it)->name() ) {
 			DEBUGPRINT(("Plugin instance named '%s' already exists",inm.c_str()));
 			return NULL;
 		}
-		last = p;
 	}
 
-    FFGLPluginDef* plugin = findffglplugin(pluginName);
+    FFGLPluginDef* plugin = findffglplugindef(pluginName);
 	if ( plugin == NULL ) {
 		DEBUGPRINT(("There is no plugin named '%s'",pluginName.c_str()));
 		return NULL;
@@ -452,21 +454,17 @@ FFFF::FFGLAddToPipeline(std::string pluginName, std::string inm, bool autoenable
 	}
 
 	// Add it to the end of the pipeline
-	if ( last == NULL ) {
-		m_ffglpipeline = np;
-	} else {
-		last->next = np;
-	}
-
-	if ( autoenable ) {
-		np->enable();
-	}
+	m_ffglpipeline.insert(m_ffglpipeline.end(),np);
 
 	if (params) {
 		for (cJSON* pn = params->child; pn != NULL; pn = pn->next) {
 			NosuchAssert(pn->type == cJSON_Number);
 			np->setparam(pn->string, (float)(pn->valuedouble));
 		}
+	}
+
+	if ( autoenable ) {
+		np->enable();
 	}
 
 	return np;
@@ -477,15 +475,14 @@ FFFF::FF10AddToPipeline(std::string pluginName, std::string inm, bool autoenable
 
 	// First scan existing pipeline to see if this instanceName is already used
 	FF10PluginInstance* last = NULL;
-	for ( FF10PluginInstance* p=m_ff10pipeline; p!=NULL; p=p->next ) {
-		if ( inm == p->name() ) {
+	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline.begin(); it != m_ff10pipeline.end(); it++) {
+		if ( inm == (*it)->name() ) {
 			DEBUGPRINT(("Plugin instance named '%s' already exists",inm.c_str()));
 			return NULL;
 		}
-		last = p;
 	}
 
-    FF10PluginDef* plugin = findff10plugin(pluginName);
+    FF10PluginDef* plugin = findff10plugindef(pluginName);
 	if ( plugin == NULL ) {
 		DEBUGPRINT(("There is no plugin named '%s'",pluginName.c_str()));
 		return NULL;
@@ -500,16 +497,7 @@ FFFF::FF10AddToPipeline(std::string pluginName, std::string inm, bool autoenable
 		np->setparam("viztag",inm);
 	}
 
-	// Add it to the end of the pipeline
-	if ( last == NULL ) {
-		m_ff10pipeline = np;
-	} else {
-		last->next = np;
-	}
-
-	if ( autoenable ) {
-		np->enable();
-	}
+	m_ff10pipeline.insert(m_ff10pipeline.end(),np);
 
 	if (params) {
 		for (cJSON* pn = params->child; pn != NULL; pn = pn->next) {
@@ -518,57 +506,41 @@ FFFF::FF10AddToPipeline(std::string pluginName, std::string inm, bool autoenable
 		}
 	}
 
+	if ( autoenable ) {
+		np->enable();
+	}
+
 	return np;
 }
 
 void
 FFFF::FFGLDeleteFromPipeline(std::string inm) {
 
-	// First scan existing pipeline to see if this instanceName is already used
-	FFGLPluginInstance* prev = NULL;
-	FFGLPluginInstance* p = m_ffglpipeline;
-	while ( p ) {
-		if ( inm == p->name() ) {
-			break;
+	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline.begin(); it != m_ffglpipeline.end(); ) {
+		if (inm == (*it)->name()) {
+			DEBUGPRINT1(("--- deleteing BB FFGLPluginInstance *it=%ld", (long)(*it)));
+			FFGLDeletePluginInstance(*it);
+			it = m_ffglpipeline.erase(it);
 		}
-		prev = p;
-		p=p->next;
+		else {
+			it++;
+		}
 	}
-	if ( p == NULL ) {
-		// don't complain when deleting an instance that doesn't exist
-		return;
-	}
-	if ( prev == NULL ) {
-		m_ffglpipeline = m_ffglpipeline->next;
-	} else {
-		prev->next = p->next;
-	}
-	FFGLDeletePluginInstance(p);
 }
 
 void
 FFFF::FF10DeleteFromPipeline(std::string inm) {
 
-	// First scan existing pipeline to see if this instanceName is already used
-	FF10PluginInstance* prev = NULL;
-	FF10PluginInstance* p = m_ff10pipeline;
-	while ( p ) {
-		if ( inm == p->name() ) {
-			break;
+	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline.begin(); it != m_ff10pipeline.end(); ) {
+		if (inm == (*it)->name()) {
+			// FF10DeletePluginInstance(*it);
+			delete *it;
+			it = m_ff10pipeline.erase(it);
 		}
-		prev = p;
-		p=p->next;
+		else {
+			it++;
+		}
 	}
-	if ( p == NULL ) {
-		// don't complain when deleting an instance that doesn't exist
-		return;
-	}
-	if ( prev == NULL ) {
-		m_ff10pipeline = m_ff10pipeline->next;
-	} else {
-		prev->next = p->next;
-	}
-	FF10DeletePluginInstance(p);
 }
 
 void
@@ -667,116 +639,167 @@ doCameraFrame(IplImage* frame)
 }
 
 void
-do_ff10pipeline(FF10PluginInstance* pipeline, unsigned char* pixels) {
-	FF10PluginInstance* p;
-	for ( p = pipeline; p!=NULL; p=p->next ) {
+do_ff10pipeline(std::vector<FF10PluginInstance*> pipeline, unsigned char* pixels) {
+	for (std::vector<FF10PluginInstance*>::iterator it = pipeline.begin(); it != pipeline.end(); it++) {
+		FF10PluginInstance* p = *it;
 		if (p->isEnabled()) {
 			p->plugindef()->Process(p->instanceid(), pixels);
 		}
 	}
 }
 
+void tjtdebug() {
+#if 0
+	IplImage* t[24];
+	CvSize sz = cvSize(640, 480);
+	for (int n = 0; n < 24; n++) {
+		t[n] = cvCreateImage(sz, IPL_DEPTH_8U, 3);
+	}
+	for (int n = 0; n < 24; n++) {
+		cvReleaseImage(&t[n]);
+	}
+#endif
+}
+
 bool
 FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 {
 	int interp;
-    IplImage* img1;
-    IplImage* img2;
 	IplImage* camframe = NULL;
-    unsigned char *pixels_into_pipeline;
-    IplImage* img_into_pipeline;
+	unsigned char *pixels_into_pipeline;
+	// IplImage* img_into_pipeline;
 
-    //bind the gl texture so we can upload the next video frame
-    glBindTexture(GL_TEXTURE_2D, mapTexture.Handle);
+	//bind the gl texture so we can upload the next video frame
+	glBindTexture(GL_TEXTURE_2D, mapTexture.Handle);
 
-	if ( use_camera ) {
+	if (use_camera) {
 		camframe = getCameraFrame();
 	}
+	// DEBUGPRINT(("DOoneFrame A"));
+	tjtdebug();
 
-	if ( camframe != NULL ) {
-	    unsigned char* pixels = (unsigned char *)(camframe->imageData);
-	
-	    CvSize camsz;
-	    CvSize ffsz;
-	    CvSize fbosz;
+	if (camframe != NULL) {
+		unsigned char* pixels = (unsigned char *)(camframe->imageData);
 
-	    camsz = cvSize(camWidth,camHeight);
-	    ffsz = cvSize(ffWidth,ffHeight);
-	    fbosz = cvSize(fboWidth,fboHeight);
-	
-		img1 = cvCreateImageHeader(camsz, IPL_DEPTH_8U, 3);
-	    cvSetImageData(img1,pixels,camWidth*3);
-	
-	    img2 = cvCreateImage(ffsz, IPL_DEPTH_8U, 3);
-	    img_into_pipeline = cvCreateImage(fbosz, IPL_DEPTH_8U, 3);
-	
+		CvSize camsz;
+		CvSize ffsz;
+		CvSize fbosz;
+
+		camsz = cvSize(camWidth, camHeight);
+		ffsz = cvSize(ffWidth, ffHeight);
+		fbosz = cvSize(fboWidth, fboHeight);
+
+		if (m_img1 == NULL) {
+			m_img1 = cvCreateImageHeader(camsz, IPL_DEPTH_8U, 3);
+			DEBUGPRINT(("----- MALLOC m_img1 = %d", (long)m_img1));
+		}
+		cvSetImageData(m_img1, pixels, camWidth * 3);
+
+		// DEBUGPRINT(("DOoneFrame A01 ffsz=%d,%d",ffsz.width,ffsz.height));
+		tjtdebug();
+
+		if (m_img2 == NULL) {
+			m_img2 = cvCreateImage(ffsz, IPL_DEPTH_8U, 3);
+			DEBUGPRINT(("----- MALLOC m_img2 = %d", (long)m_img2));
+		}
+
+		// DEBUGPRINT(("DOoneFrame A010 fbosz=%d,%d",fbosz.width,fbosz.height));
+		tjtdebug();
+
+		if (m_img_into_pipeline == NULL) {
+			m_img_into_pipeline = cvCreateImage(fbosz, IPL_DEPTH_8U, 3);
+			DEBUGPRINT(("----- MALLOC m_img_into_pipeline = %d", (long)m_img_into_pipeline));
+		}
+
+		// DEBUGPRINT(("DOoneFrame A01a"));
+		tjtdebug();
+
 		interp = CV_INTER_LINEAR;  // or CV_INTER_NN
 		interp = CV_INTER_NN;  // This produces some artifacts compared to CV_INTER_LINEAR, but is faster
-	
+
 		// XXX - If the camera size is the same as the ff (ffgl) size,
 		// we shouldn't have to do this resize
-	    cvResize(img1, img2, interp);
-	
-	    unsigned char *resizedpixels = NULL;
-	    cvGetImageRawData( img2, &resizedpixels, NULL, NULL );
-	    if (resizedpixels != 0) {
-			do_ff10pipeline(m_ff10pipeline,resizedpixels);
-	    }
+		cvResize(m_img1, m_img2, interp);
 
-	    cvResize(img2, img_into_pipeline, interp);
-	    cvGetImageRawData( img_into_pipeline, &pixels_into_pipeline, NULL, NULL );
+		unsigned char *resizedpixels = NULL;
+		cvGetImageRawData(m_img2, &resizedpixels, NULL, NULL);
+		if (resizedpixels != 0) {
+			do_ff10pipeline(m_ff10pipeline, resizedpixels);
+		}
 
-	} else {
-	    img_into_pipeline = cvCreateImage(cvSize(fboWidth,fboHeight), IPL_DEPTH_8U, 3);
+		// DEBUGPRINT(("DOoneFrame A01b"));
+		tjtdebug();
 
-	    pixels_into_pipeline = (unsigned char *)(img_into_pipeline->imageData);
-		cvZero(img_into_pipeline);
-	
-		do_ff10pipeline(m_ff10pipeline,pixels_into_pipeline);
+		cvResize(m_img2, m_img_into_pipeline, interp);
+		cvGetImageRawData(m_img_into_pipeline, &pixels_into_pipeline, NULL, NULL);
+		// DEBUGPRINT(("DOoneFrame A02"));
+
+#ifdef NOMORERELEASE
+		DEBUGPRINT(("---- RELEASE m_img1 %d", (long)m_img1));
+		cvReleaseImageHeader(&m_img1);
+		DEBUGPRINT(("---- RELEASE img2 %d", (long)img2));
+		cvReleaseImage(&img2);
+#endif
+	}
+	else {
+		// DEBUGPRINT(("DOoneFrame A1"));
+		tjtdebug();
+		m_img_into_pipeline = cvCreateImage(cvSize(fboWidth, fboHeight), IPL_DEPTH_8U, 3);
+		DEBUGPRINT(("---- MALLOC m_img_into_pipeline %d", (long)m_img_into_pipeline));
+
+		pixels_into_pipeline = (unsigned char *)(m_img_into_pipeline->imageData);
+		cvZero(m_img_into_pipeline);
+
+		do_ff10pipeline(m_ff10pipeline, pixels_into_pipeline);
+		// DEBUGPRINT(("DOoneFrame A2"));
+		tjtdebug();
 	}
 
-    //upload it to the gl texture. use subimage because
-    //the video frame size is probably smaller than the
-    //size of the texture on the gpu hardware
-    glTexSubImage2D(GL_TEXTURE_2D, 0,
-                    0, 0,
-                    fboWidth,
-                    fboHeight,
-                    GL_BGR_EXT,
-                    GL_UNSIGNED_BYTE,
-                    pixels_into_pipeline);
+	//upload it to the gl texture. use subimage because
+	//the video frame size is probably smaller than the
+	//size of the texture on the gpu hardware
+	// DEBUGPRINT(("DOoneFrame B"));
+	glTexSubImage2D(GL_TEXTURE_2D, 0,
+		0, 0,
+		fboWidth,
+		fboHeight,
+		GL_BGR_EXT,
+		GL_UNSIGNED_BYTE,
+		pixels_into_pipeline);
 
-    //unbind the gl texture
-    glBindTexture(GL_TEXTURE_2D, 0);
+	//unbind the gl texture
+	glBindTexture(GL_TEXTURE_2D, 0);
 
-    FFGLPluginInstance* lastplugin = NULL;
+	FFGLPluginInstance* lastplugin = NULL;
 	FFGLPluginInstance* firstplugin = NULL;
-    int nactive = 0;
-	FFGLPluginInstance* pi;
+	int nactive = 0;
 
-	for ( pi = m_ffglpipeline; pi!=NULL; pi=pi->next ) {
-		if ( pi->isEnabled() ) {
+	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline.begin(); it != m_ffglpipeline.end(); it++) {
+		FFGLPluginInstance* p = *it;
+		if (p->isEnabled()) {
 			nactive++;
-			lastplugin = pi;
-			if ( firstplugin == NULL ) {
-				firstplugin = pi;
+			lastplugin = p;
+			if (firstplugin == NULL) {
+				firstplugin = p;
 			}
 		}
-    }
+	}
 
-	if ( nactive == 0 ) {
-		if ( ! do_ffgl_plugin(NULL,4) ) {
-			DEBUGPRINT(("Error A in do_ffgl_plugin for plugin=%s",pi->name().c_str()));
+	// DEBUGPRINT(("DOoneFrame C"));
+	if (nactive == 0) {
+		if (!do_ffgl_plugin(NULL, 4)) {
+			DEBUGPRINT(("Error A in do_ffgl_plugin"));
 			// return 0;
 		}
 	}
 
-	for ( pi = m_ffglpipeline; pi!=NULL; pi=pi->next ) {
-		if ( ! pi->isEnabled() ) {
+	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline.begin(); it != m_ffglpipeline.end(); it++) {
+		FFGLPluginInstance* pi = *it;
+		if (!pi->isEnabled()) {
 			continue;
 		}
 #if 0
-		if ( nactive == 1 ) {
+		if (nactive == 1) {
 			if ( ! do_ffgl_plugin(pi,3) ) {
 				DEBUGPRINT(("DISABLING plugin - Error B in do_ffgl_plugin for plugin=%s",pi->name().c_str()));
 				pi->disable();
@@ -785,13 +808,14 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 		}
 #endif
 		if ( pi == firstplugin ) {
-			if ( ! do_ffgl_plugin(pi,0) ) {
-				DEBUGPRINT(("DISABLING plugin - Error D in do_ffgl_plugin for plugin=%s",pi->name().c_str()));
+			if (!do_ffgl_plugin(pi, 0)) {
+				DEBUGPRINT(("DISABLING plugin - Error D in do_ffgl_plugin for plugin=%s", pi->name().c_str()));
 				pi->disable();
 			}
-		} else {
-			if ( ! do_ffgl_plugin(pi,1) ) {
-				DEBUGPRINT(("DISABLING plugin - Error E in do_ffgl_plugin for plugin=%s",pi->name().c_str()));
+		}
+		else {
+			if (!do_ffgl_plugin(pi, 1)) {
+				DEBUGPRINT(("DISABLING plugin - Error E in do_ffgl_plugin for plugin=%s", pi->name().c_str()));
 				pi->disable();
 			}
 		}
@@ -801,11 +825,17 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 
 	//deactivate rendering to the fbo
 	//(this re-activates rendering to the window)
-	if ( nactive > 0 ) {
+	if (nactive > 0) {
 		fbo_output->UnbindAsRenderTarget(glExtensions);
 	}
-	if ( ! do_ffgl_plugin(m_trailsplugin,2) ) {
-		DEBUGPRINT(("Error C in do_ffgl_plugin for Trails plugin!?"));
+	if (nactive == 0) {
+		if (!do_ffgl_plugin(m_trailsplugin, 3)) {
+			DEBUGPRINT(("Error C in do_ffgl_plugin for Trails plugin!?"));
+		}
+	} else {
+		if (!do_ffgl_plugin(m_trailsplugin, 2)) {
+			DEBUGPRINT(("Error C in do_ffgl_plugin for Trails plugin!?"));
+		}
 	}
 
 	static GLubyte *data = NULL;
@@ -819,21 +849,25 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 		std::string path = VizPath("recording") + NosuchSnprintf("/%s%06d.ppm", SaveFrames, filenum++);
 		if (data == NULL) {
 			data = (GLubyte*)malloc(4 * window_width*window_height);  // 4, should work for both 3 and 4 bytes
+			DEBUGPRINT(("---- MALLOC SaveFrames data %d", data));
 		}
 		glReadPixels(0, 0, window_width, window_height, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
 		IplImage* img = cvCreateImageHeader(cvSize(window_width, window_height), IPL_DEPTH_8U, 3);
+		DEBUGPRINT(("---- MALLOC SaveFrames img %d", (long)img));
 		img->origin = 1;  // ???
 		img->imageData = (char*)data;
 		if (!cvSaveImage(path.c_str(), img)) {
 			DEBUGPRINT(("Unable to save image: %s", path.c_str()));
 		}
-		// free(data);
+		// free(data);  it's static, now
 		img->imageData = NULL;
+		DEBUGPRINT(("---- RELEASE SaveFrames img %d", (long)img));
 		cvReleaseImageHeader(&img);
 	}
 	if (Ffmpeg) {
 		if (data == NULL) {
 			data = (GLubyte*)malloc(4 * window_width*window_height);  // 4, should work for both 3 and 4 bytes
+			DEBUGPRINT(("---- MALLOC Ffmpeg data %d", data));
 		}
 		// glReadPixels(0, 0, window_width, window_height, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
@@ -845,13 +879,15 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 		fwrite(data, window_width*window_height, 3, Ffmpeg);
 	}
 
+#ifdef NOMORERELEASE
 	if ( camframe != NULL ) {
-		cvReleaseImageHeader(&img1);
-		cvReleaseImage(&img2);
-		cvReleaseImage(&img_into_pipeline);
+		DEBUGPRINT(("---- RELEASE m_img_into_pipeline %d", (long)m_img_into_pipeline));
+		cvReleaseImage(&m_img_into_pipeline);
 	} else {
-		cvReleaseImage(&img_into_pipeline);
+		DEBUGPRINT(("---- RELEASE m_img_into_pipeline %d", (long)m_img_into_pipeline));
+		cvReleaseImage(&m_img_into_pipeline);
 	}
+#endif
 
 	return true;
 }
@@ -881,7 +917,8 @@ std::string FFFF::FFGLList() {
 std::string FFFF::FFGLPipelineList(bool only_enabled) {
 	std::string r = "[";
 	std::string sep = "";
-	for ( FFGLPluginInstance* p=m_ffglpipeline; p!=NULL; p=p->next ) {
+	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline.begin(); it != m_ffglpipeline.end(); it++) {
+		FFGLPluginInstance* p = *it;
 		bool enabled = p->isEnabled();
 		if ( only_enabled==false || enabled==true ) {
 			r += (sep + "{ \"plugin\":\""+p->plugindef()->GetPluginName()+"\", \"instance\":\"" + p->name() + "\", "
@@ -896,7 +933,8 @@ std::string FFFF::FFGLPipelineList(bool only_enabled) {
 std::string FFFF::FF10PipelineList(bool only_enabled) {
 	std::string r = "[";
 	std::string sep = "";
-	for ( FF10PluginInstance* p=m_ff10pipeline; p!=NULL; p=p->next ) {
+	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline.begin(); it != m_ff10pipeline.end(); it++) {
+		FF10PluginInstance* p = *it;
 		bool enabled = p->isEnabled();
 		if ( only_enabled==false || enabled==true ) {
 			r += (sep + "{ \"plugin\":\""+p->plugindef()->GetPluginName()+"\", \"instance\":\"" + p->name() + "\", "
@@ -909,7 +947,7 @@ std::string FFFF::FF10PipelineList(bool only_enabled) {
 }
 
 std::string FFFF::FF10ParamList(std::string plugin, const char* id) {
-    FF10PluginDef* p = findff10plugin(plugin);
+    FF10PluginDef* p = findff10plugindef(plugin);
 	if ( !p ) {
 		return jsonError(-32000,"No plugin by that name",id);
 	}
@@ -940,7 +978,7 @@ std::string FFFF::FF10ParamList(std::string plugin, const char* id) {
 }
 
 std::string FFFF::FFGLParamList(std::string pluginx, const char* id) {
-    FFGLPluginDef* p = findffglplugin(pluginx);
+    FFGLPluginDef* p = findffglplugindef(pluginx);
 	if ( !p ) {
 		return jsonError(-32000,"No plugin by that name",id);
 	}
@@ -1031,7 +1069,7 @@ std::string FFFF::FF10ParamVals(FF10PluginInstance* pi, const char* id) {
 FFGLPluginDef*
 needFFGLPlugin(std::string name)
 {
-		FFGLPluginDef* p = findffglplugin(name);
+		FFGLPluginDef* p = findffglplugindef(name);
 		if ( p == NULL ) {
 			throw NosuchSnprintf("No plugin named '%s'",name.c_str());
 		}
@@ -1122,6 +1160,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 			"trail(amount);"
 			, id);
 	}
+	DEBUGPRINT(("FFFF api = %s", meth.c_str()));
 	if (meth == "dotrail") {
 		m_dotrail = (jsonNeedInt(params, "onoff") != 0);
 		setTrailParams();
@@ -1166,6 +1205,24 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	if ( meth == "name" ) {
 		return jsonStringResult("FFFF",id);
 	}
+
+	{ static _CrtMemState s1, s2, s3;
+	if ( meth == "dump" ) {
+		_CrtMemState s;
+		_CrtMemCheckpoint( &s );
+		if ( _CrtMemDifference( &s3, &s1, &s) ) {
+			_CrtMemDumpStatistics( &s3 );
+		}
+		// _CrtDumpMemoryLeaks();
+		return jsonOK(id);
+	}
+	if ( meth == "checkpoint" ) {
+		_CrtMemState s1;
+		_CrtMemCheckpoint( &s1 );
+		return jsonOK(id);
+	}
+	}
+
 	if ( meth == "add" || meth == "ffgladd" ) {
 		std::string plugin = jsonNeedString(params,"plugin");
 		std::string iname = jsonNeedString(params,"instance");
@@ -1342,6 +1399,7 @@ public:
 
 Timer *Timer::New()
 {
+	DEBUGPRINT(("---- MALLOC new Timer"));
     return new GlfwTimer();
 }
 

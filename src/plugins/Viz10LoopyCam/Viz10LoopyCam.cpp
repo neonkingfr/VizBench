@@ -19,11 +19,25 @@ static CFF10PluginInfo PluginInfo (
 std::string vizlet10_name() { return "Viz10LoopyCam"; }
 CFF10PluginInfo& vizlet10_plugininfo() { return PluginInfo; }
 
+// I really shouldn't have a single static instance of
+// the Looper, but for some reason there's a big memory
+// leak in the Looper class, and I wasn't able to find it
+// so, this is the lame workaround for that so that the
+// Viz10LoopyCam Vizlet can be unloaded/loaded repeatedly.
+Looper* Viz10LoopyCam::m_looper = NULL;
+
 Viz10LoopyCam::Viz10LoopyCam() : Vizlet10() {
-	m_looper = NULL;
+	DEBUGPRINT(("---- Viz10LoopyCam constructor!"));
 }
 
 Viz10LoopyCam::~Viz10LoopyCam() {
+	DEBUGPRINT(("---- Viz10LoopyCam destructor!"));
+#if 0
+	if (m_looper != NULL) {
+		DEBUGPRINT(("---- DELETE Viz10LoopyCam m_looper=%ld", (long)m_looper));
+		delete m_looper;
+	}
+#endif
 }
 
 DWORD __stdcall Viz10LoopyCam::CreateInstance(CFreeFrame10Plugin **ppInstance) {
@@ -101,6 +115,14 @@ std::string Viz10LoopyCam::realProcessJson(std::string meth, cJSON *params, cons
 	if (meth == "recordoverlay") {
 		bool onoff = (jsonNeedInt(params, "onoff") != 0);
 		lp->_setRecordOverlay(onoff);
+		return jsonOK(id);
+	}
+	if (meth == "recordoverly_on") {
+		lp->_setRecordOverlay(true);
+		return jsonOK(id);
+	}
+	if (meth == "recordoverly_off") {
+		lp->_setRecordOverlay(false);
 		return jsonOK(id);
 	}
 	if (meth == "morewindows") {
@@ -279,11 +301,15 @@ void Viz10LoopyCam::processMidiOutput(MidiMsg* m) {
 }
 
 bool Viz10LoopyCam::processFrame24Bit() {
+	// DEBUGPRINT(("LoopyCam PF24 A"));
 	if (m_looper == NULL) {
 		m_looper = new Looper(FrameWidth(), FrameHeight());
+		DEBUGPRINT(("----- MALLOC new Looper = %ld", (long)m_looper));
 	}
+	// DEBUGPRINT(("LoopyCam PF24 B"));
 	IplImage* img = FrameImage();
-	cvFlip(img);
+	// cvFlip(img);
+	// DEBUGPRINT(("LoopyCam PF24 C"));
 	m_looper->processFrame24Bit(img);
 	return true;
 }

@@ -23,10 +23,10 @@ extern int		ffHeight;
 
 void loadffplugindef(std::string fn);
 
-FF10PluginDef* findff10plugin(std::string nm);
+FF10PluginDef* findff10plugindef(std::string nm);
 FF10ParameterDef* findff10param(FF10PluginDef* ff, std::string nm);
 
-FFGLPluginDef * findffglplugin(std::string nm);
+FFGLPluginDef * findffglplugindef(std::string nm);
 FFGLParameterDef* findffglparam(FFGLPluginDef* ff, std::string nm);
 
 void non_of_init(int x, int y, int w, int h);
@@ -80,7 +80,7 @@ public:
 	FF10PluginInstance* FF10NewPluginInstance(FF10PluginDef* plugin, std::string inm);
 	FF10PluginInstance* FF10FindPluginInstance(std::string inm);
 	FF10PluginInstance* FF10NeedPluginInstance(std::string inm);
-	void				FF10DeletePluginInstance(FF10PluginInstance* p);
+	// void				FF10DeletePluginInstance(FF10PluginInstance* p);
 	std::string			FF10ParamList(std::string nm, const char* id);
 	FF10PluginInstance* FF10AddToPipeline(std::string pluginName, std::string inm, bool autoenable, cJSON* params);
 	void				FF10DeleteFromPipeline(std::string inm);
@@ -109,6 +109,9 @@ public:
 	std::string m_json_result;
 
 private:
+	IplImage* m_img1;
+	IplImage* m_img2;
+	IplImage* m_img_into_pipeline;
 	VizServer* m_vizserver;
 	CvCapture* m_capture;
 	bool m_showfps;
@@ -132,8 +135,12 @@ private:
 	FFGLPluginInstance* m_trailsplugin;
 	void setTrailParams();
 
-	FFGLPluginInstance* m_ffglpipeline;
-	FF10PluginInstance* m_ff10pipeline;
+	// FFGLPluginInstance* m_ffglpipeline;
+	// FF10PluginInstance* m_ff10pipeline;
+
+	std::vector < FFGLPluginInstance* > m_ffglpipeline;
+	std::vector < FF10PluginInstance* > m_ff10pipeline;
+
 
 };
 

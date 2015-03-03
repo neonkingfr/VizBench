@@ -284,7 +284,7 @@ public:
 	}
 	void RemoveJsonCallback(void* handle) {
 		m_callbacks.removecallback(handle);
-		DEBUGPRINT(("RemoveJsonCallback, m_callbacks.size=%d", m_callbacks.size()));
+		DEBUGPRINT1(("RemoveJsonCallback, m_callbacks.size=%d", m_callbacks.size()));
 	}
 	virtual std::string processJson(std::string method, cJSON* params, const char *id);
 	int numCallbacks() { return m_callbacks.size(); }

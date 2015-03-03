@@ -84,7 +84,8 @@ class FF10PluginInstance {
 public:
 	FF10PluginInstance(FF10PluginDef* d, std::string nm);
 	virtual ~FF10PluginInstance() {
-		DEBUGPRINT(("Destructor in FF10PluginInstance"));
+		DEBUGPRINT1(("Destructor for %s in FF10PluginInstance",m_name.c_str()));
+		DeInstantiate();
 	}
 
 	std::string GetParameterDisplay(int paramNum);
@@ -108,8 +109,6 @@ public:
 	DWORD instanceid() { return m_instanceid; }
 
 	// void setInstanceID(DWORD id) { m_instanceid = id; }
-
-	FF10PluginInstance* next;
 
 private:
 	std::string m_name;

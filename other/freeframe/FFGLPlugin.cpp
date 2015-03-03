@@ -65,7 +65,7 @@ FFGLPluginDef::getParamNum(std::string pnm) {
 }
 
 FFGLPluginInstance::FFGLPluginInstance(FFGLPluginDef* d, std::string nm) :
-	m_plugindef(d), next(NULL), m_params(NULL), m_name(nm), m_enabled(false),
+	m_plugindef(d), m_params(NULL), m_name(nm), m_enabled(false),
 	m_instanceid(INVALIDINSTANCE) {
 
 	NosuchAssert ( d->m_mainfunc );
@@ -250,6 +250,7 @@ DWORD FFGLPluginDef::InitPluginLibrary()
     m_numparams = (int)m_mainfunc(FF_GETNUMPARAMETERS, 0, 0).ivalue;
 
     m_paramdefs = new FFGLParameterDef[m_numparams];
+	DEBUGPRINT(("----- MALLOC new FFGLParameterDef"));
     int n;
     for (n=0; n<m_numparams; n++) {
 

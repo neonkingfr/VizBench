@@ -64,7 +64,7 @@ class FFGLPluginInstance {
 public:
 	FFGLPluginInstance(FFGLPluginDef* d, std::string nm);
 	virtual ~FFGLPluginInstance() {
-		DEBUGPRINT(("Destructor in FFGLPluginInstance"));
+		DEBUGPRINT1(("Destructor for %s in FFGLPluginInstance",m_name.c_str()));
 	}
 
 	std::string GetParameterDisplay(int paramNum);
@@ -92,7 +92,7 @@ public:
 	FFGLPluginDef* plugindef() { return m_plugindef; }
 	DWORD instanceid() { return m_instanceid; }
 
-	FFGLPluginInstance* next;
+	// FFGLPluginInstance* next;
 
 private:
 	std::string m_name;

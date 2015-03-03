@@ -348,6 +348,7 @@ static void makeresult(std::string ctype, std::string data, char*& memblock, siz
 	size_t datasize = data.size();
 	memsize = headersize + datasize;
 	memblock = new char[memsize];
+	// DEBUGPRINT(("---- MALLOC memblock = %ld",(long)memblock));
 	memcpy(memblock, header.c_str(), headersize);
 	memcpy(memblock + headersize, data.c_str(), datasize);
 }
@@ -419,6 +420,7 @@ NosuchHttpServer::RespondToGetOrPost(NosuchSocketConnection *conn) {
 		size_t headersize = header.size();
 		memsize = headersize + filesize;
 		memblock = new char[memsize];
+		DEBUGPRINT(("---- MALLOC memblock b = %ld",(long)memblock));
 		memcpy(memblock, header.c_str(), headersize);
 		f.seekg(0, std::ios::beg);
 		f.read(memblock + headersize, memsize);
@@ -501,6 +503,7 @@ NosuchHttpServer::RespondToGetOrPost(NosuchSocketConnection *conn) {
 sendmemblock:
 	if (memblock) {
 		conn->parent->SendTo(conn->h_Socket, memblock, (DWORD)memsize);
+		// DEBUGPRINT(("---- DELETE memblock = %ld",(long)memblock));
 		delete[] memblock;
 	}
 }

@@ -79,7 +79,7 @@ CopyFFString16(const char *src)
 }
 
 FF10PluginDef *
-findff10plugin(std::string nm) {
+findff10plugindef(std::string nm) {
     for ( int n=0; n<nff10plugindefs; n++ ) {
         if ( ff10plugindefs[n]->name == nm ) {
             return ff10plugindefs[n];
@@ -89,7 +89,7 @@ findff10plugin(std::string nm) {
 }
 
 FFGLPluginDef *
-findffglplugin(std::string nm) {
+findffglplugindef(std::string nm) {
 	// NOTE: case-insensitive lookup of plugin name!
     for ( int n=0; n<nffglplugindefs; n++ ) {
         if ( _stricmp(ffglplugindefs[n]->name.c_str(),nm.c_str()) == 0 ) {
@@ -373,12 +373,17 @@ do_ffgl_plugin(FFGLPluginInstance* plugin, int which) // which: 0 = first one, 1
 		fbo_input = fbo_output;
 		fbo_output = fbo_tmp;
 
-		//now pass the contents of the FBO as a texture to the plugin
-		FFGLTextureStruct fboTexture = fbo_input->GetTextureInfo();
-		inputTextures[0] = &fboTexture;
-		processStruct.numInputTextures = 1;
-		processStruct.inputTextures = inputTextures;
-		processStruct.HostFBO = 0;
+		if (fbo_input == NULL) {
+			DEBUGPRINT(("HEY!!!!! fbo_input is NULL?"));
+		}
+		else {
+			//now pass the contents of the FBO as a texture to the plugin
+			FFGLTextureStruct fboTexture = fbo_input->GetTextureInfo();
+			inputTextures[0] = &fboTexture;
+			processStruct.numInputTextures = 1;
+			processStruct.inputTextures = inputTextures;
+			processStruct.HostFBO = 0;
+		}
 	}
 	else if (which == 3) {
 		fbo_input = NULL;

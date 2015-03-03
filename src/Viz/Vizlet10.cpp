@@ -117,7 +117,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserv
 
 Vizlet10::Vizlet10() {
 
-	DEBUGPRINT1(("=== Vizlet10 constructor, dll_pathname=%s",dll_pathname().c_str()));
+	DEBUGPRINT1(("--- Vizlet10 constructor, dll_pathname=%s",dll_pathname().c_str()));
 
 	VizParams::Initialize();
 
@@ -193,7 +193,7 @@ Vizlet10::Vizlet10() {
 
 Vizlet10::~Vizlet10()
 {
-	DEBUGPRINT1(("=== Vizlet10 destructor is called viztag=%s", m_viztag.c_str()));
+	DEBUGPRINT1(("--- Vizlet10 destructor is called viztag=%s", m_viztag.c_str()));
 	_stopstuff();
 }
 

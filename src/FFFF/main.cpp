@@ -26,7 +26,8 @@
 */
 
 #include "NosuchDebug.h"
-#include "mmtt_sharedmem.h"
+
+// #include "mmtt_sharedmem.h"
 #include "FFFF.h"
 #include "NosuchJSON.h"
 #include "NosuchMidi.h"
@@ -39,7 +40,7 @@
 #include <gl/glu.h>
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "glu32.lib")
-#include "mmsystem.h"
+// #include "mmsystem.h"
 
 #include "resource.h"
 
@@ -52,6 +53,7 @@
 // #include "Python.h"
 
 FFFF* F;
+void tjtdebug();
 
 int 				camWidth;
 int 				camHeight;
@@ -232,6 +234,7 @@ int ffffMain(std::string config)
 			int width, height;
 			glfwGetFramebufferSize(F->window, &width, &height);
 
+			// DEBUGPRINT(("PostJSON B"));
 			F->doOneFrame(use_camera, width, height);
 
 			glfwSwapBuffers(F->window);

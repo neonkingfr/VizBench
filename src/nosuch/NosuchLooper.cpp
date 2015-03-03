@@ -3,13 +3,13 @@
 #include "NosuchScheduler.h"
 
 NosuchLooper::NosuchLooper() {
-	DEBUGPRINT2(("NosuchLooper constructor"));
+	DEBUGPRINT(("NosuchLooper constructor"));
 	m_last_click = 0;
 	NosuchLockInit(&_looper_mutex,"looper");
 }
 
 NosuchLooper::~NosuchLooper() {
-	DEBUGPRINT2(("NosuchLooper destructor"));
+	DEBUGPRINT(("NosuchLooper destructor"));
 }
 
 std::string

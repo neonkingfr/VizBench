@@ -66,6 +66,7 @@ public:
     /**
      * Convenience function for deallocating the storage data.
      */
+#if 0
     FLANN_DEPRECATED void free()
     {
         fprintf(stderr, "The cvflann::Matrix<T>::free() method is deprecated "
@@ -73,6 +74,7 @@ public:
                 "responsible for deallocating the matrix memory (by doing"
                 "'delete[] matrix.data' for example)");
     }
+#endif
 
     /**
      * Operator that return a (pointer to a) row of the data.
