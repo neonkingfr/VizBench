@@ -21,11 +21,14 @@
 int CV_interp = CV_INTER_NN;  // or CV_INTER_LINEAR
 
 Looper::Looper(int w, int h) {
-	_flipset = false;
+
+	_flipv = false;
+	_fliph = false;
+
     ffWidth = w;
     ffHeight = h;
     ffSize = cvSize(w,h);
-	DEBUGPRINT(("Looper::Looper CONSTRUCTOR!"));
+    DEBUGPRINT(("Looper::Looper constructor width,height = %d,%d",w,h));
     m_frameImage = createImage24ofSize(ffSize);
 
     for ( int n=0; n<MAX_LOOPS; n++ ) {
@@ -36,21 +39,22 @@ Looper::Looper(int w, int h) {
     }
 	// DEBUGPRINT(("Looper::Looper B"));
     srand((unsigned)time(NULL));
-    _enableXOR = 1;
-    _border = 0;
-	_recborder = 0;
-	_blackout = 0;
+
+    _enableXOR = true;
+    _border = false;
+	_recborder = false;
+	_blackout = false;
+    _autoNext = true;
+    _movesmooth = true;
+
     _currentLoop = 0;
-    _autoNext = 1;
     // _numPlaying = 1;
     _playing[0] = 2;
-    _smooth = 1;
     _moveamount = 20;
 
     CvSize sz = ffSize;
-    DEBUGPRINT(("Looper frame size = %d,%d",sz.width,sz.height));
     _tmpImage = createImage24ofSize(sz);
-	DEBUGPRINT(("_tmpImage=%d", _tmpImage));
+	// DEBUGPRINT(("_tmpImage=%d", _tmpImage));
 
     for ( int n=0; n<MAX_LOOPS; n++ ) {
         // _sz[n] = cvSize(0,0);
@@ -73,29 +77,9 @@ Looper::Looper(int w, int h) {
 }
 
 Looper::~Looper() {
-	DEBUGPRINT(("Looper::Looper DESTRUCTOR, NO FREES?!"));
+	DEBUGPRINT(("Looper::Looper DESTRUCTOR"));
 	cvReleaseImage(&m_frameImage);
 }
-
-#if 0
-void Looper::debugsize() {
-	if (_pos[0].x != 0) {
-		DEBUGPRINT(("Found it too!"));
-	}
-	if (_sz[0].width == 40) {
-		DEBUGPRINT(("Found it!"));
-	}
-	if (_targetpos[0].x != 0) {
-		DEBUGPRINT(("Found it again!"));
-	}
-	if (_targetsz[0].width != 640) {
-		DEBUGPRINT(("Found it again!"));
-	}
-	for (int n = 0; n < MAX_LOOPS; n++) {
-		DEBUGPRINT(("DEBUGSZ n=%d w=%d h=%d  targetpos[0].x=%d", n, _sz[n].width, _sz[n].height, _targetpos[0].x));
-	}
-}
-#endif
 
 void
 Looper::_quadrantDisplay()
@@ -142,12 +126,12 @@ Looper::_quadrantDisplay()
 }
 
 void
-Looper::_allLive(int onoff)
+Looper::_allLive(bool onoff)
 {
 	int v = ( onoff ? 2 : 1 );
 	for ( int n=0; n<MAX_LOOPS; n++ ) {
 		if ( is_showing(n) ) {
-			_playing[n] = 2;
+			_playing[n] = v;
 		}
 	}
 }
@@ -157,10 +141,11 @@ Looper::_fullDisplay()
 {
     CvSize sz = ffSize;
 	// Make each loop other than the first a different size
-    _changePosSize(0,cvPoint(0,0),cvSize(sz.width,sz.height),FALSE);
+    _changePosSize(0,cvPoint(sz.width/2,sz.height/2),cvSize(sz.width,sz.height),FALSE);
     for ( int n=1; n<MAX_LOOPS; n++ ) {
 		int offset = 4;
-        _changePosSize(n,cvPoint(sz.width/2,sz.height/2),cvSize(sz.width-offset*n,sz.height-offset*n),FALSE);
+        // _changePosSize(n,cvPoint(sz.width/2,sz.height/2),cvSize(sz.width-offset*n,sz.height-offset*n),FALSE);
+        _changePosSize(n,cvPoint(sz.width/2,sz.height/2),cvSize(sz.width-n,sz.height-n),TRUE);
     }
     for ( int n=0; n<MAX_LOOPS; n++ ) {
         _playing[n] = 0;
@@ -240,11 +225,10 @@ Looper::_changePosSize(int n, CvPoint newpt, CvSize newsz, bool boundit)
 
     _targetpos[n] = cvPoint(x,y);
     _targetsz[n] = cvSize(w,h);
-    if ( _smooth == 0 ) {
+    if ( _movesmooth == 0 ) {
         // DEBUGPRINT(("smooth is 0, jumping to %d,%d",_pos[n].x,_pos[n].y));
         _pos[n] = cvPoint(x,y);
         _sz[n] = cvSize(w,h);
-		DEBUGPRINT(("smooth sz=%d,%d", w, h));
     }
 
 	// DEBUGPRINT(("changepos C"));
@@ -264,10 +248,18 @@ Looper::_boundPosSize(int *x, int *y, int *w, int *h)
 	int origh = *h;
 
     // bound the values
-    if ( *w < margin ) *w = margin;
-    if ( *h < margin ) *h = margin;
-    if ( *w > (sz.width-margin) ) *w = sz.width - margin;
-    if ( *h > (sz.height-margin) ) *h = sz.height - margin;
+	if (*w < margin) {
+		*w = margin;
+	}
+	if (*h < margin) {
+		*h = margin;
+	}
+	if (*w > (sz.width - margin)) {
+		*w = sz.width - margin;
+	}
+	if (*h > (sz.height - margin)) {
+		*h = sz.height - margin;
+	}
 
     if ( *x < xymargin ) *x = xymargin;
     if ( *y < xymargin ) *y = xymargin;
@@ -275,12 +267,17 @@ Looper::_boundPosSize(int *x, int *y, int *w, int *h)
     if ( *y > (sz.height-xymargin) ) *y = sz.height - xymargin;
 
     // make sure it's within the display
-    if ( (*x-*w/2) < 0 ) *w = *x*2;
-    if ( (*y-*h/2) < 0 ) *h = *y*2;
-    if ( (*x+*w/2) > sz.width ) *w = (sz.width-*x-1)*2;
-    if ( (*y+*h/2) > sz.height) *h = (sz.height-*y-1)*2;
-	if ( *w==0 || *h ==0 ) {
-		DEBUGPRINT(("BOUNDIT xy=%d,%d  wh=%d,%d   origxy=%d,%d origwh=%d,%d\n",*x,*y,*w,*h,origx,origy,origw,origh));
+	if ((*x - *w / 2) < 0) {
+		*w = *x * 2;
+	}
+	if ((*y - *h / 2) < 0) {
+		*h = *y * 2;
+	}
+	if ((*x + *w / 2) > sz.width) {
+		*w = (sz.width - *x - 1) * 2;
+	}
+    if ( (*y+*h/2) > sz.height) {
+		*h = (sz.height-*y-1)*2;
 	}
 }
 
@@ -328,7 +325,7 @@ Looper::_towardtarget(int n, int *nfull)
         changed = TRUE;
     }
 	if ( changed ) {
-		DEBUGPRINT(("changed n=%d _sz.width=%d height=%d",n,_sz[n].width,_sz[n].height));
+		// DEBUGPRINT(("changed n=%d _sz.width=%d height=%d  targetpos=%d,%d  targetsz=%d,%d",n,_sz[n].width,_sz[n].height,_targetpos[n].x,_targetpos[n].y,_targetsz[n].width,_targetsz[n].height));
         _boundPosSize(&(_pos[n].x),&(_pos[n].y),&(_sz[n].width),&(_sz[n].height));
 	}
 	// If there's more than one full-screen window, make them slightly different sizes
@@ -336,11 +333,9 @@ Looper::_towardtarget(int n, int *nfull)
 			// DEBUGPRINT(("n=%d nfull=%d\n",n,*nfull));
 			if ( *nfull > 0 ) {
 				DEBUGPRINT((" reducing n=%d by %d, was wh=%d,%d\n",n,*nfull,_sz[n].width,_sz[n].height));
-#if 0
 				_sz[n].height -= *nfull;
 				_sz[n].width -= *nfull;
 				changed = TRUE;
-#endif
 				DEBUGPRINT((" reducing n=%d by %d, now wh=%d,%d\n",n,*nfull,_sz[n].width,_sz[n].height));
 			}
 			(*nfull)++;
@@ -398,7 +393,7 @@ Looper::randomposition(double aspect) {
 
 void
 Looper::morewindows() {
-	DEBUGPRINT(("MOREWINDOWS, num_showing = %d\n",num_showing()));
+	// DEBUGPRINT(("MOREWINDOWS, num_showing = %d\n",num_showing()));
     if ( num_showing() < MAX_LOOPS ) {
 		for ( int n=0; n<MAX_LOOPS; n++ ) {
 			if ( ! is_showing(n) ) {
@@ -408,16 +403,16 @@ Looper::morewindows() {
 		}
         // printf("numLoops = %d\n",_numLoops);
     }
-	DEBUGPRINT(("MOREWINDOWS end, num_showing = %d\n",num_showing()));
+	// DEBUGPRINT(("MOREWINDOWS end, num_showing = %d\n",num_showing()));
 
 }
 void
-Looper::_setautoNext(int v) {
+Looper::_setautoNext(bool v) {
     _autoNext = v;
 }
 void
-Looper::_setsmooth(int v) {
-    _smooth = v;
+Looper::_setmovesmooth(bool v) {
+    _movesmooth = v;
 }
 void
 Looper::_setplayfactor(int loopnum, double x) {
@@ -447,7 +442,6 @@ Looper::lesswindows() {
 
 void
 Looper::setwindows(int n) {
-	DEBUGPRINT(("SETWINDOWS n=%d\n",n));
 	while ( n > num_showing() && num_showing() < MAX_LOOPS ) {
 		morewindows();
 	}
@@ -457,34 +451,29 @@ Looper::setwindows(int n) {
 }
 
 void
-Looper::togglesmooth() {
-    _smooth = 1 - _smooth;
-}
-
-void
-Looper::setsmooth(int v) {
-	_smooth = (v)?1:0;
+Looper::togglemovesmooth() {
+    _movesmooth = ! _movesmooth;
 }
 
 void
 Looper::togglexor() {
-    _enableXOR = 1 - _enableXOR;
+    _enableXOR = ! _enableXOR;
 }
 
 void
 Looper::toggleautonext() {
-    _autoNext = 1 - _autoNext;
+    _autoNext = ! _autoNext;
 }
 
 void
 Looper::toggleborder() {
-    _border = 1 - _border;
+    _border = ! _border;
 }
 
 void
-Looper::setinterp(int interp)
+Looper::setinterp(bool dolinear)
 {
-	if ( interp ) {
+	if ( dolinear ) {
 		CV_interp = CV_INTER_LINEAR;
 	} else {
 		CV_interp = CV_INTER_NN; // This produces some artifacts, but increases the frame rate from 20 to 30
@@ -495,36 +484,36 @@ void
 Looper::_nextLoop()
 {
 	int limit = MAX_LOOPS;
-	DEBUGPRINT(("NEXTLOOP _currentloop=%d\n",_currentLoop));
+	// DEBUGPRINT(("NEXTLOOP _currentloop=%d\n",_currentLoop));
 	for ( int n=0; n<limit; n++ ) {
 		_currentLoop++;	
 		if ( _currentLoop >= MAX_LOOPS )
 			_currentLoop = 0;
 		if ( is_showing(_currentLoop) ) {
-			DEBUGPRINT(("    currentLoop is now %d",_currentLoop));
+			// DEBUGPRINT(("    currentLoop is now %d",_currentLoop));
 			return;
 		}
 	}
-	DEBUGPRINT(("HEY, nextLoop didn't work?\n"));
+	// DEBUGPRINT(("HEY, nextLoop didn't work?\n"));
 	_currentLoop = 0;
 
 }
 
 void
-Looper::setRecord(int onoff)
+Looper::setRecord(bool onoff)
 {
     if ( _autoNext != 0 && onoff != 0 ) {
         _nextLoop();
     }
     int loopnum = _currentLoop;
     VFrameLoop* fl = &_loop[loopnum];
-    DEBUGPRINT(("_setRecord, loopnum=%d onoff=%d",loopnum,onoff));
+    // DEBUGPRINT(("_setRecord, loopnum=%d onoff=%d",loopnum,onoff));
     if ( onoff == 0 ) {
         _recording[loopnum] = 0;
         // Turn recording off, start it playing
-        DEBUGPRINT(("LOOP recording off, nframes=%d",fl->nframes));
+        // DEBUGPRINT(("LOOP recording off, nframes=%d",fl->nframes));
         if ( _playing[loopnum] == 1 ) {
-            DEBUGPRINT(("Recording off, advancing to Start"));
+            // DEBUGPRINT(("Recording off, advancing to Start"));
             fl->advanceToStart();
         }
     } else {
@@ -536,18 +525,18 @@ Looper::setRecord(int onoff)
         fl->freeandclear();
         // Force playing on?
         _playing[loopnum] = 1;
-		DEBUGPRINT(("Playing of loopnum=%d is on\n",loopnum));
+		// DEBUGPRINT(("Playing of loopnum=%d is on\n",loopnum));
     }
 }
 
 void
-Looper::setBlackout(int onoff)
+Looper::setBlackout(bool onoff)
 {
 	_blackout = onoff;
 }
 
 void
-Looper::_setRecordOverlay(int onoff)
+Looper::_setRecordOverlay(bool onoff)
 {
     int loopnum = _currentLoop;
     VFrameLoop* fl = &_loop[loopnum];
@@ -576,7 +565,7 @@ Looper::validLoopnum(int loopnum)
 }
 
 void
-Looper::setPlay(int loopnum, int onofflive)
+Looper::setPlay(int loopnum, bool onofflive)
 {
     DEBUGPRINT(("_setPlay called, loop=%d onoff=%d",loopnum,onofflive));
     if ( onofflive == 1 ) {
@@ -601,7 +590,7 @@ Looper::_restart(int loopnum)
 }
 
 void
-Looper::_freeze(int loopnum, int freeze)
+Looper::_freeze(int loopnum, bool freeze)
 {
 	VFrameLoop* fl = NULL;
 
@@ -792,20 +781,17 @@ Looper::processFrame24Bit(IplImage* fi)
 	int nfull = 0;
 	int nshowing = num_showing();
 
-	// DEBUGPRINT(("process mid2\n"));
-
     for (n++; nplayed<nshowing; n++ ) {
-		// DEBUGPRINT(("process mid3a n=%d\n",n));
-        if ( n >= MAX_LOOPS )
-            n = 0;
- 		// DEBUGPRINT(("LOOPTOP n=%d nplayed=%d is_showing=%d\n",n,nplayed,is_showing(n)));
+		if (n >= MAX_LOOPS) {
+			n = 0;
+		}
 
 		if ( ! is_showing(n) ) {
             continue;
 		}
 		nplayed++;
 
-        if ( _smooth ) {
+        if ( _movesmooth ) {
             _towardtarget(n,&nfull);
         }
 		if ( _sz[n].height == 0 || _sz[n].width == 0 ) {
@@ -851,7 +837,6 @@ Looper::processFrame24Bit(IplImage* fi)
         } else {
             fl = &_loop[n];
             if ( fl->nexttoshow == NULL ) {
-				DEBUGPRINT(("HEY nexttoshow==NULL in process for loop n=%d\n",n));
                 continue;
             }
 			// DEBUGPRINT(("Should be playing frame =%d\n",fl->nexttoshow->framenum));
@@ -945,19 +930,11 @@ float getAsFloat(int& nargs, const char* & types, osc::ReceivedMessage::const_it
 void
 Looper::_set_fliph(bool onoff)
 {
-	DEBUGPRINT(("_set_fliph needs work"));
-#if 0
 	_fliph = onoff;
-	post2flip->setparam("Horizontal",(float)onoff);
-#endif
 }
 
 void
-Looper::set_flipv(bool onoff)
+Looper::_set_flipv(bool onoff)
 {
-	DEBUGPRINT(("_set_flipv needs work"));
-#if 0
 	_flipv = onoff;
-	post2flip->setparam("Vertical",(float)onoff);
-#endif
 }

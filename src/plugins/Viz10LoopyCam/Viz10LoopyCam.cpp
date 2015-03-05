@@ -27,11 +27,12 @@ CFF10PluginInfo& vizlet10_plugininfo() { return PluginInfo; }
 Looper* Viz10LoopyCam::m_looper = NULL;
 
 Viz10LoopyCam::Viz10LoopyCam() : Vizlet10() {
-	DEBUGPRINT(("---- Viz10LoopyCam constructor!"));
+	// DEBUGPRINT(("---- Viz10LoopyCam constructor!"));
 }
 
 Viz10LoopyCam::~Viz10LoopyCam() {
-	DEBUGPRINT(("---- Viz10LoopyCam destructor!"));
+	// DEBUGPRINT(("---- Viz10LoopyCam destructor!"));
+	// DO NOT delete m_looper, it's static
 #if 0
 	if (m_looper != NULL) {
 		DEBUGPRINT(("---- DELETE Viz10LoopyCam m_looper=%ld", (long)m_looper));
@@ -46,7 +47,16 @@ DWORD __stdcall Viz10LoopyCam::CreateInstance(CFreeFrame10Plugin **ppInstance) {
 }
 
 void Viz10LoopyCam::processCursor(VizCursor* c, int downdragup) {
+	DEBUGPRINT(("processCursor"));
 }
+
+#if 0
+void Viz10LoopyCam::processOsc(const char *source, const osc::ReceivedMessage& m) {
+	osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+	const char* s = (arg++)->AsString();
+	DEBUGPRINT(("processOSC arg0 = %s",s));
+}
+#endif
 
 std::string Viz10LoopyCam::processJson(std::string meth, cJSON *params, const char *id) {
 
@@ -64,7 +74,7 @@ std::string Viz10LoopyCam::realProcessJson(std::string meth, cJSON *params, cons
 			"blackout(onoff);randompositions(aspect);randomposition1(aspect);"
 			"recordoverlay(onoff);morewindows;lesswindows;"
 			"setwindows(numwindows);fulldisplay;quadrantdisplay;"
-			"alllive(onoff);autonext(n);togglesmooth;setsmooth(v);"
+			"alllive(onoff);autonext(n);togglemovesmooth;movesmooth(onoff);"
 			"setinterp(v);nextloop;playfactor(loopnum,factor);"
 			"playfactorreset(loopnum);moveamount(amount);"
 			"restart(loopnum);restartrandom(loopnum);"
@@ -77,8 +87,7 @@ std::string Viz10LoopyCam::realProcessJson(std::string meth, cJSON *params, cons
 			, id);
 	}
 	if (meth == "record") {
-		bool onoff = (jsonNeedInt(params,"onoff") != 0);
-		lp->setRecord(onoff);
+		lp->setRecord(jsonNeedBool(params, "onoff"));
 		return jsonOK(id);
 	}
 	if (meth == "record_on") {
@@ -91,15 +100,14 @@ std::string Viz10LoopyCam::realProcessJson(std::string meth, cJSON *params, cons
 	}
 	if (meth == "play") {
 		int loopnum = jsonNeedInt(params, "loopnum");
-		bool onoff = (jsonNeedInt(params, "onoff") != 0);
+		bool onoff = jsonNeedBool(params, "onoff");
 		if (lp->validLoopnum(loopnum)) {
 			lp->setPlay(loopnum, onoff);
 		}
 		return jsonOK(id);
 	}
 	if (meth == "blackout") {
-		bool onoff = (jsonNeedInt(params, "onoff") != 0);
-		lp->setBlackout(onoff);
+		lp->setBlackout(jsonNeedBool(params, "onoff"));
 		return jsonOK(id);
 	}
 	if (meth == "randompositions") {
@@ -113,8 +121,7 @@ std::string Viz10LoopyCam::realProcessJson(std::string meth, cJSON *params, cons
 		return jsonOK(id);
 	}
 	if (meth == "recordoverlay") {
-		bool onoff = (jsonNeedInt(params, "onoff") != 0);
-		lp->_setRecordOverlay(onoff);
+		lp->_setRecordOverlay(jsonNeedBool(params, "onoff"));
 		return jsonOK(id);
 	}
 	if (meth == "recordoverly_on") {
@@ -147,27 +154,23 @@ std::string Viz10LoopyCam::realProcessJson(std::string meth, cJSON *params, cons
 		return jsonOK(id);
 	}
 	if (meth == "alllive") {
-		bool onoff = (jsonNeedInt(params, "onoff") != 0);
-		lp->_allLive(onoff);
+		lp->_allLive(jsonNeedBool(params, "onoff"));
 		return jsonOK(id);
 	}
 	if (meth == "autonext") {
-		int v = jsonNeedInt(params, "n");
-		lp->_setautoNext(v);
+		lp->_setautoNext(jsonNeedBool(params, "onoff"));
 		return jsonOK(id);
 	}
-	if (meth == "togglesmooth") {
-		lp->togglesmooth();
+	if (meth == "togglesmovemooth") {
+		lp->togglemovesmooth();
 		return jsonOK(id);
 	}
-	if (meth == "setsmooth") {
-		int v = jsonNeedInt(params, "v");
-		lp->setsmooth(v);
+	if (meth == "movesmooth") {
+		lp->_setmovesmooth(jsonNeedBool(params, "onoff"));
 		return jsonOK(id);
 	}
 	if (meth == "setinterp") {
-		int v = jsonNeedInt(params, "v");
-		lp->setinterp(v);
+		lp->setinterp(jsonNeedBool(params, "onoff"));
 		return jsonOK(id);
 	}
 	if (meth == "nextloop") {
@@ -186,7 +189,7 @@ std::string Viz10LoopyCam::realProcessJson(std::string meth, cJSON *params, cons
 		return jsonOK(id);
 	}
 	if (meth == "moveamount") {
-		lp->_moveamount = jsonNeedInt(params, "amount");
+		lp->_moveamount = jsonNeedInt(params, "value");
 		return jsonOK(id);
 	}
 	if (meth == "restart") {
@@ -239,32 +242,23 @@ std::string Viz10LoopyCam::realProcessJson(std::string meth, cJSON *params, cons
 		return jsonOK(id);
 	}
 	if (meth == "xor") {
-		bool onoff = (jsonNeedInt(params, "onoff") != 0);
-		lp->_enableXOR = (onoff ? 1 : 0);
+		lp->_enableXOR = jsonNeedBool(params, "onoff");
 		return jsonOK(id);
 	}
 	if (meth == "border") {
-		bool onoff = (jsonNeedInt(params, "onoff") != 0);
-		lp->_border = (onoff ? 1 : 0);
+		lp->_border = jsonNeedBool(params, "onoff");
 		return jsonOK(id);
 	}
 	if (meth == "fliph") {
-		bool onoff = (jsonNeedInt(params, "onoff") != 0);
-		DEBUGPRINT(("IGNORING FLIPH onoff=%d\n", onoff));
-		// set_fliph(onoff!=0);
-		// post2flip->setparam("Horizontal",(float)onoff);
+		lp->_set_fliph(jsonNeedBool(params, "onoff"));
 		return jsonOK(id);
 	}
 	if (meth == "flipv") {
-		bool onoff = (jsonNeedInt(params, "onoff") != 0);
-		DEBUGPRINT(("IGNORING FLIPV onoff=%d\n", onoff));
-		// _set_flipv(onoff!=0);
-		// post2flip->setparam("Vertical",(float)onoff);
+		lp->_set_flipv(jsonNeedBool(params, "onoff"));
 		return jsonOK(id);
 	}
 	if (meth == "recborder") {
-		bool onoff = (jsonNeedInt(params, "onoff") != 0);
-		lp->_recborder = (onoff ? 1 : 0);
+		lp->_recborder = jsonNeedBool(params, "onoff");
 		return jsonOK(id);
 	}
 	if (meth == "setstart") {
@@ -285,7 +279,7 @@ std::string Viz10LoopyCam::realProcessJson(std::string meth, cJSON *params, cons
 	}
 	if (meth == "setreverse") {
 		int loopnum = jsonNeedInt(params, "loopnum");
-		bool onoff = (jsonNeedInt(params, "onoff") != 0);
+		bool onoff = jsonNeedBool(params, "onoff");
 		if (lp->validLoopnum(loopnum)) {
 			lp->_loop[loopnum].setReverse(onoff);
 		}
@@ -301,15 +295,20 @@ void Viz10LoopyCam::processMidiOutput(MidiMsg* m) {
 }
 
 bool Viz10LoopyCam::processFrame24Bit() {
-	// DEBUGPRINT(("LoopyCam PF24 A"));
 	if (m_looper == NULL) {
 		m_looper = new Looper(FrameWidth(), FrameHeight());
-		DEBUGPRINT(("----- MALLOC new Looper = %ld", (long)m_looper));
+		// DEBUGPRINT(("----- MALLOC new Looper = %ld", (long)m_looper));
 	}
-	// DEBUGPRINT(("LoopyCam PF24 B"));
 	IplImage* img = FrameImage();
-	// cvFlip(img);
-	// DEBUGPRINT(("LoopyCam PF24 C"));
+	if (m_looper->_flipv) {
+		if (m_looper->_fliph) {
+			cvFlip(img, 0, -1);  // flip both
+		} else {
+			cvFlip(img, 0, 0);  // flip vert
+		}
+	} else if (m_looper->_fliph) {
+		cvFlip(img,0,1);  // flip horiz
+	}
 	m_looper->processFrame24Bit(img);
 	return true;
 }

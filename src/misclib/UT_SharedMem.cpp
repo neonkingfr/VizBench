@@ -29,7 +29,7 @@ UT_SharedMem::open(const char *name,  unsigned int size, bool supportInfo)
     strcpy(m, myName);
     strcat(m, "Mutex");
     myMutex = new UT_Mutex(m);
-	DEBUGPRINT(("---- MALLOC myMutex = %ld", (long)m));
+	// DEBUGPRINT(("---- MALLOC myMutex = %ld", (long)m));
     delete m;
 
     if (size > 0)
@@ -191,7 +191,7 @@ UT_SharedMem::createName()
 {
 	if (!myName) {
 		myName = new char[strlen(myShortName) + 10 + UT_SHM_MAX_POST_FIX_SIZE];
-		DEBUGPRINT(("---- MALLOC createName = %ld", (long)myName));
+		// DEBUGPRINT(("---- MALLOC createName = %ld", (long)myName));
 	}
 
     strcpy(myName, "TouchSHM");
@@ -323,14 +323,14 @@ UT_SharedMem::createInfo()
 
 	srand((unsigned int)time(NULL));
 	char *infoName = new char[strlen(myName) + strlen(UT_SHM_INFO_DECORATION) + 1];
-	DEBUGPRINT(("---- MALLOC infoName = %ld", (long)infoName));
+	// DEBUGPRINT(("---- MALLOC infoName = %ld", (long)infoName));
 	strcpy(infoName, myName);
 	strcat(infoName, UT_SHM_INFO_DECORATION);
 	mySharedMemInfo = new UT_SharedMem(infoName, 
 									   myAmOwner ? sizeof(UT_SharedMemInfo) : 0, false);
-	DEBUGPRINT(("---- MALLOC mySharedMemInfo = %ld", (long)mySharedMemInfo));
+	// DEBUGPRINT(("---- MALLOC mySharedMemInfo = %ld", (long)mySharedMemInfo));
 
-	DEBUGPRINT(("---- DELETE infoName = %ld", (long)infoName));
+	// DEBUGPRINT(("---- DELETE infoName = %ld", (long)infoName));
 	delete infoName;
 	if (myAmOwner)
 	{

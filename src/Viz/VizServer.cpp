@@ -316,7 +316,11 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 	std::string api;
 	VizServer* ss = VizServer::GetServer();
 
-	DEBUGPRINT1(("VizServer::processJson fullmethod=%s",fullmethod.c_str()));
+	if (ss->m_debugApi) {
+		char *p = cJSON_Print(params);
+		DEBUGPRINT(("VizServer API meth=%s params=%s", fullmethod.c_str(),p));
+		cJSON_free(p);
+	}
 	static AllVizParams* allparams = NULL;
 	if (allparams == NULL) {
 		allparams = new AllVizParams(true);
@@ -484,6 +488,11 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 			return jsonIntResult(ss->_getMidiOutput(), id);
 		}
 
+		if (api == "set_debugapi") {
+			ss->m_debugApi = jsonNeedBool(params, "onoff", true);
+			return jsonOK(id);
+		}
+
 		std::string err = NosuchSnprintf("VizServer - Unrecognized method '%s'", api.c_str());
 		return jsonError(-32000, err, id);
 	}
@@ -624,7 +633,6 @@ public:
 				return;
 			}
 			std::string s = m_vizserver->_processJson(fullmethod, params, "12345");
-			DEBUGPRINT(("/api method=%s output=%s", fullmethod.c_str(), s.c_str()));
 			return;
 		}
 		DEBUGPRINT(("Ignoring OSC message with addr=%s", addr));
@@ -739,6 +747,7 @@ VizServer::VizServer() {
 	VizParams::Initialize();
 
 	m_started = false;
+	m_debugApi = false;
 	m_mmtt_seqnum = 0;
 	m_htmlpath = _strdup(VizPath("html").c_str());
 	m_midifile = "";

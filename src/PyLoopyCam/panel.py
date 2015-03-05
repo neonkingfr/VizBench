@@ -20,7 +20,11 @@ NPRE = 3
 NPOST = 3
 NFFGL = 3
 
-Ffff
+def FFFFAPI(api):
+	return "ffff."+api
+
+def LOOPYAPI(api):
+	return "Viz10LoopyCam."+api
 
 try:
 	import pygame
@@ -57,18 +61,14 @@ class NthValue:
 	def sendvalue(self):
 		pass
 		
-	def send(self, addr, msg=None):
-		if self.panel.ffff:
-			self.panel.ffff.send(addr, msg)
+	def sendapi(self, addr, msg=None):
+		self.panel.sendapi(addr, msg)
 
-	def sendlooper(self, addr, msg=None):
-		if self.panel.ffff:
-			self.panel.ffff.sendlooper(addr, msg)
-	
 class WindowsValue(NthValue):
 	
 	def __init__(self, panel):
 		NthValue.__init__(self, panel, default=1)
+		self.name = "Windows"
 		
 	def display(self):
 		return "%-2d" % self.getvalue()
@@ -81,9 +81,9 @@ class WindowsValue(NthValue):
 			# artificially freeze first window to avoid bug in loopycam
 			print "ARTIFICIAL FREEZE!"
 			self.panel.isalllive = False
-			self.ffff().sendlooper("record_on")
+			self.panel.sendapi(LOOPYAPI("record_on"))
 			sleep(0.1)
-			self.ffff().sendlooper("record_off")
+			self.panel.sendapi(LOOPYAPI("record_off"))
 			
 		if self.getvalue() < 8:
 			self.setvalue(self.getvalue() + 1)
@@ -99,7 +99,8 @@ class WindowsValue(NthValue):
 		self.pokeit()
 		
 	def pokeit(self):
-		self.send("/looper/setwindows", [self.getvalue()])
+		# print "SENDING SETWINDOWS API"
+		self.panel.sendapi(LOOPYAPI("setwindows"),"{\"numwindows\":"+str(self.getvalue())+"}")
 	
 class RandPosValue(NthValue):
 	
@@ -110,11 +111,11 @@ class RandPosValue(NthValue):
 		return "1/All"
 	
 	def inc(self):
-		self.sendlooper("randompositions")
+		self.sendapi(LOOPYAPI("randompositions"))
 		
 	def dec(self):
-		self.sendlooper("randomposition1")
-		self.sendlooper("nextloop")
+		self.sendapi(LOOPYAPI("randomposition1"))
+		self.sendapi(LOOPYAPI("nextloop"))
 	
 class RandPrePostValue(NthValue):
 	
@@ -154,19 +155,18 @@ class PlacementValue(NthValue):
 	
 	def inc(self):
 		self.setvalue("Full")
-		self.sendlooper("fulldisplay")
+		self.sendapi(LOOPYAPI("fulldisplay"))
 		
 	def dec(self):
 		self.setvalue("Quadrant")
-		self.sendlooper("quadrantdisplay")
+		self.sendapi(LOOPYAPI("quadrantdisplay"))
 	
 class OnOffValue(NthValue):
 	
-	def __init__(self, panel, name, api=None, osc=None, default="On"):
+	def __init__(self, panel, name, api=None, default="On"):
 		self.default = default
 		NthValue.__init__(self, panel, default=default)
 		self.name = name
-		self.osc = osc
 		self.api = api
 		
 	def display(self):
@@ -184,13 +184,13 @@ class OnOffValue(NthValue):
 		
 	def sendvalue(self):
 		v = self.getvalue()
-		print "OnOffValue sendvalue v=",v
+		# print "OnOffValue sendvalue v=",v," name=",self.name," api=",self.api
 		if v == "Off":
 			args = "{\"onoff\": 0}"
 		else:
 			args = "{\"onoff\": 1}"
 		if self.api:
-			self.panel.ffff.sendapi(self.api, args)
+			self.panel.sendosc(self.api, args)
 			
 	def toggle(self):
 		print "OnOffValue toggle getvalue=",self.getvalue()
@@ -201,18 +201,17 @@ class OnOffValue(NthValue):
 	
 class FloatValue(NthValue):
 	
-	def __init__(self, panel, name, osc=None, api=None, default=0.5, min=0.0, max=1.0, delta=0.05):
+	def __init__(self, panel, name, api=None, default=0.5, min=0.0, max=1.0, delta=0.05):
 		NthValue.__init__(self, panel, default=default)
 		self.min = min
 		self.delta = delta
 		self.max = max
 		self.name = name
-		self.osc = osc
-		self.api = api
 		if self.default > self.max:
 			self.default = self.max
 		if self.default > self.min:
 			self.default = self.min
+		self.api = api
 		
 	def display(self):
 		return "%.3f" % (self.getvalue())
@@ -235,18 +234,16 @@ class FloatValue(NthValue):
 		self.sendvalue()
 		
 	def sendvalue(self):
-		if self.osc:
-			self.send(self.osc, [self.getvalue()])
 		if self.api:
 			v = self.getvalue()
-			args = "{\"val\": "+v+"}"
-			self.panel.ffff.sendapi(self.api, args)
+			args = "{\"value\": "+str(v)+"}"
+			self.panel.sendosc(self.api, args)
 		
 class IntValue(FloatValue):
 	
-	def __init__(self, panel, name, osc=None, default=1, min=0, max=100, delta=1):
+	def __init__(self, panel, name, api=None, default=1, min=0, max=100, delta=1):
 		self.default = default
-		FloatValue.__init__(self, panel, name, osc=osc, default=default, min=min, max=max, delta=delta)
+		FloatValue.__init__(self, panel, name, api=api, default=default, min=min, max=max, delta=delta)
 		
 	def display(self):
 		return "%3d" % (self.getvalue())
@@ -267,13 +264,9 @@ class NumFfglValue(IntValue):
 	def __init__(self, panel):
 		IntValue.__init__(self, panel, "NumFfgl", min=1, max=3, delta=1, default=1)
 		
-class SmoothMoveValue(OnOffValue):
-	def __init__(self, panel):
-		OnOffValue.__init__(self, panel, "MvSmooth", osc="/looper/setsmooth")
-		
 class MoveAmountValue(IntValue):
 	def __init__(self, panel):
-		IntValue.__init__(self, panel, "MoveAmount", min=1, max=49, delta=3, default=10, osc="/looper/moveamount")
+		IntValue.__init__(self, panel, "MoveAmount", min=1, max=49, delta=3, default=10, api=LOOPYAPI("moveamount"))
 		
 class PrmSpdValue(IntValue):
 	def __init__(self, panel):
@@ -287,7 +280,7 @@ class PrmSpdValue(IntValue):
 		
 class PrmStpsValue(IntValue):
 	def __init__(self, panel):
-		IntValue.__init__(self, panel, "PrmStps", min=25, max=500, delta=25, default=200)
+		IntValue.__init__(self, panel, "PrmStps", min=0, max=100, delta=10, default=30)
 	def setvalue(self, v):
 		print "PrmStpsValue v=", v
 		self.realvalue = v
@@ -295,7 +288,7 @@ class PrmStpsValue(IntValue):
 		
 class TrailValue(FloatValue):
 	def __init__(self, panel):
-		FloatValue.__init__(self, panel, "Trail", api="ffff.trail", min=0.5, max=0.99, delta=0.02, default=0.75)
+		FloatValue.__init__(self, panel, "Trail", api=FFFFAPI("trail"), min=0.5, max=0.99, delta=0.02, default=0.75)
 		
 	def inc(self):
 		FloatValue.inc(self)
@@ -310,19 +303,24 @@ class TrailValue(FloatValue):
 			t.dec()
 
 	def sendvalue(self):
+		print "TrailValue sendvalue v=",self.getvalue()
 		v = self.getvalue()
 		print "TrailValue, v=",v
 		args = "{\"amount\": "+str(v)+"}"
-		self.panel.ffff.sendapi(self.api, args)
+		self.panel.sendapi(self.api, args)
 		
 		
 class TrailOnValue(OnOffValue):
 	def __init__(self, panel):
-		OnOffValue.__init__(self, panel, "TrailOn", api="ffff.dotrail", default="On")
+		OnOffValue.__init__(self, panel, "TrailOn", api=FFFFAPI("dotrail"), default="On")
+
+class MoveSmoothValue(OnOffValue):
+	def __init__(self, panel):
+		OnOffValue.__init__(self, panel, "MvSmooth", api=LOOPYAPI("movesmooth"))
 		
 class AllLiveValue(OnOffValue):
 	def __init__(self, panel):
-		OnOffValue.__init__(self, panel, "AllLive", api="Viz10LoopyCam.alllive", default="On")
+		OnOffValue.__init__(self, panel, "AllLive", api=LOOPYAPI("alllive"), default="On")
 		
 	def inc(self):
 		OnOffValue.inc(self)
@@ -334,11 +332,11 @@ class AllLiveValue(OnOffValue):
 		
 class RecBorderValue(OnOffValue):
 	def __init__(self, panel):
-		OnOffValue.__init__(self, panel, "RBorder", osc="/looper/recborder", default="Off")
+		OnOffValue.__init__(self, panel, "RBorder", api=LOOPYAPI("recborder"), default="Off")
 		
 class ResizeInterpValue(OnOffValue):
 	def __init__(self, panel):
-		OnOffValue.__init__(self, panel, "ResizeInterp", osc="/looper/setinterp", default="Off")
+		OnOffValue.__init__(self, panel, "ResizeInterp", api=LOOPYAPI("setinterp"), default="Off")
 		
 class RevAffectAllValue(OnOffValue):
 	def __init__(self, panel):
@@ -356,19 +354,23 @@ class ReverseValue(OnOffValue):
 		
 class BorderValue(OnOffValue):
 	def __init__(self, panel):
-		OnOffValue.__init__(self, panel, "Border", osc="/looper/border", default="Off")
+		OnOffValue.__init__(self, panel, "Border", api=LOOPYAPI("border"), default="Off")
 		
 class FlipHValue(OnOffValue):
 	def __init__(self, panel):
-		OnOffValue.__init__(self, panel, "FlipH", osc="/looper/fliph", default="On")
+		OnOffValue.__init__(self, panel, "FlipH", api=LOOPYAPI("fliph"), default="On")
 		
 class FlipVValue(OnOffValue):
 	def __init__(self, panel):
-		OnOffValue.__init__(self, panel, "FlipV", osc="/looper/flipv", default="Off")
+		OnOffValue.__init__(self, panel, "FlipV", api=LOOPYAPI("flipv"), default="Off")
+		
+class FPSValue(OnOffValue):
+	def __init__(self, panel):
+		OnOffValue.__init__(self, panel, "ShowFPS", api=FFFFAPI("fps"), default="Off")
 		
 class XorValue(OnOffValue):
 	def __init__(self, panel):
-		OnOffValue.__init__(self, panel, "Xor", osc="/looper/xor", default="On")
+		OnOffValue.__init__(self, panel, "Xor", api=LOOPYAPI("xor"), default="On")
 		
 class _GrabMouseValue(OnOffValue):
 	def __init__(self, panel):
@@ -384,11 +386,11 @@ class _GrabMouseValue(OnOffValue):
 		
 class AutoNextValue(OnOffValue):
 	def __init__(self, panel):
-		OnOffValue.__init__(self, panel, "AutoNxt", osc="/looper/autonext", default="On")
+		OnOffValue.__init__(self, panel, "AutoNxt", api=LOOPYAPI("autonext"), default="On")
 		
 class BlackoutValue(OnOffValue):
 	def __init__(self, panel):
-		OnOffValue.__init__(self, panel, "Blackout", osc="/looper/blackout", default="Off")
+		OnOffValue.__init__(self, panel, "Blackout", api=LOOPYAPI("blackout"), default="Off")
 		
 class PresetSetValue(NthValue):
 	
@@ -521,6 +523,7 @@ class PresetSaveValue(NthValue):
 	def savenew(self):
 		fname = self.panel.new_presetfile()
 		self.last_saved = fname
+		print "new fname=",fname
 		self.panel.write_preset(fname)
 		self.panel.value["PresetName"].reload_presetlist()
 		
@@ -540,10 +543,8 @@ class Actions():
 		self.panel.lcd_refresh()
 	def ffff(self):
 		return self.panel.ffff
-	def send(self, msg, args=None):
-		self.panel.ffff.send(msg, args)
-	def sendlooper(self, meth, args=None):
-		self.panel.ffff.sendlooper(meth, args)
+	def sendapi(self, msg, args=None):
+		self.panel.sendapi(msg, args)
 	def value(self, nm):
 		return self.panel.value[nm]
 	def keydown(self, key):
@@ -628,10 +629,10 @@ class RandomActions(Actions):
 		return [None, s,"/,* = Param,Preset", "-,+ = Pos1,PosAll"]
 	def keydown(self, key):
 		if key == "+":
-			self.sendlooper("randompositions")
+			self.sendapi(LOOPYAPI("randompositions"))
 		elif key == "-":
-			self.sendlooper("randomposition1")
-			self.sendlooper("nextloop")
+			self.sendapi(LOOPYAPI("randomposition1"))
+			self.sendapi(LOOPYAPI("nextloop"))
 		elif key == "/":
 			self.panel.set_all_random_params_of_all_plugins(0, 0)
 		elif key == "*":
@@ -666,11 +667,11 @@ class LayoutActions(Actions):
 		return [None, "#Windows=%d"%(w.getvalue()), "/,* = Quad,Full", "-,+ = Windows--,++"]
 	def keydown(self, key):
 		if key == "/":
-			self.sendlooper("quadrantdisplay")
+			self.sendapi(LOOPYAPI("quadrantdisplay"))
 			w = self.value("Windows")
 			w.setvalue(4)
 		elif key == "*":
-			self.sendlooper("fulldisplay")
+			self.sendapi(LOOPYAPI("fulldisplay"))
 			w = self.value("Windows")
 			w.setvalue(1)
 		elif key == "-":
@@ -719,15 +720,15 @@ class SpeedActions(Actions):
 		elif key == "-":
 			if doall:
 				for n in range(8):
-					self.send("/looper/playfactor", [n, 0.5])
+					self.sendapi(LOOPYAPI("playfactor"), [n, 0.5])
 			else:
-				self.send("/looper/playfactor", [r, 0.5])
+				self.sendapi(LOOPYAPI("playfactor"), [r, 0.5])
 		elif key == "+":
 			if doall:
 				for n in range(8):
-					self.send("/looper/playfactor", [n, 2.0])
+					self.sendapi(LOOPYAPI("playfactor"), [n, 2.0])
 			else:
-				self.send("/looper/playfactor", [r, 2.0])
+				self.sendapi(LOOPYAPI("playfactor"), [r, 2.0])
 			
 		self.lcd_refresh()
 		
@@ -749,23 +750,22 @@ class MovementActions(Actions):
 			m.toggle()
 		elif key == "*":
 			for n in range(8):
-				self.send("/looper/freeze", [n])
+				self.sendapi(LOOPYAPI("freeze"), "{\"loopnum\":"+str(n)+"}")
 		elif key == "+":
 			if rev.getvalue() == "On":
-				newv = 0
-				rev.setvalue("Off")
+				newv = "Off"
 			else:
-				newv = 1
-				rev.setvalue("On")
+				newv = "On"
+			rev.setvalue(newv)
 			if doall:
 				for n in range(8):
-					self.send("/looper/setreverse", [n, newv])
+					self.sendapi(LOOPYAPI("setreverse"), "{\"loopnum\":"+str(n)+",\"onoff\":\""+newv+"\"}")
 			else:
-				self.send("/looper/setreverse", [r, newv])
+				self.sendapi(LOOPYAPI("setreverse"), "{\"loopnum\":"+str(r)+",\"onoff\":\""+newv+"\"}")
 		elif key == "-":
 			for n in range(8):
-				self.send("/looper/playfactorreset", [n])
-				self.send("/looper/setreverse", [n, 0])
+				self.sendapi(LOOPYAPI("playfactorreset"), "{\"loopnum\":"+str(n)+"}")
+				self.sendapi(LOOPYAPI("setreverse"), "{\"loopnum\":"+str(n)+",\"onoff\":0}")
 			rev.setvalue("Off")
 			
 		self.lcd_refresh()
@@ -773,7 +773,7 @@ class MovementActions(Actions):
 	def keyup(self, key):
 		if key == "*":
 			for n in range(8):
-				self.send("/looper/unfreeze", [n])
+				self.sendapi(LOOPYAPI("unfreeze"), "{\"loopnum\":"+str(n)+"}")
 		
 class ResetActions(Actions):
 	def labels(self):
@@ -787,7 +787,7 @@ class ResetActions(Actions):
 		elif key == "+":
 			v = self.value("NumAll")
 			v.setvalue(0)
-			self.sendlooper("fulldisplay")
+			self.sendapi(LOOPYAPI("fulldisplay"))
 			w = self.value("Windows")
 			w.setvalue(1)
 			a1 = self.value("AllLive")
@@ -845,11 +845,11 @@ class RecordingActions(Actions):
 		return [None, s, "/,* = Live,Trail ", "-,+ = Rec,Overlay"]
 	def keydown(self, key):
 		if key == "-":
-			self.ffff().sendlooper("record_on")
+			self.ffff().sendapi(LOOPYAPI("record_on"))
 			self.recording = True
 			self.panel.isalllive = False
 		elif key == "+":
-			self.ffff().sendlooper("recordoverlay_on")
+			self.ffff().sendapi(LOOPYAPI("recordoverlay_on"))
 			self.recording = True
 			self.panel.isalllive = False
 		elif key == "/":
@@ -861,10 +861,10 @@ class RecordingActions(Actions):
 		self.lcd_refresh()
 	def keyup(self, key):
 		if key == "-":
-			self.ffff().sendlooper("record_off")
+			self.ffff().sendapi(LOOPYAPI("record_off"))
 			self.recording = False
 		elif key == "+":
-			self.ffff().sendlooper("recordoverlay_off")
+			self.ffff().sendapi(LOOPYAPI("recordoverlay_off"))
 			self.recording = False
 
 class NthControlPanel():
@@ -873,7 +873,6 @@ class NthControlPanel():
 
 		print "PANEL INIT start"
 		self.recording = False
-		self.lastpresetnum = 0
 		self.init_rand()
 		self.save_dir = "."
 		self.ffff = None
@@ -901,7 +900,8 @@ class NthControlPanel():
 		addvalue("Border", BorderValue(self))
 		addvalue("FlipH", FlipHValue(self))
 		addvalue("FlipV", FlipVValue(self))
-		addvalue("MoveSmooth", SmoothMoveValue(self))
+		addvalue("ShowFPS", FPSValue(self))
+		addvalue("MoveSmooth", MoveSmoothValue(self))
 		addvalue("MoveAmount", MoveAmountValue(self))
 		addvalue("NumAll", NumAllValue(self))
 		addvalue("NumFfgl", NumFfglValue(self))
@@ -1159,9 +1159,13 @@ class NthControlPanel():
 				plugin = self.ffff.get_ffgl(nm)
 				self.set_all_params( plugin, 1.0)
 
+
 	def write_preset(self, fname):
-		self.fff.write_preset(fname)
-		
+		self.ffff.write_preset(fname)
+
+	def new_presetfile(self):
+		return self.ffff.new_presetfile()
+
 	def load_preset(self):
 		set = self.get_value_named("PresetSet")
 		nm = self.get_value_named("PresetName")
@@ -1423,10 +1427,12 @@ class NthControlPanel():
 		else:
 			return 1
 
-	def send(self, addr, msg=None):
+	def sendapi(self, api, args=None):
 		if self.ffff:
-			self.ffff.send(addr, msg)
+			print "panel.sendapi api=",api," args=",args
+			self.ffff.sendapi(api, args)
 
-	def sendlooper(self, addr, msg=None):
+	def sendosc(self,api,args):
 		if self.ffff:
-			self.ffff.sendlooper(addr, msg)
+			print "panel.sendosc api=",api," args=",args
+			self.ffff.sendosc(api, args)

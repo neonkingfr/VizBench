@@ -134,11 +134,8 @@ def main():
 	httpport = 7777
 	rootdir = None 
 
-	print "SYS.ARGV len=", len(sys.argv)
 	argn = len(sys.argv)
-	if len(sys.argv) == 1:
-		print "NO arguments..."
-	else:
+	if len(sys.argv) > 1:
 		argn = 1
 		if sys.argv[argn] == "-d":
 			debug = True
@@ -182,6 +179,7 @@ def main():
 			ffff = Ffff("localhost",80)
 		except:
 			print "EXCEPT caught in creating Ffff! Exception=", format_exc()
+			sys.exit(1)
 		
 		# ffff.set_ui(ui)
 		ui.set_ffff(ffff)
@@ -193,6 +191,7 @@ def main():
 			ui.start()
 		except:
 			print "EXCEPT caught in ui.start Exception=", format_exc()
+			sys.exit(1)
 			
 		try:
 			ui.shutdown()
