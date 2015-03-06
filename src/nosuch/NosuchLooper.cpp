@@ -3,13 +3,13 @@
 #include "NosuchScheduler.h"
 
 NosuchLooper::NosuchLooper() {
-	DEBUGPRINT2(("NosuchLooper constructor"));
+	DEBUGPRINT(("NosuchLooper constructor"));
 	m_last_click = 0;
 	NosuchLockInit(&_looper_mutex,"looper");
 }
 
 NosuchLooper::~NosuchLooper() {
-	DEBUGPRINT2(("NosuchLooper destructor"));
+	DEBUGPRINT(("NosuchLooper destructor"));
 }
 
 std::string
@@ -39,7 +39,7 @@ NosuchLooper::AdvanceClickTo(click_t click, NosuchScheduler* sched) {
 	Lock();
 	int nclicks = click - m_last_click;
 	static int last_printed_click = 0;
-	if ( click >= (last_printed_click+10*sched->ClicksPerSecond) ) {
+	if ( click >= (last_printed_click+10*sched->m_ClicksPerSecond) ) {
 		DEBUGPRINT1(("NosuchLooper::AdvanceClickTo click=%d now=%d",click,Pt_Time()));
 		last_printed_click = click;
 	}
@@ -67,7 +67,7 @@ loopevent_compare (SchedEvent* first, SchedEvent* second)
 void
 NosuchLoop::SendMidiLoopOutput(MidiMsg* mm) {
 #if 0
-	_vizlet->SendMidiMsg();
+	m_vizlet->SendMidiMsg();
 	// _vizlet->scheduler()->SendMidiMsg(mm,id());
 	// noticeMidiOutput(mm,XXX);
 #endif

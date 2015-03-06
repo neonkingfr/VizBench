@@ -83,12 +83,12 @@ static VizServer* s_vizserver = NULL;
 // Such function are called by the plugMain function, the only function a plugin exposes.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void *getInfo() 
+void *FFGLgetInfo() 
 {
 	return (void *)(g_CurrPluginInfo->GetPluginInfo());
 }
 
-DWORD initialise()
+DWORD FFGLinitialise()
 {
 	if (g_CurrPluginInfo==NULL)
 		return FF_FAIL;
@@ -110,9 +110,9 @@ DWORD initialise()
 	return FF_SUCCESS; 
 }
 
-DWORD deInitialise()
+DWORD FFGLdeInitialise()
 {
-	DEBUGPRINT1(("deInitialise in FFGL.cpp called"));
+	DEBUGPRINT1(("FFGLdeInitialise in FFGL.cpp called"));
 	if (s_pPrototype != NULL) {
 		delete s_pPrototype;
 		s_pPrototype = NULL;
@@ -120,30 +120,30 @@ DWORD deInitialise()
 	return FF_SUCCESS;
 }
 
-DWORD getNumParameters() 
+DWORD FFGLgetNumParameters() 
 {
 	if (s_pPrototype == NULL) {
-		DWORD dwRet = initialise();
+		DWORD dwRet = FFGLinitialise();
 		if (dwRet == FF_FAIL) return FF_FAIL;
 	}
 
 	return (DWORD) s_pPrototype->GetNumParams();
 }
 							
-char* getParameterName(DWORD index)
+char* FFGLgetParameterName(DWORD index)
 {
 	if (s_pPrototype == NULL) {
-		DWORD dwRet = initialise();
+		DWORD dwRet = FFGLinitialise();
 		if (dwRet == FF_FAIL) return NULL;
 	}
 	
 	return s_pPrototype->GetParamName(index);
 }
 
-DWORD getParameterDefault(DWORD index)
+DWORD FFGLgetParameterDefault(DWORD index)
 {
 	if (s_pPrototype == NULL) {
-		DWORD dwRet = initialise();
+		DWORD dwRet = FFGLinitialise();
 		if (dwRet == FF_FAIL) return FF_FAIL;
 	}
 
@@ -156,13 +156,13 @@ DWORD getParameterDefault(DWORD index)
 	}
 }
 
-DWORD getPluginCaps(DWORD index)
+DWORD FFGLgetPluginCaps(DWORD index)
 {
 	int MinInputs = -1;
 	int MaxInputs = -1;
 
 	if (s_pPrototype == NULL) {
-		DWORD dwRet = initialise();
+		DWORD dwRet = FFGLinitialise();
 		if (dwRet == FF_FAIL) return FF_FAIL;
 	}
 
@@ -209,15 +209,15 @@ DWORD getPluginCaps(DWORD index)
 	return FF_FAIL;
 }
 
-void *getExtendedInfo()
+void *FFGLgetExtendedInfo()
 {
 	return (void *)(g_CurrPluginInfo->GetPluginExtendedInfo());
 }
 
-DWORD getParameterType(DWORD index)
+DWORD FFGLgetParameterType(DWORD index)
 {
 	if (s_pPrototype == NULL) {
-		DWORD dwRet = initialise();
+		DWORD dwRet = FFGLinitialise();
 		if (dwRet == FF_FAIL) return FF_FAIL;
 	}
 	
@@ -231,7 +231,7 @@ DWORD instantiateGL(const FFGLViewportStruct *pGLViewport)
 
 	// If the plugin is not initialized, initialize it
 	if (s_pPrototype == NULL) {
-		DWORD dwRet = initialise();
+		DWORD dwRet = FFGLinitialise();
 		if ((dwRet == FF_FAIL) || (s_pPrototype == NULL))
 			return FF_FAIL;
 	}
@@ -286,7 +286,7 @@ DWORD instantiateGL(const FFGLViewportStruct *pGLViewport)
 
 DWORD deInstantiateGL(void *instanceID)
 {
-	DEBUGPRINT(("deInstantiateGL in FFGL.cpp called"));
+	DEBUGPRINT1(("deInstantiateGL in FFGL.cpp called"));
 	CFreeFrameGLPlugin *p = (CFreeFrameGLPlugin *)instanceID;
 
 	if (p != NULL) {
@@ -330,39 +330,39 @@ plugMainUnion plugMain(DWORD functionCode, DWORD inputValue, DWORD instanceID)
  switch (functionCode) {
 
 	case FF_GETINFO:
-		retval.PISvalue = (PluginInfoStruct*)getInfo();
+		retval.PISvalue = (PluginInfoStruct*)FFGLgetInfo();
 		break;
 
 	case FF_INITIALISE:
-		retval.ivalue = initialise();
+		retval.ivalue = FFGLinitialise();
 		break;
 
 	case FF_DEINITIALISE:
-		retval.ivalue = deInitialise();	
+		retval.ivalue = FFGLdeInitialise();	
 		break;
 
 	case FF_GETNUMPARAMETERS:
-		retval.ivalue = getNumParameters();
+		retval.ivalue = FFGLgetNumParameters();
 		break;
 
 	case FF_GETPARAMETERNAME:
-		retval.svalue = getParameterName(inputValue);
+		retval.svalue = FFGLgetParameterName(inputValue);
 		break;
 	
 	case FF_GETPARAMETERDEFAULT:
-		retval.ivalue = getParameterDefault(inputValue);
+		retval.ivalue = FFGLgetParameterDefault(inputValue);
 		break;
 
 	case FF_GETPLUGINCAPS:
-		retval.ivalue = getPluginCaps(inputValue);
+		retval.ivalue = FFGLgetPluginCaps(inputValue);
 		break;
 
 	case FF_GETEXTENDEDINFO: 
-		retval.ivalue = (DWORD) getExtendedInfo();
+		retval.ivalue = (DWORD) FFGLgetExtendedInfo();
 		break;
 
 	case FF_GETPARAMETERTYPE:		
-		retval.ivalue = getParameterType(inputValue);
+		retval.ivalue = FFGLgetParameterType(inputValue);
 		break;
 
 	case FF_GETPARAMETERDISPLAY:

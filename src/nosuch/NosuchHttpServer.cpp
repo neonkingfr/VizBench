@@ -208,7 +208,7 @@ NosuchSocketConnection::CollectHttpHeader(std::string line) {
 		}
 	}
 	else if (name == "sec-websocket-key") {
-		_websocket_key = value;
+		m_websocket_key = value;
 	}
 	else if (name == "sec-websocket-version") {
 		int version = atoi(value.c_str());
@@ -238,9 +238,9 @@ NosuchHttpServer::Check()
 	int checkcount = 0;
 	bool keepgoing = true;
 
-	while (checkcount < 5 && keepgoing) {
+	while (checkcount < 10 && keepgoing) {
 		checkcount++;
-		keepgoing = false;
+		// keepgoing = false;
 		if (recvMem) {
 			DEBUGPRINT1(("Before ProcessEvents, recvMem=%ld", (long)recvMem));
 		}
@@ -348,6 +348,7 @@ static void makeresult(std::string ctype, std::string data, char*& memblock, siz
 	size_t datasize = data.size();
 	memsize = headersize + datasize;
 	memblock = new char[memsize];
+	// DEBUGPRINT(("---- MALLOC memblock = %ld",(long)memblock));
 	memcpy(memblock, header.c_str(), headersize);
 	memcpy(memblock + headersize, data.c_str(), datasize);
 }
@@ -419,6 +420,7 @@ NosuchHttpServer::RespondToGetOrPost(NosuchSocketConnection *conn) {
 		size_t headersize = header.size();
 		memsize = headersize + filesize;
 		memblock = new char[memsize];
+		DEBUGPRINT(("---- MALLOC memblock b = %ld",(long)memblock));
 		memcpy(memblock, header.c_str(), headersize);
 		f.seekg(0, std::ios::beg);
 		f.read(memblock + headersize, memsize);
@@ -501,6 +503,7 @@ NosuchHttpServer::RespondToGetOrPost(NosuchSocketConnection *conn) {
 sendmemblock:
 	if (memblock) {
 		conn->parent->SendTo(conn->h_Socket, memblock, (DWORD)memsize);
+		// DEBUGPRINT(("---- DELETE memblock = %ld",(long)memblock));
 		delete[] memblock;
 	}
 }
@@ -513,7 +516,7 @@ NosuchHttpServer::CloseWebSocket(NosuchSocketConnection* conn) {
 void
 NosuchHttpServer::InitializeWebSocket(NosuchSocketConnection* conn) {
 	std::string magic = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-	std::string key_plus_magic = conn->_websocket_key + magic;
+	std::string key_plus_magic = conn->m_websocket_key + magic;
 
 	SHA1_CTX context;
 	uint8_t digest[20];

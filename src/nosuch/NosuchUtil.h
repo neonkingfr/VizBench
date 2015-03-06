@@ -120,6 +120,7 @@ std::vector<std::string> NosuchSplitOnAnyChar(std::string s, std::string sepchar
 std::vector<std::string> NosuchSplitOnString(const std::string& s, const std::string& delim, const bool keep_empty = false);
 std::string NosuchToLower(std::string s);
 std::string NosuchToUpper(std::string s);
+bool NosuchEndsWith(std::string s, std::string suff);
 
 char *base64_encode(const uint8_t *data, size_t input_length);
 

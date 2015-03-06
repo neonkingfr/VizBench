@@ -106,8 +106,8 @@ public:
 	VizCursor(VizServer* ss, int sid_, std::string source_,
 		NosuchPos pos_, double area_, OutlineMem* om_, MMTT_SharedMemHeader* hdr_);
 
-	void touch(int millinow) {
-		last_touched = millinow;
+	void touch(double tm) {
+		last_touched = tm;
 	}
 	bool matches(CursorFilter cf) {
 		return (sid >= cf.sidmin && sid <= cf.sidmax);
@@ -118,14 +118,14 @@ public:
 	void setdepth(double d) {
 		pos.z = d;
 	}
-	double target_depth() { return _target_depth; }
-	void set_target_depth(double d) { _target_depth = d; }
+	double target_depth() { return m_target_depth; }
+	void set_target_depth(double d) { m_target_depth = d; }
 
 	NosuchPos previous_musicpos() { return _previous_musicpos; }
-	double last_depth() { return _last_depth; }
+	double last_depth() { return m_last_depth; }
 	void set_previous_musicpos(NosuchPos p) { _previous_musicpos = p; }
-	void set_last_depth(double f) { _last_depth = f; }
-	void advanceTo(int tm);
+	void set_last_depth(double f) { m_last_depth = f; }
+	void advanceTo(double tm);
 
 	double radian2degree(double r) {
 		return r * 360.0 / (2.0 * (double)M_PI);
@@ -157,8 +157,8 @@ public:
 	// members
 	NosuchPos pos;
 	NosuchPos target_pos;
-	VizServer* _vizserver;
-	int last_touched;
+	VizServer* m_vizserver;
+	double last_touched;
 	int sid;
 	std::string source;
 	double area;
@@ -170,17 +170,17 @@ public:
 	double curr_degrees;
 
 private:
-	double _target_depth;
-	double _last_depth;
+	double m_target_depth;
+	double m_last_depth;
 	std::vector<int> m_last_pitches;
 	int m_last_channel;
 	int m_last_click;
 	NosuchPos _previous_musicpos;
-	int m_last_tm;
-	NosuchPos _last_pos;
-	double _target_degrees;
-	bool _g_firstdir;
-	double _smooth_degrees_factor;
+	double m_last_tm;
+	NosuchPos m_last_pos;
+	double m_target_degrees;
+	bool m_g_firstdir;
+	double m_smooth_degrees_factor;
 
 };
 
@@ -190,15 +190,17 @@ public:
 	static void DeleteServer();
 
 	// Some utilities
-	int MilliNow();
-	click_t CurrentClick();
+	int SchedulerTimestamp();
+	click_t SchedulerCurrentClick();
+	void SetTime(double tm);
+	double GetTime();
 
 	bool Start();
 	void Stop();
 
 	const char *VizTags();
 	void ChangeVizTag(void* handle, const char* newtag);
-	void AdvanceCursorTo(VizCursor* c, int tm);
+	void AdvanceCursorTo(VizCursor* c, double tm);
 
 	void AddJsonCallback(void* handle, ApiFilter af, jsoncallback_t cb, void* data);
 	void AddMidiInputCallback(void* handle, MidiFilter mf, midicallback_t cb, void* data);
@@ -267,7 +269,7 @@ public:
 		NosuchUnlock(&_cursors_mutex,"cursors");
 	}
 
-	int FrameSeq() { return m_frameseq; }
+	int MmttSeqNum() { return m_mmtt_seqnum; }
 
 private:
 	
@@ -311,8 +313,10 @@ private:
 
 	bool m_started;
 
+	bool m_debugApi;
+
 	UT_SharedMem* m_sharedmem_outlines;
-	long _sharedmem_last_attempt;
+	long m_sharedmem_last_attempt;
 
 	// These things are pulled from the config file
 	const char* m_midi_input_list;
@@ -329,12 +333,13 @@ private:
 	const char * m_osc_input_host;
 
 	int m_maxcallbacks;
-	int m_frameseq;
+	int m_mmtt_seqnum;
+	double m_time;
 
 	pthread_mutex_t _cursors_mutex;
 	std::list<VizCursor*>* m_cursors;
 
-	int _httpport;
+	int m_httpport;
 	const char* m_htmlpath;
 	NosuchDaemon* m_daemon;
 
@@ -346,7 +351,7 @@ private:
 	VizServerCursorProcessor* m_cursorprocessor;
 	VizServerKeystrokeProcessor* m_keystrokeprocessor;
 	NosuchScheduler* m_scheduler;
-	NosuchClickListener* _clickprocessor;
+	NosuchClickListener* m_clickprocessor;
 
 };
 

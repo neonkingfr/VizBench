@@ -1,12 +1,14 @@
 #include "NosuchUtil.h"
 #include "NosuchException.h"
+#include "NosuchJson.h"
 
+#include <ffffutil.h>
 #include "FFGLPlugin.h"
 
 #include <stdio.h>
 
 FFGLPluginDef:: FFGLPluginDef()
-    :m_ffPluginMain(NULL),
+    :m_mainfunc(NULL),
 	 m_paramdefs(NULL),
 	 name("NULL"),
      m_numparams(0)
@@ -15,8 +17,8 @@ FFGLPluginDef:: FFGLPluginDef()
 
 FFGLPluginDef::~FFGLPluginDef()
 {
-    if (m_ffPluginMain!=NULL) {
-        DEBUGPRINT(("FFGLPluginDef deleted with m_ffPluginMain != NULL?"));
+    if (m_mainfunc!=NULL) {
+        DEBUGPRINT(("FFGLPluginDef deleted with m_mainfunc != NULL?"));
     }
 }
 
@@ -63,11 +65,11 @@ FFGLPluginDef::getParamNum(std::string pnm) {
 }
 
 FFGLPluginInstance::FFGLPluginInstance(FFGLPluginDef* d, std::string nm) :
-	m_plugindef(d), next(NULL), m_params(NULL), _name(nm), _enabled(false),
-	m_ffInstanceID(INVALIDINSTANCE) {
+	m_plugindef(d), m_params(NULL), m_name(nm), m_enabled(false),
+	m_instanceid(INVALIDINSTANCE) {
 
-	NosuchAssert ( d->m_ffPluginMain );
-	m_main = d->m_ffPluginMain;
+	NosuchAssert ( d->m_mainfunc );
+	m_main = d->m_mainfunc;
 }
 
 bool FFGLPluginInstance::setparam(std::string pnm, float v)
@@ -105,6 +107,25 @@ float FFGLPluginInstance::getparam(std::string pnm)
 	return 0.0;
 }
 
+std::string FFGLPluginInstance::getParamJsonResult(FFGLParameterDef* pd, FFGLPluginInstance* pi, const char* id)
+{
+	std::string s = pi->GetParameterDisplay(pd->num);
+	float v;
+	switch (pd->type){
+	case FF_TYPE_TEXT:
+		return jsonStringResult(s, id);
+		break;
+	case FF_TYPE_BOOLEAN:
+		v = pi->GetBoolParameter(pd->num);
+		return jsonDoubleResult(v, id);
+	case FF_TYPE_STANDARD:
+	default:
+		v = pi->GetFloatParameter(pd->num);
+		return jsonDoubleResult(v, id);
+	}
+	throw NosuchException("UNIMPLEMENTED parameter type (%d) in get API!", pd->type);
+}
+
 void FFGLPluginInstance::SetFloatParameter(int paramNum, float value)
 {
     //make sure its a float parameter type
@@ -120,7 +141,7 @@ void FFGLPluginInstance::SetFloatParameter(int paramNum, float value)
         ArgStruct.u.NewFloatValue = value;
 		// ArgStruct.NewParameterValue = (DWORD)value;
 
-        m_main(FF_SETPARAMETER,(DWORD)(&ArgStruct), m_ffInstanceID);
+        m_main(FF_SETPARAMETER,(DWORD)(&ArgStruct), m_instanceid);
     } else {
 		DEBUGPRINT(("HEY! SetFloatParameter called on TEXT parameter (paramnum=%d)",paramNum));
 	}
@@ -134,14 +155,14 @@ void FFGLPluginInstance::SetStringParameter(int paramNum, std::string value)
         SetParameterStruct ArgStruct;
         ArgStruct.ParameterNumber = paramNum;
         ArgStruct.u.NewTextValue = value.c_str();
-        m_main(FF_SETPARAMETER,(DWORD)(&ArgStruct), m_ffInstanceID);
+        m_main(FF_SETPARAMETER,(DWORD)(&ArgStruct), m_instanceid);
     } else {
 		DEBUGPRINT(("HEY! SetStringParameter called on non-TEXT parameter (paramnum=%d)",paramNum));
 	}
 }
 
 void FFGLPluginInstance::SetTime(double curTime) {
-    m_main(FF_SETTIME, (DWORD)(&curTime), m_ffInstanceID);
+    m_main(FF_SETTIME, (DWORD)(&curTime), m_instanceid);
 }
 
 float FFGLPluginInstance::GetFloatParameter(int paramNum) {
@@ -149,7 +170,7 @@ float FFGLPluginInstance::GetFloatParameter(int paramNum) {
     DWORD ffParameterType = m_main(FF_GETPARAMETERTYPE,(DWORD)paramNum,0).ivalue;
     if (ffParameterType!=FF_TYPE_TEXT)
     {
-        plugMainUnion result = m_main(FF_GETPARAMETER,(DWORD)paramNum, m_ffInstanceID);
+        plugMainUnion result = m_main(FF_GETPARAMETER,(DWORD)paramNum, m_instanceid);
 
         //make sure the call to get the parameter succeeded before
         //reading the float value
@@ -166,7 +187,7 @@ bool FFGLPluginInstance::GetBoolParameter(int paramNum) {
     DWORD ffParameterType = m_main(FF_GETPARAMETERTYPE,(DWORD)paramNum,0).ivalue;
     if (ffParameterType==FF_TYPE_BOOLEAN)
     {
-        plugMainUnion r = m_main(FF_GETPARAMETER,(DWORD)paramNum, m_ffInstanceID);
+        plugMainUnion r = m_main(FF_GETPARAMETER,(DWORD)paramNum, m_instanceid);
 
         //make sure the call to get the parameter succeeded before
         //reading the float value
@@ -183,7 +204,7 @@ bool FFGLPluginInstance::GetBoolParameter(int paramNum) {
 
 std::string FFGLPluginInstance::GetParameterDisplay(int paramNum)
 {
-    plugMainUnion r = m_main(FF_GETPARAMETERDISPLAY,(DWORD)paramNum,m_ffInstanceID);
+    plugMainUnion r = m_main(FF_GETPARAMETERDISPLAY,(DWORD)paramNum,m_instanceid);
     char nm[17];
     memcpy(nm,r.svalue,16);
     nm[16] = 0;
@@ -200,7 +221,7 @@ DWORD FFGLPluginInstance::CallProcessOpenGL(ProcessOpenGLStructTag &t)
 
     try
     {
-        retVal = m_main(FF_PROCESSOPENGL, (DWORD)&t, m_ffInstanceID).ivalue;
+        retVal = m_main(FF_PROCESSOPENGL, (DWORD)&t, m_instanceid).ivalue;
     }
     catch (...)
     {
@@ -215,24 +236,25 @@ DWORD FFGLPluginDef::InitPluginLibrary()
 {
     DWORD rval = FF_FAIL;
 
-    if (m_ffPluginMain==NULL) {
-		DEBUGPRINT(("HEY!  m_ffPluginMain is NULL in InitPluginLibrary!?"));
+    if (m_mainfunc==NULL) {
+		DEBUGPRINT(("HEY!  m_mainfunc is NULL in InitPluginLibrary!?"));
         return rval;
 	}
 
     //initialize the plugin
-    rval = m_ffPluginMain(FF_INITIALISE,0,0).ivalue;
+    rval = m_mainfunc(FF_INITIALISE,0,0).ivalue;
     if (rval!=FF_SUCCESS)
         return rval;
 
     //get the parameter names
-    m_numparams = (int)m_ffPluginMain(FF_GETNUMPARAMETERS, 0, 0).ivalue;
+    m_numparams = (int)m_mainfunc(FF_GETNUMPARAMETERS, 0, 0).ivalue;
 
     m_paramdefs = new FFGLParameterDef[m_numparams];
+	// DEBUGPRINT(("----- MALLOC new FFGLParameterDef"));
     int n;
     for (n=0; n<m_numparams; n++) {
 
-        plugMainUnion u = m_ffPluginMain(FF_GETPARAMETERNAME,(DWORD)n,0);
+        plugMainUnion u = m_mainfunc(FF_GETPARAMETERNAME,(DWORD)n,0);
 
         if (u.ivalue!=FF_FAIL && u.svalue!=NULL) {
             //create a temporary copy as a cstring w/null termination
@@ -255,9 +277,9 @@ DWORD FFGLPluginDef::InitPluginLibrary()
 
             FFGLParameterDef* p;
             p = SetParameterName(n, newParamName);
-            u = m_ffPluginMain(FF_GETPARAMETERTYPE,(DWORD)n,0);
+            u = m_mainfunc(FF_GETPARAMETERTYPE,(DWORD)n,0);
             p->type = u.ivalue;
-	        u = m_ffPluginMain(FF_GETPARAMETERDEFAULT,(DWORD)n,0);
+	        u = m_mainfunc(FF_GETPARAMETERDEFAULT,(DWORD)n,0);
             if ( p->type != FF_TYPE_TEXT ) {
                 p->default_float_val = u.fvalue;
 	            DEBUGPRINT1(("Float Parameter n=%d s=%s type=%d default=%lf\n",
@@ -279,17 +301,17 @@ DWORD FFGLPluginDef::InitPluginLibrary()
 
 DWORD FFGLPluginInstance::InstantiateGL(const FFGLViewportStruct *viewport)
 {
-    if (m_ffInstanceID!=INVALIDINSTANCE) {
+    if (m_instanceid!=INVALIDINSTANCE) {
 		DEBUGPRINT(("HEY!  InstantiateGL called when already instantiated!?"));
         //already instantiated
         return FF_SUCCESS;
     }
 
     //instantiate 1 of the plugins
-    m_ffInstanceID = m_main(FF_INSTANTIATEGL, (DWORD)viewport, 0).ivalue;
+    m_instanceid = m_main(FF_INSTANTIATEGL, (DWORD)viewport, 0).ivalue;
 
     //if it instantiated ok, return success
-    if (m_ffInstanceID==INVALIDINSTANCE)
+    if (m_instanceid==INVALIDINSTANCE)
         return FF_FAIL;
 
     //make default param assignments
@@ -312,8 +334,7 @@ DWORD FFGLPluginInstance::InstantiateGL(const FFGLViewportStruct *viewport)
 
 DWORD FFGLPluginInstance::DeInstantiateGL()
 {
-    if (m_ffInstanceID==INVALIDINSTANCE) {
-        //already deleted
+    if (m_instanceid==INVALIDINSTANCE) {
 		DEBUGPRINT(("Hey!  DeInstantiateGL called when already deleted!?"));
         return FF_SUCCESS;
     }
@@ -321,19 +342,19 @@ DWORD FFGLPluginInstance::DeInstantiateGL()
     DWORD rval = FF_FAIL;
 
     try {
-        rval = m_main(FF_DEINSTANTIATEGL, 0, (DWORD)m_ffInstanceID).ivalue;
+        rval = m_main(FF_DEINSTANTIATEGL, 0, (DWORD)m_instanceid).ivalue;
     }
     catch (...) {
         DEBUGPRINT(("FreeFrame Exception on DEINSTANTIATE"));
     }
 
-    m_ffInstanceID = INVALIDINSTANCE;
+    m_instanceid = INVALIDINSTANCE;
     return rval;
 }
 
 const PluginInfoStruct *FFGLPluginDef::GetInfo() const
 {
-    plugMainUnion u = m_ffPluginMain(FF_GETINFO, 0, 0);
+    plugMainUnion u = m_mainfunc(FF_GETINFO, 0, 0);
     return(u.PISvalue);
 }
 
@@ -353,13 +374,87 @@ DWORD FFGLPluginDef::DeinitPluginLibrary()
 {
     DWORD rval = FF_FAIL;
 
-    if (m_ffPluginMain!=NULL) {
-        rval = m_ffPluginMain(FF_DEINITIALISE,0,0).ivalue;
+    if (m_mainfunc!=NULL) {
+        rval = m_mainfunc(FF_DEINITIALISE,0,0).ivalue;
         if (rval != FF_SUCCESS) {
             DEBUGPRINT(("FreeFrame DeInit failed"));
         }
-        m_ffPluginMain=NULL;
+        m_mainfunc=NULL;
     }
 
     return rval;
+}
+
+const char *ffglplugin_fname(const char *fn)
+{
+	static char fname[256];
+	sprintf_s(fname, sizeof(fname), "ffglplugins/%s", fn);
+	return fname;
+}
+
+void loadffglplugindef(std::string ffgldir, std::string dllnm)
+{
+	FFGLPluginDef *plugin = FFGLPluginDef::NewPluginDef();
+	std::string dll_fname = ffgldir + "/" + dllnm;
+
+	const char *dll = dll_fname.c_str();
+	if (plugin->Load(dll) == FF_FAIL) {
+		DEBUGPRINT(("Unable to load %s\n", dll));
+	}
+	else {
+		plugin->m_dll = dllnm;
+		plugin->name = plugin->GetPluginName();
+		DEBUGPRINT(("Loaded FFGL plugin file=%s name=%s", dll, plugin->name.c_str()));
+		ffglplugindefs[nffglplugindefs] = plugin;
+		nffglplugindefs++;
+	}
+	return;
+}
+
+void loadffgldir(std::string ffgldir)
+{
+	WIN32_FIND_DATA ffd;
+	LARGE_INTEGER filesize;
+
+	HANDLE hFind = INVALID_HANDLE_VALUE;
+	DWORD dwError = 0;
+	int nfound = 0;
+
+	std::string pathexpr = ffgldir + "\\*";
+	std::wstring wpath = s2ws(pathexpr);
+
+	hFind = FindFirstFile(pathexpr.c_str(), &ffd);
+
+	if (INVALID_HANDLE_VALUE == hFind)
+	{
+		return;
+	}
+	do {
+		if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+			filesize.LowPart = ffd.nFileSizeLow;
+			filesize.HighPart = ffd.nFileSizeHigh;
+
+			// std::wstring wcfname = ffd.cFileName;
+			// std::string cfname = NosuchToLower(ws2s(wcfname));
+			std::string cfname = NosuchToLower(ffd.cFileName);
+
+			if (NosuchEndsWith(cfname, ".dll")) {
+				loadffglplugindef(ffgldir, cfname.c_str());
+			}
+		}
+	} while (FindNextFile(hFind, &ffd) != 0);
+
+	dwError = GetLastError();
+	if (dwError != ERROR_NO_MORE_FILES) {
+		DEBUGPRINT(("loadffgldir, dwError=%ld", dwError));
+	}
+
+	FindClose(hFind);
+}
+
+void loadffglpath(std::string path) {
+	std::vector<std::string> dirs = NosuchSplitOnString(path, ";");
+	for (size_t i = 0; i<dirs.size(); i++) {
+		loadffgldir(VizPath(dirs[i]));
+	}
 }

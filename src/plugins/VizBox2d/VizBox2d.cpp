@@ -122,7 +122,7 @@ void VizBox2d::processKeystroke(int key, int downup) {
 	if ( key == 266 || key == 65 ) {
 		// Snapshot current VizSpriteOutlines
 		int noutlines = 0;
-		int newest_frameseq = -1;
+		int newest_framenum = -1;
 		// We assume the sprite list is sorted with most recent ones at the beginning
 		VizSpriteList* sl = GetVizSpriteList();
 		sl->lock_read();
@@ -131,18 +131,18 @@ void VizBox2d::processKeystroke(int key, int downup) {
 			NosuchAssert(s);
 			VizSpriteOutline* so = (VizSpriteOutline*)s;
 			if ( so ) {
-				if ( newest_frameseq < 0 ) {
-					newest_frameseq = so->m_frame;
+				if ( newest_framenum < 0 ) {
+					newest_framenum = so->m_framenum;
 				}
-				if ( so->m_frame != newest_frameseq ) {
+				if ( so->m_framenum != newest_framenum ) {
 					break;
 				}
 				noutlines++;
-				DEBUGPRINT(("Should be snapshotting outine at %.4f,%.4f with npoints=%d frame=%d",so->m_state.pos.x,so->m_state.pos.y,so->Npoints(),so->m_frame));
+				DEBUGPRINT(("Should be snapshotting outine at %.4f,%.4f with npoints=%d frame=%d",so->m_state.pos.x,so->m_state.pos.y,so->Npoints(),so->m_framenum));
 				OutlineToBody(so);
 			}
 		}
-		DEBUGPRINT(("Should be snapshotting %d outines, frameseq=%d",noutlines,FrameSeq()));
+		DEBUGPRINT(("Should be snapshotting %d outines, framenum=%d",noutlines,FrameNum()));
 		sl->unlock();
 	}
 	if ( key == 70 || key == 71 ) {   // 'f' or 'g'

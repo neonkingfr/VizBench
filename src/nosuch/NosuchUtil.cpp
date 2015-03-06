@@ -473,6 +473,14 @@ std::string NosuchToUpper(std::string s) {
 	return r;
 }
 
+bool
+NosuchEndsWith(std::string s, std::string suff)
+{
+	unsigned int nchars = suff.size();
+	std::string suffix = (s.size()>nchars) ? s.substr(s.size() - nchars).c_str() : "";
+	return suff == suffix;
+}
+
 void NosuchLockInit(pthread_mutex_t* mutex, char *tag) {
 
 	*mutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER;

@@ -127,19 +127,19 @@ public:
 	NosuchScheduler() {
 		DEBUGPRINT1(("NosuchScheduler CONSTRUCTED!!, count=%d",SchedulerCount++));
 		m_running = false;
-		clicknow = 0;
-		SetMilliNow(0);
+		m_currentclick = 0;
+		m_timestamp = 0;
 
 #ifdef NOWPLAYING
-		_nowplaying_note.clear();
-		// _nowplaying_controller.clear();
+		m_nowplaying_note.clear();
+		// m_nowplaying_controller.clear();
 #endif
 
 		SetClicksPerSecond(192);
 
 		m_clicks_per_clock = 4;
-		NosuchLockInit(&_scheduled_mutex,"scheduled");
-		NosuchLockInit(&_notesdown_mutex,"notesdown");
+		NosuchLockInit(&m_scheduled_mutex,"scheduled");
+		NosuchLockInit(&m_notesdown_mutex,"notesdown");
 		m_midioutput_client = NULL;
 
 		m_midi_input_stream = std::vector<PmStream*>();
@@ -226,19 +226,14 @@ public:
 	void ANO(PmStream* ps, int ch = -1);
 	void setPeriodicANO(bool b) { m_periodic_ANO = b; }
 
-	static int m_MilliNow;
-	static int ClicksPerSecond;
-	static double ClicksPerMillisecond;
-	static int LastTimeStamp;
-	static int millitime0;
-	static click_t clicknow;
+	static int m_timestamp;
+	static int m_ClicksPerSecond;
+	static double m_ClicksPerMillisecond;
+	static int m_LastTimeStamp;
+	static int m_timestamp0;
+	static click_t m_currentclick;
 
-	void SetMilliNow(int tm) {
-		m_MilliNow = tm;
-	}
-	click_t CurrentClick() { return clicknow; }
-
-	// PmStream *midi_input(int n) { return _midi_input[n]; }
+	click_t CurrentClick() { return m_currentclick; }
 
 	std::list<MidiMsg*>& NotesDown() {
 		return m_notesdown;
@@ -250,8 +245,8 @@ public:
 		UnlockNotesDown();
 	}
 
-	void LockNotesDown() { NosuchLock(&_notesdown_mutex,"notesdown"); }
-	void UnlockNotesDown() { NosuchUnlock(&_notesdown_mutex,"notesdown"); }
+	void LockNotesDown() { NosuchLock(&m_notesdown_mutex,"notesdown"); }
+	void UnlockNotesDown() { NosuchUnlock(&m_notesdown_mutex,"notesdown"); }
 
 private:
 
@@ -261,9 +256,9 @@ private:
 	void _maintainNotesDown(MidiMsg* m);
 	std::list<MidiMsg*> m_notesdown;
 
-	int TryLockScheduled() { return NosuchTryLock(&_scheduled_mutex,"sched"); }
-	void LockScheduled() { NosuchLock(&_scheduled_mutex,"sched"); }
-	void UnlockScheduled() { NosuchUnlock(&_scheduled_mutex,"sched"); }
+	int TryLockScheduled() { return NosuchTryLock(&m_scheduled_mutex,"sched"); }
+	void LockScheduled() { NosuchLock(&m_scheduled_mutex,"sched"); }
+	void UnlockScheduled() { NosuchUnlock(&m_scheduled_mutex,"sched"); }
 
 	void _addQueueToScheduled();
 
@@ -281,17 +276,17 @@ private:
 	// This is a mapping of session id (either TUIO session id or Looping id)
 	// to whatever MIDI message (i.e. notes) are currently active (and need a
 	// noteoff if we change).
-	std::map<int,MidiMsg*> _nowplaying_note;
+	std::map<int,MidiMsg*> m_nowplaying_note;
 
 	// This is a mapping of session id (either TUIO session id or Looping id)
 	// to whatever the last MIDI controllers were.  The
 	// map inside the map is a mapping of controller numbers
 	// to the messages.
-	std::map<int,std::map<int,MidiMsg*>> _nowplaying_controller;
+	std::map<int,std::map<int,MidiMsg*>> m_nowplaying_controller;
 
 	// This is a mapping of session id (either TUIO session id or Looping id)
 	// to whatever the last pitchbend was.
-	std::map<int,MidiMsg*> _nowplaying_pitchbend;
+	std::map<int,MidiMsg*> m_nowplaying_pitchbend;
 #endif
 
 	std::vector<PmStream *> m_midi_input_stream;
@@ -307,8 +302,8 @@ private:
 	NosuchMidiListener*	m_midioutput_client;
 	NosuchMidiListener*	m_midiinput_client;
 
-	pthread_mutex_t _scheduled_mutex;
-	pthread_mutex_t _notesdown_mutex;
+	pthread_mutex_t m_scheduled_mutex;
+	pthread_mutex_t m_notesdown_mutex;
 	bool m_periodic_ANO;
 };
 

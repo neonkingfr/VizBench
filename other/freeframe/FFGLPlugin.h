@@ -1,7 +1,6 @@
 #ifndef FFGLPlugin_H
 #define FFGLPlugin_H
 
-#include "ffutil.h"
 #include "NosuchDebug.h"
 #include <FFGL.h>
 #include <string>
@@ -43,14 +42,14 @@ public:
 
 	std::string GetParameterName(int paramNum);
 	FFGLParameterDef* findparamdef(std::string pnm);
-	int FFGLPluginDef::getParamNum(std::string pnm);
+	int getParamNum(std::string pnm);
 
 	std::string name;
 	std::string m_dll;
 
 	int m_numparams;  
 	FFGLParameterDef *m_paramdefs;
-	FF_Main_FuncPtr m_ffPluginMain;
+	FF_Main_FuncPtr m_mainfunc;
   
 protected:
   
@@ -65,7 +64,7 @@ class FFGLPluginInstance {
 public:
 	FFGLPluginInstance(FFGLPluginDef* d, std::string nm);
 	virtual ~FFGLPluginInstance() {
-		DEBUGPRINT(("Destructor in FFGLPluginInstance"));
+		DEBUGPRINT1(("Destructor for %s in FFGLPluginInstance",m_name.c_str()));
 	}
 
 	std::string GetParameterDisplay(int paramNum);
@@ -77,6 +76,8 @@ public:
 	bool setparam(std::string pnm, float v);
 	bool setparam(std::string pnm, std::string v);
 	float getparam(std::string pnm);
+	std::string getParamJsonResult(FFGLParameterDef* pd, FFGLPluginInstance* pi, const char* id);
+
 	DWORD CallProcessOpenGL(ProcessOpenGLStructTag &t);
 
 	//calls plugMain(FF_INSTANTIATEGL) and assigns
@@ -84,17 +85,18 @@ public:
 	DWORD InstantiateGL(const FFGLViewportStruct *vp);
 	DWORD DeInstantiateGL();
 
-	void enable(){ _enabled = true; }
-	void disable() { _enabled = false; }
-	bool isEnabled(){ return _enabled; }
-	std::string name() { return _name; }
+	void enable(){ m_enabled = true; }
+	void disable() { m_enabled = false; }
+	bool isEnabled(){ return m_enabled; }
+	std::string name() { return m_name; }
 	FFGLPluginDef* plugindef() { return m_plugindef; }
+	DWORD instanceid() { return m_instanceid; }
 
-	FFGLPluginInstance* next;
+	// FFGLPluginInstance* next;
 
 private:
-	std::string _name;
-	bool _enabled;
+	std::string m_name;
+	bool m_enabled;
 	FFGLPluginDef* m_plugindef;
 	FFGLParameterInstance *m_params;
 	FF_Main_FuncPtr m_main;
@@ -102,7 +104,7 @@ private:
 	//many plugins will return 0x00000000 as the first valid instance,
 	//so we use 0xFFFFFFFF to represent an uninitialized/invalid instance
 	enum { INVALIDINSTANCE=0xFFFFFFFF };
-	DWORD m_ffInstanceID;
+	DWORD m_instanceid;
 };
 
 #endif

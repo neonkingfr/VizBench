@@ -30,8 +30,7 @@ static char s_DisplayValue[DISPLAY_VALUE_LENGTH];
 // CFreeFrameGLPlugin constructor and destructor
 ////////////////////////////////////////////////////////
 
-CFreeFrameGLPlugin::CFreeFrameGLPlugin()
-: CFFGLPluginManager()
+CFreeFrameGLPlugin::CFreeFrameGLPlugin() : CFFGLPluginManager()
 {
 	m_pPlugin = NULL;
 }

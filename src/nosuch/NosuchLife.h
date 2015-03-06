@@ -31,17 +31,17 @@
 class LifeCell {
 public:
 	LifeCell() {
-		_on = false;
-		_data = NULL;
+		m_on = false;
+		m_data = NULL;
 	}
-	int val() { return (_on == true) ? 1 : 0; }
-	void* data() { return _data; }
-	void setVal(bool onoff) { _on = onoff; }
+	int val() { return (m_on == true) ? 1 : 0; }
+	void* data() { return m_data; }
+	void setVal(bool onoff) { m_on = onoff; }
 private:
 	friend class NosuchLife;  // so it can use setData
-	void setData(void* d) { _data = d; }
-	bool _on;
-	void* _data;
+	void setData(void* d) { m_data = d; }
+	bool m_on;
+	void* m_data;
 };
 
 class LifeListener {

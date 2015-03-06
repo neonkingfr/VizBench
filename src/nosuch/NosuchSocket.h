@@ -115,7 +115,7 @@ public:
 	// std::string _content_type;
 	bool m_collecting_post_data;
 	bool m_is_websocket;
-	std::string _websocket_key;
+	std::string m_websocket_key;
 	unsigned int m_content_length;
 	int m_request_type;
 	void _grab_request(int req, std::string& line);

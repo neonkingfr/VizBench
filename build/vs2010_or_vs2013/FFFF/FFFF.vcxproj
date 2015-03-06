@@ -1,21 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -79,7 +71,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\src\mmtt;..\..\..\other\glfw\include;..\..\..\src\misclib;..\..\..\src\vizlet1;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\osc\include;..\..\..\other\freeframe;..\..\..\other\portmidi\porttime;..\..\..\other\cJSON;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;..\..\..\other\opencv\build\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\FFFF;..\..\..\other\glfw\include;..\..\..\src\misclib;..\..\..\src\vizlet1;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\osc\include;..\..\..\other\freeframe;..\..\..\other\portmidi\porttime;..\..\..\other\cJSON;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;..\..\..\other\opencv\build\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -96,9 +88,9 @@
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>misclib_MT.lib;opencv_highgui2410d.lib;opencv_core2410d.lib;opencv_flann2410d.lib;opencv_ml2410d.lib;opencv_imgproc2410d.lib;libjpegd.lib;libpngd.lib;libtiffd.lib;libjasperd.lib;IlmImfd.lib;pthreadVC2.lib;winmm.lib;VizServer.lib;vfw32.lib;Ws2_32.lib;glfw3.lib;Rpcrt4.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FFGLlib_MT.lib;opencv_highgui2410d.lib;opencv_core2410d.lib;opencv_flann2410d.lib;opencv_ml2410d.lib;opencv_imgproc2410d.lib;libjpegd.lib;libpngd.lib;libtiffd.lib;libjasperd.lib;IlmImfd.lib;pthreadVC2.lib;winmm.lib;VizServer.lib;vfw32.lib;Ws2_32.lib;glfw3.lib;Rpcrt4.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(Configuration)\$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\other\opencv\build\x86\vc10\staticlib;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\glfw\src\Debug;..\misclib_MT\Debug;..\VizServer\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\other\opencv\build\x86\vc10\staticlib;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\glfw\src\Debug;..\FFGLlib_MT\Debug;..\VizServer\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -150,7 +142,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\..\src\mmtt;..\..\..\other\glfw\include;..\..\..\src\misclib;..\..\..\src\vizlet1;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\osc\include;..\..\..\other\freeframe;..\..\..\other\portmidi\porttime;..\..\..\other\cJSON;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;..\..\..\other\opencv\build\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\FFFF;..\..\..\other\glfw\include;..\..\..\src\misclib;..\..\..\src\vizlet1;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\osc\include;..\..\..\other\freeframe;..\..\..\other\portmidi\porttime;..\..\..\other\cJSON;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;..\..\..\other\opencv\build\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -163,9 +155,9 @@
       <AdditionalIncludeDirectories>..\..\..\src\FFFF;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>misclib_MT.lib;opencv_highgui2410.lib;opencv_core2410.lib;opencv_flann2410.lib;opencv_ml2410.lib;opencv_imgproc2410.lib;libjpeg.lib;libpng.lib;libtiff.lib;libjasper.lib;IlmImf.lib;pthreadVC2.lib;winmm.lib;VizServer.lib;vfw32.lib;Ws2_32.lib;Rpcrt4.lib;zlib.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FFGLlib_MT.lib;opencv_highgui2410.lib;opencv_core2410.lib;opencv_flann2410.lib;opencv_ml2410.lib;opencv_imgproc2410.lib;libjpeg.lib;libpng.lib;libtiff.lib;libjasper.lib;IlmImf.lib;pthreadVC2.lib;winmm.lib;VizServer.lib;vfw32.lib;Ws2_32.lib;Rpcrt4.lib;zlib.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(Configuration)\$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\other\opencv\build\x86\vc10\staticlib;..\misclib_MT\Release;..\VizServer\Release;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\glfw\src\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\other\opencv\build\x86\vc10\staticlib;..\FFGLlib_MT\Release;..\VizServer\Release;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\glfw\src\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>
@@ -212,6 +204,9 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\other\freeframe\FF10Plugin.cpp" />
+    <ClCompile Include="..\..\..\other\freeframe\FFGLPlugin.cpp" />
+    <ClCompile Include="..\..\..\src\FFFF\ffffutil.cpp" />
     <ClCompile Include="..\..\..\src\FFFF\main.cpp" />
     <ClCompile Include="..\..\..\src\FFFF\FFFF.cpp" />
   </ItemGroup>
@@ -222,7 +217,10 @@
     <ResourceCompile Include="FFFF.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\other\freeframe\FF10Plugin.h" />
+    <ClInclude Include="..\..\..\other\freeframe\FFGLPlugin.h" />
     <ClInclude Include="..\..\..\src\FFFF\FFFF.h" />
+    <ClInclude Include="..\..\..\src\FFFF\ffffutil.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VizServer\VizServer.vcxproj">

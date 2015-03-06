@@ -1,1 +1,1 @@
-python genvizlet.py %1 %2 %3 %4 %5 %6 %7 %8 %9
+python %VIZBENCH%\bin\genvizlet.py %1 %2 %3 %4 %5 %6 %7 %8 %9

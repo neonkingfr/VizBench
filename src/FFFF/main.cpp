@@ -26,7 +26,8 @@
 */
 
 #include "NosuchDebug.h"
-#include "mmtt_sharedmem.h"
+
+// #include "mmtt_sharedmem.h"
 #include "FFFF.h"
 #include "NosuchJSON.h"
 #include "NosuchMidi.h"
@@ -39,20 +40,20 @@
 #include <gl/glu.h>
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "glu32.lib")
-#include "mmsystem.h"
+// #include "mmsystem.h"
 
 #include "resource.h"
 
 #include "stdint.h"
-#include "ffutil.h"
 #include "FFGLPlugin.h"
+#include "FF10Plugin.h"
+#include "ffffutil.h"
 #include "Timer.h"
 
 // #include "Python.h"
 
 FFFF* F;
-
-int CV_interp = CV_INTER_NN;  // or CV_INTER_LINEAR
+void tjtdebug();
 
 int 				camWidth;
 int 				camHeight;
@@ -87,99 +88,132 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	}
 }
 
+char* SaveFrames = NULL;
+char* FfmpegFile = NULL;
+FILE* Ffmpeg = NULL;
+
 int ffffMain(std::string config)
 {
+	SaveFrames = getenv("SAVEFRAMES");
+	FfmpegFile = getenv("FFMPEGFILE");
+
+	if (FfmpegFile) {
+		// start ffmpeg telling it to expect raw rgba 720p-60hz frames
+		// -i - tells it to read frames from stdin
+		// XXX - should replace newest.mp4 with FFMPEGFILE value
+		std::string path = VizPath("recording") + NosuchSnprintf("\\%s.mp4", FfmpegFile);
+
+		std::string cmd = NosuchSnprintf("ffmpeg -r 60 -f rawvideo -pix_fmt bgr24 -s 1024x768 -i - "
+			"-threads 0 -preset fast -y -r 60 -vf vflip %s", path.c_str());
+#ifdef EXPERIMENT
+		std::string cmd = NosuchSnprintf("ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s 1024x768 -i - "
+			"-threads 0 -preset fast -y -r 60 -vf vflip %s", path.c_str());
+#endif
+
+//	const char* cmd = "ffmpeg -r 60 -f rawvideo -pix_fmt bgr8 -s 1024x768 -i - "
+// "-threads 0 -preset fast -y -crf 21 -vf vflip newest.mp4";
+
+		// open pipe to ffmpeg's stdin in binary write mode
+		Ffmpeg = _popen(cmd.c_str(), "wb");
+	}
+
 	NosuchDebugInit();
-   	NosuchDebugSetLogDirFile(VizPath("log"),"ffff.debug");
+	NosuchDebugSetLogDirFile(VizPath("log"), "ffff.debug");
 	DEBUGPRINT(("FFFF is starting."));
 
-	if ( NosuchNetworkInit() ) {
+	if (NosuchNetworkInit()) {
 		DEBUGPRINT(("Unable to initialize networking?"));
 		return false;
-	}  
+	}
 
-    glfwSetTime(0.0);
+	glfwSetTime(0.0);
 
 	std::string err;
 	std::string fname = VizPath("config\\FFFF.json");
-	cJSON* j = jsonReadFile(fname,err);
-	if ( !j ) {
-		DEBUGPRINT(("Hey!  Error in reading JSON from %s!  err=%s",fname.c_str(),err.c_str()));
+	cJSON* j = jsonReadFile(fname, err);
+	if (!j) {
+		DEBUGPRINT(("Hey!  Error in reading JSON from %s!  err=%s", fname.c_str(), err.c_str()));
 		return false;
 	}
 
 	jsonSetDebugConfig(j);
 
 	// Allow the config to override the default paths for these
-	std::string ffpath = jsonNeedString(j,"ffpath","ffplugins");
-	std::string ffglpath = jsonNeedString(j,"ffglpath","ffglplugins");
+	std::string ff10path = jsonNeedString(j, "ff10path", "ffplugins");
+	std::string ffglpath = jsonNeedString(j, "ffglpath", "ffglplugins");
 
 	// Remove shell expansion, because I want things to be the same between the
 	// Vizbench and Vizlets repositories.  If anything, a general environment
 	// variable subsitution mechanism should be put here.
 
-	int camera_index = jsonNeedInt(j,"camera",-1);  // -1 for no camera, 0+ for camera
+	int camera_index = jsonNeedInt(j, "camera", -1);  // -1 for no camera, 0+ for camera
 
 	F = new FFFF();
-	F->SetShowFPS(jsonNeedInt(j,"showfps",0)?true:false);
+	F->SetShowFPS(jsonNeedInt(j, "showfps", 0) ? true : false);
 
 	F->StartStuff();
 
-    glfwSetErrorCallback(error_callback);
+	glfwSetErrorCallback(error_callback);
 
-    if (!glfwInit())
-        exit(EXIT_FAILURE);
+	if (!glfwInit())
+		exit(EXIT_FAILURE);
 
 	GLFWmonitor* monitor;
 	bool fullscreen = false;
-	if ( fullscreen ) {
+	if (fullscreen) {
 		monitor = glfwGetPrimaryMonitor();
-	} else {
+	}
+	else {
 		monitor = NULL;
 	}
 
-	int window_width = jsonNeedInt(j,"window_width",800);
-	int window_height = jsonNeedInt(j,"window_height",600);
+	int window_width = jsonNeedInt(j, "window_width", 800);
+	int window_height = jsonNeedInt(j, "window_height", 600);
 
-	int window_x = jsonNeedInt(j,"window_x",100);
-	int window_y = jsonNeedInt(j,"window_y",100);
+	int window_x = jsonNeedInt(j, "window_x", 100);
+	int window_y = jsonNeedInt(j, "window_y", 100);
 
 	int ffgl_width = window_width;
 	int ffgl_height = window_height;
 
-    F->window = glfwCreateWindow(window_width, window_height, "FFFF", monitor, NULL);
-    if ( F->window == NULL ) {
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
+	F->window = glfwCreateWindow(window_width, window_height, "FFFF", monitor, NULL);
+	if (F->window == NULL) {
+		glfwTerminate();
+		exit(EXIT_FAILURE);
+	}
 
-    glfwMakeContextCurrent(F->window);
+	glfwMakeContextCurrent(F->window);
 
-    glfwSetKeyCallback(F->window, key_callback);
+	glfwSetKeyCallback(F->window, key_callback);
 
-	F->loadPluginDefs(VizPath(ffpath),VizPath(ffglpath),ffgl_width,ffgl_height);
+	F->loadAllPluginDefs(ff10path, ffglpath, ffgl_width, ffgl_height);
+
+	F->setupTrails();
 
 	bool use_camera = FALSE;
-	if ( camera_index < 0 ) {
+	if (camera_index < 0) {
 		DEBUGPRINT(("Camera is disabled (camera < 0)"));
-	} else if ( ! F->initCamera(camera_index) ) {
-			DEBUGPRINT(("Camera is disabled (init failed)"));
-	} else {
+	}
+	else if (!F->initCamera(camera_index)) {
+		DEBUGPRINT(("Camera is disabled (init failed)"));
+	}
+	else {
 		use_camera = TRUE;
 	}
 
 	try {
 		CATCH_NULL_POINTERS;
 		F->loadPipeline(config);
-	} catch (NosuchException& e) {
-		NosuchErrorOutput("NosuchException while loading Pipeline!! - %s",e.message());
-	} catch (...) {
+	}
+	catch (NosuchException& e) {
+		NosuchErrorOutput("NosuchException while loading Pipeline!! - %s", e.message());
+	}
+	catch (...) {
 		// This doesn't seem to work - it doesn't seem to catch other exceptions...
 		NosuchErrorOutput("Some other kind of exception occured while loading Pipeline!?");
 	}
 
 
-// #define DUMPOBJECTS
 #ifdef DUMPOBJECTS
 	_CrtMemState s0;
 	_CrtMemCheckpoint(&s0);
@@ -191,27 +225,32 @@ int ffffMain(std::string config)
 	glfwShowWindow(F->window);
 
 	// int count = 0;
-    while (!glfwWindowShouldClose(F->window))
-    {
+	while (!glfwWindowShouldClose(F->window))
+	{
 		F->checkAndExecuteJSON();
 
-		if ( F->hidden == false ) {
-	        int width, height;
-	        glfwGetFramebufferSize(F->window, &width, &height);
+		if (F->hidden == false) {
+			int width, height;
+			glfwGetFramebufferSize(F->window, &width, &height);
 
-			F->doOneFrame(use_camera,width,height);
+			// DEBUGPRINT(("PostJSON B"));
+			F->doOneFrame(use_camera, width, height);
 
-	        glfwSwapBuffers(F->window);
+			glfwSwapBuffers(F->window);
 		}
 
-        glfwPollEvents();
+		glfwPollEvents();
 
 		F->CheckFPS();
-    }
+	}
 
 	F->clearPipeline();
 
 	F->StopStuff();
+
+	if ( Ffmpeg ) {
+		_pclose(Ffmpeg);
+	}
 
 #ifdef _DEBUG
 #ifdef DUMPOBJECTS
