@@ -59,9 +59,9 @@ public:
 	VFrame* end;
 	double startpos;
 	double endpos;
-	bool reverse;
+	int reverse;
 	double savedpos;
-	bool frozen;
+	int frozen;
 
 	VFrameLoop() {
 		clearme();
@@ -77,10 +77,10 @@ public:
 		endpos = 1.0;
 		savedpos = 0.0;
 		framerate = 1.0;
-		reverse = false;
+		reverse = 0;
 		pos_within_frame = 0.0;
 		time_of_loop_start = timeGetTime();
-		frozen = false;
+		frozen = 0;
 	};
 
 	VFrame* addVFrame(IplImage* i) {
@@ -119,7 +119,7 @@ public:
 		clearme();
 	};
 
-	void setfreeze(bool freeze) {
+	void setfreeze(int freeze) {
 		frozen = freeze;
 	};
 
@@ -147,14 +147,14 @@ public:
 			double t = startpos;
 			startpos = endpos;
 			endpos = t;
-			reverse = ! reverse;
+			reverse = 1 - reverse;
 		}
 		start = frameOfPos(startpos);
 		end = frameOfPos(endpos);
 		advanceToStart();
 	}
 
-	void setReverse(bool onoff) {
+	void setReverse(int onoff) {
 		reverse = onoff;
 	}
 
@@ -208,7 +208,7 @@ public:
 			resetLoop();
 			return 1;
 		}
-		if ( ! frozen ) {
+		if ( frozen == 0 ) {
 			pos_within_frame += framerate;
 		}
 		while ( pos_within_frame >= 1.0 ) {

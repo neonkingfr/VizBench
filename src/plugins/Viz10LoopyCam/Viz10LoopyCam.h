@@ -10,7 +10,6 @@ public:
 	static DWORD __stdcall CreateInstance(CFreeFrame10Plugin **ppInstance);
 
 	std::string processJson(std::string meth, cJSON *jsonparams, const char *id);
-	// void processOsc(const char *source, const osc::ReceivedMessage& m);
 	void processMidiInput(MidiMsg* m);
 	void processMidiOutput(MidiMsg* m);
 	void processCursor(VizCursor* c, int downdragup);

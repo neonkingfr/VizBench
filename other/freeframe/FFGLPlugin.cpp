@@ -250,7 +250,7 @@ DWORD FFGLPluginDef::InitPluginLibrary()
     m_numparams = (int)m_mainfunc(FF_GETNUMPARAMETERS, 0, 0).ivalue;
 
     m_paramdefs = new FFGLParameterDef[m_numparams];
-	// DEBUGPRINT(("----- MALLOC new FFGLParameterDef"));
+	DEBUGPRINT(("----- MALLOC new FFGLParameterDef"));
     int n;
     for (n=0; n<m_numparams; n++) {
 

@@ -313,8 +313,6 @@ private:
 
 	bool m_started;
 
-	bool m_debugApi;
-
 	UT_SharedMem* m_sharedmem_outlines;
 	long m_sharedmem_last_attempt;
 

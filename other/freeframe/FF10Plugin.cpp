@@ -106,7 +106,7 @@ bool FF10PluginDef::LoadParamDefs()
     int n;
     m_numparams = np;
     m_paramdefs = new FF10ParameterDef[np];
-	// DEBUGPRINT(("----- MALLOC new FF10ParameterDef[np]"));
+	DEBUGPRINT(("----- MALLOC new FF10ParameterDef[np]"));
     for ( n=0; n<np; n++ ) {
         FF10ParameterDef* p = &(m_paramdefs[n]);
 		p->num = n;
@@ -406,7 +406,7 @@ std::string FF10PluginInstance::GetParameterDisplay(int paramNum)
 void loadff10plugindef(std::string ffdir, std::string dllnm)
 {
 	FF10PluginDef *plugin = new FF10PluginDef();
-	// DEBUGPRINT(("----- MALLOC new FF10PluginDef"));
+	DEBUGPRINT(("----- MALLOC new FF10PluginDef"));
 	std::string dll_fname = ffdir + "/" + dllnm;
 
 	if (!plugin->Load(dll_fname)) {

@@ -2,7 +2,6 @@ from nosuch.oscutil import *
 
 import requests
 import json
-import os
 import sys
 import threading
 
@@ -105,7 +104,7 @@ class ParamThread(Thread):
 		if self.param.paramthread != self:
 			print "HEY!  run ended but paramthread != self!?"
 		self.param.paramthread = None
-		# print "ParamThread done, plugin=",self.plugin.name
+		print "ParamThread done, plugin=",self.plugin.name
 		
 class Ffff(Thread):
 
@@ -113,7 +112,6 @@ class Ffff(Thread):
 
 		self.lock = threading.Lock()
 		
-		self.lastpresetnum = 0
 		self.is_registered = False
 		self.time_registered = 0
 
@@ -124,38 +122,39 @@ class Ffff(Thread):
 		self.host = host
 		self.sendport = sendport
 
-		self.toffffosc = OscRecipient(self.host,3333)
-
 		self.paramthreads = {}
 
 		# populate the list of available plugins
 		self.ff10_list = {}
 		self.ff10_list["None"] = FF10plugin("None", 0)
-		pluginlist = self.sendapi("ffff.ff10plugins")
+		pluginlist = self.sendffff("ff10plugins")
 		print "ff10plugins = ",pluginlist
 		for nm in pluginlist:
 			ff = FF10plugin(nm, len(self.ff10_list))
-			params = self.sendapi("ffff.ff10paramlist","{\"plugin\":\""+nm+"\"}")
+			params = self.sendffff("ff10paramlist","{\"plugin\":\""+nm+"\"}")
 			ff.create_params_from_list(params)
 			self.ff10_list[nm] = ff
 
 		print "POPULATED ff10_list len = ",len(self.ff10_list)
 
-		pluginlist = self.sendapi("ffff.ffglplugins")
+		pluginlist = self.sendffff("ffglplugins")
 		self.ffgl_list = {}
 		self.ffgl_list["None"] = FFGLplugin("None", 0)
 		for nm in pluginlist:
 			ff = FFGLplugin(nm, len(self.ffgl_list))
-			params = self.sendapi("ffff.ffglparamlist","{\"plugin\":\""+nm+"\"}")
+			params = self.sendffff("ffglparamlist","{\"plugin\":\""+nm+"\"}")
 			ff.create_params_from_list(params)
 			self.ffgl_list[nm] = ff
 		print "POPULATED ffgl_list len = ",len(self.ffgl_list)
 
 		# self.clearpipeline()
 
-	def sendosc(self,meth,args):
-		# print "SENDOSC meth=",meth," args=",args
-		self.toffffosc.sendosc("/api",[meth,args])
+	def sendosc(self,addr,args):
+		print "OBSOLETE??  SENDOSC addr=",addr," args=",args
+		pass
+
+	def send(self,addr,msg):
+		print "OBSOLETE??  SEND addr=",addr," msg=",msg
 
 	# byteify - this is used to convert unicode to str in a json object
 	def byteify(self,input):
@@ -199,10 +198,8 @@ class Ffff(Thread):
 
 	def send_plugin_param(self, plugin, p):
 		api = "ff"+plugin.type+"paramset"
-		# print "send_plugin_param "+plugin.name+" param="+p.name+" val="+str(p.current_val())
-		jsonargs = "{\"instance\":\""+plugin.name+"\",\"param\":\""+p.name+"\",\"val\":\""+str(p.current_val())+"\"}"
-		# print "============= Sending param with OSC api=",api," jsonargs=",jsonargs
-		self.sendosc("ffff."+api,jsonargs)
+		print "send_plugin_param "+plugin.name+" param="+p.name+" val="+str(p.current_val())
+		self.sendffff(api,"{\"instance\":\""+plugin.name+"\",\"param\":\""+p.name+"\",\"val\":\""+str(p.current_val())+"\"}")
 		
 	# def set_ui(self, ui):
 	# 	self.ui = ui
@@ -229,7 +226,7 @@ class Ffff(Thread):
 			if nm == "None":
 				params = []
 			else:
-				params = self.sendapi("ffff.ff10paramlist","{\"plugin\":\""+nm+"\"}")
+				params = self.sendffff("ff10paramlist","{\"plugin\":\""+nm+"\"}")
 			ff.create_params_from_list(params)
 			self.ff10_list[nm] = ff
 		return ff
@@ -242,24 +239,31 @@ class Ffff(Thread):
 			if nm == "None":
 				params = []
 			else:
-				params = self.sendapi("ffff.ffglparamlist","{\"plugin\":\""+nm+"\"}")
+				params = self.sendffff("ffglparamlist","{\"plugin\":\""+nm+"\"}")
 			ff.create_params_from_list(params)
 			self.ffgl_list[nm] = ff;
 		return ff
 
 	def ff10_pipeline(self):
-		return self.sendapi("ffff.ff10pipeline")
+		return self.sendffff("ff10pipeline")
 
 	def ffgl_pipeline(self):
-		return self.sendapi("ffff.ffglpipeline")
+		return self.sendffff("ffglpipeline")
 
 	def clearpipeline(self):
 		print "CLEARPIPELINE paramthreads=",self.paramthreads
 		for t in self.paramthreads:
 			t.stop()
-			t.join()
-		self.paramthreads = {}
-		self.sendapi("ffff.clearpipeline")
+		self.sendffff("clearpipeline")
+
+	def sendvizserver(self, addr, msg=None):
+		return self.sendapi(addr, msg)
+
+	def sendlooper(self, addr, msg=None):
+		return self.sendapi("Viz10LoopyCam."+addr, msg)
+
+	def sendffff(self, addr, msg=None):
+		return self.sendapi("ffff."+addr, msg)
 
 	def sendapi(self, addr, msg=None):
 		if msg == None:
@@ -285,13 +289,13 @@ class Ffff(Thread):
 	def ff10_add_to_pipeline(self,plugin):
 		nm = plugin.name
 		instancenm = nm
-		# print "ff10_add_to_pipeline nm=",nm," instancenm=",instancenm
-		self.sendapi("ffff.ff10add", "{\"plugin\":\""+nm+"\",\"instance\":\""+instancenm+"\"}")
+		print "ff10_add_to_pipeline nm=",nm," instancenm=",instancenm
+		self.sendffff("ff10add", "{\"plugin\":\""+nm+"\",\"instance\":\""+instancenm+"\"}")
 
 	def ffgl_add_to_pipeline(self,plugin):
 		nm = plugin.name
 		instancenm = nm
-		self.sendapi("ffff.ffgladd", "{\"plugin\":\""+nm+"\",\"instance\":\""+instancenm+"\"}")
+		self.sendffff("ffgladd", "{\"plugin\":\""+nm+"\",\"instance\":\""+instancenm+"\"}")
 
 	def read_preset_file(self,f):
 		plugin = None
@@ -379,6 +383,8 @@ class Ffff(Thread):
 			self.lastpresetnum += 1
 			
 	def write_preset(self, fname):
+		print "write_preset needs work!"
+		return
 		f = open(fname, "wb")
 		for n in range(NPRE):
 			b = self.butt["pre"][n]
@@ -418,7 +424,6 @@ class Ffff(Thread):
 		if self.param_dt <= 0.0 or self.param_nsteps <= 1:
 			self.set_param_and_send_now(plugin, p, val)
 		else:
-			print "Spawning ParamThread p=",p.name," dt=",self.param_dt,"  nsteps=",self.param_nsteps
 			t = ParamThread(self, plugin, p, val, self.param_dt, self.param_nsteps)
 			t.start()
 			self.paramthreads[t] = 1

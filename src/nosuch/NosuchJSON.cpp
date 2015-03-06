@@ -184,7 +184,7 @@ bool jsonNeedBool(cJSON *j,std::string nm, int dflt) {
 		return dflt != 0;
 	}
 	if (c->type == cJSON_String) {
-		std::string s = NosuchToLower(c->valuestring);
+		std::string s = c->valuestring;
 		if (s == "1" || s == "true" || s == "on") {
 			return true;
 		} else if (s == "0" || s == "false" || s == "off") {
