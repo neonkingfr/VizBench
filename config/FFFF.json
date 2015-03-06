@@ -1,9 +1,14 @@
 {
-#  "ffglpath": "ffglplugins;ffglplugins_resolume",
   "ffglpath": "ffglplugins",
+  "ff10path": "ffplugins",
+  # "ffglpath": "ffglplugins;ffglplugins_loopycam",
+  # "ff10path": "ffplugins;ffplugins_loopycam",
   "window_x": 50,
   "window_y": 50,
-  "window_width": 640,
-  "window_height": 480,
-  "showfps": 0
+  "window_width": 1024,
+  "window_height": 768,
+  "showfps": 0,
+# "camera": -1,    # a value of -1 disables the camera input
+  "camera": 0,  # the index of the camera, given to cvCreateCameraCapture
+  "foo": 0
 }

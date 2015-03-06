@@ -111,11 +111,11 @@ void VizLooper::processMidiInput(MidiMsg* m) {
 
 	MidiMsg* m1 = m->clone();
 	m1->SetOutputPort(m_midiout);
-	QueueMidiMsg(m1, CurrentClick());
+	QueueMidiMsg(m1, SchedulerCurrentClick());
 
 	MidiMsg* m2 = m->clone();
 	m2->SetOutputPort(m_midiout);
-	QueueMidiMsg(m2,CurrentClick()+192);
+	QueueMidiMsg(m2,SchedulerCurrentClick()+192);
 }
 
 void VizLooper::processMidiOutput(MidiMsg* m) {
