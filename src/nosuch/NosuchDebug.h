@@ -28,10 +28,6 @@
 #ifndef NOSUCHDEBUG_H
 #define NOSUCHDEBUG_H
 
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
-
 #include <string>
 
 extern int NosuchDebugLevel;
