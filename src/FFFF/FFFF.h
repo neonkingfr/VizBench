@@ -98,11 +98,12 @@ public:
 	IplImage* getCameraFrame();
 	bool doOneFrame(bool use_camera,int window_width, int window_height);
 	void CheckFPS();
-	void setupTrails();
 
 	void InsertKeystroke(int key, int downup);
 
 	void SetShowFPS(bool b) { m_showfps = b; }
+	void SetTrailEnable(bool b) { m_trail_enable = b; }
+	void SetTrailAmount(double v) { m_trail_amount = v; }
 	GLFWwindow* window;
 	bool hidden;
 
@@ -130,10 +131,8 @@ private:
 	int m_fps_accumulator;
 	double m_fps_lasttime;
 
-	bool m_dotrail;
-	double m_trailamount;
-	FFGLPluginInstance* m_trailsplugin;
-	void setTrailParams();
+	bool m_trail_enable;
+	double m_trail_amount;
 
 	// FFGLPluginInstance* m_ffglpipeline;
 	// FF10PluginInstance* m_ff10pipeline;

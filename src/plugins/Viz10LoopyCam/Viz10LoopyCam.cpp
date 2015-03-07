@@ -81,9 +81,8 @@ std::string Viz10LoopyCam::realProcessJson(std::string meth, cJSON *params, cons
 			"restartsave(loopnum);restartrestore(loopnum);"
 			"freeze(loopnum);unfreeze(loopnum);"
 			"truncate(loopnum);xor(onoff);border(onoff);"
-			"fliph(onoff);flipv(onoff);recborder(onoff);dotrail(onoff);"
-			"trail(amount);setstart(loopnum,pos);"
-			"setend(loopnum,pos);setreverse(loopnum,onoff);"
+			"fliph(onoff);flipv(onoff);recborder(onoff);"
+			"setstart(loopnum,pos);setend(loopnum,pos);setreverse(loopnum,onoff);"
 			, id);
 	}
 	if (meth == "record") {

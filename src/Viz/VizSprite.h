@@ -19,7 +19,7 @@ public:
 	void lock_write();
 	void unlock();
 	void draw(NosuchGraphics* g);
-	void advanceTo(int tm);
+	void advanceTo(double tm);
 	void computeForces();
 	void hit();
 	void add(VizSprite* s, int limit);
@@ -47,8 +47,8 @@ public:
 		forceX = 0.0;
 		forceY = 0.0;
 
-		born = 0;
-		last_tm = 0;
+		born = 0.0;
+		last_tm = 0.0;
 		killme = false;
 		rotangsofar = 0.0f;
 		rotangspeed = 0.0f;
@@ -70,8 +70,8 @@ public:
 	double forceX;
 	double forceY;
 
-	int born;
-	int last_tm;
+	double born;
+	double last_tm;
 	bool killme;
 	double rotangsofar;
 	double rotangspeed;
@@ -92,7 +92,7 @@ public:
 	virtual ~VizSprite();
 
 	static VizSprite* makeVizSprite(AllVizParams* sp);
-	void initVizSpriteState(int millinow, void* handle, NosuchPos& pos, double movedir);
+	void initVizSpriteState(double tm, void* handle, NosuchPos& pos, double movedir);
 
 
 	static double degree2radian(double deg);
@@ -108,7 +108,7 @@ public:
 	void draw(NosuchGraphics* graphics);
 	void drawAt(NosuchGraphics* app, double x, double y, double w, double h, int xdir, int ydir);
 	NosuchPos deltaInDirection(double dt, double dir, double speed);
-	void advanceTo(int tm);
+	void advanceTo(double tm);
 
 #ifdef CURVE_STUFF
 	virtual void startAccumulate(Cursor* c) { };
@@ -117,7 +117,7 @@ public:
 
 	AllVizParams* m_params;
 	VizSpriteState m_state;
-	int m_frame;
+	int m_framenum;
 
 protected:
 	double vertexNoise();

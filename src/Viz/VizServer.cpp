@@ -1439,7 +1439,6 @@ void
 VizServer::RemoveKeystrokeCallback(void* handle) {
 	if (m_keystrokeprocessor) {
 		m_keystrokeprocessor->RemoveKeystrokeCallback(handle);
->>>>>>> tjtwork
 	}
 }
 

@@ -39,7 +39,7 @@ VizSprite::VizSprite(AllVizParams* sp) {
 	// create a copy, since the params may change
 	m_params = new AllVizParams(true);  // loads it with default values
 	m_params->applyVizParamsFrom(sp);
-	m_frame = 0;
+	m_framenum = 0;
 }
 
 
@@ -182,41 +182,40 @@ void VizSprite::drawAt(NosuchGraphics* graphics, double x, double y, double scal
 NosuchPos VizSprite::deltaInDirection(double dt, double dir, double speed) {
 	NosuchPos delta((double)cos(degree2radian(dir)), (double)sin(degree2radian(dir)), 0.0f);
 	delta = delta.normalize();
-	delta = delta.mult((dt / 1000.0f) * speed);
+	delta = delta.mult(dt * speed);
 	return delta;
 }
 
 static double
-envelopeValue(double initial, double final, double duration, double born, double now) {
-	double dt = now - born;
-	double dur = duration * 1000.0;
+envelopeValue(double initial, double final, double duration, double born, double tm) {
+	double dt = tm - born;
+	double dur = duration;
 	if (dt >= dur)
 		return final;
 	if (dt <= 0)
 		return initial;
-	return initial + (final - initial) * ((now - born) / (dur));
+	return initial + (final - initial) * ((tm - born) / (dur));
 }
 
-void VizSprite::advanceTo(int now) {
+void VizSprite::advanceTo(double tm) {
 
-	// _params->advanceTo(tm);
-	m_state.alpha = envelopeValue(m_params->alphainitial, m_params->alphafinal, m_params->alphatime, m_state.born, now);
-	m_state.size = envelopeValue(m_params->sizeinitial, m_params->sizefinal, m_params->sizetime, m_state.born, now);
+	m_state.alpha = envelopeValue(m_params->alphainitial, m_params->alphafinal, m_params->alphatime, m_state.born, tm);
+	m_state.size = envelopeValue(m_params->sizeinitial, m_params->sizefinal, m_params->sizetime, m_state.born, tm);
 
-	float age = (now - m_state.born) / 1000.0f;
+	double age = (tm - m_state.born);
 	double life = m_params->lifetime;
 	if (m_params->lifetime >= 0.0 && age > m_params->lifetime) {
 		m_state.killme = true;
 	}
-	double dt = (double)(now - m_state.last_tm);
-	m_state.last_tm = now;
+	double dt = (double)(tm - m_state.last_tm);
+	m_state.last_tm = tm;
 
 	if (!m_state.visible) {
 		return;
 	}
 
-	m_state.hue = envelopeValue(m_params->hueinitial, m_params->huefinal, m_params->huetime, m_state.born, now);
-	m_state.huefill = envelopeValue(m_params->huefillinitial, m_params->huefillfinal, m_params->huefilltime, m_state.born, now);
+	m_state.hue = envelopeValue(m_params->hueinitial, m_params->huefinal, m_params->huetime, m_state.born, tm);
+	m_state.huefill = envelopeValue(m_params->huefillinitial, m_params->huefillfinal, m_params->huefilltime, m_state.born, tm);
 
 	// state.hueoffset = fmod((state.hueoffset + params->cyclehue), 360.0);
 
@@ -243,8 +242,8 @@ void VizSprite::advanceTo(int now) {
 	if (m_state.speedX != 0.0 || m_state.speedY != 0.0) {
 
 		NosuchPos npos = m_state.pos;
-		npos.x += dt * m_state.speedX / 1000.0;
-		npos.y += dt * m_state.speedY / 1000.0;
+		npos.x += dt * m_state.speedX;
+		npos.y += dt * m_state.speedY;
 		if (_isnan(npos.x)) {
 			DEBUGPRINT(("Updated pos to NAN! %.4f %.4f", npos.x, npos.y));
 		}
@@ -413,7 +412,7 @@ VizSpriteList::draw(NosuchGraphics* b) {
 }
 
 void
-VizSpriteList::advanceTo(int tm) {
+VizSpriteList::advanceTo(double tm) {
 	if (m_sprites.size() == 0) {
 		return;
 	}
@@ -595,7 +594,7 @@ int rotangdirOf(std::string s) {
 	return dir;
 }
 
-void VizSprite::initVizSpriteState(int millinow, void* handle, NosuchPos& pos, double movedir) {
+void VizSprite::initVizSpriteState(double tm, void* handle, NosuchPos& pos, double movedir) {
 
 	// most of the state has been initialized in VizSpriteState constructor
 	m_state.pos = pos;
@@ -605,8 +604,8 @@ void VizSprite::initVizSpriteState(int millinow, void* handle, NosuchPos& pos, d
 	m_state.speedY = m_params->speedinitial * cos(rad);
 
 	m_state.handle = handle;
-	m_state.born = millinow;
-	m_state.last_tm = millinow;
+	m_state.born = tm;
+	m_state.last_tm = tm;
 	m_state.hue = m_params->hueinitial;
 	m_state.huefill = m_params->huefillinitial;
 	m_state.alpha = m_params->alphainitial;

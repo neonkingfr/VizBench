@@ -139,6 +139,15 @@ void VizExample2::processMidiOutput(MidiMsg* m) {
 }
 
 bool VizExample2::processDraw() {
+
+	glColor4f(0.0,1.0,0.0,1.0);
+	glBegin(GL_LINE_LOOP);
+	glVertex3f(0.2f, 0.2f, 0.0);	// Bottom Left
+	glVertex3f(0.2f, 0.8f, 0.0);	// Top Left
+	glVertex3f(0.8f, 0.8f, 0.0);	// Top Right
+	glVertex3f(0.8f, 0.2f, 0.0);	// Bottom Right
+	glEnd();
+
 	// Draw all active sprites
 	DrawVizSprites();
 	return true;

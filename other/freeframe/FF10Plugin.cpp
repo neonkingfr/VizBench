@@ -135,12 +135,9 @@ bool FF10PluginDef::LoadParamDefs()
     return TRUE;
 }
 
-void tjtdebug();
-
 DWORD FF10PluginInstance::Instantiate(VideoInfoStruct *vis)
 {
 	DEBUGPRINT1(("Pre Instantiate"));
-	tjtdebug();
 	if (m_instanceid != INVALIDINSTANCE) {
 		DEBUGPRINT(("HEY!  Instantiate called when already instantiated!?"));
         //already instantiated
@@ -153,7 +150,6 @@ DWORD FF10PluginInstance::Instantiate(VideoInfoStruct *vis)
         return FF_FAIL;
     }
     DEBUGPRINT1(("SUCCESSFUL Instantiate id=%d\n",m_instanceid));
-	tjtdebug();
 	DEBUGPRINT(("HEY!!!! should I be setting default param assignments here, like in GL?"));
     return FF_SUCCESS;
 }

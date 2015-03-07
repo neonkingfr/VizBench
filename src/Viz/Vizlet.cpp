@@ -40,9 +40,9 @@
 #include "NosuchMidi.h"
 #include "NosuchScheduler.h"
 #include "Vizlet.h"
+#include "Vizletutil.h"
 #include "NosuchJSON.h"
 
-#include "ffutil.h"
 #include "FFGLLib.h"
 #include "osc/OscOutboundPacketStream.h"
 #include "osc/OscReceivedElements.h"
@@ -122,8 +122,6 @@ Vizlet::Vizlet() {
 
 	VizParams::Initialize();
 
-	json_params = NULL;
-	json_id = NULL;
 	m_defaultparams = new AllVizParams(true);
 	m_useparamcache = false;
 
@@ -137,7 +135,7 @@ Vizlet::Vizlet() {
 	m_call_RealProcessOpenGL = false;
 	m_spritelist = new VizSpriteList();
 	m_defaultmidiparams = defaultParams();
-	// _frame = 0;
+	m_framenum = 0;
 
 	m_vizserver = VizServer::GetServer();
 
@@ -154,7 +152,7 @@ Vizlet::Vizlet() {
 #ifdef PALETTE_PYTHON
 	_recompileFunc = NULL;
 	_python_enabled = FALSE;
-	_python_events_disabled = TRUE;
+	m_python_events_disabled = TRUE;
 	NosuchLockInit(&python_mutex,"python");
 #endif
 
@@ -164,16 +162,18 @@ Vizlet::Vizlet() {
 	json_cond = PTHREAD_COND_INITIALIZER;
 	json_pending = false;
 
-	_disabled = false;
-	_disable_on_exception = false;
+	m_disabled = false;
+	m_disable_on_exception = false;
 
 	m_stopped = false;
 
 	// The most common reason for being disabled at this point
 	// is when the config JSON file can't be parsed.
-	if ( _disabled ) {
+	if ( m_disabled ) {
 		DEBUGPRINT(("WARNING! Vizlet (viztag=%s) has been disabled!",VizTag().c_str()));
 	}
+
+	SetTimeSupported(true);
 
 	SetMinInputs(1);
 	SetMaxInputs(1);
@@ -187,6 +187,12 @@ Vizlet::~Vizlet()
 {
 	DEBUGPRINT1(("=== Vizlet destructor is called viztag=%s", m_viztag.c_str()));
 	_stopstuff();
+}
+
+DWORD Vizlet::SetTime(double tm) {
+	m_time = tm;
+	m_vizserver->SetTime(tm);
+	return FF_SUCCESS;
 }
 
 DWORD Vizlet::SetParameter(const SetParameterStruct* pParam) {
@@ -204,7 +210,7 @@ DWORD Vizlet::SetParameter(const SetParameterStruct* pParam) {
 	case 0:		// shape
 		if ( VizTag() != std::string(pParam->u.NewTextValue) ) {
 			SetVizTag(pParam->u.NewTextValue);
-			_af = ApiFilter(VizTag().c_str());
+			m_af = ApiFilter(VizTag().c_str());
 			ChangeVizTag(pParam->u.NewTextValue);
 		}
 		r = FF_SUCCESS;
@@ -228,9 +234,9 @@ char* Vizlet::GetParameterDisplay(DWORD n)
 #ifdef VIZTAG_PARAMETER
 	switch ( n ) {
 	case 0:
-	    strncpy_s(m_disp,DISPLEN,VizTag().c_str(),VizTag().size());
-	    m_disp[DISPLEN-1] = 0;
-		return m_disp;
+	    strncpy_s(_disp,DISPLEN,VizTag().c_str(),VizTag().size());
+	    _disp[DISPLEN-1] = 0;
+		return _disp;
 	}
 #endif
 	return "";
@@ -247,14 +253,14 @@ const char* vizlet_json(void* data,const char *method, cJSON* params, const char
 		// it is given to the plugin to handle.
 		if (std::string(method) == "description") {
 			std::string desc = vizlet_plugininfo().GetPluginExtendedInfo()->Description;
-			v->json_result = jsonStringResult(desc, id);
+			v->m_json_result = jsonStringResult(desc, id);
 		} else if (std::string(method) == "about") {
 			std::string desc = vizlet_plugininfo().GetPluginExtendedInfo()->About;
-			v->json_result = jsonStringResult(desc, id);
+			v->m_json_result = jsonStringResult(desc, id);
 		} else {
-			v->json_result = v->processJsonAndCatchExceptions(std::string(method), params, id);
+			v->m_json_result = v->processJsonAndCatchExceptions(std::string(method), params, id);
 		}
-		return v->json_result.c_str();
+		return v->m_json_result.c_str();
 	}
 }
 
@@ -288,7 +294,7 @@ void vizlet_keystroke(void* data,int key, int downup) {
 	v->processKeystroke(key,downup);
 }
 
-void Vizlet::advanceCursorTo(VizCursor* c, int tm) {
+void Vizlet::advanceCursorTo(VizCursor* c, double tm) {
 	m_vizserver->AdvanceCursorTo(c,tm);
 }
 
@@ -321,6 +327,7 @@ void Vizlet::_stopCallbacks() {
 	_stopApiCallbacks();
 	_stopMidiCallbacks();
 	_stopCursorCallbacks();
+	_stopKeystrokeCallbacks();
 }
 
 void Vizlet::_stopApiCallbacks() {
@@ -339,21 +346,21 @@ void Vizlet::_stopCursorCallbacks() {
 	m_vizserver->RemoveCursorCallback(Handle());
 }
 
-int Vizlet::MilliNow() {
-	if ( m_vizserver == NULL ) {
-		DEBUGPRINT(("Vizlet::MilliNow() - _vizserver is NULL!"));
-		return 0;
-	} else {
-		return m_vizserver->MilliNow();
-	}
+void Vizlet::_stopKeystrokeCallbacks() {
+	NosuchAssert(m_vizserver);
+	m_vizserver->RemoveKeystrokeCallback(Handle());
 }
 
-int Vizlet::CurrentClick() {
+double Vizlet::GetTime() {
+	return m_time;
+}
+
+int Vizlet::SchedulerCurrentClick() {
 	if ( m_vizserver == NULL ) {
 		DEBUGPRINT(("Vizlet::CurrentClick() - _vizserver is NULL!"));
 		return 0;
 	} else {
-		return m_vizserver->CurrentClick();
+		return m_vizserver->SchedulerCurrentClick();
 	}
 }
 
@@ -455,7 +462,7 @@ void
 Vizlet::StartVizServer() {
 	if ( ! m_vizserver->Started() ) {
 		m_vizserver->Start();
-		srand( m_vizserver->MilliNow() );
+		srand( (unsigned int)(m_vizserver->GetTime()) );
 	}
 }
 
@@ -477,12 +484,14 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 	if ( m_stopped ) {
 		return FF_SUCCESS;
 	}
-	if ( _disabled ) {
+	if ( m_disabled ) {
 		return FF_SUCCESS;
 	}
 
 	StartVizServer();
 	InitCallbacks();
+
+	m_framenum++;
 
 #ifdef FRAMELOOPINGTEST
 	static int framenum = 0;
@@ -493,7 +502,7 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 	if (json_pending) {
 		// Execute json stuff and generate response
 	
-		json_result = processJsonAndCatchExceptions(json_method, json_params, json_id);
+		m_json_result = processJsonAndCatchExceptions(json_method, json_params, json_id);
 		json_pending = false;
 		int e = pthread_cond_signal(&json_cond);
 		if ( e ) {
@@ -524,7 +533,7 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 		glScaled(2.0,2.0,1.0);
 		glTranslated(-0.5,-0.5,0.0);
 
-		int milli = MilliNow();
+		double tm = GetTime();
 		bool r;
 		if (m_call_RealProcessOpenGL) {
 			// This is used when adapting to existing FFGL plugin code
@@ -537,8 +546,8 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 		glDisable(GL_TEXTURE_2D);
 		glColor4f(1.f,1.f,1.f,1.f); //restore default color
 
-		m_spritelist->advanceTo(milli);
-		processAdvanceTimeTo(milli);
+		m_spritelist->advanceTo(tm);
+		processAdvanceTimeTo(tm);
 
 		if ( ! r ) {
 			DEBUGPRINT(("Palette::draw returned failure? (r=%d)\n",r));
@@ -552,9 +561,9 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 		gotexception = true;
 	}
 
-	if ( gotexception && _disable_on_exception ) {
+	if ( gotexception && m_disable_on_exception ) {
 		DEBUGPRINT(("DISABLING Vizlet due to exception!!!!!"));
-		_disabled = true;
+		m_disabled = true;
 	}
 
 	UnlockVizlet();
@@ -623,8 +632,8 @@ std::string Vizlet::processJsonAndCatchExceptions(std::string meth, cJSON *param
 		if ( meth == "echo"  ) {
 			std::string val = jsonNeedString(params,"value");
 			r = jsonStringResult(val,id);
-		} else if ( meth == "millinow"  ) {
-			r = jsonIntResult(MilliNow(),id);
+		} else if ( meth == "time"  ) {
+			r = jsonDoubleResult(GetTime(),id);
 		} else if ( meth == "name"  ) {
 		    std::string nm = CopyFFString16((const char *)(vizlet_plugininfo().GetPluginInfo()->PluginName));
 			r = jsonStringResult(nm,id);
@@ -645,41 +654,10 @@ std::string Vizlet::processJsonAndCatchExceptions(std::string meth, cJSON *param
 	return r;
 }
 
-std::string Vizlet::submitJsonForProcessing(std::string method, cJSON *params, const char *id) {
-
-	// We want JSON requests to be interpreted in the main thread of the FFGL plugin,
-	// so we stuff the request into json_* variables and wait for the main thread to
-	// pick it up (in ProcessOpenGL)
-	NosuchLock(&json_mutex,"json");
-
-	json_pending = true;
-	json_method = std::string(method);
-	json_params = params;
-	json_id = id;
-
-	bool err = false;
-	while ( json_pending ) {
-		DEBUGPRINT2(("####### Waiting for json_cond! MilliNow()=%d",MilliNow()));
-		int e = pthread_cond_wait(&json_cond, &json_mutex);
-		if ( e ) {
-			DEBUGPRINT2(("####### ERROR from pthread_cond_wait e=%d now=%d",e,MilliNow()));
-			err = true;
-			break;
-		}
-	}
-	if ( err ) {
-		json_result = error_json(-32000,"Error waiting for json!?");
-	}
-
-	NosuchUnlock(&json_mutex,"json");
-
-	return json_result.c_str();
-}
-
 AllVizParams*
 Vizlet::findAllVizParams(std::string cachename) {
-	std::map<std::string,AllVizParams*>::iterator it = _paramcache.find(cachename);
-	if ( it == _paramcache.end() ) {
+	std::map<std::string,AllVizParams*>::iterator it = m_paramcache.find(cachename);
+	if ( it == m_paramcache.end() ) {
 		return NULL;
 	}
 	return it->second;
@@ -724,10 +702,10 @@ Vizlet::VizParamPath(std::string configname) {
 AllVizParams*
 Vizlet::getAllVizParams(std::string path) {
 	if (m_useparamcache) {
-		std::map<std::string, AllVizParams*>::iterator it = _paramcache.find(path);
-		if (it == _paramcache.end()) {
-			_paramcache[path] = readVizParams(path);
-			return _paramcache[path];
+		std::map<std::string, AllVizParams*>::iterator it = m_paramcache.find(path);
+		if (it == m_paramcache.end()) {
+			m_paramcache[path] = readVizParams(path);
+			return m_paramcache[path];
 		}
 		else {
 			return it->second;
@@ -774,7 +752,7 @@ VizSprite*
 Vizlet::makeAndInitVizSprite(AllVizParams* p, NosuchPos pos) {
 
 	VizSprite* s = VizSprite::makeVizSprite(p);
-	s->m_frame = FrameSeq();
+	s->m_framenum = FrameNum();
 
 	double movedir;
 	if ( p->movedirrandom.get() ) {
@@ -787,7 +765,7 @@ Vizlet::makeAndInitVizSprite(AllVizParams* p, NosuchPos pos) {
 		movedir = p->movedir.get();
 	}
 
-	s->initVizSpriteState(MilliNow(),Handle(),pos,movedir);
+	s->initVizSpriteState(GetTime(),Handle(),pos,movedir);
 	DEBUGPRINT1(("Vizlet::makeAndInitVizSprite size=%f",s->m_state.size));
 	return s;
 }

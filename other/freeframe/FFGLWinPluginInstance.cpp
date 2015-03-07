@@ -1,16 +1,15 @@
 #include "NosuchUtil.h"
 #include "FFGLPlugin.h"
 
-class WinPluginDef :
-    public FFGLPluginDef
+class FFGLWinPluginDef : public FFGLPluginDef
 {
 public:
-    WinPluginDef();
+    FFGLWinPluginDef();
 
     DWORD Load(const char *filename);
     DWORD Unload();
 
-    virtual ~WinPluginDef();
+    virtual ~FFGLWinPluginDef();
 
 protected:
     HMODULE m_ffModule;
@@ -18,14 +17,14 @@ protected:
 
 FFGLPluginDef *FFGLPluginDef::NewPluginDef()
 {
-    return new WinPluginDef();
+    return new FFGLWinPluginDef();
 }
 
-WinPluginDef::WinPluginDef()
+FFGLWinPluginDef::FFGLWinPluginDef()
     :m_ffModule(NULL)
 {}
 
-DWORD WinPluginDef::Load(const char *fname)
+DWORD FFGLWinPluginDef::Load(const char *fname)
 {
     //warning_printf("FreeFrame Plugin Load Failed: %s", fname);
     if (fname==NULL || fname[0]==0)
@@ -36,6 +35,7 @@ DWORD WinPluginDef::Load(const char *fname)
 	std::wstring wfname = s2ws(fname);
     // m_ffModule = LoadLibrary(wfname.c_str());
     m_ffModule = LoadLibrary(fname);
+	DEBUGPRINT(("FFGLPluginDef Load fname=%s",fname));
     if (m_ffModule==NULL) {
 		long err = GetLastError();
         DEBUGPRINT(("LoadLibrary of %s failed with err=%ld",wfname.c_str(),err));
@@ -51,7 +51,7 @@ DWORD WinPluginDef::Load(const char *fname)
         return FF_FAIL;
     }
 
-    m_ffPluginMain = pFreeFrameMain;
+    m_mainfunc = pFreeFrameMain;
 
     DWORD rval = InitPluginLibrary();
     if (rval!=FF_SUCCESS)
@@ -60,7 +60,7 @@ DWORD WinPluginDef::Load(const char *fname)
     return FF_SUCCESS;
 }
 
-DWORD WinPluginDef::Unload()
+DWORD FFGLWinPluginDef::Unload()
 {
     DeinitPluginLibrary();
 
@@ -73,7 +73,7 @@ DWORD WinPluginDef::Unload()
     return FF_SUCCESS;
 }
 
-WinPluginDef::~WinPluginDef()
+FFGLWinPluginDef::~FFGLWinPluginDef()
 {
     if (m_ffModule!=NULL)
     {

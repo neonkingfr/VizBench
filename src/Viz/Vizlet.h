@@ -3,7 +3,6 @@
 
 #define VIZLET
 
-#include "ffutil.h"
 #include "FFGL.h"
 #include "FFGLPluginSDK.h"
 
@@ -56,12 +55,13 @@ public:
 	void StartVizServer();
 	void InitCallbacks();
 	void ChangeVizTag(const char* newtag);
-	void advanceCursorTo(VizCursor* c, int tm);
-	int MilliNow();
-	click_t CurrentClick();
+	void advanceCursorTo(VizCursor* c, double tm);
+	// int MilliTime();
+	double GetTime();
+	click_t SchedulerCurrentClick();
 	void LockVizlet();
 	void UnlockVizlet();
-	void DisableVizlet() { _disabled = true; }
+	void DisableVizlet() { m_disabled = true; }
 
 	void QueueMidiMsg(MidiMsg* m, click_t clk);
 	void QueueMidiPhrase(MidiPhrase* ph, click_t clk);
@@ -118,8 +118,6 @@ public:
 	std::string processJsonAndCatchExceptions(std::string meth, cJSON *params, const char *id);
 	static bool checkAddrPattern(const char *addr, char *patt);
 
-	std::string submitJsonForProcessing(std::string method, cJSON *params, const char *id);
-
 	/////////////////////////////////////////////////////
 	// These are the things that a Vizlet should override/define.
 	/////////////////////////////////////////////////////
@@ -163,7 +161,7 @@ public:
 	virtual bool processDraw() { return false;  }
 	virtual void processDrawNote(MidiMsg* m) { }
 	virtual void processAdvanceClickTo(int click) { }
-	virtual void processAdvanceTimeTo(int milli) { }
+	virtual void processAdvanceTimeTo(double tm) { }
 
 	NosuchGraphics graphics;
 
@@ -173,9 +171,9 @@ public:
 
 	void SendMidiMsg();
 	void DrawNotesDown();
-	int FrameSeq() { return m_vizserver->FrameSeq(); }
+	int FrameNum() { return m_framenum; }
 
-	std::string json_result;
+	std::string m_json_result;
 
 protected:	
 
@@ -211,6 +209,8 @@ private:
 	virtual DWORD SetParameter(const SetParameterStruct* pParam);
 	virtual DWORD GetParameter(DWORD dwIndex);
 	virtual char* GetParameterDisplay(DWORD dwIndex);
+	virtual DWORD SetTime(double time);
+
 	/////////////////////////////////////////////////////
 
 	void _stopstuff();
@@ -224,11 +224,14 @@ private:
 	void _startKeystrokeCallbacks(void* data);
 	void _stopKeystrokeCallbacks();
 
-	// int _frame;
+	void _drawnotes(std::list<MidiMsg*>& notes);
+
+	int m_framenum;
+	double m_time;
 	bool m_passthru;
 	bool m_stopped;
-	bool _disabled;
-	bool _disable_on_exception;
+	bool m_disabled;
+	bool m_disable_on_exception;
 	VizServer* m_vizserver;
 	bool m_callbacksInitialized;
 	std::string m_viztag;
@@ -236,14 +239,10 @@ private:
 	AllVizParams* m_defaultparams;
 	AllVizParams* m_defaultmidiparams;
 	bool m_useparamcache;
-	std::map<std::string, AllVizParams*> _paramcache;
+	std::map<std::string, AllVizParams*> m_paramcache;
 
-	void _drawnotes(std::list<MidiMsg*>& notes);
-
-#ifdef VIZTAG_PARAMETER
 #define DISPLEN 128
 	char m_disp[DISPLEN];
-#endif
 };
 
 std::string dll_pathname();

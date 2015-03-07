@@ -149,6 +149,8 @@ int ffffMain(std::string config)
 	int camera_index = jsonNeedInt(j, "camera", -1);  // -1 for no camera, 0+ for camera
 
 	F = new FFFF();
+	F->SetTrailEnable(jsonNeedBool(j, "trail_enable",true));
+	F->SetTrailAmount(jsonNeedDouble(j, "trail_amount",0.9));
 	F->SetShowFPS(jsonNeedInt(j, "showfps", 0) ? true : false);
 
 	F->StartStuff();
@@ -188,7 +190,7 @@ int ffffMain(std::string config)
 
 	F->loadAllPluginDefs(ff10path, ffglpath, ffgl_width, ffgl_height);
 
-	F->setupTrails();
+	// F->setupTrails();
 
 	bool use_camera = FALSE;
 	if (camera_index < 0) {
@@ -233,7 +235,6 @@ int ffffMain(std::string config)
 			int width, height;
 			glfwGetFramebufferSize(F->window, &width, &height);
 
-			// DEBUGPRINT(("PostJSON B"));
 			F->doOneFrame(use_camera, width, height);
 
 			glfwSwapBuffers(F->window);

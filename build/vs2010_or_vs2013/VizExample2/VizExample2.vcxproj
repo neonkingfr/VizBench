@@ -1,21 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
@@ -102,9 +94,9 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>misclib_MD.lib;pthreadVC2.lib;winmm.lib;OpenGL32.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FFGLlib_MD.lib;pthreadVC2.lib;winmm.lib;OpenGL32.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(Configuration)\$(ProjectName).dll</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\misclib_MD\Debug;..\VizServer\Debug;..\..\..\other\Box2D\Build\vs2010\bin\x32\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\FFGLlib_MD\Debug;..\VizServer\Debug;..\..\..\other\Box2D\Build\vs2010\bin\x32\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -116,7 +108,7 @@
       <ModuleDefinitionFile>FFGLPlugins.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>..\..\..\bin\postbuildplugin.bat $(Configuration) $(ProjectName)</Command>
+      <Command>..\..\..\bin\postbuildvizlet.bat $(Configuration) $(ProjectName)</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -170,9 +162,9 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>misclib_MD.lib;pthreadVC2.lib;winmm.lib;OpenGL32.lib;Ws2_32.lib;VizServer.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FFGLlib_MD.lib;pthreadVC2.lib;winmm.lib;OpenGL32.lib;Ws2_32.lib;VizServer.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(Configuration)\$(ProjectName).dll</OutputFile>
-      <AdditionalLibraryDirectories>..\misclib_MD\Release;..\VizServer\Release;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\FFGLlib_MD\Release;..\VizServer\Release;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
@@ -188,7 +180,7 @@
       <ModuleDefinitionFile>FFGLPlugins.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>..\..\..\bin\postbuildplugin.bat $(Configuration) $(ProjectName)</Command>
+      <Command>..\..\..\bin\postbuildvizlet.bat $(Configuration) $(ProjectName)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

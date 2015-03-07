@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -11,10 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{F816AF86-328C-4E5C-BEDA-06D5FC309401}</ProjectGuid>
+    <ProjectGuid>{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}</ProjectGuid>
     <RootNamespace>Manifold</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>VizLooper</ProjectName>
+    <ProjectName>VizletGLTemplate</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -73,7 +73,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\src\plugins\VizLooper;..\..\..\src\params;..\..\..\src\misclib;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\cJSON;..\..\..\other\freeframe;..\..\..\other\osc\include;..\..\..\other\portmidi\porttime;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\plugins\VizletGLTemplate;..\..\..\src\params;..\..\..\src\misclib;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\cJSON;..\..\..\other\freeframe;..\..\..\other\osc\include;..\..\..\other\portmidi\porttime;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;VIZBENCH_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -89,7 +89,7 @@
       <OutputFile>$(Configuration)\$(ProjectName).dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\FFGLlib_MD\Debug;..\VizServer\Debug;..\..\..\other\Box2D\Build\vs2010\bin\x32\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ModuleDefinitionFile>FFGLPlugins.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>FFPlugins.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -109,7 +109,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\src\freeframe;..\..\..\src\VizLooper;..\..\..\src\cJSON;..\..\..\src\osc\include;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\src\portmidi\porttime;..\..\..\src\portmidi\pm_common;..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\include;C:\Python26\include;..\..\..\src\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\freeframe;..\..\..\src\VizletGLTemplate;..\..\..\src\cJSON;..\..\..\src\osc\include;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\src\portmidi\porttime;..\..\..\src\portmidi\pm_common;..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\include;C:\Python26\include;..\..\..\src\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;VIZBENCH_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -121,10 +121,10 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>VizLib.lib;pthreadVC2.lib;winmm.lib;OpenGL32.lib;Glu32.lib;Ws2_32.lib;VizServer.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Debug\VizLooper.dll</OutputFile>
+      <OutputFile>Debug\VizletGLTemplate.dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\lib;..\..\..\src\freeglut-2.6.0\VisualStudio2008Static\Release;c:\Python26\libs;..\VizLib\Debug;..\VizServer\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ModuleDefinitionFile>VizLooper.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>VizletGLTemplate.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -133,7 +133,7 @@
       <Profile>true</Profile>
     </Link>
     <PostBuildEvent>
-      <Command>copy Debug\VizLooper.dll ..\..\..\ffglplugins\VizLooper.dll</Command>
+      <Command>copy Debug\VizletGLTemplate.dll ..\..\..\ffglplugins\VizletGLTemplate.dll</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -168,7 +168,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
-      <ModuleDefinitionFile>FFGLPlugins.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>FFPlugins.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
       <Command>..\..\..\bin\postbuildvizlet.bat $(Configuration) $(ProjectName)</Command>
@@ -188,11 +188,11 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>OpenGL32.lib;pthreadVC2.lib;freeglut_static.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Release\VizLooper.dll</OutputFile>
+      <OutputFile>Release\VizletGLTemplate.dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\..\Source\pthreads-win32-2.8.0\Pre-built.2\lib;..\..\..\..\Source\freeglut-2.6.0\VisualStudio2008Static\Release;C:\Python26\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ModuleDefinitionFile>FFGLPlugins.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>FFPlugins.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -208,10 +208,10 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\plugins\VizLooper\VizLooper.cpp" />
+    <ClCompile Include="..\..\..\src\plugins\VizletGLTemplate\VizletGLTemplate.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\plugins\VizLooper\VizLooper.h" />
+    <ClInclude Include="..\..\..\src\plugins\VizletGLTemplate\VizletGLTemplate.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VizServer\VizServer.vcxproj">

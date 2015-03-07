@@ -1,33 +1,19 @@
 {
 "pipeline": [
 	{
-		"plugin": "Vizlet1",
+		"plugin": "VizExample1",
 		"params": {
 		}
 	}
 ,
 	{
-		"plugin": "Vizlet2",
+		"plugin": "VizExample2",
 		"params": {
 		}
 	}
 # ,
 # 	{
-# 		"plugin": "Twisted",
-# 		"params": {
-# 		}
-# 	}
-# ,
-# 	{
-# 		"viztag": "p4",
-# 		"plugin": "Blur",
-# 		"params": {
-# 		}
-# 	}
-# ,
-# 	{
-# 		"viztag": "p5",
-# 		"plugin": "Edge Detection",
+# 		"plugin": "Threshhold",
 # 		"params": {
 # 		}
 # 	}
