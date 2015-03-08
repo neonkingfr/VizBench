@@ -33,9 +33,13 @@ parser = argparse.ArgumentParser("Generate a new FFGL plugin project")
 parser.add_argument("name", help="FFGL plugin name")
 parser.add_argument("-i", "--id", help="4-character FFGL plugin ID")
 parser.add_argument("-f", "--force",
-		help="Force overwriting of an existing project", action="store_true")
+		help="Force overwriting of an existing project",
+		action="store_true")
 parser.add_argument("-b", "--builddir", help="Visual Studio build directory")
 parser.add_argument("-v", "--viztype", help="Either 10 or GL")
+parser.add_argument("-x", "--vizbenchx",
+		help="Put the result in VizBenchX",
+		action="store_true")
 
 args = parser.parse_args()
 
@@ -44,6 +48,7 @@ id = args.id
 force = args.force
 builddir = args.builddir
 viztype = args.viztype
+vizbenchx = args.vizbenchx
 
 if not viztype:
 	viztype = "GL"
@@ -57,16 +62,16 @@ if not nm[0].isupper():
 	print("The plugin name needs to start with an uppercase letter!")
 	sys.exit(1)
 
-manifold = os.getenv("VIZBENCH")
-if not manifold:
+vizbench = os.getenv("VIZBENCH")
+if not vizbench:
 	print("VIZBENCH environment variable isn't set!")
 	sys.exit(1)
 
-os.chdir(manifold)
+os.chdir(vizbench)
 
-projdir = os.path.join(manifold,builddir,VizletTemplate)
-srcdir = os.path.join(manifold,"src","plugins",VizletTemplate)
-blddir = os.path.join(manifold,builddir)
+projdir = os.path.join(vizbench,builddir,VizletTemplate)
+srcdir = os.path.join(vizbench,"src","plugins",VizletTemplate)
+blddir = os.path.join(vizbench,builddir)
 
 # Make sure various directories exist
 
@@ -88,8 +93,12 @@ if not os.path.isdir("src"):
 
 # Make sure we're in the correct directory (i.e. has blddir and src subdirs)
 
-toprojdir = blddir + "/" + nm
-tosrcdir = "src/plugins/" + nm
+if args.vizbenchx:
+	toprojdir = os.path.join("../VizBenchX",builddir,nm)
+	tosrcdir = os.path.join("../VizBenchX/src/plugins",nm)
+else:
+	toprojdir = os.path.join(blddir,nm)
+	tosrcdir = os.path.join("src/plugins",nm)
 
 if force == False and (os.path.exists(toprojdir) or os.path.exists(tosrcdir)):
 	print "That vizlet already exists (i.e. either "+ \
