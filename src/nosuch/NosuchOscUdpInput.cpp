@@ -119,7 +119,7 @@ NosuchOscUdpInput::Check()
 void
 NosuchOscUdpInput::UnListen()
 {
-    DEBUGPRINT(("_oscUnlisten( _myport=%d)", m_myport));
+    DEBUGPRINT(("UNLISTENING for OSC on UDP port %d)", m_myport));
     closesocket(m_sock);
     m_sock = INVALID_SOCKET;
 }

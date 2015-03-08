@@ -86,8 +86,9 @@ public:
 	}
 	void AdvanceClickTo(int current_click, NosuchScheduler* sched) {
 		static int lastclick = -1;
-		if (current_click > (lastclick + 1)) {
-			DEBUGPRINT(("advanced click by %d", current_click - lastclick));
+		// Print warning if we get too much behind
+		if (current_click > (lastclick + 4)) {
+			DEBUGPRINT(("warning: advanced click by %d", current_click - lastclick));
 		}
 		lastclick = current_click;
 		m_server->_advanceClickTo(current_click, sched);
@@ -779,6 +780,7 @@ VizServer::VizServer() {
 }
 
 VizServer::~VizServer() {
+	DEBUGPRINT(("VizServer destructor called"));
 	Stop();
 }
 
@@ -1201,10 +1203,10 @@ getout:
 
 void
 VizServer::Stop() {
-	DEBUGPRINT(("VizServer::Stop called"));
 	if (!m_started) {
 		return;
 	}
+	DEBUGPRINT(("VizServer::Stop is shutting things down"));
 	m_started = false;
 	if (m_scheduler) {
 		ANO();

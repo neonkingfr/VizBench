@@ -440,19 +440,8 @@ SchedEventList* NosuchScheduler::ScheduleOf(void* handle) {
 }
 
 void NosuchScheduler::Stop() {
-	DEBUGPRINT(("NosuchScheduler::Stop is starting, notesdown=%d",m_notesdown.size()));
-#ifdef THIS_IS_BUGGY
-	LockNotesDown();
-	for ( std::list<MidiMsg*>::const_iterator ci = m_notesdown.begin(); ci != m_notesdown.end(); ) {
-		MidiMsg* m2 = *ci;
-		DEBUGPRINT(("  should be doing noteoff for %s",m2->DebugString()));
-		SendMidiMsg(m2, 0);
-	}
-	m_notesdown.clear();
-	UnlockNotesDown();
-#endif
-
 	if ( m_running == TRUE ) {
+		DEBUGPRINT(("NosuchScheduler is being stopped"));
 		Pt_Stop();
 		for (size_t i = 0; i<m_midi_input_stream.size(); i++ ) {
 			if (m_midi_input_stream[i]) {
@@ -474,6 +463,7 @@ void NosuchScheduler::Stop() {
 		}
 		Pm_Terminate();
 		m_running = false;
+		DEBUGPRINT(("NosuchScheduler is stopped"));
 	}
 }
 

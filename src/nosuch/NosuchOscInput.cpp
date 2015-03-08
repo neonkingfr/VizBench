@@ -18,8 +18,7 @@ NosuchOscInput::NosuchOscInput(NosuchOscListener* p) {
 }
 
 NosuchOscInput::~NosuchOscInput() {
-
-    DEBUGPRINT(("NosuchOscInput destructor"));
+    DEBUGPRINT2(("NosuchOscInput destructor"));
 }
 
 void

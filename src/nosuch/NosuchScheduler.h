@@ -159,7 +159,6 @@ public:
 		m_queue = new SchedEventList();
 	}
 	~NosuchScheduler() {
-		DEBUGPRINT(("NosuchScheduler destructor!"));
 		Stop();
 	}
 

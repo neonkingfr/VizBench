@@ -45,6 +45,7 @@ NosuchHttpServer::NosuchHttpServer(NosuchJsonListener* jproc, int port, std::str
 	m_listening_socket = new NosuchSocket();
 	m_json_processor = jproc;
 	m_htmldir = htmldir;
+	m_port = port;
 	// Someday we'll probably need the ability to specify a host,
 	// but it's more foolproof to listen on all IP addresses
 	// of the local host, so we set h=0
@@ -52,11 +53,11 @@ NosuchHttpServer::NosuchHttpServer(NosuchJsonListener* jproc, int port, std::str
 	m_shouldbeshutdown = false;
 	m_shutdowncomplete = false;
 	m_listening_socket->Listen(h, port, timeout, idletime);
-	DEBUGPRINT(("Listening for HTTP on TCP port %d\n", port));
+	DEBUGPRINT(("Listening for HTTP on TCP port %d\n", m_port));
 }
 
 NosuchHttpServer::~NosuchHttpServer() {
-	DEBUGPRINT(("~NosuchHttpServer called, deleting listening socket=%lx", (long)m_listening_socket));
+	DEBUGPRINT(("UNLISTENING for HTTP on TCP port %d", (long)m_port));
 	delete m_listening_socket;
 	m_listening_socket = NULL;
 }

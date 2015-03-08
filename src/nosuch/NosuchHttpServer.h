@@ -67,6 +67,7 @@ private:
 	std::string m_htmldir;
 	bool m_shouldbeshutdown;
 	bool m_shutdowncomplete;
+	int m_port;
 };
 
 #endif

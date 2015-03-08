@@ -811,7 +811,7 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 	}
 #endif
 
-	static GLubyte *data = NULL;
+	static GLubyte *m_data = NULL;
 
 	extern char* SaveFrames;
 	extern FILE* Ffmpeg;
@@ -820,15 +820,15 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 	if (SaveFrames && *SaveFrames!='\0') {
 		static int filenum = 0;
 		std::string path = VizPath("recording") + NosuchSnprintf("/%s%06d.ppm", SaveFrames, filenum++);
-		if (data == NULL) {
-			data = (GLubyte*)malloc(4 * window_width*window_height);  // 4, should work for both 3 and 4 bytes
+		if (m_data == NULL) {
+			m_data = (GLubyte*)malloc(4 * window_width*window_height);  // 4, should work for both 3 and 4 bytes
 			// DEBUGPRINT(("---- MALLOC SaveFrames data %d", data));
 		}
-		glReadPixels(0, 0, window_width, window_height, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
+		glReadPixels(0, 0, window_width, window_height, GL_BGR_EXT, GL_UNSIGNED_BYTE, m_data);
 		IplImage* img = cvCreateImageHeader(cvSize(window_width, window_height), IPL_DEPTH_8U, 3);
 		// DEBUGPRINT(("---- MALLOC SaveFrames img %d", (long)img));
 		img->origin = 1;  // ???
-		img->imageData = (char*)data;
+		img->imageData = (char*)m_data;
 		if (!cvSaveImage(path.c_str(), img)) {
 			DEBUGPRINT(("Unable to save image: %s", path.c_str()));
 		}
@@ -838,18 +838,12 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 		cvReleaseImageHeader(&img);
 	}
 	if (Ffmpeg) {
-		if (data == NULL) {
-			data = (GLubyte*)malloc(4 * window_width*window_height);  // 4, should work for both 3 and 4 bytes
+		if (m_data == NULL) {
+			m_data = (GLubyte*)malloc(4 * window_width*window_height);  // 4, should work for both 3 and 4 bytes
 			// DEBUGPRINT(("---- MALLOC Ffmpeg data %d", data));
 		}
-		// glReadPixels(0, 0, window_width, window_height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-		// glReadPixels(0, 0, window_width, window_height, GL_BGR_EXT, GL_3_BYTES, data);
-		glReadPixels(0, 0, window_width, window_height, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
-
-		// glReadPixels(0, 0, window_width, window_height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		// glReadPixels(0, 0, window_width, window_height, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
-		fwrite(data, window_width*window_height, 3, Ffmpeg);
+		glReadPixels(0, 0, window_width, window_height, GL_BGR_EXT, GL_UNSIGNED_BYTE, m_data);
+		fwrite(m_data, window_width*window_height, 3, Ffmpeg);
 	}
 
 #ifdef NOMORERELEASE
