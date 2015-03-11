@@ -188,7 +188,8 @@ public:
 		for (it = this->begin(); it != this->end(); it++) {
 			VizServerApiCallback* sscb = it->second;
 			std::string tag = std::string(sscb->m_af.prefix);
-			if (tag != "UNTAGGED" && tag != "ffff") {
+			// if (tag != "UNTAGGED" && tag != "ffff") {
+			if (tag != "UNTAGGED" ) {
 				s += ("," + tag);
 			}
 		}

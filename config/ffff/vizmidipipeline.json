@@ -6,17 +6,14 @@
 		}
 	},
 	{
-		"plugin": "Edge Detection",
-		"params": {
-		}
-	},
-	{
 		"plugin": "Blur",
+		"enabled": 0,
 		"params": {
 		}
 	},
 	{
 		"plugin": "Trails",
+		"enabled": 0,
 		"params": {
 		}
 	}

@@ -27,12 +27,12 @@ StringVals = {};
 function updateonevalue(name,value) {
 	var obj = ParamList[name];
 	var type = obj["type"];
-	var valueid = dojo.byId("value_"+name);
+	var valueid = document.getElementById("value_"+name);
 	if ( valueid ) {
 		valueid.value = value;
 	}
 	if ( type == "double" || type == "int" ) {
-		var rangeid = dojo.byId("range_"+name);
+		var rangeid = document.getElementById("range_"+name);
 		if ( rangeid ) {
 			rangeid.value = value;
 		}
@@ -42,14 +42,14 @@ function updateonevalue(name,value) {
 }
 
 function readfile() {
-	var paramfilename = dojo.byId("paramfilename");
+	var paramfilename = document.getElementById("paramfilename");
 	var filename = paramfilename.value;
-	var status = dojo.byId("status");
+	var status = document.getElementById("status");
 	if ( filename == "" ) {
 		status.innerHTML = "No Filename set, can't Load!"
 		return;
 	}
-	var api = doapi('VizServer.param_readfile','{ "paramfile":"'+filename+'" }');
+	var api = vizapi('VizServer.param_readfile','{ "paramfile":"'+filename+'" }');
 	if ( api.result == "" ) {
 		status.innerHTML = "error="+api.error;
 	} else {
@@ -84,9 +84,9 @@ function randparams() {
 		var type = obj["type"];
 		var mn = obj["min"];
 		var mx = obj["max"];
-		var randableid = dojo.byId("randable_"+name);
-		var randminid = dojo.byId("randmin_"+name);
-		var randmaxid = dojo.byId("randmax_"+name);
+		var randableid = document.getElementById("randable_"+name);
+		var randminid = document.getElementById("randmin_"+name);
+		var randmaxid = document.getElementById("randmax_"+name);
 		if ( !randableid || !randminid || !randmaxid ) {
 			continue;
 		}
@@ -110,7 +110,7 @@ function randparams() {
 
 function setallrandable(onoff) {
 	for ( var name in ParamList ) {
-		var randableid = dojo.byId("randable_"+name);
+		var randableid = document.getElementById("randable_"+name);
 		if ( !randableid ) {
 			continue;
 		}
@@ -125,9 +125,9 @@ function randdefaults() {
 		var type = obj["type"];
 		var mn = obj["min"];
 		var mx = obj["max"];
-		var randableid = dojo.byId("randable_"+name);
-		var randminid = dojo.byId("randmin_"+name);
-		var randmaxid = dojo.byId("randmax_"+name);
+		var randableid = document.getElementById("randable_"+name);
+		var randminid = document.getElementById("randmin_"+name);
+		var randmaxid = document.getElementById("randmax_"+name);
 		if ( !randableid || !randminid || !randmaxid ) {
 			continue;
 		}
@@ -153,9 +153,9 @@ function randdefaults() {
 }
 
 function loaddefaults() {
-	var paramfilename = dojo.byId("paramfilename");
+	var paramfilename = document.getElementById("paramfilename");
 	var filename = paramfilename.value;
-	var status = dojo.byId("status");
+	var status = document.getElementById("status");
 	if ( ParamList == null ) {
 		status.innerHTML = "No ParamList value!?";
 		return;
@@ -168,17 +168,17 @@ function loaddefaults() {
 }
 
 function writefile() {
-	var paramfilename = dojo.byId("paramfilename");
+	var paramfilename = document.getElementById("paramfilename");
 	var contents = "";
 	var sep = "{ ";
 	for ( name in ParamList ) {
-		var valueid = dojo.byId("value_"+name);
+		var valueid = document.getElementById("value_"+name);
 		contents += (sep+"\""+name+"\":\""+valueid.value+"\"");
 		sep = ",";
 	}
 	contents += " }";
-	var api = doapi('VizServer.param_writefile','{ "paramfile":"'+paramfilename.value+'", "contents":'+contents+' }');
-	var status = dojo.byId("status");
+	var api = vizapi('VizServer.param_writefile','{ "paramfile":"'+paramfilename.value+'", "contents":'+contents+' }');
+	var status = document.getElementById("status");
 	if ( paramfilename.value == "" ) {
 		status.innerHTML = "No Filename set, can't Save!"
 	} else if ( api.result == "" ) {
@@ -189,8 +189,8 @@ function writefile() {
 }
 
 function changeparamfile() {
-	var paramfilename = dojo.byId("paramfilename");
-	var paramfile = dojo.byId("paramfile");
+	var paramfilename = document.getElementById("paramfilename");
+	var paramfile = document.getElementById("paramfile");
 	var val = paramfile.value;
 	var words = val.split(/[\\\/]/);
 	if ( words.length > 1 ) {
@@ -200,12 +200,12 @@ function changeparamfile() {
 	readfile();
 }
 function browsefile() {
-	var paramfile = dojo.byId("paramfile");
+	var paramfile = document.getElementById("paramfile");
 	paramfile.click();
 }
 
 function togglebool(name) {
-	var valueid = dojo.byId("value_"+name);
+	var valueid = document.getElementById("value_"+name);
 	if ( valueid.value == "true" || valueid.value == "True" || valueid.value == "1") {
 		valueid.value = "false";
 	} else {
@@ -224,15 +224,15 @@ function stringvalindex(name,val) {
 }
 
 function autowritefile() {
-	var autosave = dojo.byId("autosave");
-	var paramfilename = dojo.byId("paramfilename");
+	var autosave = document.getElementById("autosave");
+	var paramfilename = document.getElementById("paramfilename");
 	if ( autosave.checked && paramfilename.value != "" ) {
 		writefile()
 	}
 }
 
 function nextvalue(name,increment) {
-	var valueid = dojo.byId("value_"+name);
+	var valueid = document.getElementById("value_"+name);
 	var curr = valueid.value;
 	var valarray = StringVals[name];
 	var i = stringvalindex(name,curr);
@@ -253,8 +253,8 @@ function nextvalue(name,increment) {
 }
 
 function changeval(name) {
-	var valueid = dojo.byId("value_"+name);
-	var rangeid = dojo.byId("range_"+name);
+	var valueid = document.getElementById("value_"+name);
+	var rangeid = document.getElementById("range_"+name);
 	valueid.value = rangeid.value;
 }
 
@@ -266,16 +266,37 @@ function updateval(name) {
 // updateval2 propagate changes from value_ to range_ rather
 // than range_ to value_
 function updateval2(name) {
-	var valueid = dojo.byId("value_"+name);
-	var rangeid = dojo.byId("range_"+name);
+	var valueid = document.getElementById("value_"+name);
+	var rangeid = document.getElementById("range_"+name);
 	rangeid.value = valueid.value;
 	autowritefile();
 }
 
+function queryvalues() {
+	// Build an empty URL structure in which we will store
+        // the individual query values by key.
+        var values = new Object();
+
+        // Use the String::replace method to iterate over each
+        // name-value pair in the query string. Location.search
+        // gives us the query string (if it exists).
+        window.location.search.replace(
+            new RegExp( "([^?=&]+)(=([^&]*))?", "g" ),
+
+            // For each matched query string pair, add that
+            // pair to the URL struct using the pre-equals
+            // value as the key.
+            function( $0, $1, $2, $3 ){
+                values[ $1 ] = $3;
+            }
+            );
+	return values;
+}
+
 function setup() {
 
-	var status = dojo.byId("status");
-	var params = dojo.byId("params");
+	var status = document.getElementById("status");
+	var params = document.getElementById("params");
 
 	var host = document.location.host;
 	var i = host.indexOf(":");
@@ -313,7 +334,7 @@ function setup() {
 	html += "AutoSave<input type=\"checkbox\" checked=\"checked\" id=\"autosave\" value=\"AutoSave\" >";
 	html += "<p>";
 
-	var api = doapi('VizServer.param_list');
+	var api = vizapi('VizServer.param_list');
 	if ( api.result == "" ) {
 		status.innerHTML = api.error;
 	} else {
@@ -360,7 +381,7 @@ function setup() {
 				// For strings, the min/max values convey
 				// the string values type.
 				var valstype = mn;
-				var a = doapi('VizServer.param_stringvals','{ "type":"'+valstype+'" }');
+				var a = vizapi('VizServer.param_stringvals','{ "type":"'+valstype+'" }');
 				if ( a.result != "" ) {
 					var j = JSON.parse(a.result);
 					if ( !j ) {
@@ -397,92 +418,13 @@ function setup() {
 
 	params.innerHTML = html;
 
-	// var viztags = doapi('viztags').result;
-
-	// if ( viztags == "" ) {
-	// 	plugins.innerHTML = "No viz plugins are present.";
-	// 	return;
-	// }
-
-//	var plugins = dojo.byId("vizplugins");
-//
-//	var tags = viztags.split(",");
-//	var r;
-//	for ( var i=0; i<tags.length; i++ ) {
-//		tag = tags[i];
-//		html += "<p><hr>"+tag+"\n";
-//
-//		var desc = doapi(tag+'.description').result;
-//		html += "<p>Description: "+desc + "\n";
-//
-//		var about = doapi(tag+'.about').result;
-//		html += "<p>About: "+about + "\n";
-//
-//		var apis = doapi(tag+'.apis').result;
-//		if ( apis == "" ) {
-//			html += "<p>No APIs";
-//		} else {
-//			html += "<table>";
-//			html += "<tr><td>APIs:</td></tr>";
-//
-//			var a = apis.split(";");
-//			for ( var n=0; n<a.length; n++ ) {
-//				html += "<tr><td></td>";
-//				var w = a[n].split(/[\(\)]/);
-//				// We expect the length of w to be either 1 (just an api name) or
-//				// 3 (api name + argument)
-//				var api = w[0];
-//				var fullapiname = tag + "." + api;
-//				if ( w.length <= 1 ) {
-//					html += "<td><input type=\"button\" style=\"width:100px\" value=\""+a[n]+"\" onClick=\"doapi('"+fullapiname+"');\"></td>";
-//				} else if ( w.length != 3 ) {
-//					alert("Hey, too many arguments on api="+w[0]+" length="+w.length+" an="+a[n]);
-//				} else {
-//					var args = w[1].split(",");
-//
-//					var argname = args[0];
-//					var inputid = tag+"_"+api;
-//					var argstr = "&quot;" + argname + "&quot; : "
-//						+ "&quot;'+document.getElementById(&quot;" + inputid + "&quot;).value+'&quot;";
-//
-//					html += "<td><input type=\"button\" style=\"width:100px\" value=\""
-//						+api+"\" onClick=\"doapi('"+fullapiname+"','{"+argstr+"}');\"></td>";
-//
-//					html += "<td width=10></td><td align=right>"
-//						+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" id=\""+inputid+"\" size=8></td>";
-//				}
-//				html += "</tr>";
-//			}
-//			html += "</table>";
-//		}
-//	}
-//	plugins.innerHTML = html;
-//
-//	// After the HTML is all done and enabled, set the values using any apis that start with "set_"
-//	for ( var i=0; i<tags.length; i++ ) {
-//		tag = tags[i];
-//		var apis = doapi(tag+'.apis').result;
-//		if ( apis != "" ) {
-//			var a = apis.split(";");
-//			for ( var n=0; n<a.length; n++ ) {
-//				html += "<tr><td></td>";
-//				var w = a[n].split(/[\(\)]/);
-//				if ( w.length <= 1 ) {
-//					continue;
-//				}
-//				var api = w[0];
-//				var args = w[1].split(",");
-//				if ( api.search("set_") != 0 ) {
-//					continue;
-//				}
-//				argname = api.substring(4);
-//				var getapi = tag + ".get_" + argname;
-//				var val = doapi(getapi).result;
-//				var inputid = tag+"_"+api;
-//				document.getElementById(inputid).value = val;
-//			}
-//		}
-//	}
+	// Fill in the Filename with the paramfile query value
+	var vals = queryvalues();
+	if ( vals["paramfile"] ) {
+		var paramfilename = document.getElementById("paramfilename");
+		paramfilename.value = vals["paramfile"];
+		readfile();
+	}
 }
 
 dojo.addOnLoad(setup);

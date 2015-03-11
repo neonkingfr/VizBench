@@ -7,7 +7,7 @@ function format_error(meth,err) {
 	}
 }
 
-function doapi(meth,params) {
+function vizapi(meth,params) {
 
 	// The value of params should include the curly braces
 	params = (typeof params === "undefined") ? "{ }" : params;
@@ -49,6 +49,7 @@ function viztitlegen(titlestr) {
 	var title = dojo.byId("title");
 	title.innerHTML = "<h2>"+titlestr+"</h2>";
 	title.innerHTML += "<br><a href=index.html>Vizlets Control</a>";
+	title.innerHTML += "<br><a href=ffff.html>FFFF Control</a>";
 	title.innerHTML += "<br><a href=vizserver.html>VizServer Control</a>";
 	title.innerHTML += "<br><a href=params.html>Params Editor</a>";
 }
@@ -57,7 +58,7 @@ function vizpagegen(taginclude,tagexclude) {
 
 	var plugins = dojo.byId("vizplugins");
 
-	var viztags = doapi('viztags').result;
+	var viztags = vizapi('viztags').result;
 
 	if ( viztags == "" ) {
 		plugins.innerHTML = "No viz plugins are present.";
@@ -80,13 +81,13 @@ function vizpagegen(taginclude,tagexclude) {
 		}
 		html += "<p><hr>"+tag+"\n";
 
-		var desc = doapi(tag+'.description').result;
+		var desc = vizapi(tag+'.description').result;
 		html += "<p>Description: "+desc + "\n";
 
-		var about = doapi(tag+'.about').result;
+		var about = vizapi(tag+'.about').result;
 		html += "<p>About: "+about + "\n";
 
-		var apis = doapi(tag+'.apis').result;
+		var apis = vizapi(tag+'.apis').result;
 		if ( apis == "" ) {
 			html += "<p>No APIs";
 		} else {
@@ -97,12 +98,15 @@ function vizpagegen(taginclude,tagexclude) {
 			for ( var n=0; n<a.length; n++ ) {
 				html += "<tr><td></td>";
 				var w = a[n].split(/[\(\)]/);
+				if ( w == "" ) {
+					continue;
+				}
 				// We expect the length of w to be either 1 (just an api name) or
 				// 3 (api name + argument)
 				var api = w[0];
 				var fullapiname = tag + "." + api;
 				if ( w.length <= 1 ) {
-					html += "<td><input type=\"button\" style=\"width:100px\" value=\""+a[n]+"\" onClick=\"doapi('"+fullapiname+"');\"></td>";
+					html += "<td><input type=\"button\" style=\"width:100px\" value=\""+a[n]+"\" onClick=\"vizapi('"+fullapiname+"');\"></td>";
 				} else if ( w.length != 3 ) {
 					alert("Hey, too many arguments on api="+w[0]+" length="+w.length+" an="+a[n]);
 				} else {
@@ -114,7 +118,7 @@ function vizpagegen(taginclude,tagexclude) {
 						+ "&quot;'+document.getElementById(&quot;" + inputid + "&quot;).value+'&quot;";
 
 					html += "<td><input type=\"button\" style=\"width:100px\" value=\""
-						+api+"\" onClick=\"doapi('"+fullapiname+"','{"+argstr+"}');\"></td>";
+						+api+"\" onClick=\"vizapi('"+fullapiname+"','{"+argstr+"}');\"></td>";
 
 					html += "<td width=10></td><td align=right>"
 						+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" id=\""+inputid+"\" size=8></td>";
@@ -140,7 +144,7 @@ function vizpagegen(taginclude,tagexclude) {
 			continue;
 		}
 
-		var apis = doapi(tag+'.apis').result;
+		var apis = vizapi(tag+'.apis').result;
 		if ( apis != "" ) {
 			var a = apis.split(";");
 			for ( var n=0; n<a.length; n++ ) {
@@ -156,7 +160,7 @@ function vizpagegen(taginclude,tagexclude) {
 				}
 				argname = api.substring(4);
 				var getapi = tag + ".get_" + argname;
-				var val = doapi(getapi).result;
+				var val = vizapi(getapi).result;
 				var inputid = tag+"_"+api;
 				document.getElementById(inputid).value = val;
 			}

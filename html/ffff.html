@@ -19,23 +19,13 @@
 
 <script src="dojo/dojo.js" djConfig="parseOnLoad: true"> </script>
 <script src="viz.js" djConfig="parseOnLoad: true"> </script>
+<script src="ffff.js" djConfig="parseOnLoad: true"> </script>
 <script type="text/javascript">
 
-function editparams(inputid) {
-	var filename = dojo.byId(inputid);
-	window.location.href = "params.html?paramfile="+filename.value;
-}
-
 function setup() {
-
-	viztitlegen("Vizlets Control");
-
-	var taginclude = /.*/;
-	var tagexclude = /(ffff)|(VizServer)/;
-
-	vizpagegen(taginclude,tagexclude);
+	viztitlegen("FFFF Control");
+	ffffpagegen();
 }
-
 
 dojo.addOnLoad(setup);
 </script>
@@ -45,12 +35,9 @@ dojo.addOnLoad(setup);
 
 <center>
 <div id="title">&nbsp;</div>
-<br>
 </center>
-<p>
-<div id="vizserver"></div>
-<p>
-<div id="vizplugins"></div>
+<br>
+<div id="ffglpipeline"></div>
 <p>
 	
 </body>

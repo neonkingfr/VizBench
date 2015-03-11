@@ -205,7 +205,7 @@ int ffffMain(std::string config)
 
 	try {
 		CATCH_NULL_POINTERS;
-		F->loadPipeline(config);
+		F->loadPipeline(config,true);
 	}
 	catch (NosuchException& e) {
 		NosuchErrorOutput("NosuchException while loading Pipeline!! - %s", e.message());

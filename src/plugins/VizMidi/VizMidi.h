@@ -18,9 +18,15 @@ public:
 private:
 	// Put private things here.
 
+	bool _loadParamsFile(std::string file);
 	void _midiVizSprite(MidiMsg* m);
+
 	AllVizParams* m_midiparams;
-	std::string m_spriteparampath;
+	std::string m_spriteparamsfile;
+	std::string m_spriteparamspath;
+	bool m_autoloadparams;
+	std::time_t m_lastfileupdate;
+	std::time_t m_lastfilecheck;
 };
 
 #endif

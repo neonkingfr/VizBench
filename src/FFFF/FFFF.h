@@ -87,10 +87,9 @@ public:
 
 	void loadAllPluginDefs(std::string ffdir, std::string ffgldir, int w, int h);
 
-	std::string saveFfffPatch(std::string nm, const char* id);
-	std::string loadFfffPatch(std::string nm, const char* id);
+	std::string savePipeline(std::string nm, const char* id);
 
-	void loadPipeline(std::string configname);
+	bool loadPipeline(std::string configname, bool synthesize);
 	void loadPipelineJson(cJSON* json);
 	void clearPipeline();
 	bool initCamera(int camindex);

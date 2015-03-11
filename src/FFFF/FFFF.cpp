@@ -532,17 +532,27 @@ FFFF::FF10DeleteFromPipeline(std::string inm) {
 	}
 }
 
-void
-FFFF::loadPipeline(std::string configname)
+bool
+FFFF::loadPipeline(std::string configname, bool synthesize)
 {
-	std::string fname = VizConfigPath("ffff\\"+configname+".json");
+	if ( ! NosuchEndsWith(configname, ".json") ) {
+		configname += ".json";
+	}
+	std::string fname = VizConfigPath("ffff\\"+configname);
 	std::string err;
+
+	DEBUGPRINT(("loadPipeline configname=%s fname=%s",configname.c_str(),fname.c_str()));
 
 	cJSON* json = jsonReadFile(fname,err);
 	if ( !json ) {
+
+		if (!synthesize) {
+			return false;
+		}
+
 		// If an FFFF configfile doesn't exist, synthesize one
 		// assuming that the configname is a vizlet name
-		DEBUGPRINT(("Synthesizing FFFF config for %s",configname.c_str()));
+		DEBUGPRINT(("Unable to read fname=%s, synthesizing FFFF config for %s",fname.c_str(),configname.c_str()));
 		std::string jstr = NosuchSnprintf("{\"pipeline\": [ { \"plugin\": \"%s\", \"params\": { } } ] }",configname.c_str());
 		json = cJSON_Parse(jstr.c_str());
 		if ( !json ) {
@@ -551,6 +561,7 @@ FFFF::loadPipeline(std::string configname)
 	}
 	loadPipelineJson(json);
 	jsonFree(json);
+	return true;
 }
 
 void
@@ -1063,29 +1074,46 @@ FFFF::FF10NeedPluginInstance(std::string name)
 		return p;
 }
 
-std::string FFFF::saveFfffPatch(std::string nm, const char* id)
+std::string FFFF::savePipeline(std::string fname, const char* id)
 {
-	DEBUGPRINT(("saveFfffPatch nm=%s",nm.c_str()));
-	std::string err;
-	cJSON* j = cJSON_Parse("{}");
-	if ( ! jsonWriteFile(nm,j,err) ) {
-		std::string e = NosuchSnprintf("Unable to save patch (name=%s, err=%s)",nm.c_str(),err.c_str());
-		return jsonError(-32000,e,id);
+	if ( ! NosuchEndsWith(fname, ".json") ) {
+		fname += ".json";
 	}
-	return jsonOK(id);
-}
+	std::string fpath = VizConfigPath("ffff\\"+fname);
 
-std::string FFFF::loadFfffPatch(std::string nm, const char* id)
-{
+	DEBUGPRINT(("savePipeline fpath=%s",fpath.c_str()));
 	std::string err;
-	std::string fname = VizConfigPath("ffff\\"+nm);
-	DEBUGPRINT(("loadPatch nm=%s fname=%s",nm.c_str(),fname.c_str()));
-	cJSON* j = jsonReadFile(fname,err);
-	if ( ! j ) {
-		throw NosuchException("Unable to open file (name=%s, err=%s)",fname.c_str(),err.c_str());
+
+	std::ofstream f;
+	f.open(fpath.c_str(),std::ios::trunc);
+	if ( ! f.is_open() ) {
+		err = NosuchSnprintf("Unable to open file - %s",fpath.c_str());
+		return false;
 	}
-	loadPipelineJson(j);
-	jsonFree(j);
+	f << "{\n\"pipeline\": [\n";
+	std::string sep = "";
+	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline.begin(); it != m_ff10pipeline.end(); it++) {
+		f << sep;
+		f << "\t{\n";
+		f << "\t\t\"ff10plugin\": \"" + (*it)->name() + "\",\n";
+		f << "\t\t\"enabled\": \"" + std::string((*it)->isEnabled()?"1":"0") + "\",\n";
+		f << "\t\t\"params\": {\n";
+		f << "\t\t\"}\n";
+		f << "\t\"}";
+		sep = ",\n";
+	}
+	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline.begin(); it != m_ffglpipeline.end(); it++) {
+		f << sep;
+		f << "\t{\n";
+		f << "\t\t\"ffglplugin\": \"" + (*it)->name() + "\",\n";
+		f << "\t\t\"enabled\": \"" + std::string((*it)->isEnabled()?"1":"0") + "\",\n";
+		f << "\t\t\"params\": {\n";
+		f << "\t\t}\n";
+		f << "\t}";
+		sep = ",\n";
+	}
+	f << "\n\t]\n}\n";
+	f.close();
 	return jsonOK(id);
 }
 
@@ -1202,10 +1230,10 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		}
 		return jsonStringResult(iname,id);
 	}
-	if ( meth == "enable" || meth == "disable" ) {
+	if ( meth == "ffglenable" || meth == "ffgldisable" || meth == "enable" || meth == "disable" ) {
 		std::string instance = jsonNeedString(params,"instance");
 		FFGLPluginInstance* pi = FFGLNeedPluginInstance(instance);   // throws an exception if it doesn't exist
-		if ( meth == "enable" ) {
+		if ( meth.find("enable") != meth.npos ) {
 			pi->enable();
 		} else {
 			pi->disable();
@@ -1313,13 +1341,18 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		FF10PluginInstance* pi = FF10NeedPluginInstance(instance);   // throws an exception if it doesn't exist
 		return FF10ParamVals(pi,id);
 	}
-	if ( meth == "save" ) {
-		std::string fname =  jsonNeedString(params,"patch");
-		return saveFfffPatch(fname,id);
+	if ( meth == "savepipeline" ) {
+		std::string fname =  jsonNeedString(params,"filename");
+		return savePipeline(fname,id);
 	}
-	if ( meth == "load" ) {
-		std::string fname =  jsonNeedString(params,"patch");
-		return loadFfffPatch(fname,id);
+	if ( meth == "loadpipeline" ) {
+		std::string fname =  jsonNeedString(params,"filename");
+		if (loadPipeline(fname, false)) {
+			return jsonOK(id);
+		} else {
+			std::string msg = NosuchSnprintf("Unable to load pipeline '%s'", fname.c_str());
+			return jsonError(-32000,msg.c_str(),id);
+		}
 	}
 
 	throw NosuchException("Unrecognized method '%s'",meth.c_str());

@@ -4,7 +4,7 @@
     <LocalDebuggerCommand>$(VIZBENCH)\bin\FFFF.exe</LocalDebuggerCommand>
     <LocalDebuggerWorkingDirectory>$(VIZBENCH)\bin</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>VizExample1</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>VizMidiPipeline</LocalDebuggerCommandArguments>
     <LocalDebuggerEnvironment>
     </LocalDebuggerEnvironment>
   </PropertyGroup>

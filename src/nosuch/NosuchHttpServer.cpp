@@ -421,7 +421,7 @@ NosuchHttpServer::RespondToGetOrPost(NosuchSocketConnection *conn) {
 		size_t headersize = header.size();
 		memsize = headersize + filesize;
 		memblock = new char[memsize];
-		DEBUGPRINT(("---- MALLOC memblock b = %ld",(long)memblock));
+		// DEBUGPRINT(("---- MALLOC memblock b = %ld",(long)memblock));
 		memcpy(memblock, header.c_str(), headersize);
 		f.seekg(0, std::ios::beg);
 		f.read(memblock + headersize, memsize);

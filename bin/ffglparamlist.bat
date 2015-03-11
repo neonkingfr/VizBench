@@ -1,1 +1,1 @@
-python jsonrpc.py 4448 ffff.ffglparamlist "{\"plugin\":\"%1\"}"
+api ffff.ffglparamlist "{\"plugin\":\"%1\"}"

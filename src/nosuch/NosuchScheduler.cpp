@@ -260,7 +260,7 @@ void NosuchScheduler::Callback(PtTimestamp timestamp) {
 							for (size_t j = 0; j < m_midi_merge_outport.size(); j++ ) {
 								int outport = m_midi_merge_outport[j];
 								if (outport>=0) {
-									DEBUGPRINT(("Sending to midi_merge j=%d outport=%d", j,outport));
+									// DEBUGPRINT(("Sending to midi_merge j=%d outport=%d", j,outport));
 									cloned->SetOutputPort(outport);
 									QueueMidiMsg(cloned, m_currentclick);
 								}

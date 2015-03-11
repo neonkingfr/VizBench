@@ -1,14 +1,14 @@
 {
 "pipeline": [
 	{
-		"plugin": "VizPalette",
+		"plugin": "VizMidi",
 		"enabled": 1,
 		"params": {
 		}
 	},
 	{
 		"plugin": "Twisted",
-		"enabled": 0,
+		"enabled": 1,
 		"params": {
 			"Twirl": 0.27,  # should be LFO from 0.24 to 0.68
 			"Radius": 0.13

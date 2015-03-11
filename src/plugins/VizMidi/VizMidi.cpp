@@ -21,28 +21,12 @@ VizMidi::VizMidi() : Vizlet() {
 	m_midiparams = defaultParams();
 	m_midiparams->shape.set("line");
 
-	double fadetime = 2.0;
-	m_midiparams->speedinitial.set(0.05);
+	m_spriteparamsfile = "test1";
+	m_spriteparamspath = "";
+	m_lastfileupdate = 0;
+	m_lastfilecheck = 0;
 
-	m_midiparams->sizeinitial.set(0.1);
-	m_midiparams->sizefinal.set(0.05);
-	m_midiparams->sizetime.set(fadetime);
-
-	m_midiparams->lifetime.set(fadetime);
-
-	m_midiparams->thickness.set(3.0);
-	// m_midiparams->rotauto.set(true);
-	m_midiparams->rotangspeed.set(30.0);
-
-	m_midiparams->alphainitial.set(0.8);
-	m_midiparams->alphafinal.set(0.0);
-	m_midiparams->alphatime.set(fadetime);
-
-	m_midiparams->gravity.set(true);
-	m_midiparams->mass.set(0.01);
-
-	m_spriteparampath = "";
-
+	_loadParamsFile(m_spriteparamsfile);
 }
 
 VizMidi::~VizMidi() {
@@ -57,11 +41,24 @@ void VizMidi::processCursor(VizCursor* c, int downdragup) {
 	// NO OpenGL calls here
 }
 
+bool VizMidi::_loadParamsFile(std::string file) {
+	std::string path = VizParamPath(file);
+	AllVizParams* p = getAllVizParams(path);
+	if (!p) {
+		return false;
+	}
+	m_spriteparamsfile = file;
+	m_spriteparamspath = path;
+	m_midiparams = p;
+	return true;
+}
+
 std::string VizMidi::processJson(std::string meth, cJSON *json, const char *id) {
 	// NO OpenGL calls here
 
 	if (meth == "apis") {
-		return jsonStringResult("set_shape(shape);set_spriteparams(paramfile)",id);
+		return jsonStringResult("set_shape(shape);set_spriteparams(paramfile);"
+			"set_autoloadparams(onoff);", id);
 	}
 
 	// PARAMETER "shape"
@@ -83,16 +80,23 @@ std::string VizMidi::processJson(std::string meth, cJSON *json, const char *id) 
 		if (file == "") {
 			return jsonError(-32000, "Bad file value", id);
 		}
-		std::string path = VizParamPath(file);
-		AllVizParams* p = getAllVizParams(path);
-		if (p) {
-			m_spriteparampath = path;
-			m_midiparams = p;
+		if ( _loadParamsFile(file) ) {
+			return jsonOK(id);
+		} else {
+			return jsonError(-32000, "Unable to load spriteparams file", id);
 		}
-		return jsonOK(id);
 	}
 	if (meth == "get_spriteparams") {
-		return jsonStringResult(m_spriteparampath, id);
+		return jsonStringResult(m_spriteparamsfile, id);
+	}
+
+	// PARAMETER "autoloadparams"
+	if (meth == "set_autoloadparams") {
+		m_autoloadparams = jsonNeedBool(json, "onoff", false);
+		return jsonOK(id);
+	}
+	if (meth == "get_autoloadparams") {
+		return jsonIntResult(m_autoloadparams?1:0, id);
 	}
 
 	throw NosuchException("VizMidi - Unrecognized method '%s'",meth.c_str());
@@ -122,6 +126,15 @@ bool VizMidi::processDraw() {
 	glEnd();
 #endif
 
+	// XXX SHOULDN'T REALLY DO THIS SO OFTEN...
+	if (m_autoloadparams) {
+		AllVizParams* p = checkAndLoadIfModifiedSince(m_spriteparamspath,
+								m_lastfilecheck, m_lastfileupdate);
+		if (p) {
+			m_midiparams = p;
+		}
+	}
+
 	DrawVizSprites();
 	return true;
 }
@@ -146,9 +159,10 @@ void VizMidi::_midiVizSprite(MidiMsg* m) {
 
 		NosuchPos pos;
 		float movedir = 0.0;
-		bool randposdir = false;
+		bool randposdir = true;
 		if ( randposdir ) {
-			pos.x = pos.y = 0.5;
+			pos.x = (rand() % 1000) / 1000.0;
+			pos.y = (rand() % 1000) / 1000.0;
 			pos.z = (m->Velocity()*m->Velocity()) / (128.0*128.0);
 			movedir = (float)(rand() % 360);
 		} else {
