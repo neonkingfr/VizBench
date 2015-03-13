@@ -65,6 +65,7 @@ public:
 	FFGLPluginInstance(FFGLPluginDef* d, std::string nm);
 	virtual ~FFGLPluginInstance() {
 		DEBUGPRINT1(("Destructor for %s in FFGLPluginInstance",m_name.c_str()));
+		DeInstantiateGL();
 	}
 
 	std::string GetParameterDisplay(int paramNum);
@@ -91,8 +92,6 @@ public:
 	std::string name() { return m_name; }
 	FFGLPluginDef* plugindef() { return m_plugindef; }
 	DWORD instanceid() { return m_instanceid; }
-
-	// FFGLPluginInstance* next;
 
 private:
 	std::string m_name;

@@ -5,7 +5,7 @@ class VizletGLTemplate : public Vizlet
 {
 public:
 	VizletGLTemplate();
-	~VizletGLTemplate();
+	virtual ~VizletGLTemplate();
 
 	static DWORD __stdcall CreateInstance(CFreeFrameGLPlugin **ppInstance);
 

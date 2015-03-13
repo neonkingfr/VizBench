@@ -23,8 +23,8 @@ public:
 		m_id = id;
 		NosuchLockInit(&_loop_mutex,"loop");
 	};
-	~NosuchLoop() {
-		DEBUGPRINT1(("NosuchLoop DESTRUCTOR!"));
+	virtual ~NosuchLoop() {
+		DEBUGPRINT(("NosuchLoop DESTRUCTOR!"));
 	}
 	void Clear();
 	void AdvanceClickBy1();
@@ -58,7 +58,7 @@ private:
 class NosuchLooper : public NosuchClickListener {
 public:
 	NosuchLooper(/*Vizlet* b*/);
-	~NosuchLooper();
+	virtual ~NosuchLooper();
 	void AdvanceClickTo(click_t click, NosuchScheduler* s);
 	std::string DebugString();
 	void AddLoop(NosuchLoop* loop);

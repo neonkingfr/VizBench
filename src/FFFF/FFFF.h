@@ -59,13 +59,12 @@ public:
 
 	std::string FFGLList();
 	std::string FFGLPipelineList(bool only_enabled);
-	std::string FFGLParamVals(FFGLPluginInstance* pi, const char* id);
+	std::string FFGLParamVals(FFGLPluginInstance* pi, std::string linebreak);
 	std::string FFGLParamInfo(std::string plugin, std::string param, const char* id);
 
 	FFGLPluginInstance* FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string inm);
 	FFGLPluginInstance* FFGLFindPluginInstance(std::string inm);
 	FFGLPluginInstance* FFGLNeedPluginInstance(std::string inm);
-	void				FFGLDeletePluginInstance(FFGLPluginInstance* p);
 	std::string			FFGLParamList(std::string nm, const char* id);
 	FFGLPluginInstance* FFGLAddToPipeline(std::string nm, std::string inm, bool autoenable, cJSON* params);
 	void				FFGLDeleteFromPipeline(std::string inm);
@@ -74,13 +73,12 @@ public:
 
 	std::string FF10List();
 	std::string FF10PipelineList(bool only_enabled);
-	std::string FF10ParamVals(FF10PluginInstance* pi, const char* id);
+	std::string FF10ParamVals(FF10PluginInstance* pi, std::string linebreak);
 	std::string FF10ParamInfo(std::string plugin, std::string param, const char* id);
 
 	FF10PluginInstance* FF10NewPluginInstance(FF10PluginDef* plugin, std::string inm);
 	FF10PluginInstance* FF10FindPluginInstance(std::string inm);
 	FF10PluginInstance* FF10NeedPluginInstance(std::string inm);
-	// void				FF10DeletePluginInstance(FF10PluginInstance* p);
 	std::string			FF10ParamList(std::string nm, const char* id);
 	FF10PluginInstance* FF10AddToPipeline(std::string pluginName, std::string inm, bool autoenable, cJSON* params);
 	void				FF10DeleteFromPipeline(std::string inm);
@@ -89,7 +87,7 @@ public:
 
 	std::string savePipeline(std::string nm, const char* id);
 
-	bool loadPipeline(std::string configname, bool synthesize);
+	void loadPipeline(std::string configname, bool synthesize);
 	void loadPipelineJson(cJSON* json);
 	void clearPipeline();
 	bool initCamera(int camindex);
@@ -109,6 +107,7 @@ public:
 	std::string m_json_result;
 
 private:
+	std::string m_pipelinename;
 	IplImage* m_img1;
 	IplImage* m_img2;
 	IplImage* m_img_into_pipeline;

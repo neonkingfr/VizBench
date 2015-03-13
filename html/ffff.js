@@ -1,14 +1,5 @@
 status = null;
 
-function viztitlegen(titlestr) {
-	var title = document.getElementById("title");
-	title.innerHTML = "<h2>"+titlestr+"</h2>";
-	title.innerHTML += "<br><a href=index.html>Vizlets Control</a>";
-	title.innerHTML += "<br><a href=ffff.html>FFFF Control</a>";
-	title.innerHTML += "<br><a href=vizserver.html>VizServer Control</a>";
-	title.innerHTML += "<br><a href=params.html>Params Editor</a>";
-}
-
 function changeval(name) {
 	var valueid = document.getElementById("value_"+name);
 	var rangeid = document.getElementById("range_"+name);
@@ -66,6 +57,20 @@ function changepipelinefile() {
 	loadpipeline();
 }
 
+function refreshpipelinefilename() {
+	var api = vizapi("ffff.pipelinefilename");
+	if ( api.error != "" ) {
+		alert("error="+api.error);
+		status.innerHTML = api.error;
+		pipelinefilename = "";
+	} else {
+		pipelinefilename = api.result;
+	}
+	if ( pipelinefilename != "" ) {
+		document.getElementById("pipelinefilename").value = pipelinefilename;
+	}
+}
+
 function loadpipeline() {
 	var fname = document.getElementById("pipelinefilename").value;
 	var api = vizapi("ffff.loadpipeline","{\"filename\":\""+fname+"\"}");
@@ -75,6 +80,8 @@ function loadpipeline() {
 	} else {
 		status.innerHTML = "OK";
 	}
+	ffffpagegen();
+	refreshpipelinefilename();
 }
 
 function savepipeline() {
@@ -117,12 +124,16 @@ function ffffpagegen() {
 	html += "<input type=\"button\" style=\"width:100px\" value=\"Save\" onClick=\"savepipeline();\">";
 
 	var r;
+	html += "<table>";	// two columns, left column for plugin name
+				// and misc. buttons, and the right column
+				// for parameters
+				
 	for ( var i=0; i<ffglpipeline.length; i++ ) {
 
 		var f = ffglpipeline[i];
 
-		html += "<p><hr>\n";
-		html += "<table>";
+		html += "<tr><td colspan=10><hr></td></tr>\n";
+		html += "<tr><td valign=top>";	// first column of outer table
 
 		var enabledid = "enabled_"+f.instance;
 		var checked = "";
@@ -130,11 +141,18 @@ function ffffpagegen() {
 			checked = "checked=\"checked\"";
 		}
 
-		html += "<tr><td><b>"+f.instance+"</b>";
-		html += "<input type=\"checkbox\" "+checked+" id=\""+enabledid+"\" onchange=\"changeenable('"+f.instance+"')\")>";
-		html += "</td>";
+		html += "<table>";
+		html += "<tr><td colspan=10><b><font style=\"font-size: 200%\">"+f.instance+"</font></b></td></tr>";
+		html += "<tr><td>Enabled</td><td><input type=\"checkbox\" "+checked+" id=\""+enabledid+"\" onchange=\"changeenable('"+f.instance+"')\")></td></tr>";
+		html += "<tr><td>Shift</td>";
+		html += "<td><input type=\"button\" value=\"up\" onchange=\"moveup('"+f.instance+"')\")></td>";
+		html += "<td><input type=\"button\" value=\"down\" onchange=\"movedown('"+f.instance+"')\")></td>";
 		html += "</tr>";
+		html += "</table>";
 
+		html += "</td><td>";
+
+		html += "<table>";   // for all the parameters
 		var api = vizapi("ffff.ffglparamvals","{\"instance\":\""+f.instance+"\"}");
 		if ( api.error != "" ) {
 			alert("Error getting ffglparamvals: "+api.error);
@@ -164,14 +182,16 @@ function ffffpagegen() {
 
 			html += "<td width=10></td><td width=25%><input style=\"width:98%\" value=\""+v.value+"\" type=\"number\" min=\""+mn+"\" max=\""+mx+"\" id=\""+valueid+"\" size=8 onchange=\"updateval2('"+name+"');\" ></td>";
 
-			html += "<td><input style=\"width:90%\" id=\""+rangeid+"\" type=\"range\" min=\""+mn+"\" max=\""+mx+"\" step=\""+stepsize+"\" oninput=\"changeval('"+name+"');\" onchange=\"updateval('"+name+"');\" ></td>";
+			html += "<td><input style=\"width:90%\" id=\""+rangeid+"\" type=\"range\" value=\""+v.value+"\" min=\""+mn+"\" max=\""+mx+"\" step=\""+stepsize+"\" oninput=\"changeval('"+name+"');\" onchange=\"updateval('"+name+"');\" ></td>";
 
 			html += "</tr>";
 		}
-		html += "</table>";
+		html += "</table>";  	// end of parameter table
+		html += "</td></tr>";	// end of row for outer table
+
 	}
+	html += "</table>";  // end of outer table
 	html += "<br><hr>\n";
 
 	document.getElementById("ffglpipeline").innerHTML = html;
-	status = document.getElementById("status");
 }

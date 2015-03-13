@@ -30,10 +30,12 @@ VizMidi::VizMidi() : Vizlet() {
 }
 
 VizMidi::~VizMidi() {
+	DEBUGPRINT1(("VizMidi DESTRUCTOR!!"));
 }
 
 DWORD __stdcall VizMidi::CreateInstance(CFreeFrameGLPlugin **ppInstance) {
 	*ppInstance = new VizMidi();
+	DEBUGPRINT1(("CreateInstance of VizMidi = %ld", (long)(*ppInstance)));
 	return (*ppInstance != NULL)? FF_SUCCESS : FF_FAIL;
 }
 

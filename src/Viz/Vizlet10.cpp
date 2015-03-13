@@ -193,7 +193,7 @@ Vizlet10::Vizlet10() {
 
 Vizlet10::~Vizlet10()
 {
-	DEBUGPRINT1(("--- Vizlet10 destructor is called viztag=%s", m_viztag.c_str()));
+	DEBUGPRINT(("--- Vizlet10 destructor is called viztag=%s", m_viztag.c_str()));
 	_stopstuff();
 }
 

@@ -47,7 +47,7 @@ class FF10PluginDef {
 public:
 // Construction
 	FF10PluginDef();
-	~FF10PluginDef();
+	virtual ~FF10PluginDef();
 	bool	Load(std::string Path);
 	bool	Free();
 	bool	LoadParamDefs();
@@ -57,12 +57,7 @@ public:
 	bool	IsLoaded() const;
 	const	PluginInfoStruct *GetInfo() const;
 	bool	GetInfo(PluginInfoStruct& PlugInfo) const;
-
-	// int		Instantiate(VideoInfoStruct *vis);
-	// bool	DeInstantiate(int instanceid);
-
 	std::string	GetPluginName() const;
-
 	std::string GetParameterName(int paramNum);
 	FF10ParameterDef* findparamdef(std::string pnm);
 	int getParamNum(std::string pnm);

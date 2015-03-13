@@ -279,6 +279,7 @@ public:
 	VizServerJsonProcessor() {
 	}
 	void AddJsonCallback(void* handle, ApiFilter af, jsoncallback_t cb, void* data) {
+		DEBUGPRINT1(("AddJsonCallback handle=%ld  data=%ld", (long)handle, (long)data));
 		m_callbacks.addcallback(handle, af, (void*)cb, data);
 	}
 	void ChangeVizTag(void* handle, const char* p) {
@@ -1207,8 +1208,8 @@ VizServer::Stop() {
 	if (!m_started) {
 		return;
 	}
-	DEBUGPRINT(("VizServer::Stop is shutting things down"));
 	m_started = false;
+	DEBUGPRINT(("VizServer::Stop is shutting things down"));
 	if (m_scheduler) {
 		ANO();
 		_scheduleClear();

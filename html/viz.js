@@ -45,18 +45,25 @@ function vizapi(meth,params) {
 	return {result: retval, error: errval};
 }
 
-function viztitlegen(titlestr) {
-	var title = dojo.byId("title");
-	title.innerHTML = "<h2>"+titlestr+"</h2>";
-	title.innerHTML += "<br><a href=index.html>Vizlets Control</a>";
-	title.innerHTML += "<br><a href=ffff.html>FFFF Control</a>";
-	title.innerHTML += "<br><a href=vizserver.html>VizServer Control</a>";
-	title.innerHTML += "<br><a href=params.html>Params Editor</a>";
+function titlegen(titlestr) {
+	var html = "";
+	html += "<table width=100%><tr>";
+	html += "<td align=left>";
+	html += titlestr;
+	html += "</td>";
+	html += "<td>";
+	html += "<br><a href=index.html>Vizlets Control</a>";
+	html += "<br><a href=ffff.html>FFFF Control</a>";
+	html += "<br><a href=vizserver.html>VizServer Control</a>";
+	html += "<br><a href=params.html>Params Editor</a>";
+	html += "</td></tr></table>";
+
+	document.getElementById("title").innerHTML = html;
 }
 
 function vizpagegen(taginclude,tagexclude) {
 
-	var plugins = dojo.byId("vizplugins");
+	var plugins = document.getElementById("vizplugins");
 
 	var viztags = vizapi('viztags').result;
 
@@ -167,3 +174,25 @@ function vizpagegen(taginclude,tagexclude) {
 		}
 	}
 }
+
+function queryvalues() {
+	// Build an empty URL structure in which we will store
+        // the individual query values by key.
+        var values = new Object();
+
+        // Use the String::replace method to iterate over each
+        // name-value pair in the query string. Location.search
+        // gives us the query string (if it exists).
+        window.location.search.replace(
+            new RegExp( "([^?=&]+)(=([^&]*))?", "g" ),
+
+            // For each matched query string pair, add that
+            // pair to the URL struct using the pre-equals
+            // value as the key.
+            function( $0, $1, $2, $3 ){
+                values[ $1 ] = $3;
+            }
+            );
+	return values;
+}
+

@@ -56,7 +56,6 @@ public:
 	void InitCallbacks();
 	void ChangeVizTag(const char* newtag);
 	void advanceCursorTo(VizCursor* c, double tm);
-	// int MilliTime();
 	double GetTime();
 	click_t SchedulerCurrentClick();
 	void LockVizlet();

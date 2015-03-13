@@ -9,7 +9,7 @@ class VizBox2d : public Vizlet
 {
 public:
 	VizBox2d();
-	~VizBox2d();
+	virtual ~VizBox2d();
 
 	static DWORD __stdcall CreateInstance(CFreeFrameGLPlugin **ppInstance);
 

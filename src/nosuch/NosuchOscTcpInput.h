@@ -18,7 +18,7 @@ class NosuchOscTcpInput : public NosuchOscInput {
 
 public:
 	NosuchOscTcpInput(std::string host, int port, NosuchOscListener* processor);
-	~NosuchOscTcpInput();
+	virtual ~NosuchOscTcpInput();
 	int Listen();
 	void Check();
 	void UnListen();

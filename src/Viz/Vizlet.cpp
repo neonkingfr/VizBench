@@ -470,6 +470,7 @@ void
 Vizlet::InitCallbacks() {
 	if ( ! m_callbacksInitialized ) {
 
+		DEBUGPRINT1(("InitCallbacks this=%ld", (long)(this)));
 		_startApiCallbacks(m_af,(void*)this);
 		_startMidiCallbacks(m_mf,(void*)this);
 		_startCursorCallbacks(m_cf,(void*)this);

@@ -272,27 +272,6 @@ function updateval2(name) {
 	autowritefile();
 }
 
-function queryvalues() {
-	// Build an empty URL structure in which we will store
-        // the individual query values by key.
-        var values = new Object();
-
-        // Use the String::replace method to iterate over each
-        // name-value pair in the query string. Location.search
-        // gives us the query string (if it exists).
-        window.location.search.replace(
-            new RegExp( "([^?=&]+)(=([^&]*))?", "g" ),
-
-            // For each matched query string pair, add that
-            // pair to the URL struct using the pre-equals
-            // value as the key.
-            function( $0, $1, $2, $3 ){
-                values[ $1 ] = $3;
-            }
-            );
-	return values;
-}
-
 function setup() {
 
 	var status = document.getElementById("status");
@@ -306,7 +285,7 @@ function setup() {
 		instancenum = port - 4439;
 	}
 
-	viztitlegen("Params Editor");
+	titlegen("<font style=\"font-weight: bold; font-size: 300%\">Params Editor</font>");
 
 	var html = "";
 

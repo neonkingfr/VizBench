@@ -12,9 +12,6 @@
     html, body { width: 100%; margin: 0; }
     button.incdec { width: 100%; }
     text.spacer { width: 30%; }
-    td.valuelabel { width: 15%; text-align: center}
-    td.valuevalue { width: 15%; text-align: center}
-    td.buttontrio { width: 10%; text-align: center}
 </style>
 
 <script src="dojo/dojo.js" djConfig="parseOnLoad: true"> </script>
@@ -23,8 +20,17 @@
 <script type="text/javascript">
 
 function setup() {
-	viztitlegen("FFFF Control");
+
+	// titlegen("<font style=\"font-weight: bold; font-size: 300%\">FFFF Control</font><br><font style=\"font-size: 80%\">Flexible FreeFrame Framework</font>");
+	titlegen("<font style=\"font-weight: bold; font-size: 300%\">FFFF Control</font>");
 	ffffpagegen();
+	var vals = queryvalues();
+	var pipelinefilename;
+	if ( vals["pipeline"] ) {
+		pipelinefilename = vals["pipeline"];
+		loadpipeline();
+	}
+	refreshpipelinefilename();
 }
 
 dojo.addOnLoad(setup);
@@ -33,9 +39,7 @@ dojo.addOnLoad(setup);
     
 <body class="claro">
 
-<center>
 <div id="title">&nbsp;</div>
-</center>
 <br>
 <div id="ffglpipeline"></div>
 <p>

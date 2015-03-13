@@ -5,7 +5,7 @@ class VizMidi : public Vizlet
 {
 public:
 	VizMidi();
-	~VizMidi();
+	virtual ~VizMidi();
 
 	static DWORD __stdcall CreateInstance(CFreeFrameGLPlugin **ppInstance);
 

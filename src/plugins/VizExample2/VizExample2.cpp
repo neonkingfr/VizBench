@@ -13,7 +13,7 @@ class VizExample2 : public Vizlet
 {
 public:
 	VizExample2();
-	~VizExample2();
+	virtual ~VizExample2();
 
 	static DWORD __stdcall CreateInstance(CFreeFrameGLPlugin **ppInstance);
 

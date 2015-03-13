@@ -17,7 +17,7 @@ class NosuchOscManager {
 
 public:
 	NosuchOscManager(NosuchOscListener* server, std::string host, int port);
-	~NosuchOscManager();
+	virtual ~NosuchOscManager();
 	void Check();
 	int Listen();
 	void UnListen();

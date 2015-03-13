@@ -96,7 +96,7 @@ public:
 		handle = h;
 		m_created = GlobalClick;
 	}
-	~SchedEvent();
+	virtual ~SchedEvent();
 	std::string DebugString();
 
 	click_t click;	// relative when in loops, absolute elsewhere
@@ -158,7 +158,7 @@ public:
 		m_periodic_ANO = false;
 		m_queue = new SchedEventList();
 	}
-	~NosuchScheduler() {
+	virtual ~NosuchScheduler() {
 		Stop();
 	}
 

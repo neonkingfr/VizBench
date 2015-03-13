@@ -18,7 +18,7 @@ class VizLife : public Vizlet, public LifeListener
 {
 public:
 	VizLife();
-	~VizLife();
+	virtual ~VizLife();
 
 	static DWORD __stdcall CreateInstance(CFreeFrameGLPlugin **ppInstance);
 

@@ -18,7 +18,7 @@ public:
 		int http_port,
 		std::string html_dir,
 		NosuchJsonListener* jsonproc);
-	~NosuchDaemon();
+	virtual ~NosuchDaemon();
 	void *network_input_threadfunc(void *arg);
 
 	void SendAllWebSocketClients(std::string msg);

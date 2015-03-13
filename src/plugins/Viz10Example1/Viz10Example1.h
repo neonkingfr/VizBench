@@ -5,7 +5,7 @@ class Viz10Example1 : public Vizlet10
 {
 public:
 	Viz10Example1();
-	~Viz10Example1();
+	virtual ~Viz10Example1();
 
 	static DWORD __stdcall CreateInstance(CFreeFrame10Plugin **ppInstance);
 

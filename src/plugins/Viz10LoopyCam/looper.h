@@ -11,7 +11,7 @@ class Looper {
 public:
 
 	Looper(int w, int h);
-	~Looper();
+	virtual ~Looper();
 
 	void processFrame24Bit(IplImage* fi);
 

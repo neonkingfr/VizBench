@@ -122,6 +122,8 @@ std::string NosuchToLower(std::string s);
 std::string NosuchToUpper(std::string s);
 bool NosuchEndsWith(std::string s, std::string suff);
 
+bool NosuchFileExists(std::string name);
+
 char *base64_encode(const uint8_t *data, size_t input_length);
 
 std::string error_json(int code, const char *msg, const char *id = "null");

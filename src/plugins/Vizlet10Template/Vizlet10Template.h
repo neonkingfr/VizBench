@@ -5,7 +5,7 @@ class Vizlet10Template : public Vizlet10
 {
 public:
 	Vizlet10Template();
-	~Vizlet10Template();
+	virtual ~Vizlet10Template();
 
 	static DWORD __stdcall CreateInstance(CFreeFrame10Plugin **ppInstance);
 

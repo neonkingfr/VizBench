@@ -7,7 +7,7 @@ class VizExample1 : public Vizlet
 {
 public:
 	VizExample1();
-	~VizExample1();
+	virtual ~VizExample1();
 
 	static DWORD __stdcall CreateInstance(CFreeFrameGLPlugin **ppInstance);
 	bool processDraw();

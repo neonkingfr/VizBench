@@ -56,6 +56,19 @@ void NosuchPrintTime(const char *prefix) {
 	DEBUGPRINT(("%s: time= %ld.%03u\n",prefix,secs,milli));
 }
 
+bool NosuchFileExists(const std::string fname)
+{
+	std::ifstream f;
+	f.open(fname.c_str());
+	if (!f.good()) {
+		return false;
+	}
+	else {
+		f.close();
+		return true;
+	}
+}
+
 std::string NosuchReplaceAll(std::string instr, std::string toreplace, std::string replacement) {
 	size_t pos;
 	while ( (pos=instr.find(toreplace)) != instr.npos) {
