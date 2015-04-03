@@ -59,19 +59,6 @@ typedef void (*keystrokecallback_t)(void* data,int key,int downup);
 #define CURSOR_Z_UNSET (-1.0f)
 #define CURSOR_AREA_UNSET (-1.0f)
 
-struct ApiFilter {
-public:
-	// Don't use std::string here, so memory management between
-	// clients and server is clean.
-	ApiFilter(const char* p) {
-		prefix = _strdup(p);
-	}
-	ApiFilter() {
-		ApiFilter("");
-	}
-	const char* prefix;
-};
-
 class KeystrokeListener {
 public:
 	virtual void processKeystroke(int key, int downup) {
@@ -198,11 +185,12 @@ public:
 	bool Start();
 	void Stop();
 
+	bool IsVizlet(const char* iname);
 	const char *VizTags();
 	void ChangeVizTag(void* handle, const char* newtag);
 	void AdvanceCursorTo(VizCursor* c, double tm);
 
-	void AddJsonCallback(void* handle, ApiFilter af, jsoncallback_t cb, void* data);
+	void AddJsonCallback(void* handle, const char* apiprefix, jsoncallback_t cb, void* data);
 	void AddMidiInputCallback(void* handle, MidiFilter mf, midicallback_t cb, void* data);
 	void AddMidiOutputCallback(void* handle, MidiFilter mf, midicallback_t cb, void* data);
 	void AddCursorCallback(void* handle, CursorFilter cf, cursorcallback_t cb, void* data);

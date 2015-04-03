@@ -16,17 +16,17 @@
 
   ### These are values for using loopMIDI for input
   # "midiinput": "loopMIDI Port",
-  # "midimerge": "Microsoft GS Wavetable Synth",
+  ## "midimerge": "Microsoft GS Wavetable Synth",
   # "midioutput": "Microsoft GS Wavetable Synth",
 
   ### These are values for using LoopBe30 for input
   "midiinput": "09. Internal MIDI",
-  "midimerge": "01. Internal MIDI",
+  # "midimerge": "01. Internal MIDI",
   "midioutput": "01. Internal MIDI",
 
   ### These are values for using LoopBe30 with lots of ports
   # "midiinput": "09. Internal MIDI",
-  # "midimerge": "Microsoft GS Wavetable Synth",
+  ## "midimerge": "Microsoft GS Wavetable Synth",
   # "midioutput": "01. Internal MIDI;02. Internal MIDI;03. Internal MIDI;04. Internal MIDI;Microsoft GS Wavetable Synth",
 
   # This next line is just at the end as a dummy value so you don't have to

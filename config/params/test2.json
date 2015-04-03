@@ -1,6 +1,6 @@
 {
 	"alphafinal":	"0",
-	"alphainitial":	"1",
+	"alphainitial":	"0.47",
 	"alphatime":	"1.8082",
 	"aspect":	"1.0",
 	"bounce":	"false",
@@ -25,7 +25,7 @@
 	"rotangspeed":	"0.0",
 	"rotdirrandom":	"false",
 	"saturation":	"1.0",
-	"shape":	"square",
+	"shape":	"circle",
 	"sizefinal":	"0.2",
 	"sizeinitial":	"0.8092",
 	"sizetime":	"0.45955",

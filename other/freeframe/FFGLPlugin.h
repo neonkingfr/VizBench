@@ -38,7 +38,8 @@ public:
 	virtual DWORD Unload() { return FF_FAIL; }
 
 	std::string	GetPluginName() const;
-	const	PluginInfoStruct *GetInfo() const;
+	const PluginInfoStruct *GetInfo() const;
+	const PluginExtendedInfoStruct *GetExtendedInfo() const;
 
 	std::string GetParameterName(int paramNum);
 	FFGLParameterDef* findparamdef(std::string pnm);
@@ -86,9 +87,12 @@ public:
 	DWORD InstantiateGL(const FFGLViewportStruct *vp);
 	DWORD DeInstantiateGL();
 
-	void enable(){ m_enabled = true; }
-	void disable() { m_enabled = false; }
+	void setEnable(bool b){ m_enabled = b; }
 	bool isEnabled(){ return m_enabled; }
+
+	void setMoveable(bool b){ m_moveable = b; }
+	bool isMoveable(){ return m_moveable; }
+
 	std::string name() { return m_name; }
 	FFGLPluginDef* plugindef() { return m_plugindef; }
 	DWORD instanceid() { return m_instanceid; }
@@ -96,6 +100,7 @@ public:
 private:
 	std::string m_name;
 	bool m_enabled;
+	bool m_moveable;
 	FFGLPluginDef* m_plugindef;
 	FFGLParameterInstance *m_params;
 	FF_Main_FuncPtr m_main;

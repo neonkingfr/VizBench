@@ -12,7 +12,7 @@
 </Event><Event ErrorLevel="3" Project="VizletTemplate" Source="VizletTemplate\VizletTemplate.vcxproj" Description="No Conversion Required">
 </Event><Event ErrorLevel="3" Project="VizDraw" Source="VizDraw\VizDraw.vcxproj" Description="No Conversion Required">
 </Event><Event ErrorLevel="3" Project="VizBox2d" Source="VizBox2d\VizBox2d.vcxproj" Description="No Conversion Required">
-</Event><Event ErrorLevel="3" Project="VizMidi" Source="VizMidi\VizMidi.vcxproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="3" Project="VizMidi4" Source="VizMidi4\VizMidi4.vcxproj" Description="No Conversion Required">
 </Event><Event ErrorLevel="3" Project="VizLife" Source="VizLife\VizLife.vcxproj" Description="No Conversion Required">
 </Event><Event ErrorLevel="3" Project="VizLooper" Source="VizLooper\VizLooper.vcxproj" Description="No Conversion Required">
 </Event><Event ErrorLevel="3" Project="VizShader" Source="VizShader\VizShader.vcxproj" Description="No Conversion Required">

@@ -1,5 +1,4 @@
 #name			#type	#min		#max		#init		#comment 
-testparam		double	0.0	1.0	0.0		# 0-1 
 alphafinal		double	0.0	1.0	0.0		# 0-1 
 alphainitial	double	0.0	1.0	1.0		# 0-1
 alphatime		double	0.01	10.0	2.0		# seconds
@@ -22,6 +21,7 @@ movedirrandom	bool	false	true	false	#
 movefollowcursor	bool	false	true	false	#
 noisevertex		double	0.0	1.0	0.0		# 0-1
 nsprites		int		1	10000		1000		#
+placement	string	placementTypes	placementTypes	"center"	#
 rotanginit	double	0.0	360.0	0.0		# 0-360
 rotangspeed	double	-360.0	360.0	0.0		#
 rotdirrandom	bool	false	true	false #

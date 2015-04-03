@@ -28,6 +28,7 @@ extern char* AllVizParamsNames[];
 	"movefollowcursor",\
 	"noisevertex",\
 	"nsprites",\
+	"placement",\
 	"rotanginit",\
 	"rotangspeed",\
 	"rotdirrandom",\
@@ -37,7 +38,6 @@ extern char* AllVizParamsNames[];
 	"sizeinitial",\
 	"sizetime",\
 	"speedinitial",\
-	"testparam",\
 	"thickness",\
 	"zable",\
 	NULL
@@ -100,6 +100,8 @@ public:
 		if (j) { noisevertex.set(j); }
 		j = cJSON_GetObjectItem(json,"nsprites");
 		if (j) { nsprites.set(j); }
+		j = cJSON_GetObjectItem(json,"placement");
+		if (j) { placement.set(j); }
 		j = cJSON_GetObjectItem(json,"rotanginit");
 		if (j) { rotanginit.set(j); }
 		j = cJSON_GetObjectItem(json,"rotangspeed");
@@ -118,8 +120,6 @@ public:
 		if (j) { sizetime.set(j); }
 		j = cJSON_GetObjectItem(json,"speedinitial");
 		if (j) { speedinitial.set(j); }
-		j = cJSON_GetObjectItem(json,"testparam");
-		if (j) { testparam.set(j); }
 		j = cJSON_GetObjectItem(json,"thickness");
 		if (j) { thickness.set(j); }
 		j = cJSON_GetObjectItem(json,"zable");
@@ -148,6 +148,7 @@ public:
 		movefollowcursor.set(false);
 		noisevertex.set(0.0);
 		nsprites.set(1000);
+		placement.set("center");
 		rotanginit.set(0.0);
 		rotangspeed.set(0.0);
 		rotdirrandom.set(false);
@@ -157,7 +158,6 @@ public:
 		sizeinitial.set(0.2);
 		sizetime.set(2.0);
 		speedinitial.set(0.0);
-		testparam.set(0.0);
 		thickness.set(3.0);
 		zable.set(true);
 	}
@@ -185,6 +185,7 @@ public:
 		if ( p->movefollowcursor.isset() ) { this->movefollowcursor.set(p->movefollowcursor.get()); }
 		if ( p->noisevertex.isset() ) { this->noisevertex.set(p->noisevertex.get()); }
 		if ( p->nsprites.isset() ) { this->nsprites.set(p->nsprites.get()); }
+		if ( p->placement.isset() ) { this->placement.set(p->placement.get()); }
 		if ( p->rotanginit.isset() ) { this->rotanginit.set(p->rotanginit.get()); }
 		if ( p->rotangspeed.isset() ) { this->rotangspeed.set(p->rotangspeed.get()); }
 		if ( p->rotdirrandom.isset() ) { this->rotdirrandom.set(p->rotdirrandom.get()); }
@@ -194,7 +195,6 @@ public:
 		if ( p->sizeinitial.isset() ) { this->sizeinitial.set(p->sizeinitial.get()); }
 		if ( p->sizetime.isset() ) { this->sizetime.set(p->sizetime.get()); }
 		if ( p->speedinitial.isset() ) { this->speedinitial.set(p->speedinitial.get()); }
-		if ( p->testparam.isset() ) { this->testparam.set(p->testparam.get()); }
 		if ( p->thickness.isset() ) { this->thickness.set(p->thickness.get()); }
 		if ( p->zable.isset() ) { this->zable.set(p->zable.get()); }
 	}
@@ -245,6 +245,9 @@ public:
 			noisevertex.set(string2double(val));
 		} else if ( nm == "nsprites" ) {
 			nsprites.set(string2int(val));
+		} else if ( nm == "placement" ) {
+			placement.set(val);
+			stringval = true;
 		} else if ( nm == "rotanginit" ) {
 			rotanginit.set(string2double(val));
 		} else if ( nm == "rotangspeed" ) {
@@ -264,8 +267,6 @@ public:
 			sizetime.set(string2double(val));
 		} else if ( nm == "speedinitial" ) {
 			speedinitial.set(string2double(val));
-		} else if ( nm == "testparam" ) {
-			testparam.set(string2double(val));
 		} else if ( nm == "thickness" ) {
 			thickness.set(string2double(val));
 		} else if ( nm == "zable" ) {
@@ -321,6 +322,8 @@ public:
 			noisevertex.set(adjust(noisevertex.get(),amount,0.0,1.0));
 		} else if ( nm == "nsprites" ) {
 			nsprites.set(adjust(nsprites.get(),amount,1,10000));
+		} else if ( nm == "placement" ) {
+			placement.set(adjust(placement.get(),amount,VizParams::StringVals["placementTypes"]));
 		} else if ( nm == "rotanginit" ) {
 			rotanginit.set(adjust(rotanginit.get(),amount,0.0,360.0));
 		} else if ( nm == "rotangspeed" ) {
@@ -339,8 +342,6 @@ public:
 			sizetime.set(adjust(sizetime.get(),amount,0.01,10.0));
 		} else if ( nm == "speedinitial" ) {
 			speedinitial.set(adjust(speedinitial.get(),amount,0.0,1.0));
-		} else if ( nm == "testparam" ) {
-			testparam.set(adjust(testparam.get(),amount,0.0,1.0));
 		} else if ( nm == "thickness" ) {
 			thickness.set(adjust(thickness.get(),amount,0.01,10.0));
 		} else if ( nm == "zable" ) {
@@ -371,6 +372,7 @@ public:
 		if ( nm == "movefollowcursor" ) { return "false"; }
 		if ( nm == "noisevertex" ) { return "0.0"; }
 		if ( nm == "nsprites" ) { return "1000"; }
+		if ( nm == "placement" ) { return "center"; }
 		if ( nm == "rotanginit" ) { return "0.0"; }
 		if ( nm == "rotangspeed" ) { return "0.0"; }
 		if ( nm == "rotdirrandom" ) { return "false"; }
@@ -380,7 +382,6 @@ public:
 		if ( nm == "sizeinitial" ) { return "0.2"; }
 		if ( nm == "sizetime" ) { return "2.0"; }
 		if ( nm == "speedinitial" ) { return "0.0"; }
-		if ( nm == "testparam" ) { return "0.0"; }
 		if ( nm == "thickness" ) { return "3.0"; }
 		if ( nm == "zable" ) { return "true"; }
 		return "";
@@ -408,6 +409,7 @@ public:
 		if ( nm == "movefollowcursor" ) { return "false"; }
 		if ( nm == "noisevertex" ) { return "0.0"; }
 		if ( nm == "nsprites" ) { return "1"; }
+		if ( nm == "placement" ) { return "placementTypes"; }
 		if ( nm == "rotanginit" ) { return "0.0"; }
 		if ( nm == "rotangspeed" ) { return "-360.0"; }
 		if ( nm == "rotdirrandom" ) { return "false"; }
@@ -417,7 +419,6 @@ public:
 		if ( nm == "sizeinitial" ) { return "0.01"; }
 		if ( nm == "sizetime" ) { return "0.01"; }
 		if ( nm == "speedinitial" ) { return "0.0"; }
-		if ( nm == "testparam" ) { return "0.0"; }
 		if ( nm == "thickness" ) { return "0.01"; }
 		if ( nm == "zable" ) { return "false"; }
 		return "";
@@ -445,6 +446,7 @@ public:
 		if ( nm == "movefollowcursor" ) { return "true"; }
 		if ( nm == "noisevertex" ) { return "1.0"; }
 		if ( nm == "nsprites" ) { return "10000"; }
+		if ( nm == "placement" ) { return "placementTypes"; }
 		if ( nm == "rotanginit" ) { return "360.0"; }
 		if ( nm == "rotangspeed" ) { return "360.0"; }
 		if ( nm == "rotdirrandom" ) { return "true"; }
@@ -454,7 +456,6 @@ public:
 		if ( nm == "sizeinitial" ) { return "10.0"; }
 		if ( nm == "sizetime" ) { return "10.0"; }
 		if ( nm == "speedinitial" ) { return "1.0"; }
-		if ( nm == "testparam" ) { return "1.0"; }
 		if ( nm == "thickness" ) { return "10.0"; }
 		if ( nm == "zable" ) { return "true"; }
 		return "";
@@ -528,6 +529,8 @@ public:
 			return DoubleString(noisevertex.get());
 		} else if ( nm == "nsprites" ) {
 			return IntString(nsprites.get());
+		} else if ( nm == "placement" ) {
+			return placement.get();
 		} else if ( nm == "rotanginit" ) {
 			return DoubleString(rotanginit.get());
 		} else if ( nm == "rotangspeed" ) {
@@ -546,8 +549,6 @@ public:
 			return DoubleString(sizetime.get());
 		} else if ( nm == "speedinitial" ) {
 			return DoubleString(speedinitial.get());
-		} else if ( nm == "testparam" ) {
-			return DoubleString(testparam.get());
 		} else if ( nm == "thickness" ) {
 			return DoubleString(thickness.get());
 		} else if ( nm == "zable" ) {
@@ -578,6 +579,7 @@ public:
 		if ( nm == "movefollowcursor" ) { return "bool"; }
 		if ( nm == "noisevertex" ) { return "double"; }
 		if ( nm == "nsprites" ) { return "int"; }
+		if ( nm == "placement" ) { return "string"; }
 		if ( nm == "rotanginit" ) { return "double"; }
 		if ( nm == "rotangspeed" ) { return "double"; }
 		if ( nm == "rotdirrandom" ) { return "bool"; }
@@ -587,7 +589,6 @@ public:
 		if ( nm == "sizeinitial" ) { return "double"; }
 		if ( nm == "sizetime" ) { return "double"; }
 		if ( nm == "speedinitial" ) { return "double"; }
-		if ( nm == "testparam" ) { return "double"; }
 		if ( nm == "thickness" ) { return "double"; }
 		if ( nm == "zable" ) { return "bool"; }
 		return "";
@@ -615,6 +616,7 @@ public:
 	BoolParam movefollowcursor;
 	DoubleParam noisevertex;
 	IntParam nsprites;
+	StringParam placement;
 	DoubleParam rotanginit;
 	DoubleParam rotangspeed;
 	BoolParam rotdirrandom;
@@ -624,7 +626,6 @@ public:
 	DoubleParam sizeinitial;
 	DoubleParam sizetime;
 	DoubleParam speedinitial;
-	DoubleParam testparam;
 	DoubleParam thickness;
 	BoolParam zable;
 };

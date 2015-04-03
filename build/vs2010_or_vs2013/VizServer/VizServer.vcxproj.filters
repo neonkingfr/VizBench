@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -64,6 +64,9 @@
     <Filter Include="Source Files\params">
       <UniqueIdentifier>{39fc717c-b954-4a05-9c2a-7f7e5b39944f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\params">
+      <UniqueIdentifier>{b305661c-72b7-4266-91c4-7d0054cf2007}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -107,6 +110,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\Viz\VizServer.h">
       <Filter>Header Files\Viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\params\AllVizParams.h">
+      <Filter>Header Files\params</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\params\VizParams.h">
+      <Filter>Header Files\params</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

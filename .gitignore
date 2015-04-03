@@ -12,9 +12,13 @@ binRelease/FFFF.exe
 binRelease/VizServer.dll
 ffplugins/*.dll
 ffplugins_loopycam
-ffglplugins_loopycam
 ffpluginsDebug/*.dll
 ffpluginsRelease/*.dll
+ff10plugins/*.dll
+ff10plugins_loopycam
+ff10pluginsDebug/*.dll
+ff10pluginsRelease/*.dll
+ffglplugins_loopycam
 ffglplugins/*.dll
 ffglpluginsDebug/*.dll
 ffglpluginsRelease/*.dll

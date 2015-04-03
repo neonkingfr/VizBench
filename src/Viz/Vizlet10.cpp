@@ -149,7 +149,6 @@ Vizlet10::Vizlet10() {
 
 	m_viztag = vizlet10_name();
 
-	m_af = ApiFilter(m_viztag.c_str());
 	m_mf = MidiFilter();  // ALL Midi
 	m_cf = CursorFilter();  // ALL Cursors
 
@@ -256,6 +255,7 @@ const char* vizlet10_json(void* data,const char *method, cJSON* params, const ch
 		return err.c_str();
 	}
 	else {
+#if 0
 		// A few methods are built-in.  If it isn't one of those,
 		// it is given to the plugin to handle.
 		if (std::string(method) == "description") {
@@ -267,6 +267,8 @@ const char* vizlet10_json(void* data,const char *method, cJSON* params, const ch
 		} else {
 			v->m_json_result = v->processJsonAndCatchExceptions(std::string(method), params, id);
 		}
+#endif
+		v->m_json_result = v->processJsonAndCatchExceptions(std::string(method), params, id);
 		return v->m_json_result.c_str();
 	}
 }
@@ -309,9 +311,9 @@ void Vizlet10::ChangeVizTag(const char* p) {
 	m_vizserver->ChangeVizTag(Handle(),p);
 }
 
-void Vizlet10::_startApiCallbacks(ApiFilter af, void* data) {
+void Vizlet10::_startApiCallbacks(const char* apiprefix, void* data) {
 	NosuchAssert(m_vizserver);
-	m_vizserver->AddJsonCallback(Handle(),af,vizlet10_json,data);
+	m_vizserver->AddJsonCallback(Handle(),apiprefix,vizlet10_json,data);
 }
 
 void Vizlet10::_startMidiCallbacks(MidiFilter mf, void* data) {
@@ -424,7 +426,7 @@ void
 Vizlet10::InitCallbacks() {
 	if ( ! m_callbacksInitialized ) {
 
-		_startApiCallbacks(m_af,(void*)this);
+		_startApiCallbacks(m_viztag.c_str(),(void*)this);
 		_startMidiCallbacks(m_mf,(void*)this);
 		_startCursorCallbacks(m_cf,(void*)this);
 		_startKeystrokeCallbacks((void*)this);

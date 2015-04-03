@@ -14,7 +14,7 @@
     <ProjectGuid>{CCEB31D9-1598-47F0-876B-452C5B1EF4B4}</ProjectGuid>
     <RootNamespace>Manifold</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>VizMidi</ProjectName>
+    <ProjectName>VizMidi4</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -109,7 +109,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\src\freeframe;..\..\..\src\VizMidi;..\..\..\src\cJSON;..\..\..\src\osc\include;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\src\portmidi\porttime;..\..\..\src\portmidi\pm_common;..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\include;C:\Python26\include;..\..\..\src\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\freeframe;..\..\..\src\VizMidi4;..\..\..\src\cJSON;..\..\..\src\osc\include;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\src\portmidi\porttime;..\..\..\src\portmidi\pm_common;..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\include;C:\Python26\include;..\..\..\src\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;VIZBENCH_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -121,10 +121,10 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>VizLib.lib;pthreadVC2.lib;winmm.lib;OpenGL32.lib;Glu32.lib;Ws2_32.lib;VizServer.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Debug\VizMidi.dll</OutputFile>
+      <OutputFile>Debug\VizMidi4.dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\lib;..\..\..\src\freeglut-2.6.0\VisualStudio2008Static\Release;c:\Python26\libs;..\VizLib\Debug;..\VizServer\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ModuleDefinitionFile>VizMidi.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>VizMidi4.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -133,7 +133,7 @@
       <Profile>true</Profile>
     </Link>
     <PostBuildEvent>
-      <Command>copy Debug\VizMidi.dll ..\..\..\ffglplugins\VizMidi.dll</Command>
+      <Command>copy Debug\VizMidi4.dll ..\..\..\ffglplugins\VizMidi4.dll</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -142,7 +142,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\..\src\plugins\VizMidi;..\..\..\src\params;..\..\..\src\misclib;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\cJSON;..\..\..\other\freeframe;..\..\..\other\osc\include;..\..\..\other\portmidi\porttime;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\plugins\VizMidi4;..\..\..\src\params;..\..\..\src\misclib;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\cJSON;..\..\..\other\freeframe;..\..\..\other\osc\include;..\..\..\other\portmidi\porttime;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;VIZBENCH_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -188,7 +188,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>OpenGL32.lib;pthreadVC2.lib;freeglut_static.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Release\VizMidi.dll</OutputFile>
+      <OutputFile>Release\VizMidi4.dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\..\Source\pthreads-win32-2.8.0\Pre-built.2\lib;..\..\..\..\Source\freeglut-2.6.0\VisualStudio2008Static\Release;C:\Python26\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -208,10 +208,10 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\plugins\VizMidi\VizMidi.cpp" />
+    <ClCompile Include="..\..\..\src\plugins\VizMidi4\VizMidi4.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\plugins\VizMidi\VizMidi.h" />
+    <ClInclude Include="..\..\..\src\plugins\VizMidi4\VizMidi4.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

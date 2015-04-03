@@ -14,8 +14,8 @@
 
 */
 
-#ifndef FFPLUGIN_H
-#define FFPLUGIN_H
+#ifndef FF10PLUGIN_H
+#define FF10PLUGIN_H
 
 #include "FreeFrame.h"
 
@@ -55,9 +55,12 @@ public:
 
 // Attributes
 	bool	IsLoaded() const;
-	const	PluginInfoStruct *GetInfo() const;
 	bool	GetInfo(PluginInfoStruct& PlugInfo) const;
+
 	std::string	GetPluginName() const;
+	const	PluginInfoStruct *GetInfo() const;
+	const PluginExtendedInfoStruct* GetExtendedInfo() const;
+
 	std::string GetParameterName(int paramNum);
 	FF10ParameterDef* findparamdef(std::string pnm);
 	int getParamNum(std::string pnm);
@@ -99,6 +102,10 @@ public:
 	void enable(){ m_enabled = true; }
 	void disable() { m_enabled = false; }
 	bool isEnabled(){ return m_enabled; }
+
+	void setMoveable(bool b){ m_moveable = b; }
+	bool isMoveable(){ return m_moveable; }
+
 	std::string name() { return m_name; }
 	FF10PluginDef* plugindef() { return m_plugindef; }
 	DWORD instanceid() { return m_instanceid; }
@@ -108,6 +115,7 @@ public:
 private:
 	std::string m_name;
 	bool m_enabled;
+	bool m_moveable;
 	FF10PluginDef* m_plugindef;
 	FF10ParameterInstance *m_params;
 	FF_Main_FuncPtr m_mainfunc;

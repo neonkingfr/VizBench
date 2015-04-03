@@ -1,7 +1,7 @@
 {
 "pipeline": [
 	{
-		"ffglplugin": "VizMidi",
+		"ffglplugin": "VizMidi4",
 		"enabled": "1",
 		"params": [
 			]

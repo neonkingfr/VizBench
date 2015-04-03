@@ -1,7 +1,7 @@
 {
 "pipeline": [
 	{
-		"plugin": "VizMidi",
+		"plugin": "VizMidi4",
 		"params": {
 		}
 	},

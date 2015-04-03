@@ -1,1 +1,2 @@
-cd %VIZBENCH%\bin\config\palette\params
+c:
+cd %VIZBENCH%\config\params

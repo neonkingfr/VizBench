@@ -149,6 +149,15 @@ public:
 		StringVals["mirrorTypes"].push_back("horizontal");
 		StringVals["mirrorTypes"].push_back("four");
 
+		StringVals["placementTypes"] = StringList();
+		StringVals["placementTypes"].push_back("nowhere");
+		StringVals["placementTypes"].push_back("center");
+		StringVals["placementTypes"].push_back("random");
+		StringVals["placementTypes"].push_back("top");
+		StringVals["placementTypes"].push_back("bottom");
+		StringVals["placementTypes"].push_back("left");
+		StringVals["placementTypes"].push_back("right");
+
 		StringVals["logicTypes"] = StringList();
 		StringVals["logicTypes"].push_back("none");
 		StringVals["logicTypes"].push_back("vertical");

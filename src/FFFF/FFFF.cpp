@@ -119,8 +119,7 @@ FFFF::StartStuff() {
 
 	m_vizserver = VizServer::GetServer();
 	m_vizserver->Start();
-	ApiFilter af = ApiFilter("ffff");
-	m_vizserver->AddJsonCallback((void*)this,af,FFFF_json,(void*)this);
+	m_vizserver->AddJsonCallback((void*)this,"ffff",FFFF_json,(void*)this);
 }
 
 void
@@ -325,6 +324,40 @@ FFFF::FF10NewPluginInstance(FF10PluginDef* plugdef, std::string inm)
 }
 
 void
+FFFF::shufflePipeline()
+{
+	size_t sz = m_ffglpipeline.size();
+	// Just swap things randomly
+	for (size_t n = 1; n<sz; n++ ) {
+		if ((rand() % 2) == 0) {
+			if (m_ffglpipeline[n-1]->isMoveable() && m_ffglpipeline[n]->isMoveable()) {
+				FFGLPluginInstance* t = m_ffglpipeline[n - 1];
+				m_ffglpipeline[n - 1] = m_ffglpipeline[n];
+				m_ffglpipeline[n] = t;
+			}
+		}
+	}
+}
+
+void
+FFFF::randomizePipeline()
+{
+	size_t sz = m_ffglpipeline.size();
+	// Just swap things randomly
+	for (size_t n = 1; n<sz; n++ ) {
+		int n1 = rand() % sz;
+		int n2 = rand() % sz;
+		if ( n1 != n2 ) {
+			if (m_ffglpipeline[n1]->isMoveable() && m_ffglpipeline[n2]->isMoveable()) {
+				FFGLPluginInstance* t = m_ffglpipeline[n1];
+				m_ffglpipeline[n1] = m_ffglpipeline[n2];
+				m_ffglpipeline[n2] = t;
+			}
+		}
+	}
+}
+
+void
 FFFF::clearPipeline()
 {
 	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline.begin(); it != m_ff10pipeline.end(); it++) {
@@ -442,7 +475,7 @@ FFFF::FFGLAddToPipeline(std::string pluginName, std::string inm, bool autoenable
 	}
 
 	if ( autoenable ) {
-		np->enable();
+		np->setEnable(true);
 	}
 
 	return np;
@@ -497,6 +530,36 @@ FFFF::FF10AddToPipeline(std::string pluginName, std::string inm, bool autoenable
 	}
 
 	return np;
+}
+
+void
+FFFF::FFGLMoveUpInPipeline(std::string inm) {
+	size_t sz = m_ffglpipeline.size();
+	for (size_t n = 0; n<sz; n++ ) {
+		if (inm == m_ffglpipeline[n]->name()) {
+			if (n > 0) {
+				FFGLPluginInstance* t = m_ffglpipeline[n - 1];
+				m_ffglpipeline[n - 1] = m_ffglpipeline[n];
+				m_ffglpipeline[n] = t;
+			}
+			return;
+		}
+	}
+}
+
+void
+FFFF::FFGLMoveDownInPipeline(std::string inm) {
+	size_t sz = m_ffglpipeline.size();
+	for (size_t n = 0; n<sz; n++ ) {
+		if (inm == m_ffglpipeline[n]->name()) {
+			if (n < (sz-1)) {
+				FFGLPluginInstance* t = m_ffglpipeline[n + 1];
+				m_ffglpipeline[n + 1] = m_ffglpipeline[n];
+				m_ffglpipeline[n] = t;
+			}
+			return;
+		}
+	}
 }
 
 void
@@ -610,6 +673,7 @@ FFFF::loadPipelineJson(cJSON* json)
 		const char* name = plugin->valuestring;
 		std::string viztag = jsonNeedString(p, "viztag", name);
 		bool enabled = jsonNeedBool(p, "enabled", true);  // optional, default is 1 (true)
+		bool moveable = jsonNeedBool(p, "moveable", true);  // optional, default is 1 (true)
 		cJSON* params = jsonGetArray(p, "params");
 		NosuchAssert(plugin && params);
 
@@ -624,6 +688,7 @@ FFFF::loadPipelineJson(cJSON* json)
 				DEBUGPRINT(("Unable to add plugin=%s", name));
 				continue;
 			}
+			pi->setMoveable(moveable);
 		}
 		else {  // "ff10"
 			FF10PluginInstance* pi = FF10AddToPipeline(name, viztag, enabled, params);
@@ -791,14 +856,14 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 		if (num_ffgl_active == 1) {
 			if ( ! do_ffgl_plugin(pi,3) ) {
 				DEBUGPRINT(("DISABLING plugin - Error B in do_ffgl_plugin for plugin=%s",pi->name().c_str()));
-				pi->disable();
+				pi->setEnable(false);
 			}
 			continue;
 		}
 		if ( pi == firstplugin ) {
 			if (!do_ffgl_plugin(pi, 0)) {
 				DEBUGPRINT(("DISABLING plugin - Error D in do_ffgl_plugin for plugin=%s", pi->name().c_str()));
-				pi->disable();
+				pi->setEnable(false);
 			}
 		}
 		else if (pi == lastplugin) {
@@ -807,13 +872,13 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 			fbo_output->UnbindAsRenderTarget(glExtensions);
 			if (!do_ffgl_plugin(pi, 2)) {
 				DEBUGPRINT(("DISABLING plugin - Error D in do_ffgl_plugin for plugin=%s", pi->name().c_str()));
-				pi->disable();
+				pi->setEnable(false);
 			}
 		} 
 		else {
 			if (!do_ffgl_plugin(pi, 1)) {
 				DEBUGPRINT(("DISABLING plugin - Error E in do_ffgl_plugin for plugin=%s", pi->name().c_str()));
-				pi->disable();
+				pi->setEnable(false);
 			}
 		}
 	}
@@ -901,10 +966,19 @@ std::string FFFF::FFGLPipelineList(bool only_enabled) {
 	std::string sep = "";
 	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline.begin(); it != m_ffglpipeline.end(); it++) {
 		FFGLPluginInstance* p = *it;
+		bool isvizlet = m_vizserver->IsVizlet(p->name().c_str());
+		std::string isviz;
+		if (isvizlet) {
+			isviz = std::string(" \"vizlet\": ") + (isvizlet ? "1" : "0") + ", ";
+		}
 		bool enabled = p->isEnabled();
 		if ( only_enabled==false || enabled==true ) {
-			r += (sep + "{ \"plugin\":\""+p->plugindef()->GetPluginName()+"\", \"instance\":\"" + p->name() + "\", "
-				+ " \"enabled\": " + (p->isEnabled()?"1":"0") + "  }");
+			r += (sep + "{ \"plugin\":\""+p->plugindef()->GetPluginName()+"\","
+				+ " \"instance\":\"" + p->name() + "\", "
+				+ isviz
+				+ " \"moveable\": " + (p->isMoveable() ? "1" : "0") + ","
+				+ " \"enabled\": " + (p->isEnabled() ? "1" : "0")
+				+ "  }");
 			sep = ", ";
 		}
 	}
@@ -920,7 +994,9 @@ std::string FFFF::FF10PipelineList(bool only_enabled) {
 		bool enabled = p->isEnabled();
 		if ( only_enabled==false || enabled==true ) {
 			r += (sep + "{ \"plugin\":\""+p->plugindef()->GetPluginName()+"\", \"instance\":\"" + p->name() + "\", "
-				+ " \"enabled\": " + (p->isEnabled()?"1":"0") + "  }");
+				+ " \"moveable\": " + (p->isMoveable() ? "1" : "0") + ","
+				+ " \"enabled\": " + (p->isEnabled()?"1":"0")
+				+ "  }");
 			sep = ", ";
 		}
 	}
@@ -1101,7 +1177,8 @@ std::string FFFF::savePipeline(std::string fname, const char* id)
 		f << sep;
 		f << "\t{\n";
 		f << "\t\t\"ff10plugin\": \"" + (*it)->name() + "\",\n";
-		f << "\t\t\"enabled\": \"" + std::string((*it)->isEnabled()?"1":"0") + "\",\n";
+		f << "\t\t\"enabled\": " + std::string((*it)->isEnabled()?"1":"0") + ",\n";
+		f << "\t\t\"moveable\": " + std::string((*it)->isMoveable()?"1":"0") + ",\n";
 		f << "\t\t\"params\": " + FF10ParamVals(*it,"\n\t\t\t") + "\n";
 		f << "\t}";
 		sep = ",\n";
@@ -1110,7 +1187,8 @@ std::string FFFF::savePipeline(std::string fname, const char* id)
 		f << sep;
 		f << "\t{\n";
 		f << "\t\t\"ffglplugin\": \"" + (*it)->name() + "\",\n";
-		f << "\t\t\"enabled\": \"" + std::string((*it)->isEnabled()?"1":"0") + "\",\n";
+		f << "\t\t\"enabled\": " + std::string((*it)->isEnabled()?"1":"0") + ",\n";
+		f << "\t\t\"moveable\": " + std::string((*it)->isMoveable()?"1":"0") + ",\n";
 		f << "\t\t\"params\": " + FFGLParamVals(*it,"\n\t\t\t") + "\n";
 		f << "\t}";
 		sep = ",\n";
@@ -1126,7 +1204,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 
 	if (meth == "apis") {
 		return jsonStringResult("time;clicknow;show;hide;echo;"
-			"enable(instance);disable(instance);delete(instance);"
+			"enable(instance,onoff);delete(instance);"
 			"ffgladd(plugin,instance,autoenable,params);"
 			"ff10add(plugin,instance,autoenable,params);"
 			"ffglparamset(instance,param,val);"
@@ -1144,6 +1222,10 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 			"fps(onoff);"
 			"trail_enable(onoff);"
 			"trail_amount(value);"
+			"moveup(instance);"
+			"movedown(instance);"
+			"shufflepipeline;"
+			"randomizepipeline;"
 			, id);
 	}
 	// DEBUGPRINT(("FFFF api = %s", meth.c_str()));
@@ -1160,14 +1242,14 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		return jsonOK(id);
 	}
 
-	if ( meth == "time"  ) {
-		return jsonDoubleResult(m_vizserver->GetTime(),id);
+	if (meth == "time") {
+		return jsonDoubleResult(m_vizserver->GetTime(), id);
 	}
-	if ( meth == "clicknow"  ) {
-		return jsonIntResult(m_vizserver->SchedulerCurrentClick(),id);
+	if (meth == "clicknow") {
+		return jsonIntResult(m_vizserver->SchedulerCurrentClick(), id);
 	}
-	if ( meth == "show" ) {
-		if ( ! window ) {
+	if (meth == "show") {
+		if (!window) {
 			throw NosuchException("No window?!");
 		}
 		hidden = false;
@@ -1178,75 +1260,127 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		glfwShowWindow(window);
 		return ok_json(id);
 	}
-	if ( meth == "hide" ) {
-		if ( ! window ) {
+	if (meth == "hide") {
+		if (!window) {
 			throw NosuchException("No window?!");
 		}
 		hidden = true;
 		glfwIconifyWindow(window);
 		return ok_json(id);
 	}
-	if ( meth == "_echo" || meth == "echo" ) {
-		std::string val = jsonNeedString(params,"value");
-		return jsonStringResult(val,id);
+	if (meth == "_echo" || meth == "echo") {
+		std::string val = jsonNeedString(params, "value");
+		return jsonStringResult(val, id);
 	}
-	if ( meth == "name" ) {
-		return jsonStringResult("FFFF",id);
+	if (meth == "name") {
+		return jsonStringResult("FFFF", id);
 	}
 
 	{ static _CrtMemState s1, s2, s3;
-	if ( meth == "dump" ) {
+	if (meth == "dump") {
 		_CrtMemState s;
-		_CrtMemCheckpoint( &s );
-		if ( _CrtMemDifference( &s3, &s1, &s) ) {
-			_CrtMemDumpStatistics( &s3 );
+		_CrtMemCheckpoint(&s);
+		if (_CrtMemDifference(&s3, &s1, &s)) {
+			_CrtMemDumpStatistics(&s3);
 		}
 		// _CrtDumpMemoryLeaks();
 		return jsonOK(id);
 	}
-	if ( meth == "checkpoint" ) {
+	if (meth == "checkpoint") {
 		_CrtMemState s1;
-		_CrtMemCheckpoint( &s1 );
+		_CrtMemCheckpoint(&s1);
 		return jsonOK(id);
 	}
 	}
 
-	if ( meth == "add" || meth == "ffgladd" ) {
-		std::string plugin = jsonNeedString(params,"plugin");
-		std::string iname = jsonNeedString(params,"instance");
-		bool autoenable = (jsonNeedInt(params,"autoenable",1) != 0);
+	if (meth == "add" || meth == "ffgladd") {
+		std::string plugin = jsonNeedString(params, "plugin");
+		std::string iname = jsonNeedString(params, "instance");
+		bool autoenable = jsonNeedBool(params, "autoenable", true);
+		bool moveable = jsonNeedBool(params, "moveable", true);
 		cJSON* pparams = jsonGetArray(params, "params");
-		FFGLPluginInstance* pi = FFGLAddToPipeline(plugin,iname,autoenable,pparams);
-		if ( ! pi ) {
-			throw NosuchException("Unable to add plugin '%s'",plugin.c_str());
+		FFGLPluginInstance* pi = FFGLAddToPipeline(plugin, iname, autoenable, pparams);
+		if (!pi) {
+			throw NosuchException("Unable to add plugin '%s'", plugin.c_str());
 		}
-		return jsonStringResult(iname,id);
+		pi->setMoveable(moveable);
+		return jsonStringResult(iname, id);
 	}
-	if ( meth == "ff10add" ) {
-		std::string plugin = jsonNeedString(params,"plugin");
-		std::string iname = jsonNeedString(params,"instance");
-		bool autoenable = (jsonNeedInt(params,"autoenable",1) != 0);
+	if (meth == "ff10add") {
+		std::string plugin = jsonNeedString(params, "plugin");
+		std::string iname = jsonNeedString(params, "instance");
+		bool autoenable = jsonNeedBool(params, "autoenable", true);
 		cJSON* pparams = jsonGetArray(params, "params");
-		FF10PluginInstance* pi = FF10AddToPipeline(plugin,iname,autoenable,pparams);
-		if ( ! pi ) {
-			throw NosuchException("Unable to add plugin '%s'",plugin.c_str());
+		FF10PluginInstance* pi = FF10AddToPipeline(plugin, iname, autoenable, pparams);
+		if (!pi) {
+			throw NosuchException("Unable to add plugin '%s'", plugin.c_str());
 		}
-		return jsonStringResult(iname,id);
+		return jsonStringResult(iname, id);
 	}
-	if ( meth == "ffglenable" || meth == "ffgldisable" || meth == "enable" || meth == "disable" ) {
-		std::string instance = jsonNeedString(params,"instance");
+	if (meth == "ffglenable" || meth == "enable" ) {
+		std::string instance = jsonNeedString(params, "instance");
+		bool onoff = jsonNeedBool(params, "onoff");
 		FFGLPluginInstance* pi = FFGLNeedPluginInstance(instance);   // throws an exception if it doesn't exist
-		if ( meth.find("enable") != meth.npos ) {
-			pi->enable();
-		} else {
-			pi->disable();
-		}
+		pi->setEnable(onoff);
 		return jsonOK(id);
+	}
+	if (meth == "ffglmoveable" ) {
+		std::string instance = jsonNeedString(params, "instance");
+		bool onoff = jsonNeedBool(params, "onoff");
+		FFGLPluginInstance* pi = FFGLNeedPluginInstance(instance);   // throws an exception if it doesn't exist
+		pi->setMoveable(onoff);
+		return jsonOK(id);
+	}
+	if (meth == "about") {
+		std::string inst = jsonNeedString(params, "instance");
+		FFGLPluginInstance* pgl = FFGLFindPluginInstance(inst);
+		if (pgl != NULL) {
+			FFGLPluginDef* def = pgl->plugindef();
+			return jsonStringResult(def->GetExtendedInfo()->About, id);
+		}
+		FF10PluginInstance* p10 = FF10NeedPluginInstance(inst);
+		if (p10 != NULL) {
+			FF10PluginDef* def = p10->plugindef();
+			return jsonStringResult(def->GetExtendedInfo()->About, id);
+		}
+		throw NosuchException("No such instance: %s",inst.c_str());
+	}
+	if (meth == "description") {
+		std::string inst = jsonNeedString(params, "instance");
+		FFGLPluginInstance* pgl = FFGLFindPluginInstance(inst);
+		if (pgl != NULL) {
+			FFGLPluginDef* def = pgl->plugindef();
+			return jsonStringResult(def->GetExtendedInfo()->Description, id);
+		}
+		FF10PluginInstance* p10 = FF10NeedPluginInstance(inst);
+		if (p10 != NULL) {
+			FF10PluginDef* def = p10->plugindef();
+			return jsonStringResult(def->GetExtendedInfo()->Description, id);
+		}
+		throw NosuchException("No such instance: %s",inst.c_str());
 	}
 	if ( meth == "delete" ) {
 		// It's okay if instance doesn't exist, so don't use needFFGLPluginInstance
 		std::string iname = jsonNeedString(params,"instance");
 		FFGLDeleteFromPipeline(iname);
+		return jsonOK(id);
+	}
+	if ( meth == "moveup" ) {
+		// It's okay if instance doesn't exist, so don't use needFFGLPluginInstance
+		FFGLMoveUpInPipeline(jsonNeedString(params,"instance"));
+		return jsonOK(id);
+	}
+	if ( meth == "movedown" ) {
+		// It's okay if instance doesn't exist, so don't use needFFGLPluginInstance
+		FFGLMoveDownInPipeline(jsonNeedString(params,"instance"));
+		return jsonOK(id);
+	}
+	if (meth == "shufflepipeline") {
+		shufflePipeline();
+		return jsonOK(id);
+	}
+	if (meth == "randomizepipeline") {
+		randomizePipeline();
 		return jsonOK(id);
 	}
 	if ( meth == "clearpipeline" ) {
@@ -1361,7 +1495,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	}
 	if ( meth == "loadpipeline" ) {
 		std::string fname =  jsonNeedString(params,"filename");
-		loadPipeline(fname, false);  // this will throw exceptions on failure
+		loadPipeline(fname, true);  // this will throw exceptions on failure
 		return jsonOK(id);
 	}
 

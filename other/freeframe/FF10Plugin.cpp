@@ -190,6 +190,12 @@ const PluginInfoStruct *FF10PluginDef::GetInfo() const
     return(u.PISvalue);
 }
 
+const PluginExtendedInfoStruct *FF10PluginDef::GetExtendedInfo() const
+{
+    plugMainUnion u = m_mainfunc(FF_GETEXTENDEDINFO, 0, 0);
+    return(u.PXISvalue);
+}
+
 bool FF10PluginDef::Process(int instanceid, unsigned char *pixels)
 {
     plugMainUnion u = m_mainfunc(FF_PROCESSFRAME, (DWORD)(pixels), instanceid);
@@ -221,7 +227,7 @@ std::string FF10PluginDef::GetPluginName() const
 
 FF10PluginInstance::FF10PluginInstance(FF10PluginDef* d, std::string nm) :
 	m_plugindef(d), m_params(NULL), m_name(nm), m_enabled(false),
-	m_instanceid(INVALIDINSTANCE) {
+	m_moveable(true), m_instanceid(INVALIDINSTANCE) {
 
 	NosuchAssert ( d->m_mainfunc );
 	m_mainfunc = d->m_mainfunc;

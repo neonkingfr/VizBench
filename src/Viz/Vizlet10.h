@@ -196,7 +196,6 @@ protected:
 
 	void* Handle() { return (void*)this; }
 
-	ApiFilter m_af;
 	MidiFilter m_mf;
 	CursorFilter m_cf;
 	
@@ -211,7 +210,7 @@ protected:
 
 	double defaultMovedir();
 
-	double movedirDegrees(AllVizParams* p);
+	// double movedirDegrees(AllVizParams* p);
 	NosuchColor channelColor(int ch);
 
 private:
@@ -227,7 +226,7 @@ private:
 
 	void _stopstuff();
 	void _stopCallbacks();
-	void _startApiCallbacks(ApiFilter af, void* data);
+	void _startApiCallbacks(const char* apiprefix, void* data);
 	void _stopApiCallbacks();
 	void _startMidiCallbacks(MidiFilter mf, void* data);
 	void _stopMidiCallbacks();

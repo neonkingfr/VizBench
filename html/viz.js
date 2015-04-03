@@ -7,6 +7,11 @@ function format_error(meth,err) {
 	}
 }
 
+function editparams(inputid) {
+	var filename = dojo.byId(inputid);
+	window.location.href = "params.html?paramfile="+filename.value;
+}
+
 function vizapi(meth,params) {
 
 	// The value of params should include the curly braces

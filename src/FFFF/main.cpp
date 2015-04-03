@@ -139,7 +139,7 @@ int ffffMain(std::string config)
 	jsonSetDebugConfig(j);
 
 	// Allow the config to override the default paths for these
-	std::string ff10path = jsonNeedString(j, "ff10path", "ffplugins");
+	std::string ff10path = jsonNeedString(j, "ff10path", "ff10plugins");
 	std::string ffglpath = jsonNeedString(j, "ffglpath", "ffglplugins");
 
 	// Remove shell expansion, because I want things to be the same between the

@@ -66,7 +66,7 @@ FFGLPluginDef::getParamNum(std::string pnm) {
 
 FFGLPluginInstance::FFGLPluginInstance(FFGLPluginDef* d, std::string nm) :
 	m_plugindef(d), m_params(NULL), m_name(nm), m_enabled(false),
-	m_instanceid(INVALIDINSTANCE) {
+	m_moveable(true), m_instanceid(INVALIDINSTANCE) {
 
 	NosuchAssert ( d->m_mainfunc );
 	m_main = d->m_mainfunc;
@@ -356,6 +356,12 @@ const PluginInfoStruct *FFGLPluginDef::GetInfo() const
 {
     plugMainUnion u = m_mainfunc(FF_GETINFO, 0, 0);
     return(u.PISvalue);
+}
+
+const PluginExtendedInfoStruct *FFGLPluginDef::GetExtendedInfo() const
+{
+    plugMainUnion u = m_mainfunc(FF_GETEXTENDEDINFO, 0, 0);
+    return(u.PXISvalue);
 }
 
 

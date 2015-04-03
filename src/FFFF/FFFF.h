@@ -68,6 +68,8 @@ public:
 	std::string			FFGLParamList(std::string nm, const char* id);
 	FFGLPluginInstance* FFGLAddToPipeline(std::string nm, std::string inm, bool autoenable, cJSON* params);
 	void				FFGLDeleteFromPipeline(std::string inm);
+	void				FFGLMoveUpInPipeline(std::string inm);
+	void				FFGLMoveDownInPipeline(std::string inm);
 
 	///////////////////////// FF10 stuff
 
@@ -90,6 +92,8 @@ public:
 	void loadPipeline(std::string configname, bool synthesize);
 	void loadPipelineJson(cJSON* json);
 	void clearPipeline();
+	void shufflePipeline();
+	void randomizePipeline();
 	bool initCamera(int camindex);
 	// void setWidthHeight(int w, int h) { _width = w; _height = h; }
 	IplImage* getCameraFrame();

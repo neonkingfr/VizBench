@@ -208,6 +208,7 @@ typedef union plugMainUnionTag {
 	float fvalue;
 	VideoInfoStruct* VISvalue;
 	PluginInfoStruct* PISvalue;
+	PluginExtendedInfoStruct* PXISvalue;
 	char* svalue;
 } plugMainUnion;
 

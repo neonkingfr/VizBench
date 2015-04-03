@@ -229,8 +229,12 @@ void VizSprite::advanceTo(double tm) {
 	}
 
 	if (m_params->gravity) {
-		m_state.speedX += dt * m_state.forceX / m_params->mass;
-		m_state.speedY += dt * m_state.forceY / m_params->mass;
+		double mass = m_params->mass;
+		if (mass == 0.0) {
+			mass = 0.001;
+		}
+		m_state.speedX += dt * m_state.forceX / mass;
+		m_state.speedY += dt * m_state.forceY / mass;
 		if (_isnan(m_state.speedX)) {
 			DEBUGPRINT(("Updated speedX to NAN! %f", m_state.speedX));
 		}

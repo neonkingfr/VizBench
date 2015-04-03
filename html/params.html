@@ -211,6 +211,7 @@ function togglebool(name) {
 	} else {
 		valueid.value = "true";
 	}
+	autowritefile();
 }
 
 function stringvalindex(name,val) {
@@ -285,7 +286,7 @@ function setup() {
 		instancenum = port - 4439;
 	}
 
-	titlegen("<font style=\"font-weight: bold; font-size: 300%\">Params Editor</font>");
+	titlegen("<font style=\"font-weight: bold; font-size: 300%\">SpriteParams Editor</font>");
 
 	var html = "";
 
