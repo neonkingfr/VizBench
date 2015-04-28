@@ -84,12 +84,8 @@ def genparamheader(params,classname):
 	writeln("public:")
 
 	### Generate the class constructor
-	writeln(tab+classname+"(bool defaults) {")
-	writeln(tab2+"if ( defaults ) {")
-	writeln(tab3+"loadDefaults();")
-	writeln(tab2+"} else {")
-	writeln(tab3+"// Otherwise, all of the parameters are unset")
-	writeln(tab2+"}")
+	writeln(tab+classname+"() {")
+	writeln(tab2+"loadDefaults();")
 	writeln(tab+"}")
 
 	writeln(tab+"std::string JsonListOfValues() { return _JsonListOfValues("+paramnames+"); }");

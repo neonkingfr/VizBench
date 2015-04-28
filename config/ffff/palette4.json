@@ -9,7 +9,7 @@
 	},
 	{
 		"ffglplugin": "Twisted",
-		"enabled": 1,
+		"enabled": 0,
 		"moveable": 1,
 		"params": [
 			{ "name":"Twirl", "value": 0.27 },  # should be LFO from 0.24 to 0.68

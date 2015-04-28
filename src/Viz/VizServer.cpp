@@ -331,7 +331,7 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 	}
 	static AllVizParams* allparams = NULL;
 	if (allparams == NULL) {
-		allparams = new AllVizParams(true);
+		allparams = new AllVizParams();
 	}
 
 	if (fullmethod == "viztags" || fullmethod == "apitags") {  // apitags is deprecated, retained for compatibility

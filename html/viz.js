@@ -60,7 +60,7 @@ function titlegen(titlestr) {
 	html += "<br><a href=index.html>Vizlets Control</a>";
 	html += "<br><a href=ffff.html>FFFF Control</a>";
 	html += "<br><a href=vizserver.html>VizServer Control</a>";
-	html += "<br><a href=params.html>Params Editor</a>";
+	html += "<br><a href=params.html>SpriteParams Editor</a>";
 	html += "</td></tr></table>";
 
 	document.getElementById("title").innerHTML = html;
@@ -135,7 +135,7 @@ function vizpagegen(taginclude,tagexclude) {
 					html += "<td width=10></td><td align=right>"
 						+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" id=\""+inputid+"\" size=8></td>";
 					if ( argname == "paramfile" ) {
-						html += "<td><button onclick=\"editparams('"+inputid+"');\" >Edit Params</button>";
+						html += "<td><button onclick=\"editparams('"+inputid+"');\" >Edit SpriteParams</button>";
 					}
 				}
 				html += "</tr>";

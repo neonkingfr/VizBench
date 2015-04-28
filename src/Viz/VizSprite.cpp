@@ -37,9 +37,10 @@
 
 VizSprite::VizSprite(AllVizParams* sp) {
 	// create a copy, since the params may change
-	m_params = new AllVizParams(true);  // loads it with default values
+	m_params = new AllVizParams();  // loads it with default values
 	m_params->applyVizParamsFrom(sp);
 	m_framenum = 0;
+	m_data = 0;
 }
 
 
@@ -225,7 +226,7 @@ void VizSprite::advanceTo(double tm) {
 	}
 
 	if (m_params->rotangspeed != 0.0) {
-		m_state.rotangsofar = fmod((m_state.rotangsofar + (m_state.rotclockwise ? 1 : -1) * (dt / 1000.0) * m_params->rotangspeed), 360.0);
+		m_state.rotangsofar = fmod((m_state.rotangsofar + (m_state.rotclockwise ? 1 : -1) * dt * m_params->rotangspeed), 360.0);
 	}
 
 	if (m_params->gravity) {
@@ -598,7 +599,20 @@ int rotangdirOf(std::string s) {
 	return dir;
 }
 
-void VizSprite::initVizSpriteState(double tm, void* handle, NosuchPos& pos, double movedir) {
+void VizSprite::initVizSpriteState(double tm, void* handle, NosuchPos& pos, AllVizParams* p, bool doinitial) {
+
+	double movedir;
+	if (p->movedirrandom.get()) {
+		movedir = 360.0f * ((double)(rand())) / RAND_MAX;
+	}
+	else if (p->movefollowcursor.get()) {
+		// eventually, keep track of cursor movement direction
+		// for the moment it's random
+		movedir = 360.0f * ((double)(rand())) / RAND_MAX;
+	}
+	else {
+		movedir = p->movedir.get();
+	}
 
 	// most of the state has been initialized in VizSpriteState constructor
 	m_state.pos = pos;
@@ -610,10 +624,12 @@ void VizSprite::initVizSpriteState(double tm, void* handle, NosuchPos& pos, doub
 	m_state.handle = handle;
 	m_state.born = tm;
 	m_state.last_tm = tm;
-	m_state.hue = m_params->hueinitial;
-	m_state.huefill = m_params->huefillinitial;
-	m_state.alpha = m_params->alphainitial;
-	m_state.size = m_params->sizeinitial;
+	if (doinitial) {
+		m_state.hue = m_params->hueinitial;
+		m_state.huefill = m_params->huefillinitial;
+		m_state.alpha = m_params->alphainitial;
+		m_state.size = m_params->sizeinitial;
+	}
 	m_state.rotangspeed = m_params->rotangspeed;
 	if (m_params->rotdirrandom.get() && ((rand() % 2) == 0)) {
 		m_state.rotangspeed = -m_state.rotangspeed;

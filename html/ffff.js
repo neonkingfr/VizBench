@@ -174,9 +174,11 @@ function ffffpagegen() {
 	html += "&nbsp;&nbsp;";
 	html += "<input type=\"button\" value=\"Disable All\" onClick=\"enableall(0);\">";
 	html += "&nbsp;&nbsp;";
-	html += "<input type=\"button\" value=\"Shuffle\" onClick=\"shufflepipeline();\">";
+	html += "<input type=\"button\" value=\"Shuffle Pipeline\" onClick=\"shufflepipeline();\">";
 	html += "&nbsp;&nbsp;";
-	html += "<input type=\"button\" value=\"Randomize\" onClick=\"randomizepipeline();\">";
+	html += "<input type=\"button\" value=\"Randomize Pipeline\" onClick=\"randomizepipeline();\">";
+	html += "&nbsp;&nbsp;";
+	html += "<input type=\"button\" value=\"Randomize FFGL Params\" onClick=\"randomizeffglparams();\">";
 
 	var r;
 	html += "<table>";	// two columns, left column for plugin name
@@ -304,7 +306,6 @@ function ffffpagegen() {
 				+ "&quot;'+document.getElementById(&quot;" + valueid + "&quot;).value+'&quot;"
 				;
 
-			// html += "<td><input type=\"button\" style=\"width:100px\" value=\""+v.name+"\" onClick=\"vizapi('ffff.ffglparamset','{"+argstr+"}');\"></td>";
 			html += "<td align=right width=25%>"+v.name+"</td>";
 
 			var mn = 0.0;

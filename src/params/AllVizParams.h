@@ -28,6 +28,9 @@ extern char* AllVizParamsNames[];
 	"movefollowcursor",\
 	"noisevertex",\
 	"nsprites",\
+	"pitchmax",\
+	"pitchmin",\
+	"pitchwrap",\
 	"placement",\
 	"rotanginit",\
 	"rotangspeed",\
@@ -44,12 +47,8 @@ extern char* AllVizParamsNames[];
 
 class AllVizParams : public VizParams {
 public:
-	AllVizParams(bool defaults) {
-		if ( defaults ) {
-			loadDefaults();
-		} else {
-			// Otherwise, all of the parameters are unset
-		}
+	AllVizParams() {
+		loadDefaults();
 	}
 	std::string JsonListOfValues() { return _JsonListOfValues(AllVizParamsNames); }
 	std::string JsonListOfParams() { return _JsonListOfParams(AllVizParamsNames); }
@@ -100,6 +99,12 @@ public:
 		if (j) { noisevertex.set(j); }
 		j = cJSON_GetObjectItem(json,"nsprites");
 		if (j) { nsprites.set(j); }
+		j = cJSON_GetObjectItem(json,"pitchmax");
+		if (j) { pitchmax.set(j); }
+		j = cJSON_GetObjectItem(json,"pitchmin");
+		if (j) { pitchmin.set(j); }
+		j = cJSON_GetObjectItem(json,"pitchwrap");
+		if (j) { pitchwrap.set(j); }
 		j = cJSON_GetObjectItem(json,"placement");
 		if (j) { placement.set(j); }
 		j = cJSON_GetObjectItem(json,"rotanginit");
@@ -148,6 +153,9 @@ public:
 		movefollowcursor.set(false);
 		noisevertex.set(0.0);
 		nsprites.set(1000);
+		pitchmax.set(90);
+		pitchmin.set(40);
+		pitchwrap.set(true);
 		placement.set("center");
 		rotanginit.set(0.0);
 		rotangspeed.set(0.0);
@@ -185,6 +193,9 @@ public:
 		if ( p->movefollowcursor.isset() ) { this->movefollowcursor.set(p->movefollowcursor.get()); }
 		if ( p->noisevertex.isset() ) { this->noisevertex.set(p->noisevertex.get()); }
 		if ( p->nsprites.isset() ) { this->nsprites.set(p->nsprites.get()); }
+		if ( p->pitchmax.isset() ) { this->pitchmax.set(p->pitchmax.get()); }
+		if ( p->pitchmin.isset() ) { this->pitchmin.set(p->pitchmin.get()); }
+		if ( p->pitchwrap.isset() ) { this->pitchwrap.set(p->pitchwrap.get()); }
 		if ( p->placement.isset() ) { this->placement.set(p->placement.get()); }
 		if ( p->rotanginit.isset() ) { this->rotanginit.set(p->rotanginit.get()); }
 		if ( p->rotangspeed.isset() ) { this->rotangspeed.set(p->rotangspeed.get()); }
@@ -245,6 +256,12 @@ public:
 			noisevertex.set(string2double(val));
 		} else if ( nm == "nsprites" ) {
 			nsprites.set(string2int(val));
+		} else if ( nm == "pitchmax" ) {
+			pitchmax.set(string2int(val));
+		} else if ( nm == "pitchmin" ) {
+			pitchmin.set(string2int(val));
+		} else if ( nm == "pitchwrap" ) {
+			pitchwrap.set(string2bool(val));
 		} else if ( nm == "placement" ) {
 			placement.set(val);
 			stringval = true;
@@ -322,6 +339,12 @@ public:
 			noisevertex.set(adjust(noisevertex.get(),amount,0.0,1.0));
 		} else if ( nm == "nsprites" ) {
 			nsprites.set(adjust(nsprites.get(),amount,1,10000));
+		} else if ( nm == "pitchmax" ) {
+			pitchmax.set(adjust(pitchmax.get(),amount,0,127));
+		} else if ( nm == "pitchmin" ) {
+			pitchmin.set(adjust(pitchmin.get(),amount,0,127));
+		} else if ( nm == "pitchwrap" ) {
+			pitchwrap.set(adjust(pitchwrap.get(),amount));
 		} else if ( nm == "placement" ) {
 			placement.set(adjust(placement.get(),amount,VizParams::StringVals["placementTypes"]));
 		} else if ( nm == "rotanginit" ) {
@@ -372,6 +395,9 @@ public:
 		if ( nm == "movefollowcursor" ) { return "false"; }
 		if ( nm == "noisevertex" ) { return "0.0"; }
 		if ( nm == "nsprites" ) { return "1000"; }
+		if ( nm == "pitchmax" ) { return "90"; }
+		if ( nm == "pitchmin" ) { return "40"; }
+		if ( nm == "pitchwrap" ) { return "true"; }
 		if ( nm == "placement" ) { return "center"; }
 		if ( nm == "rotanginit" ) { return "0.0"; }
 		if ( nm == "rotangspeed" ) { return "0.0"; }
@@ -409,6 +435,9 @@ public:
 		if ( nm == "movefollowcursor" ) { return "false"; }
 		if ( nm == "noisevertex" ) { return "0.0"; }
 		if ( nm == "nsprites" ) { return "1"; }
+		if ( nm == "pitchmax" ) { return "0"; }
+		if ( nm == "pitchmin" ) { return "0"; }
+		if ( nm == "pitchwrap" ) { return "false"; }
 		if ( nm == "placement" ) { return "placementTypes"; }
 		if ( nm == "rotanginit" ) { return "0.0"; }
 		if ( nm == "rotangspeed" ) { return "-360.0"; }
@@ -446,6 +475,9 @@ public:
 		if ( nm == "movefollowcursor" ) { return "true"; }
 		if ( nm == "noisevertex" ) { return "1.0"; }
 		if ( nm == "nsprites" ) { return "10000"; }
+		if ( nm == "pitchmax" ) { return "127"; }
+		if ( nm == "pitchmin" ) { return "127"; }
+		if ( nm == "pitchwrap" ) { return "true"; }
 		if ( nm == "placement" ) { return "placementTypes"; }
 		if ( nm == "rotanginit" ) { return "360.0"; }
 		if ( nm == "rotangspeed" ) { return "360.0"; }
@@ -476,6 +508,9 @@ public:
 		}
 		else if ( nm == "movefollowcursor" ) {
 			movefollowcursor.set( ! movefollowcursor.get());
+		}
+		else if ( nm == "pitchwrap" ) {
+			pitchwrap.set( ! pitchwrap.get());
 		}
 		else if ( nm == "rotdirrandom" ) {
 			rotdirrandom.set( ! rotdirrandom.get());
@@ -529,6 +564,12 @@ public:
 			return DoubleString(noisevertex.get());
 		} else if ( nm == "nsprites" ) {
 			return IntString(nsprites.get());
+		} else if ( nm == "pitchmax" ) {
+			return IntString(pitchmax.get());
+		} else if ( nm == "pitchmin" ) {
+			return IntString(pitchmin.get());
+		} else if ( nm == "pitchwrap" ) {
+			return BoolString(pitchwrap.get());
 		} else if ( nm == "placement" ) {
 			return placement.get();
 		} else if ( nm == "rotanginit" ) {
@@ -579,6 +620,9 @@ public:
 		if ( nm == "movefollowcursor" ) { return "bool"; }
 		if ( nm == "noisevertex" ) { return "double"; }
 		if ( nm == "nsprites" ) { return "int"; }
+		if ( nm == "pitchmax" ) { return "int"; }
+		if ( nm == "pitchmin" ) { return "int"; }
+		if ( nm == "pitchwrap" ) { return "bool"; }
 		if ( nm == "placement" ) { return "string"; }
 		if ( nm == "rotanginit" ) { return "double"; }
 		if ( nm == "rotangspeed" ) { return "double"; }
@@ -616,6 +660,9 @@ public:
 	BoolParam movefollowcursor;
 	DoubleParam noisevertex;
 	IntParam nsprites;
+	IntParam pitchmax;
+	IntParam pitchmin;
+	BoolParam pitchwrap;
 	StringParam placement;
 	DoubleParam rotanginit;
 	DoubleParam rotangspeed;

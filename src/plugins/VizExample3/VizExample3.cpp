@@ -18,7 +18,7 @@ std::string vizlet_name() { return "VizExample3"; }
 CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
 
 VizExample3::VizExample3() : Vizlet() {
-	m_params = getAllVizParams(VizParamPath("default"));
+	m_params = new AllVizParams();
 }
 
 VizExample3::~VizExample3() {

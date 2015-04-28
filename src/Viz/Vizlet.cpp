@@ -122,13 +122,8 @@ Vizlet::Vizlet() {
 
 	VizParams::Initialize();
 
-	m_defaultparams = new AllVizParams(true);
+	m_defaultparams = new AllVizParams();
 	m_useparamcache = false;
-
-	// AllVizParams* spdefault = getAllVizParams(VizParamPath("default"));
-	// if ( spdefault ) {
-	// 	m_defaultparams->applyVizParamsFrom(spdefault);
-	// }
 
 	m_callbacksInitialized = false;
 	m_passthru = true;
@@ -675,10 +670,10 @@ readVizParams(std::string path) {
 			path.c_str(),err.c_str()));
 		return NULL;
 	}
-	AllVizParams* s = new AllVizParams(false);
-	s->loadJson(json);
+	AllVizParams* p = new AllVizParams();
+	p->loadJson(json);
 	// XXX - should json be freed, here?
-	return s;
+	return p;
 }
 
 std::string
@@ -752,24 +747,10 @@ Vizlet::makeAndAddVizSprite(AllVizParams* p, NosuchPos pos) {
 }
 
 VizSprite*
-Vizlet::makeAndInitVizSprite(AllVizParams* p, NosuchPos pos) {
-
-	VizSprite* s = VizSprite::makeVizSprite(p);
+Vizlet::makeAndInitVizSprite(AllVizParams* params, NosuchPos pos) {
+	VizSprite* s = VizSprite::makeVizSprite(params);
 	s->m_framenum = FrameNum();
-
-	double movedir;
-	if ( p->movedirrandom.get() ) {
-		movedir = 360.0f * ((double)(rand()))/ RAND_MAX;
-	} else if ( p->movefollowcursor.get() ) {
-		// eventually, keep track of cursor movement direction
-		// for the moment it's random
-		movedir = 360.0f * ((double)(rand()))/ RAND_MAX;
-	} else {
-		movedir = p->movedir.get();
-	}
-
-	s->initVizSpriteState(GetTime(),Handle(),pos,movedir);
-	DEBUGPRINT1(("Vizlet::makeAndInitVizSprite size=%f",s->m_state.size));
+	s->initVizSpriteState(GetTime(),Handle(),pos,params);
 	return s;
 }
 

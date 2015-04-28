@@ -20,9 +20,12 @@ CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
 VizMidi4::VizMidi4() : Vizlet() {
 
 	for (int n = 0; n < 4; n++) {
-		m_sprite[n].channel = n + 1;
-		_loadParamsFile(n, NosuchSnprintf("midi4_%c","ABCD"[n]));
+		m_sprite_on[n].channel = n + 1;
+		_loadParamsFile(NosuchSnprintf("midi4_%c_on","ABCD"[n]), m_sprite_on[n]);
+		m_sprite_off[n].channel = n + 1;
+		_loadParamsFile(NosuchSnprintf("midi4_%c_off","ABCD"[n]), m_sprite_off[n]);
 	}
+	m_autoloadparams = true;
 }
 
 VizMidi4::~VizMidi4() {
@@ -39,31 +42,43 @@ void VizMidi4::processCursor(VizCursor* c, int downdragup) {
 	// NO OpenGL calls here
 }
 
-bool VizMidi4::_loadParamsFile(int n, std::string file) {
-	m_sprite[n].lastfilecheck = time(0);
-	m_sprite[n].lastfileupdate = time(0);
+bool VizMidi4::_loadParamsFile(std::string file, VizMidi4::paramsfile_info& spriteinfo) {
+	spriteinfo.lastfilecheck = time(0);
+	spriteinfo.lastfileupdate = time(0);
 	std::string path = VizParamPath(file);
 	AllVizParams* p = getAllVizParams(path);
 	if (!p) {
-		m_sprite[n].paramsfile = "";
-		m_sprite[n].paramspath = "";
-		m_sprite[n].params = NULL;
+		spriteinfo.paramsfile = "";
+		spriteinfo.paramspath = "";
+		spriteinfo.params = NULL;
 		return false;
 	}
-	m_sprite[n].paramsfile = file;
-	m_sprite[n].paramspath = path;
-	m_sprite[n].params = p;
+	spriteinfo.paramsfile = file;
+	spriteinfo.paramspath = path;
+	spriteinfo.params = p;
 	return true;
 }
 
 std::string
-VizMidi4::_set_params(int n, cJSON* json, const char* id)
+VizMidi4::_set_params_on(int n, cJSON* json, const char* id)
+{
+	return _set_params(m_sprite_on[n],json,id);
+}
+
+std::string
+VizMidi4::_set_params_off(int n, cJSON* json, const char* id)
+{
+	return _set_params(m_sprite_off[n],json,id);
+}
+
+std::string
+VizMidi4::_set_params(paramsfile_info& spriteinfo, cJSON* json, const char* id)
 {
 	std::string file = jsonNeedString(json, "paramfile", "");
 	if (file == "") {
 		return jsonError(-32000, "Bad file value", id);
 	}
-	if (_loadParamsFile(n, file)) {
+	if (_loadParamsFile(file, spriteinfo)) {
 		return jsonOK(id);
 	}
 	else {
@@ -76,10 +91,14 @@ std::string VizMidi4::processJson(std::string meth, cJSON *json, const char *id)
 
 	if (meth == "apis") {
 		return jsonStringResult(
-			"set_sprite_A(paramfile);"
-			"set_sprite_B(paramfile);"
-			"set_sprite_C(paramfile);"
-			"set_sprite_D(paramfile);"
+			"set_sprite_on_A(paramfile);"
+			"set_sprite_on_B(paramfile);"
+			"set_sprite_on_C(paramfile);"
+			"set_sprite_on_D(paramfile);"
+			"set_sprite_off_A(paramfile);"
+			"set_sprite_off_B(paramfile);"
+			"set_sprite_off_C(paramfile);"
+			"set_sprite_off_D(paramfile);"
 			"set_channel_A(channel);"
 			"set_channel_B(channel);"
 			"set_channel_C(channel);"
@@ -88,23 +107,32 @@ std::string VizMidi4::processJson(std::string meth, cJSON *json, const char *id)
 			, id);
 	}
 
-	if (meth == "set_channel_A") { m_sprite[0].channel = jsonNeedInt(json, "channel"); return jsonOK(id); }
-	if (meth == "get_channel_A") { return jsonIntResult(m_sprite[0].channel,id); }
-	if (meth == "set_channel_B") { m_sprite[1].channel = jsonNeedInt(json, "channel"); return jsonOK(id); }
-	if (meth == "get_channel_B") { return jsonIntResult(m_sprite[1].channel,id); }
-	if (meth == "set_channel_C") { m_sprite[2].channel = jsonNeedInt(json, "channel"); return jsonOK(id); }
-	if (meth == "get_channel_C") { return jsonIntResult(m_sprite[2].channel,id); }
-	if (meth == "set_channel_D") { m_sprite[3].channel = jsonNeedInt(json, "channel"); return jsonOK(id); }
-	if (meth == "get_channel_D") { return jsonIntResult(m_sprite[3].channel,id); }
+	if (meth == "set_channel_A") { m_sprite_on[0].channel = jsonNeedInt(json, "channel"); return jsonOK(id); }
+	if (meth == "get_channel_A") { return jsonIntResult(m_sprite_on[0].channel,id); }
+	if (meth == "set_channel_B") { m_sprite_on[1].channel = jsonNeedInt(json, "channel"); return jsonOK(id); }
+	if (meth == "get_channel_B") { return jsonIntResult(m_sprite_on[1].channel,id); }
+	if (meth == "set_channel_C") { m_sprite_on[2].channel = jsonNeedInt(json, "channel"); return jsonOK(id); }
+	if (meth == "get_channel_C") { return jsonIntResult(m_sprite_on[2].channel,id); }
+	if (meth == "set_channel_D") { m_sprite_on[3].channel = jsonNeedInt(json, "channel"); return jsonOK(id); }
+	if (meth == "get_channel_D") { return jsonIntResult(m_sprite_on[3].channel,id); }
 
-	if (meth == "set_sprite_A") { return _set_params(0, json,id); }
-	if (meth == "get_sprite_A") { return jsonStringResult(m_sprite[0].paramsfile, id); }
-	if (meth == "set_sprite_B") { return _set_params(1, json,id); }
-	if (meth == "get_sprite_B") { return jsonStringResult(m_sprite[1].paramsfile, id); }
-	if (meth == "set_sprite_C") { return _set_params(2, json,id); }
-	if (meth == "get_sprite_C") { return jsonStringResult(m_sprite[2].paramsfile, id); }
-	if (meth == "set_sprite_D") { return _set_params(3, json,id); }
-	if (meth == "get_sprite_D") { return jsonStringResult(m_sprite[3].paramsfile, id); }
+	if (meth == "set_sprite_on_A") { return _set_params_on(0, json,id); }
+	if (meth == "get_sprite_on_A") { return jsonStringResult(m_sprite_on[0].paramsfile, id); }
+	if (meth == "set_sprite_on_B") { return _set_params_on(1, json,id); }
+	if (meth == "get_sprite_on_B") { return jsonStringResult(m_sprite_on[1].paramsfile, id); }
+	if (meth == "set_sprite_on_C") { return _set_params_on(2, json,id); }
+	if (meth == "get_sprite_on_C") { return jsonStringResult(m_sprite_on[2].paramsfile, id); }
+	if (meth == "set_sprite_on_D") { return _set_params_on(3, json,id); }
+	if (meth == "get_sprite_on_D") { return jsonStringResult(m_sprite_on[3].paramsfile, id); }
+
+	if (meth == "set_sprite_off_A") { return _set_params_off(0, json,id); }
+	if (meth == "get_sprite_off_A") { return jsonStringResult(m_sprite_off[0].paramsfile, id); }
+	if (meth == "set_sprite_off_B") { return _set_params_off(1, json,id); }
+	if (meth == "get_sprite_off_B") { return jsonStringResult(m_sprite_off[1].paramsfile, id); }
+	if (meth == "set_sprite_off_C") { return _set_params_off(2, json,id); }
+	if (meth == "get_sprite_off_C") { return jsonStringResult(m_sprite_off[2].paramsfile, id); }
+	if (meth == "set_sprite_off_D") { return _set_params_off(3, json,id); }
+	if (meth == "get_sprite_off_D") { return jsonStringResult(m_sprite_off[3].paramsfile, id); }
 
 	// PARAMETER "autoloadparams"
 	if (meth == "set_autoloadparams") {
@@ -119,13 +147,74 @@ std::string VizMidi4::processJson(std::string meth, cJSON *json, const char *id)
 }
 
 void VizMidi4::processMidiInput(MidiMsg* m) {
+	VizSprite* s;
 	// NO OpenGL calls here
-	_midiVizSprite(m);
+	switch (m->MidiType()) {
+	case MIDI_CONTROL:
+		// CC #127 messages on channel 16 will be used to change the visualization
+		DEBUGPRINT(("processMidiInput control! ch=%d ctrl=%d val=%d", m->Channel(), m->Controller(), m->Value()));
+		break;
+	case MIDI_NOTE_ON:
+		// DEBUGPRINT(("NOTE_ON"));
+		s = _midiVizNoteOnSprite(m);
+		if (s) {
+			s->m_data = new sprite_info(m->Channel(), m->Pitch());
+		}
+		break;
+	case MIDI_NOTE_OFF:
+		// DEBUGPRINT(("NOTE_OFF"));
+		VizSpriteList* sl = GetVizSpriteList();
+		sl->lock_read();
+		for (std::list<VizSprite*>::iterator i = sl->m_sprites.begin(); i != sl->m_sprites.end(); i++) {
+			VizSprite* s = *i;
+			NosuchAssert(s);
+			sprite_info* si = (sprite_info*)(s->m_data);
+			if (si!=NULL && si->channel == m->Channel() && si->pitch == m->Pitch()) {
+				s->m_data = NULL;
+				int i = (si->channel-1) % 4;
+				AllVizParams* p = m_sprite_off[i].params;
+
+				// Save the *initial values - we don't want to overwrite those
+				double save_alphainitial = s->m_params->alphainitial.get();
+				double save_huefillinitial = s->m_params->huefillinitial.get();
+				double save_hueinitial = s->m_params->hueinitial.get();
+				double save_sizeinitial = s->m_params->sizeinitial.get();
+
+				s->m_params->applyVizParamsFrom(p);
+
+				// Don't use the *initial parameter values when initializing the state
+				s->initVizSpriteState(GetTime(),Handle(),s->m_state.pos,s->m_params,false);
+
+				// The initial alpha/size/hue/huefill values in the
+				// parameters should be the current state, so the
+				// transition is smoother
+
+				s->m_params->alphainitial.set(s->m_state.alpha);
+				s->m_params->sizeinitial.set(s->m_state.size);
+				s->m_params->hueinitial.set(s->m_state.hue);
+				s->m_params->huefillinitial.set(s->m_state.huefill);
+
+				delete si;  // XXX - if NOTEOFF is not received, we'll have a memory leak
+				break;
+			}
+		}
+		sl->unlock();
+		// DEBUGPRINT(("NOTE_OFF B"));
+		break;
+	} 
 }
 
 void VizMidi4::processMidiOutput(MidiMsg* m) {
 	// NO OpenGL calls here
-	_midiVizSprite(m);
+}
+
+void
+VizMidi4::_reload_params(paramsfile_info& si) {
+	AllVizParams* p;
+	p = checkAndLoadIfModifiedSince(si.paramspath, si.lastfilecheck, si.lastfileupdate);
+	if (p) {
+		si.params = p;
+	}
 }
 
 bool VizMidi4::processDraw() {
@@ -145,68 +234,120 @@ bool VizMidi4::processDraw() {
 
 	// XXX SHOULDN'T REALLY DO THIS SO OFTEN...
 	if (m_autoloadparams) {
-		static int cnt = 0;
-		int n = cnt++ % 4;	// cycle between the 4 
-		AllVizParams* p = checkAndLoadIfModifiedSince(m_sprite[n].paramspath,
-								m_sprite[n].lastfilecheck, m_sprite[n].lastfileupdate);
-		if (p) {
-			m_sprite[n].params = p;
-		}
+		static int cnt = 999;
+		cnt = (cnt+1) % 4;	// cycle between the 4 
+		_reload_params(m_sprite_on[cnt]);
+		_reload_params(m_sprite_off[cnt]);
 	}
 
 	DrawVizSprites();
 	return true;
 }
 
-void VizMidi4::_midiVizSprite(MidiMsg* m) {
+NosuchPos posAlongLine(double amount, NosuchPos frompos, NosuchPos topos) {
+	NosuchPos pos;
+	pos.x = frompos.x + amount * (topos.x - frompos.x);
+	pos.y = frompos.y + amount * (topos.y - frompos.y);
+	pos.z = frompos.z + amount * (topos.z - frompos.z);
+	return pos;
+}
+
+VizSprite* VizMidi4::_midiVizNoteOnSprite(MidiMsg* m) {
 
 	int minpitch = 0;
 	int maxpitch = 127;
 
-	if ( m->MidiType() == MIDI_NOTE_ON ) {
-		if ( m->Velocity() == 0 ) {
-			DEBUGPRINT(("Vizlet1 sees noteon with 0 velocity, ignoring"));
-			return;
-		}
-		NosuchPos pos;
-
-		int n = (m->Channel()-1) % 4;
-		std::string place = m_sprite[n].params->placement;
-
-		if (place == "nowhere") {
-			return;
-		}
-		else if (place == "random") {
-			pos.x = (rand() % 1000) / 1000.0;
-			pos.y = (rand() % 1000) / 1000.0;
-		}
-		else if (place == "bottom") {
-			pos.x = (m->Pitch() / 127.0);
-			pos.y = 0.2;
-		}
-		else if (place == "left") {
-			pos.x = 0.2;
-			pos.y = (m->Pitch() / 127.0);
-		}
-		else if (place == "right") {
-			pos.x = 0.8;
-			pos.y = (m->Pitch() / 127.0);
-		}
-		else if (place == "top") {
-			pos.x = (m->Pitch() / 127.0);
-			pos.y = 0.8;
-		}
-		else if (place == "center") {
-			pos.x = 0.5;
-			pos.y = 0.5;
-		}
-		else {
-			DEBUGPRINT(("Invalid placement value: %s",place.c_str()));
-			pos.x = 0.5;
-			pos.y = 0.5;
-		}
-		pos.z = (m->Velocity()*m->Velocity()) / (128.0*128.0);
-
-		makeAndAddVizSprite(m_sprite[n].params, pos);
+	if ( m->Velocity() == 0 ) {
+		DEBUGPRINT(("Vizlet1 sees noteon with 0 velocity, ignoring"));
+		return NULL;
 	}
+		
+	int midichan = m->Channel();
+	// DEBUGPRINT(("VizMidi4 midichan=%d", midichan));
+	int foundi = -1;
+	// See if any of the four slots are set to this channel
+	for (int i = 0; i < 4; i++) {
+		if (m_sprite_on[i].channel == midichan) {
+			foundi = i;
+			break;
+			
+		}
+	}
+	if (foundi < 0) {
+		return NULL;
+	}
+	// DEBUGPRINT(("VizMidi4 foundi=%d", foundi));
+	AllVizParams* params = m_sprite_on[foundi].params;
+	std::string place = params->placement;
+
+	int pitchmin = params->pitchmin.get();
+	int pitchmax = params->pitchmax.get();
+	bool pitchwrap = params->pitchwrap.get();
+
+	int pitch = m->Pitch();
+	if (pitch < pitchmin || pitch > pitchmax) {
+		if (!pitchwrap) {
+			return NULL;
+		}
+		int dp = pitchmax - pitchmin;
+		while (pitch < pitchmin) {
+			pitch += dp;
+		}
+		while (pitch > pitchmax) {
+			pitch -= dp;
+		}
+	}
+	double amount = double(pitch - pitchmin) / (pitchmax - pitchmin);
+	if (amount < 0.0 || amount > 1.0) {
+		DEBUGPRINT(("HEY! VizMidi4 amount isn't 0.0 to 1.0!?"));
+		return NULL;
+	}
+	NosuchPos pos;
+	NosuchPos linefrom;
+	NosuchPos lineto;
+	bool useline = true;
+
+	if (place == "nowhere") {
+		return NULL;
+	}
+	else if (place == "random") {
+		pos.x = (rand() % 1000) / 1000.0;
+		pos.y = (rand() % 1000) / 1000.0;
+		useline = false;
+	}
+	else if (place == "bottom") {
+		linefrom = NosuchPos(0.0, 0.1, 0.0);
+		lineto = NosuchPos(1.0, 0.1, 0.0);
+	}
+	else if (place == "left") {
+		linefrom = NosuchPos(0.1, 0.0, 0.0);
+		lineto = NosuchPos(0.1, 1.0, 0.0);
+	}
+	else if (place == "right") {
+		linefrom = NosuchPos(0.9, 0.0, 0.0);
+		lineto = NosuchPos(0.9, 1.0, 0.0);
+	}
+	else if (place == "top") {
+		linefrom = NosuchPos(0.0, 0.9, 0.0);
+		lineto = NosuchPos(1.0, 0.9, 0.0);
+	}
+	else if (place == "center") {
+		pos.x = 0.5;
+		pos.y = 0.5;
+		useline = false;
+	}
+	else {
+		DEBUGPRINT(("Invalid placement value: %s",place.c_str()));
+		pos.x = 0.5;
+		pos.y = 0.5;
+		useline = false;
+	}
+
+	if (useline) {
+		pos = posAlongLine(amount, linefrom, lineto);
+	}
+
+	pos.z = (m->Velocity()*m->Velocity()) / (128.0*128.0);
+
+	return makeAndAddVizSprite(params, pos);
 }

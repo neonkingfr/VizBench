@@ -120,41 +120,22 @@ Vizlet10::Vizlet10() {
 	DEBUGPRINT1(("--- Vizlet10 constructor, dll_pathname=%s",dll_pathname().c_str()));
 
 	VizParams::Initialize();
-
-	m_defaultparams = new AllVizParams(true);
+	m_defaultparams = new AllVizParams();
 	m_useparamcache = false;
-
-	// AllVizParams* spdefault = getAllVizParams(VizParamPath("default"));
-	// if ( spdefault ) {
-	// 	m_defaultparams->applyVizParamsFrom(spdefault);
-	// }
-
 	m_callbacksInitialized = false;
 	m_passthru = true;
-	// m_call_RealProcessOpenGL = false;
-
-	// m_spritelist = new VizSpriteList();
 	m_defaultmidiparams = defaultParams();
 	m_framenum = 0;
-
 	m_image = NULL;
 	m_imagesize = cvSize(0,0);
-
 	m_VideoInfo.BitDepth = FF_DEPTH_24;
 	m_VideoInfo.FrameHeight = 0;
 	m_VideoInfo.FrameWidth = 0;
 	m_VideoInfo.Orientation = FF_ORIENTATION_TL;
-
 	m_vizserver = VizServer::GetServer();
-
 	m_viztag = vizlet10_name();
-
 	m_mf = MidiFilter();  // ALL Midi
 	m_cf = CursorFilter();  // ALL Cursors
-
-	// These are default values, which can be overridden by the config file.
-
-	// _do_errorpopup = false;
 
 #ifdef PALETTE_PYTHON
 	_recompileFunc = NULL;
@@ -597,7 +578,7 @@ readVizParams(std::string path) {
 			path.c_str(),err.c_str()));
 		return NULL;
 	}
-	AllVizParams* s = new AllVizParams(false);
+	AllVizParams* s = new AllVizParams();
 	s->loadJson(json);
 	// XXX - should json be freed, here?
 	return s;

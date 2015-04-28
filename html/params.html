@@ -60,7 +60,7 @@ function readfile() {
 				// Make sure it's a valid value, if a string
 				var obj = ParamList[name];
 				if ( obj == null ) {
-					// alert("No attribute named "+name+"?");
+					alert("No attribute named "+name+"?");
 					continue;
 				}
 				var type = obj["type"];
@@ -70,6 +70,15 @@ function readfile() {
 					value = StringVals[name][0];
 				}
 				updateonevalue(name,value);
+			}
+			// For any ParamList values that aren't in the file,
+			// set them to default values.
+			for ( var name in ParamList ) {
+				var obj = ParamList[name];
+				var valueid = document.getElementById("value_"+name);
+				if ( valueid.value == "" ) {
+					updateonevalue(name,obj["default"]);
+				}
 			}
 			status.innerHTML = "OK";
 		} else {

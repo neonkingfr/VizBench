@@ -223,7 +223,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\..\bin\genparams.py" />
-    <Text Include="..\..\..\src\params\AllVizParams.list" />
+    <Text Include="..\..\..\src\params\AllVizParams.list">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\other\cJSON\cJSON.h" />

@@ -92,8 +92,7 @@ public:
 	virtual ~VizSprite();
 
 	static VizSprite* makeVizSprite(AllVizParams* sp);
-	void initVizSpriteState(double tm, void* handle, NosuchPos& pos, double movedir);
-
+	void initVizSpriteState(double tm, void* handle, NosuchPos& pos, AllVizParams* params, bool doinitial=true);
 
 	static double degree2radian(double deg);
 	virtual void drawShape(NosuchGraphics* graphics, int xdir, int ydir) = 0;
@@ -117,6 +116,7 @@ public:
 
 	AllVizParams* m_params;
 	VizSpriteState m_state;
+	void* m_data;		// users of VizSprite can put anything here
 	int m_framenum;
 
 protected:
