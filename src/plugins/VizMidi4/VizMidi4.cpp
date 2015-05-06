@@ -104,7 +104,36 @@ std::string VizMidi4::processJson(std::string meth, cJSON *json, const char *id)
 			"set_channel_C(channel);"
 			"set_channel_D(channel);"
 			"set_autoloadparams(onoff);"
+			"testapi();"
 			, id);
+	}
+	if (meth == "testapi") {
+		DEBUGPRINT(("VizMidi4.testapi called!"));
+		return jsonOK(id);
+	}
+	if (meth == "dump") {
+		std::string dump =
+			"["
+			+NosuchSnprintf("{\"method\":\"set_sprite_on_A\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[0].paramsfile.c_str())
+			+NosuchSnprintf(",{\"method\":\"set_sprite_on_B\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[1].paramsfile.c_str())
+			+NosuchSnprintf(",{\"method\":\"set_sprite_on_C\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[2].paramsfile.c_str())
+			+NosuchSnprintf(",{\"method\":\"set_sprite_on_D\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[3].paramsfile.c_str())
+			+NosuchSnprintf(",{\"method\":\"set_sprite_off_A\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[0].paramsfile.c_str())
+			+NosuchSnprintf(",{\"method\":\"set_sprite_off_B\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[1].paramsfile.c_str())
+			+NosuchSnprintf(",{\"method\":\"set_sprite_off_C\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[2].paramsfile.c_str())
+			+NosuchSnprintf(",{\"method\":\"set_sprite_off_D\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[3].paramsfile.c_str())
+			+NosuchSnprintf(",{\"method\":\"set_channel_A\",\"params\":{\"channel\":%d}}", m_sprite_off[0].channel)
+			+NosuchSnprintf(",{\"method\":\"set_channel_B\",\"params\":{\"channel\":%d}}", m_sprite_off[1].channel)
+			+NosuchSnprintf(",{\"method\":\"set_channel_C\",\"params\":{\"channel\":%d}}", m_sprite_off[2].channel)
+			+NosuchSnprintf(",{\"method\":\"set_channel_D\",\"params\":{\"channel\":%d}}", m_sprite_off[3].channel)
+			+"]"
+			;
+		return jsonStringResult(dump,id);
+	}
+	if (meth == "restore") {
+		std::string dump = jsonNeedString(json, "dump");
+		ExecuteDump(dump);
+		return jsonOK(id);
 	}
 
 	if (meth == "set_channel_A") { m_sprite_on[0].channel = jsonNeedInt(json, "channel"); return jsonOK(id); }
@@ -151,8 +180,23 @@ void VizMidi4::processMidiInput(MidiMsg* m) {
 	// NO OpenGL calls here
 	switch (m->MidiType()) {
 	case MIDI_CONTROL:
+		// DEBUGPRINT(("processMidiInput control! ch=%d ctrl=%d val=%d", m->Channel(), m->Controller(), m->Value()));
+#if 0
 		// CC #127 messages on channel 16 will be used to change the visualization
-		DEBUGPRINT(("processMidiInput control! ch=%d ctrl=%d val=%d", m->Channel(), m->Controller(), m->Value()));
+		XXX - Aborted attempt to use ProcessJson from within a Vizlet
+			to reload the pipeline
+
+		if (m->Controller() == 127 && m->Channel() == 16) {
+			int v = m->Value();
+			DEBUGPRINT(("Setting visual to %d", v));
+			std::string fullmethod = "ffff.loadpipeline";
+			std::string p = NosuchSnprintf("{\"filename\":\"patch_%d\"}",v+1);
+			cJSON* params = cJSON_Parse(p.c_str());
+			// USING ProcessJson DOESN'T WORK!!  BECAUSE LOADING THE PIPELINE
+			// WILL UNLOADE THIS VIZLET (unless I do something to prevent it)
+			// const char* s = vizserver()->ProcessJson(fullmethod.c_str(), params, "12345");
+		}
+#endif
 		break;
 	case MIDI_NOTE_ON:
 		// DEBUGPRINT(("NOTE_ON"));

@@ -13,14 +13,12 @@
 #define VIZSERVER_API __declspec(dllimport)
 #endif
 
-// #include "NosuchDaemon.h"
 #include "NosuchJSON.h"
 #include "cJSON.h"
 #include "NosuchOsc.h"
 #include "NosuchMidi.h"
 #include "NosuchGraphics.h"
 #include "mmtt_sharedmem.h"
-// #include "limits.h"
 typedef int click_t;
 
 #include <list>
@@ -258,6 +256,8 @@ public:
 	}
 
 	int MmttSeqNum() { return m_mmtt_seqnum; }
+
+	const char* ProcessJson(const char* fullmethod,cJSON* params,const char* id);
 
 private:
 	

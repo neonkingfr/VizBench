@@ -113,6 +113,7 @@ public:
 	std::string HtmlDir();
 	std::string ParamConfigDir();
 	std::string ConfigFileName(std::string name);
+	void ExecuteDump(std::string dump);
 
 	std::string processJsonAndCatchExceptions(std::string meth, cJSON *params, const char *id);
 	static bool checkAddrPattern(const char *addr, char *patt);

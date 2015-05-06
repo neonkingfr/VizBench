@@ -95,6 +95,21 @@ static cJSON* jsonGet(cJSON *j, std::string nm, int jtype) {
 	}
 }
 
+std::string jsonNeedStringForced(cJSON *j, std::string nm) {
+	NosuchAssert(j);
+	cJSON *c = cJSON_GetObjectItem(j,nm.c_str());
+	if (!c) {
+		return NULL;
+	}
+	if ( c->type == cJSON_String ) {
+		return std::string(c->valuestring);
+	} else if ( c->type == cJSON_Number ) {
+		return NosuchSnprintf("%g", c->valuedouble);
+	} else {
+		return "";
+	}
+}
+
 cJSON* jsonGetString(cJSON *j,std::string nm) {
 	return jsonGet(j,nm,cJSON_String);
 }

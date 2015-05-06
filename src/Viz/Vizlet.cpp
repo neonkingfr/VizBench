@@ -172,6 +172,10 @@ Vizlet::Vizlet() {
 	SetMinInputs(1);
 	SetMaxInputs(1);
 
+	_startApiCallbacks(m_viztag.c_str(),(void*)this);
+
+	// init API callback, so the name can be found
+
 #ifdef VIZTAG_PARAMETER
 	SetParamInfo(0,"viztag", FF_TYPE_TEXT, VizTag().c_str());
 #endif
@@ -468,7 +472,7 @@ Vizlet::InitCallbacks() {
 	if ( ! m_callbacksInitialized ) {
 
 		DEBUGPRINT1(("InitCallbacks this=%ld", (long)(this)));
-		_startApiCallbacks(m_viztag.c_str(),(void*)this);
+		// _startApiCallbacks(m_viztag.c_str(),(void*)this);
 		_startMidiCallbacks(m_mf,(void*)this);
 		_startCursorCallbacks(m_cf,(void*)this);
 		_startKeystrokeCallbacks((void*)this);
@@ -621,6 +625,64 @@ void Vizlet::UnlockVizlet() {
 	NosuchUnlock(&vizlet_mutex,"Vizlet");
 }
 
+void
+Vizlet::ExecuteDump(std::string dump) {
+	cJSON* arr = cJSON_Parse(dump.c_str());
+	if (arr == NULL) {
+		throw NosuchException("Unable to parse dump JSON!?");
+	}
+	if (arr->type != cJSON_Array) {
+		throw NosuchException("dump JSON isn't an array!?");
+	}
+	int nplugins = cJSON_GetArraySize(arr);
+	for (int n = 0; n < nplugins; n++) {
+		cJSON *p = cJSON_GetArrayItem(arr, n);
+		NosuchAssert(p);
+		DEBUGPRINT(("n=%d type=%d", n, p->type));
+	}
+}
+
+#if 0
+std::string Vizlet::DumpVals() {
+	std::string r = processJson("apis",NULL,"98765");
+	cJSON* j = cJSON_Parse(r.c_str());
+	if (j == NULL) {
+		throw NosuchException("Unable to parse internal JSON!?");
+	}
+	cJSON* result = jsonGetString(j, "result");
+	if (result == NULL) {
+		jsonFree(j);
+		throw NosuchException("No result in internal JSON!?");
+	}
+	std::vector<std::string> apis = NosuchSplitOnString(std::string(result->valuestring), ";");
+	jsonFree(j);
+	std::string sep = "";
+	std::string jout = "[";
+	for (size_t i = 0; i<apis.size(); i++) {
+		std::vector<std::string> words = NosuchSplitOnAnyChar(apis[i],"()");
+		if (words[0].find("set_") != 0) {
+			continue;
+		}
+		std::string name = words[0].substr(4);
+		std::string r = processJson("get_"+name,NULL,"98765");
+		j = cJSON_Parse(r.c_str());
+		if (j == NULL) {
+			throw NosuchException("Unable to parse internal JSON!?");
+		}
+		std::string val = jsonNeedStringForced(j, "result");
+		if (val == "") {
+			jsonFree(j);
+			throw NosuchException("No result in internal JSON!?");
+		}
+
+		jout += sep + "{\"name\":\""+name+"\", \"value\":\""+val+"\"}";
+		sep = ",";
+	}
+	jout += "]";
+	return jout;
+}
+#endif
+
 std::string Vizlet::processJsonAndCatchExceptions(std::string meth, cJSON *params, const char *id) {
 	std::string r;
 	try {
@@ -637,6 +699,11 @@ std::string Vizlet::processJsonAndCatchExceptions(std::string meth, cJSON *param
 			r = jsonStringResult(nm,id);
 		} else if ( meth == "dllpathname"  ) {
 			r = jsonStringResult(dll_pathname(),id);
+#if 0
+		} else if ( meth == "dump"  ) {
+			// r = jsonStringResult(DumpVals(),id);
+			r = jsonResult(DumpVals().c_str(),id);
+#endif
 		} else {
 			// If not one of the standard vizlet APIs, call the vizlet-plugin-specific API processor
 			r = processJson(meth,params,id);

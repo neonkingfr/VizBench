@@ -341,7 +341,7 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 #if 0
 	{ static _CrtMemState s1, s2, s3;
 
-	if ( fullmethod == "dump" ) {
+	if ( fullmethod == "memdump" ) {
 		_CrtMemState s;
 		_CrtMemCheckpoint( &s );
 		if ( _CrtMemDifference( &s3, &s1, &s) ) {
@@ -350,7 +350,7 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 		_CrtDumpMemoryLeaks();
 		return jsonOK(id);
 	}
-	if ( fullmethod == "checkpoint" ) {
+	if ( fullmethod == "memcheckpoint" ) {
 		_CrtMemState s1;
 		_CrtMemCheckpoint( &s1 );
 		return jsonOK(id);
@@ -915,6 +915,13 @@ click_t VizServer::SchedulerCurrentClick() {
 	else {
 		return m_scheduler->CurrentClick();
 	}
+}
+
+const char*
+VizServer::ProcessJson(const char* fullmethod, cJSON* params, const char* id) {
+	static std::string s;  // because we're returning its c_str()
+	s = m_jsonprocessor->processJson(fullmethod, params, id);
+	return s.c_str();
 }
 
 std::string

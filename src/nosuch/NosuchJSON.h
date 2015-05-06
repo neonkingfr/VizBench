@@ -66,6 +66,7 @@ std::string jsonNeedString(cJSON *params,std::string nm,std::string dflt=DFLT_ST
 int jsonNeedInt(cJSON *params,std::string nm,int dflt=DFLT_INT_THROW_EXCEPTION);
 double jsonNeedDouble(cJSON *params,std::string nm,double dflt=DFLT_DOUBLE_THROW_EXCEPTION,bool allowstring=true);
 bool jsonNeedBool(cJSON *params,std::string nm,int dflt=DFLT_BOOL_THROW_EXCEPTION);
+std::string jsonNeedStringForced(cJSON*j, std::string nm);
 
 std::string NosuchReadFile(std::string fanme, std::string& err, std::string commentstart = "", bool ignoreblanklines = false, std::string replaceEOL = "");
 cJSON* jsonReadFile(std::string fname, std::string& err);

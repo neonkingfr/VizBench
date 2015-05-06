@@ -699,6 +699,28 @@ FFFF::loadPipelineJson(cJSON* json)
 
 		}
 		DEBUGPRINT(("Pipeline, loaded plugin=%s viztag=%s", name, viztag.c_str()));
+
+		cJSON* vizletdump = jsonGetArray(p, "vizletdump");
+		if (vizletdump != NULL) {
+			int nvals = cJSON_GetArraySize(vizletdump);
+			for (int n = 0; n < nvals; n++) {
+				cJSON *p = cJSON_GetArrayItem(vizletdump, n);
+				NosuchAssert(p);
+				if (p->type != cJSON_Object) {
+					DEBUGPRINT(("non-Object in vizletdump array!?"));
+					continue;
+				}
+				std::string meth = jsonNeedString(p,"method","");
+				cJSON* params = jsonGetObject(p, "params");
+				if (!params) {
+					throw NosuchException("No params value in vizletdump?");
+				}
+				DEBUGPRINT(("vizletdump meth=%s", meth.c_str()));
+				std::string fullmethod = std::string(name) + "." + meth;
+				const char* s = m_vizserver->ProcessJson(fullmethod.c_str(), params, "12345");
+			}
+		}
+
 	}
 
 	if (m_trail_enable) {
@@ -1184,11 +1206,26 @@ std::string FFFF::savePipeline(std::string fname, const char* id)
 		sep = ",\n";
 	}
 	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline.begin(); it != m_ffglpipeline.end(); it++) {
+		FFGLPluginInstance* p = *it;
 		f << sep;
 		f << "\t{\n";
 		f << "\t\t\"ffglplugin\": \"" + (*it)->name() + "\",\n";
 		f << "\t\t\"enabled\": " + std::string((*it)->isEnabled()?"1":"0") + ",\n";
 		f << "\t\t\"moveable\": " + std::string((*it)->isMoveable()?"1":"0") + ",\n";
+		if (m_vizserver->IsVizlet((*it)->name().c_str())) {
+			std::string name = (*it)->name();
+			f << "\t\t\"vizlet\": " + std::string(m_vizserver->IsVizlet(name.c_str()) ? "1" : "0") + ",\n";
+
+			std::string fullmethod = name + "." + "dump";
+			const char* s = m_vizserver->ProcessJson(fullmethod.c_str(), NULL, "12345");
+			cJSON* json = cJSON_Parse(s);
+			if (!json) {
+				throw NosuchException("Unable to parse .dump json in savePipeline!?");
+			}
+			std::string result = jsonNeedString(json, "result","");
+			f << "\t\t\"vizletdump\": " + result + ",\n";
+			jsonFree(json);
+		}
 		f << "\t\t\"params\": " + FFGLParamVals(*it,"\n\t\t\t") + "\n";
 		f << "\t}";
 		sep = ",\n";
@@ -1277,7 +1314,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	}
 
 	{ static _CrtMemState s1, s2, s3;
-	if (meth == "dump") {
+	if (meth == "memdump") {
 		_CrtMemState s;
 		_CrtMemCheckpoint(&s);
 		if (_CrtMemDifference(&s3, &s1, &s)) {
@@ -1286,7 +1323,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		// _CrtDumpMemoryLeaks();
 		return jsonOK(id);
 	}
-	if (meth == "checkpoint") {
+	if (meth == "memcheckpoint") {
 		_CrtMemState s1;
 		_CrtMemCheckpoint(&s1);
 		return jsonOK(id);

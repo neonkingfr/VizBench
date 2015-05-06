@@ -43,10 +43,11 @@ function updateval2(name) {
 
 function checkapi(api) {
 	if ( api.error != "" ) {
+		alert("error="+api.error);
 		status.innerHTML = api.error;
 		return false;
 	} else {
-		status.innerHTML = "OK";
+		status.innerHTML = "OK!";
 		return true;
 	}
 }
@@ -96,7 +97,7 @@ function refreshpipelinefilename() {
 function loadpipeline() {
 	var fname = document.getElementById("pipelinefilename").value;
 	var api = vizapi("ffff.loadpipeline","{\"filename\":\""+fname+"\"}");
-	var status = document.getElementById("status");
+	status = document.getElementById("status");
 	checkapi(api);
 	ffffpagegen();
 	// refreshpipelinefilename();
@@ -137,6 +138,16 @@ function enableall(onoff) {
 		var a = vizapi("ffff.ffglenable","{\"instance\":\""+f.instance+"\", \"onoff\": "+onoff+" }");
 	}
 	ffffpagegen();
+}
+
+function changeTextVal(tag,api,argname) {
+	var inputid = document.getElementById(tag+"_"+api);
+	var api = vizapi(tag+"."+api,"{\""+argname+"\":\""+inputid.value+"\"}");
+	if ( ! checkapi(api) ) {
+		status.innerHTML = api.error;
+		inputid.value = "";
+		return;
+	}
 }
 
 function ffffpagegen() {
@@ -259,23 +270,35 @@ function ffffpagegen() {
 
 						var argname = args[0];
 						var inputid = tag+"_"+api;
-						var argstr = "&quot;" + argname + "&quot; : "
-							+ "&quot;'+document.getElementById(&quot;" + inputid + "&quot;).value+'&quot;";
-
-						html += "<td><input type=\"button\" style=\"width:150px\" value=\""
-							+api+"\" onClick=\"vizapi('"+fullapiname+"','{"+argstr+"}');\"></td>";
-
 						var val = "";
 						if ( /^set_/.test(api) ) {
-							var getapi = "get_"+api.substr(4);
+
+							// var argstr = "&quot;" + argname + "&quot; : "
+							// 	+ "&quot;'+document.getElementById(&quot;" + inputid + "&quot;).value+'&quot;";
+							//
+							// html += "<td><input type=\"button\" style=\"width:150px\" value=\""
+							// 	+api+"\" onClick=\"vizapi('"+fullapiname+"','{"+argstr+"}');\"></td>";
+
+							var api_sans_set = api.substr(4);
+							var getapi = "get_"+api_sans_set;
 							var aaa = vizapi(tag+"."+getapi,"{\"instance\":\""+f.instance+"\"}");
 							val = aaa.result;
+							// html += "<td width=10></td><td align=right>"
+							html += "<td align=right>"
+								+api_sans_set+"&nbsp;"+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" onChange=\"changeTextVal('"+tag+"','"+api+"','"+argname+"')\" value=\""+val+"\" id=\""+inputid+"\" size=8></td>";
+							if ( argname == "paramfile" ) {
+								html += "<td><button onclick=\"editparams('"+inputid+"');\" >Edit</button>";
+							}
+
+						} else {
+							html += "<td><input type=\"button\" style=\"width:150px\" value=\""
+								+api+"\" onClick=\"vizapi('"+fullapiname+"','{}');\"></td>";
+
+							// a non-set_* api
+							// html += "<td width=10></td><td align=right>"
+							// 	+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" value=\""+val+"\" id=\""+inputid+"\" size=8></td>";
 						}
-						html += "<td width=10></td><td align=right>"
-							+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" value=\""+val+"\" id=\""+inputid+"\" size=8></td>";
-						if ( argname == "paramfile" ) {
-							html += "<td><button onclick=\"editparams('"+inputid+"');\" >Edit</button>";
-						}
+
 					}
 					html += "</tr>";
 				}
