@@ -715,7 +715,7 @@ FFFF::loadPipelineJson(cJSON* json)
 				if (!params) {
 					throw NosuchException("No params value in vizletdump?");
 				}
-				DEBUGPRINT(("vizletdump meth=%s", meth.c_str()));
+				// DEBUGPRINT(("Pipeline load meth=%s", meth.c_str()));
 				std::string fullmethod = std::string(name) + "." + meth;
 				const char* s = m_vizserver->ProcessJson(fullmethod.c_str(), params, "12345");
 			}

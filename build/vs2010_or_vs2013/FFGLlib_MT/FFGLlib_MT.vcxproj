@@ -180,6 +180,7 @@
     <ClCompile Include="..\..\..\src\misclib\sha1.c" />
     <ClCompile Include="..\..\..\src\misclib\UT_Mutex.cpp" />
     <ClCompile Include="..\..\..\src\misclib\UT_SharedMem.cpp" />
+    <ClCompile Include="..\..\..\src\misclib\XGetopt.cpp" />
     <ClCompile Include="..\..\..\src\nosuch\midifile.cpp" />
     <ClCompile Include="..\..\..\src\nosuch\NosuchDebug.cpp" />
     <ClCompile Include="..\..\..\src\nosuch\NosuchException.cpp" />

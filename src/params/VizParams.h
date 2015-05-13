@@ -139,6 +139,8 @@ public:
 		StringVals["shapeTypes"].push_back("line");
 		StringVals["shapeTypes"].push_back("triangle");
 		StringVals["shapeTypes"].push_back("square");
+		StringVals["shapeTypes"].push_back("hbar");
+		StringVals["shapeTypes"].push_back("vbar");
 		StringVals["shapeTypes"].push_back("arc");
 		StringVals["shapeTypes"].push_back("circle");
 		StringVals["shapeTypes"].push_back("outline");

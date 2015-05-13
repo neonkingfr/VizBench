@@ -49,6 +49,7 @@
 #include "FF10Plugin.h"
 #include "ffffutil.h"
 #include "Timer.h"
+#include "XGetopt.h"
 
 // #include "Python.h"
 
@@ -92,7 +93,7 @@ char* SaveFrames = NULL;
 char* FfmpegFile = NULL;
 FILE* Ffmpeg = NULL;
 
-int ffffMain(std::string config)
+int ffffMain(std::string config, bool fullscreen)
 {
 	SaveFrames = getenv("SAVEFRAMES");
 	FfmpegFile = getenv("FFMPEGFILE");
@@ -161,9 +162,16 @@ int ffffMain(std::string config)
 		exit(EXIT_FAILURE);
 
 	GLFWmonitor* monitor;
-	bool fullscreen = false;
+	int nmonitors;
+	GLFWmonitor** monitors = glfwGetMonitors(&nmonitors);
+
 	if (fullscreen) {
-		monitor = glfwGetPrimaryMonitor();
+		if (nmonitors == 0) {
+			glfwTerminate();
+			exit(EXIT_FAILURE);
+		}
+		monitor = monitors[nmonitors - 1];
+		// monitor = glfwGetPrimaryMonitor();
 	}
 	else {
 		monitor = NULL;
@@ -190,6 +198,8 @@ int ffffMain(std::string config)
 
 	F->loadAllPluginDefs(ff10path, ffglpath, ffgl_width, ffgl_height);
 
+	// glfwShowWindow(F->window);
+
 	// F->setupTrails();
 
 	bool use_camera = FALSE;
@@ -215,7 +225,6 @@ int ffffMain(std::string config)
 		NosuchErrorOutput("Some other kind of exception occured while loading Pipeline!?");
 	}
 
-
 #ifdef DUMPOBJECTS
 	_CrtMemState s0;
 	_CrtMemCheckpoint(&s0);
@@ -223,7 +232,7 @@ int ffffMain(std::string config)
 
 	glfwSetWindowPos(F->window, window_x, window_y);
 	glfwSetWindowSize(F->window, window_width, window_height);
-	glfwIconifyWindow(F->window);
+	// glfwIconifyWindow(F->window);
 	glfwShowWindow(F->window);
 
 	// int count = 0;
@@ -292,18 +301,37 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLin
 		}
 	}
 
+	bool fullscreen = false;
 	std::string config = "";
-	if (__argc > 1) {
-		config = __argv[1];
+
+	std::string cmdline = std::string(szCmdLine);
+	std::vector<std::string> args = NosuchSplitOnAnyChar(cmdline, " \t\n");
+
+	for (unsigned int n = 0; n < args.size(); n++) {
+		std::string arg = args[n];
+		if (arg.size() > 1 && arg[0] == '-') {
+			switch (arg[1]) {
+			case 'f':
+				fullscreen = true;
+				break;
+			case 'c':
+				if ((n + 1) < args.size()) {
+					config = args[n + 1];
+					n++;
+				}
+				break;
+			}
+		}
 	}
-	else {
-		std::string msg = NosuchSnprintf("Usage: %s {configname}\n",__argv[0]);
+
+	if (config == "" ) {
+		std::string msg = NosuchSnprintf("Usage: %s [-f] -c {configname}\n",__argv[0]);
 		MessageBoxA(NULL,msg.c_str(),"FFFF",MB_OK);
 		return r;
 	}
 	try {
 		CATCH_NULL_POINTERS;
-		r = ffffMain(config);
+		r = ffffMain(config,fullscreen);
 	} catch (NosuchException& e) {
 		NosuchErrorOutput("NosuchException in ffffMain!! - %s",e.message());
 	} catch (...) {

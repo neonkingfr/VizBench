@@ -465,6 +465,33 @@ void VizSpriteSquare::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
 	graphics->quad(x0, y0, x1, y1, x2, y2, x3, y3);
 }
 
+VizSpriteHbar::VizSpriteHbar(AllVizParams* sp) : VizSprite(sp) {
+	m_noise_x0 = vertexNoise();
+	m_noise_y0 = vertexNoise();
+	m_noise_x1 = vertexNoise();
+	m_noise_y1 = vertexNoise();
+	m_noise_x2 = vertexNoise();
+	m_noise_y2 = vertexNoise();
+	m_noise_x3 = vertexNoise();
+	m_noise_y3 = vertexNoise();
+}
+
+void VizSpriteHbar::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
+	double halfw = 1.0f;
+	double halfh = 0.1f;
+
+	double x0 = -halfw + m_noise_x0 * halfw;
+	double y0 = -halfh + m_noise_y0 * halfh;
+	double x1 = -halfw + m_noise_x1 * halfw;
+	double y1 = halfh + m_noise_y1 * halfh;
+	double x2 = halfw + m_noise_x2 * halfw;
+	double y2 = halfh + m_noise_y2 * halfh;
+	double x3 = halfw + m_noise_x3 * halfw;
+	double y3 = -halfh + m_noise_y3 * halfh;
+	DEBUGPRINT2(("drawing hbar halfw=%.3f halfh=%.3f", halfw, halfh));
+	graphics->quad(x0, y0, x1, y1, x2, y2, x3, y3);
+}
+
 VizSpriteTriangle::VizSpriteTriangle(AllVizParams* sp) : VizSprite(sp) {
 	m_noise_x0 = vertexNoise();
 	m_noise_y0 = vertexNoise();
@@ -554,6 +581,9 @@ VizSprite::makeVizSprite(AllVizParams* sp)
 
 	if (shape == "square") {
 		s = new VizSpriteSquare(sp);
+	}
+	else if (shape == "hbar") {
+		s = new VizSpriteHbar(sp);
 	}
 	else if (shape == "triangle") {
 		s = new VizSpriteTriangle(sp);

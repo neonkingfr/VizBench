@@ -265,5 +265,8 @@
     <ClInclude Include="..\..\..\src\Viz\vizletutil.h">
       <Filter>Header Files\viz</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizSprite.h">
+      <Filter>Header Files\viz</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

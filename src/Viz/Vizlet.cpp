@@ -797,6 +797,7 @@ Vizlet::checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, st
 	if (lastupdate == statbuff.st_mtime) {
 		return NULL;
 	}
+	// DEBUGPRINT(("Check and Load this=%ld", (long)this));
 	AllVizParams* p = getAllVizParams(path);
 	if (!p) {
 		throw NosuchException("Bad params file? path=%s", path.c_str());

@@ -21,9 +21,9 @@ VizMidi4::VizMidi4() : Vizlet() {
 
 	for (int n = 0; n < 4; n++) {
 		m_sprite_on[n].channel = n + 1;
-		_loadParamsFile(NosuchSnprintf("midi4_%c_on","ABCD"[n]), m_sprite_on[n]);
+		_loadParamsFile(NosuchSnprintf("patch_1_%c_on","ABCD"[n]), m_sprite_on[n]);
 		m_sprite_off[n].channel = n + 1;
-		_loadParamsFile(NosuchSnprintf("midi4_%c_off","ABCD"[n]), m_sprite_off[n]);
+		_loadParamsFile(NosuchSnprintf("patch_1_%c_off","ABCD"[n]), m_sprite_off[n]);
 	}
 	m_autoloadparams = true;
 }
@@ -323,6 +323,7 @@ VizSprite* VizMidi4::_midiVizNoteOnSprite(MidiMsg* m) {
 	// DEBUGPRINT(("VizMidi4 foundi=%d", foundi));
 	AllVizParams* params = m_sprite_on[foundi].params;
 	std::string place = params->placement;
+	// DEBUGPRINT(("NoteOnSprite this=%ld foundi=%d file=%s",(long)this,foundi,m_sprite_on[foundi].paramsfile.c_str()));
 
 	int pitchmin = params->pitchmin.get();
 	int pitchmax = params->pitchmax.get();

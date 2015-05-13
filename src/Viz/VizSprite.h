@@ -143,6 +143,23 @@ private:
 	double m_noise_y3;
 };
 
+class VizSpriteHbar : public VizSprite {
+
+public:
+	VizSpriteHbar(AllVizParams* sp);
+	void drawShape(NosuchGraphics* app, int xdir, int ydir);
+
+private:
+	double m_noise_x0;
+	double m_noise_y0;
+	double m_noise_x1;
+	double m_noise_y1;
+	double m_noise_x2;
+	double m_noise_y2;
+	double m_noise_x3;
+	double m_noise_y3;
+};
+
 class VizSpriteTriangle : public VizSprite {
 
 public:

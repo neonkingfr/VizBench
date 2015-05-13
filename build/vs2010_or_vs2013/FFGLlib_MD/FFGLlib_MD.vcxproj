@@ -258,6 +258,7 @@
     <ClInclude Include="..\..\..\src\Viz\Vizlet.h" />
     <ClInclude Include="..\..\..\src\Viz\vizletutil.h" />
     <ClInclude Include="..\..\..\src\Viz\VizServer.h" />
+    <ClInclude Include="..\..\..\src\Viz\VizSprite.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
