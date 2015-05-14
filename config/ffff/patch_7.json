@@ -5,19 +5,34 @@
 		"enabled": 1,
 		"moveable": 0,
 		"vizlet": 1,
-		"vizletdump": [{"method":"set_sprite_on_A","params":{"paramfile":"patch_7_A_on"}},{"method":"set_sprite_on_B","params":{"paramfile":"patch_7_B_on"}},{"method":"set_sprite_on_C","params":{"paramfile":"patch_7_C_on"}},{"method":"set_sprite_on_D","params":{"paramfile":"patch_7_D_on"}},{"method":"set_sprite_off_A","params":{"paramfile":"patch_7_A_off"}},{"method":"set_sprite_off_B","params":{"paramfile":"patch_7_B_off"}},{"method":"set_sprite_off_C","params":{"paramfile":"patch_7_C_off"}},{"method":"set_sprite_off_D","params":{"paramfile":"patch_7_D_off"}},{"method":"set_channel_A","params":{"channel":1}},{"method":"set_channel_B","params":{"channel":2}},{"method":"set_channel_C","params":{"channel":3}},{"method":"set_channel_D","params":{"channel":4}}],
+		"vizletdump": [{"method":"set_sprite_on_A","params":{"paramfile":"patch_5_A_on"}},{"method":"set_sprite_on_B","params":{"paramfile":"patch_5_B_on"}},{"method":"set_sprite_on_C","params":{"paramfile":"patch_5_C_on"}},{"method":"set_sprite_on_D","params":{"paramfile":"patch_5_D_on"}},{"method":"set_sprite_off_A","params":{"paramfile":"patch_5_A_off"}},{"method":"set_sprite_off_B","params":{"paramfile":"patch_5_B_off"}},{"method":"set_sprite_off_C","params":{"paramfile":"patch_5_C_off"}},{"method":"set_sprite_off_D","params":{"paramfile":"patch_5_D_off"}},{"method":"set_channel_A","params":{"channel":1}},{"method":"set_channel_B","params":{"channel":2}},{"method":"set_channel_C","params":{"channel":3}},{"method":"set_channel_D","params":{"channel":4}}],
 		"params": [
 			]
 	},
 	{
-		"ffglplugin": "Kaleidoscope",
+		"ffglplugin": "Wave Warp",
 		"enabled": 0,
 		"moveable": 1,
 		"params": [
-			{"name":"Angles", "value":0.760000 }, 
-			{"name":"Rotation", "value":0.000000 }, 
-			{"name":"Zoom", "value":1.000000 }, 
-			{"name":"Input Rotation", "value":0.420000 }, 
+			{"name":"Mode", "value":0.020000 }, 
+			{"name":"Height", "value":0.470000 }, 
+			{"name":"Width", "value":0.930000 }, 
+			{"name":"Angle", "value":0.500000 }, 
+			{"name":"Speed", "value":0.000000 }, 
+			{"name":"Pin edges?", "value":1.000000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"ffglplugin": "Mirror",
+		"enabled": 1,
+		"moveable": 1,
+		"params": [
+			{"name":"X", "value":0.740000 }, 
+			{"name":"Y", "value":0.840000 }, 
+			{"name":"In / Out", "value":0.120000 }, 
+			{"name":"Flip X", "value":0.000000 }, 
+			{"name":"Flip Y", "value":0.960000 }, 
 			{"name":"Black BG", "value":0.000000 }
 			]
 	},
@@ -26,19 +41,10 @@
 		"enabled": 0,
 		"moveable": 1,
 		"params": [
-			{"name":"Blur X Distance", "value":0.330000 }, 
-			{"name":"Blur Y Distance", "value":0.540000 }, 
-			{"name":"Quality", "value":0.840000 }, 
+			{"name":"Blur X Distance", "value":0.120000 }, 
+			{"name":"Blur Y Distance", "value":0.180000 }, 
+			{"name":"Quality", "value":0.540000 }, 
 			{"name":"Gaussian", "value":0.370000 }
-			]
-	},
-	{
-		"ffglplugin": "Bendoscope",
-		"enabled": 0,
-		"moveable": 1,
-		"params": [
-			{"name":"Divisions", "value":0.220000 }, 
-			{"name":"Black BG", "value":0.000000 }
 			]
 	},
 	{
@@ -73,12 +79,68 @@
 			]
 	},
 	{
-		"ffglplugin": "Twisted",
+		"ffglplugin": "Fragment",
+		"enabled": 1,
+		"moveable": 1,
+		"params": [
+			{"name":"Fragments", "value":0.300000 }, 
+			{"name":"Distance", "value":0.020000 }, 
+			{"name":"Rotation", "value":0.000000 }, 
+			{"name":"FragRotationX", "value":0.500000 }, 
+			{"name":"FragRotationY", "value":0.500000 }, 
+			{"name":"FragRotationZ", "value":0.500000 }, 
+			{"name":"FragScale", "value":1.000000 }, 
+			{"name":"CompositeOpacity", "value":0.710000 }
+			]
+	},
+	{
+		"ffglplugin": "Goo",
 		"enabled": 0,
 		"moveable": 1,
 		"params": [
-			{"name":"Twirl", "value":0.270000 }, 
-			{"name":"Radius", "value":0.270000 }, 
+			{"name":"Speed", "value":0.650000 }, 
+			{"name":"MaxDistortionX", "value":0.950000 }, 
+			{"name":"MaxDistortionY", "value":1.000000 }, 
+			{"name":"MaxDistortionZ", "value":0.000000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"ffglplugin": "Bendoscope",
+		"enabled": 1,
+		"moveable": 1,
+		"params": [
+			{"name":"Divisions", "value":0.110000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"ffglplugin": "Posterize",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"Posterize", "value":0.380000 }
+			]
+	},
+	{
+		"ffglplugin": "Displace",
+		"enabled": 1,
+		"moveable": 1,
+		"params": [
+			{"name":"X factor", "value":0.760000 }, 
+			{"name":"Y factor", "value":0.240000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"ffglplugin": "Kaleidoscope",
+		"enabled": 1,
+		"moveable": 1,
+		"params": [
+			{"name":"Angles", "value":0.340000 }, 
+			{"name":"Rotation", "value":0.000000 }, 
+			{"name":"Zoom", "value":0.730000 }, 
+			{"name":"Input Rotation", "value":0.420000 }, 
 			{"name":"Black BG", "value":0.000000 }
 			]
 	},
@@ -92,75 +154,13 @@
 			]
 	},
 	{
-		"ffglplugin": "Posterize",
+		"ffglplugin": "Twisted",
 		"enabled": 0,
 		"moveable": 1,
 		"params": [
-			{"name":"Posterize", "value":0.380000 }
-			]
-	},
-	{
-		"ffglplugin": "Mirror",
-		"enabled": 1,
-		"moveable": 1,
-		"params": [
-			{"name":"X", "value":0.370000 }, 
-			{"name":"Y", "value":0.290000 }, 
-			{"name":"In / Out", "value":0.500000 }, 
-			{"name":"Flip X", "value":0.000000 }, 
-			{"name":"Flip Y", "value":0.000000 }, 
+			{"name":"Twirl", "value":0.270000 }, 
+			{"name":"Radius", "value":0.270000 }, 
 			{"name":"Black BG", "value":0.000000 }
-			]
-	},
-	{
-		"ffglplugin": "Goo",
-		"enabled": 1,
-		"moveable": 1,
-		"params": [
-			{"name":"Speed", "value":0.000000 }, 
-			{"name":"MaxDistortionX", "value":0.200000 }, 
-			{"name":"MaxDistortionY", "value":0.200000 }, 
-			{"name":"MaxDistortionZ", "value":0.000000 }, 
-			{"name":"Black BG", "value":0.000000 }
-			]
-	},
-	{
-		"ffglplugin": "Wave Warp",
-		"enabled": 0,
-		"moveable": 1,
-		"params": [
-			{"name":"Mode", "value":0.020000 }, 
-			{"name":"Height", "value":0.470000 }, 
-			{"name":"Width", "value":0.930000 }, 
-			{"name":"Angle", "value":0.500000 }, 
-			{"name":"Speed", "value":0.000000 }, 
-			{"name":"Pin edges?", "value":1.000000 }, 
-			{"name":"Black BG", "value":0.000000 }
-			]
-	},
-	{
-		"ffglplugin": "Displace",
-		"enabled": 0,
-		"moveable": 1,
-		"params": [
-			{"name":"X factor", "value":0.760000 }, 
-			{"name":"Y factor", "value":0.240000 }, 
-			{"name":"Black BG", "value":0.000000 }
-			]
-	},
-	{
-		"ffglplugin": "Fragment",
-		"enabled": 0,
-		"moveable": 1,
-		"params": [
-			{"name":"Fragments", "value":0.300000 }, 
-			{"name":"Distance", "value":0.020000 }, 
-			{"name":"Rotation", "value":0.000000 }, 
-			{"name":"FragRotationX", "value":0.500000 }, 
-			{"name":"FragRotationY", "value":0.500000 }, 
-			{"name":"FragRotationZ", "value":0.500000 }, 
-			{"name":"FragScale", "value":1.000000 }, 
-			{"name":"CompositeOpacity", "value":0.710000 }
 			]
 	},
 	{

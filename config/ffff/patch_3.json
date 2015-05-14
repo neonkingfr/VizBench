@@ -47,21 +47,21 @@
 	},
 	{
 		"ffglplugin": "Blur",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
-			{"name":"Blur X Distance", "value":0.530000 }, 
-			{"name":"Blur Y Distance", "value":0.540000 }, 
-			{"name":"Quality", "value":0.840000 }, 
+			{"name":"Blur X Distance", "value":0.060000 }, 
+			{"name":"Blur Y Distance", "value":0.040000 }, 
+			{"name":"Quality", "value":0.280000 }, 
 			{"name":"Gaussian", "value":0.370000 }
 			]
 	},
 	{
 		"ffglplugin": "Goo",
-		"enabled": 1,
+		"enabled": 0,
 		"moveable": 1,
 		"params": [
-			{"name":"Speed", "value":0.000000 }, 
+			{"name":"Speed", "value":0.560000 }, 
 			{"name":"MaxDistortionX", "value":0.200000 }, 
 			{"name":"MaxDistortionY", "value":0.200000 }, 
 			{"name":"MaxDistortionZ", "value":0.000000 }, 
@@ -93,7 +93,7 @@
 	},
 	{
 		"ffglplugin": "Displace",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"X factor", "value":0.760000 }, 

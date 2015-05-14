@@ -11,13 +11,13 @@
 	},
 	{
 		"ffglplugin": "Wave Warp",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
-			{"name":"Mode", "value":0.020000 }, 
-			{"name":"Height", "value":0.470000 }, 
-			{"name":"Width", "value":0.930000 }, 
-			{"name":"Angle", "value":0.500000 }, 
+			{"name":"Mode", "value":0.000000 }, 
+			{"name":"Height", "value":0.740000 }, 
+			{"name":"Width", "value":0.710000 }, 
+			{"name":"Angle", "value":0.180000 }, 
 			{"name":"Speed", "value":0.000000 }, 
 			{"name":"Pin edges?", "value":1.000000 }, 
 			{"name":"Black BG", "value":0.000000 }
@@ -29,8 +29,8 @@
 		"moveable": 1,
 		"params": [
 			{"name":"X", "value":0.370000 }, 
-			{"name":"Y", "value":0.290000 }, 
-			{"name":"In / Out", "value":0.500000 }, 
+			{"name":"Y", "value":0.520000 }, 
+			{"name":"In / Out", "value":0.860000 }, 
 			{"name":"Flip X", "value":0.000000 }, 
 			{"name":"Flip Y", "value":0.000000 }, 
 			{"name":"Black BG", "value":0.000000 }
@@ -48,15 +48,24 @@
 			]
 	},
 	{
-		"ffglplugin": "Iterate",
+		"ffglplugin": "Bendoscope",
 		"enabled": 0,
 		"moveable": 1,
 		"params": [
+			{"name":"Divisions", "value":0.490000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"ffglplugin": "Iterate",
+		"enabled": 1,
+		"moveable": 1,
+		"params": [
 			{"name":"TransformStrengt", "value":1.000000 }, 
-			{"name":"Iterations", "value":0.300000 }, 
+			{"name":"Iterations", "value":0.170000 }, 
 			{"name":"StartOpacity", "value":1.000000 }, 
 			{"name":"OpacityChange", "value":0.500000 }, 
-			{"name":"TranslateX", "value":0.490000 }, 
+			{"name":"TranslateX", "value":0.660000 }, 
 			{"name":"TranslateY", "value":0.500000 }, 
 			{"name":"TranslateZ", "value":0.480000 }, 
 			{"name":"RotateX", "value":0.000000 }, 
@@ -80,7 +89,7 @@
 	},
 	{
 		"ffglplugin": "Fragment",
-		"enabled": 1,
+		"enabled": 0,
 		"moveable": 1,
 		"params": [
 			{"name":"Fragments", "value":0.300000 }, 
@@ -94,23 +103,24 @@
 			]
 	},
 	{
-		"ffglplugin": "Goo",
+		"ffglplugin": "Twisted",
 		"enabled": 1,
+		"moveable": 1,
+		"params": [
+			{"name":"Twirl", "value":0.460000 }, 
+			{"name":"Radius", "value":0.460000 }, 
+			{"name":"Black BG", "value":0.810000 }
+			]
+	},
+	{
+		"ffglplugin": "Goo",
+		"enabled": 0,
 		"moveable": 1,
 		"params": [
 			{"name":"Speed", "value":0.000000 }, 
 			{"name":"MaxDistortionX", "value":0.200000 }, 
 			{"name":"MaxDistortionY", "value":0.200000 }, 
 			{"name":"MaxDistortionZ", "value":0.000000 }, 
-			{"name":"Black BG", "value":0.000000 }
-			]
-	},
-	{
-		"ffglplugin": "Bendoscope",
-		"enabled": 1,
-		"moveable": 1,
-		"params": [
-			{"name":"Divisions", "value":0.110000 }, 
 			{"name":"Black BG", "value":0.000000 }
 			]
 	},
@@ -149,18 +159,8 @@
 		"enabled": 0,
 		"moveable": 1,
 		"params": [
-			{"name":"Mode", "value":0.920000 }, 
-			{"name":"Multiplier", "value":0.240000 }
-			]
-	},
-	{
-		"ffglplugin": "Twisted",
-		"enabled": 1,
-		"moveable": 1,
-		"params": [
-			{"name":"Twirl", "value":0.270000 }, 
-			{"name":"Radius", "value":0.270000 }, 
-			{"name":"Black BG", "value":0.000000 }
+			{"name":"Mode", "value":0.950000 }, 
+			{"name":"Multiplier", "value":0.210000 }
 			]
 	},
 	{

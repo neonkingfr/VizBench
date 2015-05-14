@@ -11,7 +11,7 @@
 	},
 	{
 		"ffglplugin": "Twisted",
-		"enabled": 1,
+		"enabled": 0,
 		"moveable": 1,
 		"params": [
 			{"name":"Twirl", "value":0.270000 }, 
@@ -21,7 +21,7 @@
 	},
 	{
 		"ffglplugin": "Wave Warp",
-		"enabled": 1,
+		"enabled": 0,
 		"moveable": 1,
 		"params": [
 			{"name":"Mode", "value":0.020000 }, 
@@ -47,7 +47,7 @@
 	},
 	{
 		"ffglplugin": "Blur",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"Blur X Distance", "value":0.530000 }, 
@@ -58,7 +58,7 @@
 	},
 	{
 		"ffglplugin": "Goo",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"Speed", "value":0.000000 }, 
@@ -70,7 +70,7 @@
 	},
 	{
 		"ffglplugin": "Fragment",
-		"enabled": 1,
+		"enabled": 0,
 		"moveable": 1,
 		"params": [
 			{"name":"Fragments", "value":0.300000 }, 
@@ -92,22 +92,32 @@
 			]
 	},
 	{
+		"ffglplugin": "Displace",
+		"enabled": 1,
+		"moveable": 1,
+		"params": [
+			{"name":"X factor", "value":0.760000 }, 
+			{"name":"Y factor", "value":0.240000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
 		"ffglplugin": "Iterate",
 		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"TransformStrengt", "value":1.000000 }, 
 			{"name":"Iterations", "value":0.300000 }, 
-			{"name":"StartOpacity", "value":0.130000 }, 
-			{"name":"OpacityChange", "value":0.540000 }, 
+			{"name":"StartOpacity", "value":1.000000 }, 
+			{"name":"OpacityChange", "value":0.500000 }, 
 			{"name":"TranslateX", "value":0.490000 }, 
 			{"name":"TranslateY", "value":0.500000 }, 
 			{"name":"TranslateZ", "value":0.480000 }, 
-			{"name":"RotateX", "value":0.640000 }, 
+			{"name":"RotateX", "value":0.000000 }, 
 			{"name":"RotateY", "value":0.000000 }, 
 			{"name":"RotateZ", "value":0.000000 }, 
-			{"name":"Scale", "value":0.070000 }, 
-			{"name":"DOpacityChange", "value":0.910000 }, 
+			{"name":"Scale", "value":0.350000 }, 
+			{"name":"DOpacityChange", "value":0.500000 }, 
 			{"name":"DTranslateX", "value":0.500000 }, 
 			{"name":"DTranslateY", "value":0.500000 }, 
 			{"name":"DTranslateZ", "value":0.500000 }, 
@@ -123,16 +133,6 @@
 			]
 	},
 	{
-		"ffglplugin": "Displace",
-		"enabled": 0,
-		"moveable": 1,
-		"params": [
-			{"name":"X factor", "value":0.760000 }, 
-			{"name":"Y factor", "value":0.240000 }, 
-			{"name":"Black BG", "value":0.000000 }
-			]
-	},
-	{
 		"ffglplugin": "Edge Detection",
 		"enabled": 0,
 		"moveable": 1,
@@ -143,7 +143,7 @@
 	},
 	{
 		"ffglplugin": "Bendoscope",
-		"enabled": 1,
+		"enabled": 0,
 		"moveable": 1,
 		"params": [
 			{"name":"Divisions", "value":0.220000 }, 
@@ -152,7 +152,7 @@
 	},
 	{
 		"ffglplugin": "Mirror",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"X", "value":0.370000 }, 
