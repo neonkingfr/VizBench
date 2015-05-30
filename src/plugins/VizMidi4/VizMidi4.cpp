@@ -306,7 +306,7 @@ VizSprite* VizMidi4::_midiVizNoteOnSprite(MidiMsg* m) {
 		return NULL;
 	}
 		
-	int midichan = m->Channel();
+	int midichan = 1 + (m->Channel()-1)%4;
 	// DEBUGPRINT(("VizMidi4 midichan=%d", midichan));
 	int foundi = -1;
 	// See if any of the four slots are set to this channel

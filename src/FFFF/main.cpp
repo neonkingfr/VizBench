@@ -186,6 +186,8 @@ int ffffMain(std::string config, bool fullscreen)
 	int ffgl_width = window_width;
 	int ffgl_height = window_height;
 
+	glfwWindowHint(GLFW_DECORATED, GL_FALSE);
+
 	F->window = glfwCreateWindow(window_width, window_height, "FFFF", monitor, NULL);
 	if (F->window == NULL) {
 		glfwTerminate();
