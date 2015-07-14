@@ -57,9 +57,10 @@ NosuchHttpServer::NosuchHttpServer(NosuchJsonListener* jproc, int port, std::str
 }
 
 NosuchHttpServer::~NosuchHttpServer() {
-	DEBUGPRINT(("UNLISTENING for HTTP on TCP port %d", (long)m_port));
+	DEBUGPRINT(("Deleting m_listening_socket for HTTP on TCP port %ld socket=%ld", (long)m_port,(long)m_listening_socket));
 	delete m_listening_socket;
 	m_listening_socket = NULL;
+	DEBUGPRINT(("After deleting socket for HTTP on TCP port %d", (long)m_port));
 }
 
 void NosuchHttpServer::Shutdown() {

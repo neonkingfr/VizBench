@@ -167,12 +167,12 @@ Vizlet::Vizlet() {
 		DEBUGPRINT(("WARNING! Vizlet (viztag=%s) has been disabled!",VizTag().c_str()));
 	}
 
-	SetTimeSupported(true);
+	SetTimeSupported(false);
 
 	SetMinInputs(1);
 	SetMaxInputs(1);
 
-	_startApiCallbacks(m_viztag.c_str(),(void*)this);
+	// _startApiCallbacks(m_viztag.c_str(),(void*)this);
 
 	// init API callback, so the name can be found
 
@@ -187,11 +187,12 @@ Vizlet::~Vizlet()
 	_stopstuff();
 }
 
+#if 0
 DWORD Vizlet::SetTime(double tm) {
-	m_time = tm;
 	m_vizserver->SetTime(tm);
 	return FF_SUCCESS;
 }
+#endif
 
 DWORD Vizlet::SetParameter(const SetParameterStruct* pParam) {
 
@@ -325,10 +326,13 @@ void Vizlet::_startKeystrokeCallbacks(void* data) {
 }
 
 void Vizlet::_stopCallbacks() {
-	_stopApiCallbacks();
-	_stopMidiCallbacks();
-	_stopCursorCallbacks();
-	_stopKeystrokeCallbacks();
+	if ( m_callbacksInitialized ) {
+		_stopApiCallbacks();
+		_stopMidiCallbacks();
+		_stopCursorCallbacks();
+		_stopKeystrokeCallbacks();
+		m_callbacksInitialized = false;
+	}
 }
 
 void Vizlet::_stopApiCallbacks() {
@@ -353,7 +357,7 @@ void Vizlet::_stopKeystrokeCallbacks() {
 }
 
 double Vizlet::GetTime() {
-	return m_time;
+	return m_vizserver->GetTime();
 }
 
 int Vizlet::SchedulerCurrentClick() {
@@ -472,7 +476,7 @@ Vizlet::InitCallbacks() {
 	if ( ! m_callbacksInitialized ) {
 
 		DEBUGPRINT1(("InitCallbacks this=%ld", (long)(this)));
-		// _startApiCallbacks(m_viztag.c_str(),(void*)this);
+		_startApiCallbacks(m_viztag.c_str(),(void*)this);
 		_startMidiCallbacks(m_mf,(void*)this);
 		_startCursorCallbacks(m_cf,(void*)this);
 		_startKeystrokeCallbacks((void*)this);

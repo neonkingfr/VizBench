@@ -561,3 +561,13 @@ std::string ws2s(const std::wstring& s)
 	delete[] r;
     return rs;
 }
+
+DWORD NosuchMilli0;
+
+void NosuchTimeInit() {
+	NosuchMilli0 = timeGetTime();
+}
+
+double NosuchTimeElapsed() {
+	return ( (timeGetTime() - NosuchMilli0) / 1000.0 );
+}

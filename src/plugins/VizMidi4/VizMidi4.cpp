@@ -250,6 +250,7 @@ void VizMidi4::processMidiInput(MidiMsg* m) {
 
 void VizMidi4::processMidiOutput(MidiMsg* m) {
 	// NO OpenGL calls here
+	processMidiInput(m);
 }
 
 void

@@ -117,6 +117,9 @@
     <ClInclude Include="..\..\..\src\params\VizParams.h">
       <Filter>Header Files\params</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\nosuch\NosuchUtil.h">
+      <Filter>Header Files\nosuch</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\nosuch\NosuchScheduler.cpp">
@@ -150,9 +153,6 @@
       <Filter>Source Files\nosuch</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\nosuch\NosuchSocket.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchUtil.cpp">
       <Filter>Source Files\nosuch</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\nosuch\NosuchJSON.cpp">
@@ -232,6 +232,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\params\AllVizParams.cpp">
       <Filter>Source Files\params</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\NosuchUtil.cpp">
+      <Filter>Source Files\nosuch</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -178,7 +178,6 @@ Vizlet10::~Vizlet10()
 }
 
 DWORD Vizlet10::SetTime(double tm) {
-	m_time = tm;
 	m_vizserver->SetTime(tm);
 	return FF_SUCCESS;
 }
@@ -342,7 +341,7 @@ void Vizlet10::_stopKeystrokeCallbacks() {
 }
 
 double Vizlet10::GetTime() {
-	return m_time;
+	return m_vizserver->GetTime();
 }
 
 int Vizlet10::SchedulerCurrentClick() {

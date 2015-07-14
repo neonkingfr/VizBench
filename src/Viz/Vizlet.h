@@ -209,7 +209,7 @@ private:
 	virtual DWORD SetParameter(const SetParameterStruct* pParam);
 	virtual DWORD GetParameter(DWORD dwIndex);
 	virtual char* GetParameterDisplay(DWORD dwIndex);
-	virtual DWORD SetTime(double time);
+	// virtual DWORD SetTime(double time);
 
 	/////////////////////////////////////////////////////
 
@@ -227,7 +227,6 @@ private:
 	void _drawnotes(std::list<MidiMsg*>& notes);
 
 	int m_framenum;
-	double m_time;
 	bool m_passthru;
 	bool m_stopped;
 	bool m_disabled;

@@ -91,7 +91,9 @@ NosuchDaemon::~NosuchDaemon()
 
 	NosuchAssert(m_httpserver != NULL);
 
+	DEBUGPRINT(("About to delete httpserver in NosuchDaemon"));
 	delete m_httpserver;
+	DEBUGPRINT(("After deleting httpserver in NosuchDaemon"));
 	m_httpserver = NULL;
 
 	if ( m_oscinput ) {

@@ -1,8 +1,6 @@
 # Utility to send JSON RPC messages
 
-# Avoid the requests module to reduce installation hassles
-import urllib
-import urllib2
+import requests
 import json
 import sys
 
@@ -12,18 +10,10 @@ def dorpc(port,meth,params):
 	url = 'http://127.0.0.1:%d/api' % (port)
 	id = '12345'
 	data = '{ "jsonrpc": "2.0", "method": "'+meth+'", "params": '+params+', "id":"'+id+'" }\n'
-	req = urllib2.Request(url,data)
-	r = urllib2.urlopen(req)
-
-	response = r.read()
-
+	r = requests.post(url,data)
 	if verbose:
-		print "HTTP status code = ",r.getcode()
-		print "HTTP url = ",r.geturl()
-		print "HTTP info = ",r.info()
-		print "response is ",response
-		
-	j = json.loads(response)
+		print "r.text is ",r.text
+	j = json.loads(r.text)
 	if "error" in j:
 		print "ERROR: "+str(j["error"]["message"])
 	elif "result" in j:
@@ -39,7 +29,7 @@ if __name__ == '__main__':
 		port = int(sys.argv[1])
 		meth = sys.argv[2]
 		if len(sys.argv) < 4:
-			params = "{}"
+			params = '{}'
 		else:
 			params = sys.argv[3]
 		dorpc(port,meth,params)

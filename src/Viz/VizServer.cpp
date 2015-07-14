@@ -281,7 +281,8 @@ public:
 	VizServerJsonProcessor() {
 	}
 	void AddJsonCallback(void* handle, const char* apiprefix, jsoncallback_t cb, void* data) {
-		DEBUGPRINT1(("AddJsonCallback handle=%ld  data=%ld", (long)handle, (long)data));
+		const char* existing = m_callbacks.VizTags();
+		DEBUGPRINT(("AddJsonCallback handle=%ld  data=%ld existing=%s", (long)handle, (long)data, existing));
 		m_callbacks.addcallback(handle, apiprefix, (void*)cb, data);
 	}
 	void ChangeVizTag(void* handle, const char* p) {
@@ -547,10 +548,17 @@ checkAddrPattern(const char *addr, char *patt)
 class VizServerOscProcessor : public NosuchOscListener {
 
 public:
-	VizServerOscProcessor(VizServer* ss) {
+	VizServerOscProcessor() {
+		m_vizserver = NULL;
+	}
+	void setVizServer(VizServer* ss) {
 		m_vizserver = ss;
 	}
 	void processOsc(const char* source, const osc::ReceivedMessage& m) {
+		if ( m_vizserver == NULL ) {
+			throw NosuchException("VizServerOscProcessor::processOsc called before VizServer is set!?");
+			return;
+		}
 		const char *types = m.TypeTags();
 		const char *addr = m.AddressPattern();
 		int nargs = (types == NULL ? 0 : (int)strlen(types));
@@ -767,14 +775,24 @@ VizServer::VizServer() {
 	m_htmlpath = _strdup(VizPath("html").c_str());
 	m_midifile = "";
 	m_midioutput = -1;
-	m_jsonprocessor = NULL;
-	m_oscprocessor = NULL;
-	m_midiinputprocessor = NULL;
-	m_midioutputprocessor = NULL;
-	m_cursorprocessor = NULL;
-	m_keystrokeprocessor = NULL;
+
+	// m_jsonprocessor = NULL;
+	// m_oscprocessor = NULL;
+	// m_midiinputprocessor = NULL;
+	// m_midioutputprocessor = NULL;
+	// m_cursorprocessor = NULL;
+	// m_keystrokeprocessor = NULL;
+	// m_scheduler = NULL;
+
+	m_jsonprocessor = new VizServerJsonProcessor();
+	m_oscprocessor = new VizServerOscProcessor();
+	m_midiinputprocessor = new VizServerMidiProcessor();
+	m_midioutputprocessor = new VizServerMidiProcessor();
+	m_cursorprocessor = new VizServerCursorProcessor();
+	m_keystrokeprocessor = new VizServerKeystrokeProcessor();
+	m_scheduler = new NosuchScheduler();
+
 	m_daemon = NULL;
-	m_scheduler = NULL;
 	m_cursors = new std::list<VizCursor*>();
 	NosuchLockInit(&_cursors_mutex, "cursors");
 
@@ -787,10 +805,11 @@ VizServer::VizServer() {
 	m_do_errorpopup = false;
 	m_do_ano = false;
 	m_maxcallbacks = 0;
-	m_time = 0;
 
 	m_osc_input_port = -1;
 	m_osc_input_host = "";
+
+	NosuchTimeInit();
 }
 
 VizServer::~VizServer() {
@@ -893,12 +912,11 @@ void VizServer::_errorPopup(const char* msg) {
 }
 
 void VizServer::SetTime(double tm) {
-	// DEBUGPRINT(("VizServer:SetTime tm=%f", tm));
-	m_time = tm;
+	DEBUGPRINT(("VizServer:SetTime called, we're ignoring it!?   tm=%f", tm));
 }
 
 double VizServer::GetTime() {
-	return m_time;
+	return NosuchTimeElapsed();
 }
 
 int VizServer::SchedulerTimestamp() {
@@ -1071,19 +1089,12 @@ VizServer::Start() {
 			// NOTE: DO NOT FREE json - some of the char* values in it get saved/used later.
 		}
 
-		m_scheduler = new NosuchScheduler();
 		m_scheduler->setPeriodicANO(m_do_ano);
-
-		m_midiinputprocessor = new VizServerMidiProcessor();
-		m_midioutputprocessor = new VizServerMidiProcessor();
 		m_scheduler->SetMidiInputListener(m_midiinputprocessor);
 		m_scheduler->SetMidiOutputListener(m_midioutputprocessor);
 
-		m_cursorprocessor = new VizServerCursorProcessor();
-		m_keystrokeprocessor = new VizServerKeystrokeProcessor();
+		m_oscprocessor->setVizServer(this);
 
-		m_jsonprocessor = new VizServerJsonProcessor();
-		m_oscprocessor = new VizServerOscProcessor(this);
 		m_daemon = new NosuchDaemon(m_osc_input_port, m_osc_input_host, m_oscprocessor,
 			m_httpport, m_htmlpath, m_jsonprocessor);
 
@@ -1367,7 +1378,7 @@ VizServer*
 VizServer::GetServer() {
 	if (OneServer == NULL) {
 		OneServer = new VizServer();
-		DEBUGPRINT1(("NEW VizServer!  Setting OneServer"));
+		DEBUGPRINT(("NEW VizServer!  Setting OneServer"));
 	}
 	return OneServer;
 }

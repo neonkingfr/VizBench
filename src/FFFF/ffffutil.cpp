@@ -431,7 +431,7 @@ do_ffgl_plugin(FFGLPluginInstance* plugin, int which) // which: 0 = first one, 1
 
 	if (plugin) {
 		//tell plugin 1 what time it is
-		plugin->SetTime(curFrameTime);
+		// plugin->SetTime(curFrameTime);
 
 		//call the plugin's ProcessOpenGL
 		if (plugin->CallProcessOpenGL(processStruct) == FF_SUCCESS)

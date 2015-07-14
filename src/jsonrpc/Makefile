@@ -1,14 +1,14 @@
-default:
-	nmake PYTHON=c:\python27 install
+default install:
+	nmake PYTHON=c:\python27 doinstall
 	c:\python27\python setup.py py2exe
-	copy dist\jsonrpc.exe ..\..\bin
+	..\..\bin\postpy2exe.bat
 
 justinstall:
-	nmake PYTHON=c:\python27 install
+	nmake PYTHON=c:\python27 doinstall
 
 FINALDIR = $(PYTHON)\lib\site-packages\nosuch
 
-install : \
+doinstall : \
 	$(FINALDIR) \
 	$(FINALDIR)\jsonrpc.py
 
@@ -22,4 +22,4 @@ $(FINALDIR)\jsonrpc.py: jsonrpc.py
 	copy jsonrpc.py $(FINALDIR)\jsonrpc.py
 
 clean :
-	rm -f *~ *.bak *.pyc
+	rm -fr *~ *.bak *.pyc dist build

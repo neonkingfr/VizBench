@@ -618,7 +618,12 @@ void NosuchScheduler::SendMidiMsg(MidiMsg* msg, void* handle) {
 	if (ps) {
 		Pm_Write(ps, ev, 1);
 	} else {
-		DEBUGPRINT(("SendMidiMsg: no MIDI output device for outputport=%d?", outputport));
+		static int lastwarning = -99999;
+		// Only put out warnings every second
+		if ( (m_LastTimeStamp-lastwarning) > 1000 ) {
+			DEBUGPRINT(("SendMidiMsg: no MIDI output device for outputport=%d?", outputport));
+			lastwarning = m_LastTimeStamp;
+		}
 	}
 
 	if ( NosuchDebugMidiAll ) {

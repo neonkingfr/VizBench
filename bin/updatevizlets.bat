@@ -47,22 +47,6 @@ del /s %VIZLETS%\config\*~
 del /s %VIZLETS%\shaders\*~
 del /s %VIZLETS%\params\*~
 
-set zip="\program files\7-Zip\7z.exe"
-set libraryzip="%VIZBENCH%\bin\library.zip"
-
-rem ----------------------------------------------------------------------
-rem This section combines the library.zip files from several py2exe builds
-cd %VIZBENCH%\bin
-del /s /q library.zip
-rmdir /s /q libraryzipdir
-mkdir libraryzipdir
-cd libraryzipdir
-%zip% x %VIZBENCH%\src\oscutil\dist\library.zip >nul
-%zip% x -y %VIZBENCH%\src\jsonrpc\dist\library.zip >nul
-%zip% a -r ..\library.zip *.* >nul
-cd ..
-rmdir /s /q libraryzipdir
-copy %VIZBENCH%\bin\library.zip %VIZLETS%\bin
-rem ----------------------------------------------------------------------
+combinelibrary.bat
 
 :getout

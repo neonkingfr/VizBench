@@ -1,7 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FFFF", "FFFF\FFFF.vcxproj", "{FC4C073F-A789-4AB7-A5EC-22D09D688640}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D35B747A-8620-4B4F-95C6-D32F53ABE8A3} = {D35B747A-8620-4B4F-95C6-D32F53ABE8A3}
@@ -38,6 +36,7 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VizletGLTemplate", "VizletGLTemplate\VizletGLTemplate.vcxproj", "{63AEDB27-DBF6-46A8-8B0E-855C99E4AA3C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A0901BA3-9B41-40B9-BE2E-1C62F48B3E14} = {A0901BA3-9B41-40B9-BE2E-1C62F48B3E14}
+		{1A5433B8-B646-404F-8B96-DB5E5A0C29BC} = {1A5433B8-B646-404F-8B96-DB5E5A0C29BC}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Viz10Example1", "Viz10Example1\Viz10Example1.vcxproj", "{37803E11-D0A3-4BD9-80D3-587545AA8F21}"
