@@ -4,7 +4,7 @@
     <LocalDebuggerCommand>$(VIZBENCH)\bin\FFFF.exe</LocalDebuggerCommand>
     <LocalDebuggerWorkingDirectory>$(VIZBENCH)\bin</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-c patch_1</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-c vizmaze</LocalDebuggerCommandArguments>
     <LocalDebuggerEnvironment>
     </LocalDebuggerEnvironment>
   </PropertyGroup>

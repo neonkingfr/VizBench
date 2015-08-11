@@ -109,6 +109,9 @@
     <ClCompile Include="..\..\..\src\Viz\vizletutil.cpp">
       <Filter>Source Files\viz</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\NosuchMaze.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">
@@ -267,6 +270,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\Viz\VizSprite.h">
       <Filter>Header Files\viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\nosuch\NosuchMaze.h">
+      <Filter>Header Files\nosuch</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

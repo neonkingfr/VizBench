@@ -296,6 +296,12 @@ void vizlet_keystroke(void* data,int key, int downup) {
 	v->processKeystroke(key,downup);
 }
 
+void vizlet_click(void* data,int click) {
+	Vizlet* v = (Vizlet*)data;
+	NosuchAssert(v);
+	v->processAdvanceClickTo(click);
+}
+
 void Vizlet::advanceCursorTo(VizCursor* c, double tm) {
 	m_vizserver->AdvanceCursorTo(c,tm);
 }
@@ -325,12 +331,18 @@ void Vizlet::_startKeystrokeCallbacks(void* data) {
 	m_vizserver->AddKeystrokeCallback(Handle(),vizlet_keystroke,data);
 }
 
+void Vizlet::_startClickCallbacks(void* data) {
+	NosuchAssert(m_vizserver);
+	m_vizserver->AddClickCallback(Handle(),vizlet_click,data);
+}
+
 void Vizlet::_stopCallbacks() {
 	if ( m_callbacksInitialized ) {
 		_stopApiCallbacks();
 		_stopMidiCallbacks();
 		_stopCursorCallbacks();
 		_stopKeystrokeCallbacks();
+		_stopClickCallbacks();
 		m_callbacksInitialized = false;
 	}
 }
@@ -356,16 +368,30 @@ void Vizlet::_stopKeystrokeCallbacks() {
 	m_vizserver->RemoveKeystrokeCallback(Handle());
 }
 
+void Vizlet::_stopClickCallbacks() {
+	NosuchAssert(m_vizserver);
+	m_vizserver->RemoveClickCallback(Handle());
+}
+
 double Vizlet::GetTime() {
 	return m_vizserver->GetTime();
 }
 
-int Vizlet::SchedulerCurrentClick() {
+click_t Vizlet::SchedulerCurrentClick() {
 	if ( m_vizserver == NULL ) {
-		DEBUGPRINT(("Vizlet::CurrentClick() - _vizserver is NULL!"));
+		DEBUGPRINT(("Vizlet::SchedulerCurrentClick() - _vizserver is NULL!"));
 		return 0;
 	} else {
 		return m_vizserver->SchedulerCurrentClick();
+	}
+}
+
+click_t Vizlet::SchedulerClicksPerSecond() {
+	if ( m_vizserver == NULL ) {
+		DEBUGPRINT(("Vizlet::SchedulerClicksPerSecond() - _vizserver is NULL!"));
+		return 0;
+	} else {
+		return m_vizserver->SchedulerClicksPerSecond();
 	}
 }
 
@@ -480,6 +506,7 @@ Vizlet::InitCallbacks() {
 		_startMidiCallbacks(m_mf,(void*)this);
 		_startCursorCallbacks(m_cf,(void*)this);
 		_startKeystrokeCallbacks((void*)this);
+		_startClickCallbacks((void*)this);
 
 		m_callbacksInitialized = true;
 	}

@@ -36,6 +36,7 @@ class Vizlet : public NosuchOscListener,
 					public NosuchJsonListener,
 					public NosuchMidiInputListener,
 					public NosuchMidiOutputListener,
+					public ClickListener,
 					public CursorListener,
 					public KeystrokeListener,
 					public CFreeFrameGLPlugin
@@ -58,6 +59,7 @@ public:
 	void advanceCursorTo(VizCursor* c, double tm);
 	double GetTime();
 	click_t SchedulerCurrentClick();
+	click_t SchedulerClicksPerSecond();
 	void LockVizlet();
 	void UnlockVizlet();
 	void DisableVizlet() { m_disabled = true; }
@@ -223,6 +225,8 @@ private:
 	void _stopCursorCallbacks();
 	void _startKeystrokeCallbacks(void* data);
 	void _stopKeystrokeCallbacks();
+	void _startClickCallbacks(void* data);
+	void _stopClickCallbacks();
 
 	void _drawnotes(std::list<MidiMsg*>& notes);
 

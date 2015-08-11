@@ -212,6 +212,7 @@
     <ClCompile Include="..\..\..\src\nosuch\NosuchGraphics.cpp" />
     <ClCompile Include="..\..\..\src\nosuch\NosuchJSON.cpp" />
     <ClCompile Include="..\..\..\src\nosuch\NosuchLife.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\NosuchMaze.cpp" />
     <ClCompile Include="..\..\..\src\nosuch\NosuchMidi.cpp" />
     <ClCompile Include="..\..\..\src\nosuch\NosuchOsc.cpp" />
     <ClCompile Include="..\..\..\src\nosuch\NosuchUtil.cpp" />
@@ -246,6 +247,7 @@
     <ClInclude Include="..\..\..\src\nosuch\NosuchGraphics.h" />
     <ClInclude Include="..\..\..\src\nosuch\NosuchLife.h" />
     <ClInclude Include="..\..\..\src\nosuch\NosuchLooper.h" />
+    <ClInclude Include="..\..\..\src\nosuch\NosuchMaze.h" />
     <ClInclude Include="..\..\..\src\nosuch\NosuchMidi.h" />
     <ClInclude Include="..\..\..\src\nosuch\NosuchOscInput.h" />
     <ClInclude Include="..\..\..\src\nosuch\NosuchOscManager.h" />

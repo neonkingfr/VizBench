@@ -1,5 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2010
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FFFF", "FFFF\FFFF.vcxproj", "{FC4C073F-A789-4AB7-A5EC-22D09D688640}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D35B747A-8620-4B4F-95C6-D32F53ABE8A3} = {D35B747A-8620-4B4F-95C6-D32F53ABE8A3}
@@ -75,6 +77,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VizShader", "VizShader\VizS
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VizShaderMaker", "VizShaderMaker\VizShaderMaker.vcxproj", "{B3A35C51-A06C-47B3-9D41-D7B9490AC448}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A0901BA3-9B41-40B9-BE2E-1C62F48B3E14} = {A0901BA3-9B41-40B9-BE2E-1C62F48B3E14}
+		{1A5433B8-B646-404F-8B96-DB5E5A0C29BC} = {1A5433B8-B646-404F-8B96-DB5E5A0C29BC}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VizMaze", "VizMaze\VizMaze.vcxproj", "{9128C570-69CB-4556-ABBB-6278F7F65689}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A0901BA3-9B41-40B9-BE2E-1C62F48B3E14} = {A0901BA3-9B41-40B9-BE2E-1C62F48B3E14}
 		{1A5433B8-B646-404F-8B96-DB5E5A0C29BC} = {1A5433B8-B646-404F-8B96-DB5E5A0C29BC}
@@ -399,6 +407,24 @@ Global
 		{B3A35C51-A06C-47B3-9D41-D7B9490AC448}.StaticRelease|Win32.Build.0 = Release|Win32
 		{B3A35C51-A06C-47B3-9D41-D7B9490AC448}.WithOpenPGM|Win32.ActiveCfg = Release|Win32
 		{B3A35C51-A06C-47B3-9D41-D7B9490AC448}.WithOpenPGM|Win32.Build.0 = Release|Win32
+		{9128C570-69CB-4556-ABBB-6278F7F65689}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9128C570-69CB-4556-ABBB-6278F7F65689}.Debug|Win32.Build.0 = Debug|Win32
+		{9128C570-69CB-4556-ABBB-6278F7F65689}.DebugDLL|Win32.ActiveCfg = Debug|Win32
+		{9128C570-69CB-4556-ABBB-6278F7F65689}.DebugDLL|Win32.Build.0 = Debug|Win32
+		{9128C570-69CB-4556-ABBB-6278F7F65689}.Release Trace|Win32.ActiveCfg = Release|Win32
+		{9128C570-69CB-4556-ABBB-6278F7F65689}.Release Trace|Win32.Build.0 = Release|Win32
+		{9128C570-69CB-4556-ABBB-6278F7F65689}.Release|Win32.ActiveCfg = Release|Win32
+		{9128C570-69CB-4556-ABBB-6278F7F65689}.Release|Win32.Build.0 = Release|Win32
+		{9128C570-69CB-4556-ABBB-6278F7F65689}.ReleaseDLL|Win32.ActiveCfg = Release|Win32
+		{9128C570-69CB-4556-ABBB-6278F7F65689}.ReleaseDLL|Win32.Build.0 = Release|Win32
+		{9128C570-69CB-4556-ABBB-6278F7F65689}.ReleaseMinDependency|Win32.ActiveCfg = Release|Win32
+		{9128C570-69CB-4556-ABBB-6278F7F65689}.ReleaseMinDependency|Win32.Build.0 = Release|Win32
+		{9128C570-69CB-4556-ABBB-6278F7F65689}.StaticDebug|Win32.ActiveCfg = Debug|Win32
+		{9128C570-69CB-4556-ABBB-6278F7F65689}.StaticDebug|Win32.Build.0 = Debug|Win32
+		{9128C570-69CB-4556-ABBB-6278F7F65689}.StaticRelease|Win32.ActiveCfg = Release|Win32
+		{9128C570-69CB-4556-ABBB-6278F7F65689}.StaticRelease|Win32.Build.0 = Release|Win32
+		{9128C570-69CB-4556-ABBB-6278F7F65689}.WithOpenPGM|Win32.ActiveCfg = Release|Win32
+		{9128C570-69CB-4556-ABBB-6278F7F65689}.WithOpenPGM|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

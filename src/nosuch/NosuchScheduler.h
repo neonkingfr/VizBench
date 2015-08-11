@@ -35,9 +35,9 @@ class NosuchScheduler;
 class MidiMsg;
 class MidiPhrase;
 
-class NosuchClickListener {
+class ClickListener {
 public:
-	virtual void AdvanceClickTo(int current_click, NosuchScheduler* sched) = 0;
+	virtual void processAdvanceClickTo(int click) = 0;
 };
 
 class NosuchMidiListener {
@@ -183,10 +183,11 @@ public:
 		return m_midi_merge_name[n].c_str();
 	}
 
-	static void SetClicksPerSecond(int clkpersec);
+	static click_t ClicksPerSecond();
+	static void SetClicksPerSecond(click_t clkpersec);
 	static void SetTempoFactor(float f);
 
-	void SetClickProcessor(NosuchClickListener* client) {
+	void SetClickProcessor(ClickListener* client) {
 		m_click_client = client;
 	}
 	void SetMidiInputListener(NosuchMidiListener* client) {
@@ -297,7 +298,7 @@ private:
 	std::vector<int> m_midi_merge_outport;
 	std::vector<std::string> m_midi_merge_name;
 
-	NosuchClickListener* m_click_client;
+	ClickListener* m_click_client;
 	NosuchMidiListener*	m_midioutput_client;
 	NosuchMidiListener*	m_midiinput_client;
 

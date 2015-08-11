@@ -79,24 +79,6 @@ using namespace std;
 /* static */ VizServer* OneServer = NULL;
 /* static */ int ServerCount = 0;
 
-class VizServerClickProcessor : public NosuchClickListener {
-public:
-	VizServerClickProcessor(VizServer* ss) {
-		m_server = ss;
-	}
-	void AdvanceClickTo(int current_click, NosuchScheduler* sched) {
-		static int lastclick = -1;
-		// Print warning if we get too much behind
-		if (current_click > (lastclick + 4)) {
-			DEBUGPRINT(("warning: advanced click by %d", current_click - lastclick));
-		}
-		lastclick = current_click;
-		m_server->_advanceClickTo(current_click, sched);
-	}
-private:
-	VizServer* m_server;
-};
-
 class VizServerApiCallback {
 public:
 	VizServerApiCallback(const char* apiprefix, void* cb, void* data) {
@@ -130,6 +112,16 @@ public:
 class VizServerKeystrokeCallback {
 public:
 	VizServerKeystrokeCallback(void* cb, void* data) {
+		m_cb = cb;
+		m_data = data;
+	}
+	void* m_cb;
+	void* m_data;
+};
+
+class VizServerClickCallback {
+public:
+	VizServerClickCallback(void* cb, void* data) {
 		m_cb = cb;
 		m_data = data;
 	}
@@ -246,6 +238,27 @@ public:
 	void removecallback(void* handle) {
 		if (count(handle) == 0) {
 			DEBUGPRINT(("Hey! VizServerKeystrokeCallbackMap::removecallback didn't find existing callback for handle=%ld", (long)handle));
+			return;
+		}
+		erase(handle);
+	}
+};
+
+class VizServerClickCallbackMap : public std::map < void*, VizServerClickCallback* > {
+public:
+	VizServerClickCallbackMap() {
+	}
+	void addcallback(void* handle, void* cb, void* data) {
+		if (count(handle) > 0) {
+			DEBUGPRINT(("Hey! VizServerClickCallbackMap::addcallback finds existing callback for handle=%ld", (long)handle));
+			return;
+		}
+		VizServerClickCallback* sscb = new VizServerClickCallback(cb, data);
+		(*this)[handle] = sscb;
+	}
+	void removecallback(void* handle) {
+		if (count(handle) == 0) {
+			DEBUGPRINT(("Hey! VizServerClickCallbackMap::removecallback didn't find existing callback for handle=%ld", (long)handle));
 			return;
 		}
 		erase(handle);
@@ -745,7 +758,7 @@ public:
 			}
 		}
 		catch (NosuchException& e) {
-			DEBUGPRINT(("NosuchException in processCursor: %s", e.message()));
+			DEBUGPRINT(("NosuchException in processKeystroke: %s", e.message()));
 		}
 		catch (...) {
 			// Does this really work?  Not sure
@@ -761,6 +774,51 @@ public:
 	int numCallbacks() { return m_callbacks.size(); }
 private:
 	VizServerKeystrokeCallbackMap m_callbacks;
+};
+
+//////////// VizServerClickProcessor
+
+class VizServerClickProcessor : public ClickListener {
+public:
+	VizServerClickProcessor(VizServer* ss) {
+		m_server = ss;
+	}
+	void processAdvanceClickTo(int click) {
+
+		static int lastclick = -1;
+		// Print warning if we get too much behind
+		if (click > (lastclick + 4)) {
+			DEBUGPRINT(("warning: advanced click by %d", click - lastclick));
+		}
+		lastclick = click;
+		m_server->_advanceClickTo(click);
+
+		try {
+			std::map<void*, VizServerClickCallback*>::iterator it;
+			for (it = m_callbacks.begin(); it != m_callbacks.end(); it++) {
+				VizServerClickCallback* sscb = it->second;
+				clickcallback_t cb = (clickcallback_t)(sscb->m_cb);
+				cb(sscb->m_data, click);
+			}
+		}
+		catch (NosuchException& e) {
+			DEBUGPRINT(("NosuchException in processAdvanceClickTo: %s", e.message()));
+		}
+		catch (...) {
+			// Does this really work?  Not sure
+			DEBUGPRINT(("Some other kind of exception in processAdvanceClickTo occured!?"));
+		}
+	}
+	void AddClickCallback(void* handle, clickcallback_t cb, void* data) {
+		m_callbacks.addcallback(handle, (void*)cb, data);
+	}
+	void RemoveClickCallback(void* handle) {
+		m_callbacks.removecallback(handle);
+	}
+	int numCallbacks() { return m_callbacks.size(); }
+private:
+	VizServerClickCallbackMap m_callbacks;
+	VizServer* m_server;
 };
 
 //////////// VizServer
@@ -933,6 +991,10 @@ click_t VizServer::SchedulerCurrentClick() {
 	else {
 		return m_scheduler->CurrentClick();
 	}
+}
+
+click_t VizServer::SchedulerClicksPerSecond() {
+	return m_scheduler->ClicksPerSecond();
 }
 
 const char*
@@ -1110,11 +1172,10 @@ VizServer::Start() {
 			DEBUGPRINT(("Warning: MIDI input wasn't defined in configuration!"));
 			m_midi_input_list = "loopMIDI Port";
 		}
-		m_scheduler->StartMidi(m_midi_input_list, m_midi_output_list, m_midi_merge_list);
-
 		m_clickprocessor = new VizServerClickProcessor(this);
 		m_scheduler->SetClickProcessor(m_clickprocessor);
 
+		m_scheduler->StartMidi(m_midi_input_list, m_midi_output_list, m_midi_merge_list);
 	}
 	catch (NosuchException& e) {
 		DEBUGPRINT(("NosuchException: %s", e.message()));
@@ -1128,7 +1189,7 @@ VizServer::Start() {
 	return r;
 }
 
-void VizServer::_advanceClickTo(int current_click, NosuchScheduler* sched) {
+void VizServer::_advanceClickTo(int current_click) {
 
 	// XXX - should all of these things be done on EVERY click?
 	_checkSharedMem();
@@ -1447,6 +1508,12 @@ VizServer::AddKeystrokeCallback(void* handle, keystrokecallback_t callback, void
 }
 
 void
+VizServer::AddClickCallback(void* handle, clickcallback_t callback, void* data) {
+	m_clickprocessor->AddClickCallback(handle, callback, data);
+	_setMaxCallbacks();
+}
+
+void
 VizServer::RemoveJsonCallback(void* handle) {
 	if (m_jsonprocessor) {
 		m_jsonprocessor->RemoveJsonCallback(handle);
@@ -1478,6 +1545,13 @@ void
 VizServer::RemoveKeystrokeCallback(void* handle) {
 	if (m_keystrokeprocessor) {
 		m_keystrokeprocessor->RemoveKeystrokeCallback(handle);
+	}
+}
+
+void
+VizServer::RemoveClickCallback(void* handle) {
+	if (m_clickprocessor) {
+		m_clickprocessor->RemoveClickCallback(handle);
 	}
 }
 

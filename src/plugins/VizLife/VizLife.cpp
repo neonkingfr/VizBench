@@ -42,7 +42,7 @@ VizLife::SetSize(int rows, int cols) {
 	m_nrows = rows;
 	m_ncols = cols;
 
-	// Should probably delete _life if it's non-NULL
+	// Should probably delete m_life if it's non-NULL
 	m_life = new NosuchLife(*this,rows,cols);
 
 	int ncells = rows * cols;

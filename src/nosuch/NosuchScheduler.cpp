@@ -27,6 +27,7 @@ void midi_callback( PtTimestamp timestamp, void *userData ) {
 	NosuchScheduler* ms = (NosuchScheduler*)userData;
 	NosuchAssert(ms);
 
+	// DEBUGPRINT(("midi_callback time=%ld timestamp=%ld", timeGetTime(),timestamp));
 	try {
 		CATCH_NULL_POINTERS;
 		ms->Callback(timestamp);
@@ -329,7 +330,10 @@ bool NosuchScheduler::StartMidi(std::string midi_input, std::string midi_output,
 		return true;
 
 	m_timestamp0 = 0;
-	Pt_Start(1, midi_callback, (void *)this);   // maybe should be 5?
+
+	int resolution = 5;   // normally 1, maybe 5?
+	DEBUGPRINT(("Calling Pt_Start with resolution=%d", resolution));
+	Pt_Start(resolution, midi_callback, (void *)this);
 
 	std::vector<std::string> inputs = NosuchSplitOnString(midi_input, ";");
 	std::vector<std::string> outputs = NosuchSplitOnString(midi_output, ";");
@@ -481,7 +485,7 @@ void NosuchScheduler::AdvanceTimeAndDoEvents(PtTimestamp timestamp) {
 	}
 	m_currentclick = clickssofar;
 	if ( m_click_client ) {
-		m_click_client->AdvanceClickTo(m_currentclick,this);
+		m_click_client->processAdvanceClickTo(m_currentclick);
 	}
 	GlobalClick = m_currentclick;
 
@@ -880,6 +884,10 @@ void NosuchScheduler::SetClicksPerSecond(int clkpersec) {
 	int timesofar = m_LastTimeStamp - m_timestamp0;
 	int clickssofar = (int)(0.5 + timesofar * m_ClicksPerMillisecond);
 	m_currentclick = clickssofar;
+}
+
+click_t NosuchScheduler::ClicksPerSecond() {
+	return int(m_ClicksPerMillisecond * 1000.0 + 0.5);
 }
 
 void NosuchScheduler::SetTempoFactor(float f) {

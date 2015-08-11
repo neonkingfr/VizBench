@@ -175,6 +175,10 @@ std::string VizMidi4::processJson(std::string meth, cJSON *json, const char *id)
 	throw NosuchException("VizMidi4 - Unrecognized method '%s'",meth.c_str());
 }
 
+void VizMidi4::processAdvanceClickTo(int click) {
+	// DEBUGPRINT(("processAdvanceClickTo click=%d time=%ld", click, timeGetTime()));
+}
+
 void VizMidi4::processMidiInput(MidiMsg* m) {
 	VizSprite* s;
 	// NO OpenGL calls here

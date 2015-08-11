@@ -55,11 +55,11 @@ private:
 	void ClearNoLock();
 };
 
-class NosuchLooper : public NosuchClickListener {
+class NosuchLooper : public ClickListener {
 public:
 	NosuchLooper(/*Vizlet* b*/);
 	virtual ~NosuchLooper();
-	void AdvanceClickTo(click_t click, NosuchScheduler* s);
+	void processAdvanceClickTo(click_t click);
 	std::string DebugString();
 	void AddLoop(NosuchLoop* loop);
 

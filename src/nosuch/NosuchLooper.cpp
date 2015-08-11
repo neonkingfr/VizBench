@@ -35,14 +35,9 @@ NosuchLooper::AddLoop(NosuchLoop* loop) {
 }
 
 void
-NosuchLooper::AdvanceClickTo(click_t click, NosuchScheduler* sched) {
+NosuchLooper::processAdvanceClickTo(click_t click) {
 	Lock();
 	int nclicks = click - m_last_click;
-	static int last_printed_click = 0;
-	if ( click >= (last_printed_click+10*sched->m_ClicksPerSecond) ) {
-		DEBUGPRINT1(("NosuchLooper::AdvanceClickTo click=%d now=%d",click,Pt_Time()));
-		last_printed_click = click;
-	}
 	while ( nclicks-- > 0 ) {
 		std::vector<NosuchLoop*>::iterator it = m_loops.begin();
 		for(; it != m_loops.end(); it++) {

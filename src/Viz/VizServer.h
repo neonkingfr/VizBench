@@ -19,7 +19,7 @@
 #include "NosuchMidi.h"
 #include "NosuchGraphics.h"
 #include "mmtt_sharedmem.h"
-typedef int click_t;
+// typedef int click_t;
 
 #include <list>
 #include <pthread.h>
@@ -46,6 +46,7 @@ typedef void (*osccallback_t)(void* data,const char* source, const osc::Received
 typedef void (*midicallback_t)(void* data,MidiMsg* m);
 typedef void (*cursorcallback_t)(void* data,VizCursor* c,int downdragup);
 typedef void (*keystrokecallback_t)(void* data,int key,int downup);
+typedef void (*clickcallback_t)(void* data,int clicks);
 
 #define CURSOR_DOWN 0
 #define CURSOR_DRAG 1
@@ -177,6 +178,7 @@ public:
 	// Some utilities
 	int SchedulerTimestamp();
 	click_t SchedulerCurrentClick();
+	click_t SchedulerClicksPerSecond();
 	void SetTime(double tm);
 	double GetTime();
 
@@ -193,12 +195,14 @@ public:
 	void AddMidiOutputCallback(void* handle, MidiFilter mf, midicallback_t cb, void* data);
 	void AddCursorCallback(void* handle, CursorFilter cf, cursorcallback_t cb, void* data);
 	void AddKeystrokeCallback(void* handle, keystrokecallback_t cb, void* data);
+	void AddClickCallback(void* handle, clickcallback_t cb, void* data);
 
 	void RemoveJsonCallback(void* handle);
 	void RemoveMidiInputCallback(void* handle);
 	void RemoveMidiOutputCallback(void* handle);
 	void RemoveCursorCallback(void* handle);
 	void RemoveKeystrokeCallback(void* handle);
+	void RemoveClickCallback(void* handle);
 
 	void SendMidiMsg(MidiMsg* msg);
 
@@ -279,7 +283,7 @@ private:
 	void _setMaxCallbacks();
 
 	std::string _processJson(std::string fullmethod,cJSON* params,const char* id);
-	void _advanceClickTo(int current_click, NosuchScheduler* sched);
+	void _advanceClickTo(int current_click);
 	void _checkSharedMem();
 
 	void _openSharedMemOutlines();
@@ -338,8 +342,8 @@ private:
 	VizServerMidiProcessor* m_midioutputprocessor;
 	VizServerCursorProcessor* m_cursorprocessor;
 	VizServerKeystrokeProcessor* m_keystrokeprocessor;
+	VizServerClickProcessor* m_clickprocessor;
 	NosuchScheduler* m_scheduler;
-	NosuchClickListener* m_clickprocessor;
 
 };
 
