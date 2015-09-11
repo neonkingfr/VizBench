@@ -327,137 +327,147 @@ plugMainUnion plugMain(DWORD functionCode, DWORD inputValue, DWORD instanceID)
 	// typecast DWORD into pointer to a CFreeFrameGLPlugin
 	pPlugObj = (CFreeFrameGLPlugin*) instanceID;
 
- switch (functionCode) {
-
-	case FF_GETINFO:
-		retval.PISvalue = (PluginInfoStruct*)FFGLgetInfo();
-		break;
-
-	case FF_INITIALISE:
-		retval.ivalue = FFGLinitialise();
-		break;
-
-	case FF_DEINITIALISE:
-		retval.ivalue = FFGLdeInitialise();	
-		break;
-
-	case FF_GETNUMPARAMETERS:
-		retval.ivalue = FFGLgetNumParameters();
-		break;
-
-	case FF_GETPARAMETERNAME:
-		retval.svalue = FFGLgetParameterName(inputValue);
-		break;
+	try {
+		switch (functionCode) {
 	
-	case FF_GETPARAMETERDEFAULT:
-		retval.ivalue = FFGLgetParameterDefault(inputValue);
-		break;
-
-	case FF_GETPLUGINCAPS:
-		retval.ivalue = FFGLgetPluginCaps(inputValue);
-		break;
-
-	case FF_GETEXTENDEDINFO: 
-		retval.ivalue = (DWORD) FFGLgetExtendedInfo();
-		break;
-
-	case FF_GETPARAMETERTYPE:		
-		retval.ivalue = FFGLgetParameterType(inputValue);
-		break;
-
-	case FF_GETPARAMETERDISPLAY:
-		if (pPlugObj != NULL) 
-			retval.svalue = pPlugObj->GetParameterDisplay(inputValue);
-		else
-			retval.svalue = (char*)FF_FAIL;
-		break;
+		case FF_GETINFO:
+			retval.PISvalue = (PluginInfoStruct*)FFGLgetInfo();
+			break;
+	
+		case FF_INITIALISE:
+			retval.ivalue = FFGLinitialise();
+			break;
+	
+		case FF_DEINITIALISE:
+			retval.ivalue = FFGLdeInitialise();	
+			break;
+	
+		case FF_GETNUMPARAMETERS:
+			retval.ivalue = FFGLgetNumParameters();
+			break;
+	
+		case FF_GETPARAMETERNAME:
+			retval.svalue = FFGLgetParameterName(inputValue);
+			break;
 		
-	case FF_SETPARAMETER:
-		if (pPlugObj != NULL)
-			retval.ivalue = pPlugObj->SetParameter((const SetParameterStruct*) inputValue);
-		else
-			retval.ivalue = FF_FAIL;
-		break;
+		case FF_GETPARAMETERDEFAULT:
+			retval.ivalue = FFGLgetParameterDefault(inputValue);
+			break;
 	
-	case FF_GETPARAMETER:
-		if (pPlugObj != NULL) 
-			retval.ivalue = pPlugObj->GetParameter(inputValue);
-		else 
-			retval.ivalue = FF_FAIL;
-		break;
-		
-	case FF_INSTANTIATEGL:
-		retval.ivalue = (DWORD)instantiateGL((const FFGLViewportStruct *)inputValue);
-		break;
-
-	case FF_DEINSTANTIATEGL:
-		if (pPlugObj != NULL)
-			retval.ivalue = deInstantiateGL(pPlugObj);
-		else
-			retval.ivalue = FF_FAIL;
-		break;
+		case FF_GETPLUGINCAPS:
+			retval.ivalue = FFGLgetPluginCaps(inputValue);
+			break;
 	
-	case FF_GETIPUTSTATUS:
-		if (pPlugObj != NULL)
-			retval.ivalue = pPlugObj->GetInputStatus(inputValue);
-		else
-			retval.ivalue = FF_FAIL;
-		break;
-
-	case FF_PROCESSOPENGL:
-		if (pPlugObj != NULL) {
-			ProcessOpenGLStruct *pogls = (ProcessOpenGLStruct *)inputValue;
-			if (pogls!=NULL)
-				retval.ivalue = pPlugObj->ProcessOpenGL(pogls);
+		case FF_GETEXTENDEDINFO: 
+			retval.ivalue = (DWORD) FFGLgetExtendedInfo();
+			break;
+	
+		case FF_GETPARAMETERTYPE:		
+			retval.ivalue = FFGLgetParameterType(inputValue);
+			break;
+	
+		case FF_GETPARAMETERDISPLAY:
+			if (pPlugObj != NULL) 
+				retval.svalue = pPlugObj->GetParameterDisplay(inputValue);
+			else
+				retval.svalue = (char*)FF_FAIL;
+			break;
+			
+		case FF_SETPARAMETER:
+			if (pPlugObj != NULL)
+				retval.ivalue = pPlugObj->SetParameter((const SetParameterStruct*) inputValue);
 			else
 				retval.ivalue = FF_FAIL;
-		} else {
-			retval.ivalue = FF_FAIL;
-		}
-		break;
-
-	case FF_SETTIME:
-		if (pPlugObj != NULL) {
-			double *inputTime = (double *)inputValue;
-			if (inputTime!=NULL)
-				retval.ivalue = pPlugObj->SetTime(*inputTime);
+			break;
+		
+		case FF_GETPARAMETER:
+			if (pPlugObj != NULL) 
+				retval.ivalue = pPlugObj->GetParameter(inputValue);
+			else 
+				retval.ivalue = FF_FAIL;
+			break;
+			
+		case FF_INSTANTIATEGL:
+			retval.ivalue = (DWORD)instantiateGL((const FFGLViewportStruct *)inputValue);
+			break;
+	
+		case FF_DEINSTANTIATEGL:
+			if (pPlugObj != NULL)
+				retval.ivalue = deInstantiateGL(pPlugObj);
 			else
 				retval.ivalue = FF_FAIL;
-		} else {
+			break;
+		
+		case FF_GETIPUTSTATUS:
+			if (pPlugObj != NULL)
+				retval.ivalue = pPlugObj->GetInputStatus(inputValue);
+			else
+				retval.ivalue = FF_FAIL;
+			break;
+	
+		case FF_PROCESSOPENGL:
+			if (pPlugObj != NULL) {
+				ProcessOpenGLStruct *pogls = (ProcessOpenGLStruct *)inputValue;
+				if (pogls!=NULL)
+					retval.ivalue = pPlugObj->ProcessOpenGL(pogls);
+				else
+					retval.ivalue = FF_FAIL;
+			} else {
+				retval.ivalue = FF_FAIL;
+			}
+			break;
+	
+		case FF_SETTIME:
+			if (pPlugObj != NULL) {
+				double *inputTime = (double *)inputValue;
+				if (inputTime!=NULL)
+					retval.ivalue = pPlugObj->SetTime(*inputTime);
+				else
+					retval.ivalue = FF_FAIL;
+			} else {
+				retval.ivalue = FF_FAIL;
+			}
+			break;
+	
+		//these old FF functions must always fail for FFGL plugins
+		case FF_INSTANTIATE:
+		case FF_DEINSTANTIATE:
+		case FF_PROCESSFRAME:
+		case FF_PROCESSFRAMECOPY:
 			retval.ivalue = FF_FAIL;
-		}
-		break;
-
-	//these old FF functions must always fail for FFGL plugins
-	case FF_INSTANTIATE:
-	case FF_DEINSTANTIATE:
-	case FF_PROCESSFRAME:
-	case FF_PROCESSFRAMECOPY:
-		retval.ivalue = FF_FAIL;
-		break;
-
-	// Resolume sends this code when a clip goes unselected (not active)
-	// I use it to disable the reception/handling of OSC.
-	case 22:
-		DEBUGPRINT1(("functionCode 22 (from Resolume?)"));
-		if (pPlugObj != NULL) {
-			retval.ivalue = pPlugObj->ResolumeDeactivate();
-		} else {
+			break;
+	
+		// Resolume sends this code when a clip goes unselected (not active)
+		// I use it to disable the reception/handling of OSC.
+		case 22:
+			DEBUGPRINT1(("functionCode 22 (from Resolume?)"));
+			if (pPlugObj != NULL) {
+				retval.ivalue = pPlugObj->ResolumeDeactivate();
+			} else {
+				retval.ivalue = FF_FAIL;
+			}
+			break;
+	
+		// Resolume sends this code when a clip is selected (I think)
+		case 33:
+			DEBUGPRINT1(("functionCode 33 (from Resolume?)"));
+			retval.ivalue = FF_SUCCESS;
+			break;
+	
+		default:
+			DEBUGPRINT(("Unrecognized functionCode in plugMain: %d",functionCode));
 			retval.ivalue = FF_FAIL;
+			break;
 		}
-		break;
-
-	// Resolume sends this code when a clip is selected (I think)
-	case 33:
-		DEBUGPRINT1(("functionCode 33 (from Resolume?)"));
-		retval.ivalue = FF_SUCCESS;
-		break;
-
-	default:
-		DEBUGPRINT(("Unrecognized functionCode in plugMain: %d",functionCode));
-		retval.ivalue = FF_FAIL;
-		break;
 	}
-	
+	catch (NosuchException& e) {
+		retval.ivalue = FF_FAIL;
+		DEBUGPRINT(("NosuchException in plugmain: %s", e.message()));
+	}
+	catch (...) {
+		// Does this really work?  Not sure
+		retval.ivalue = FF_FAIL;
+		DEBUGPRINT(("Some other kind of exception in plugmain occured!?"));
+	}
 	return retval;
 }

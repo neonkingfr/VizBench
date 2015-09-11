@@ -80,358 +80,344 @@ NosuchMaze::Draw() {
 
 void
 NosuchMaze::moveBalls(int nclicks) {
-	for (std::list<MazeBall*>::iterator it = m_balls.begin(); it != m_balls.end(); ) {
-		MazeBall* b = *it;
-		if (b->m_alive) {
-			moveBall(b,nclicks);	// This may result in ball being killed
-		}
+	DEBUGPRINT1(("moveBalls start"));
 
-		if (!b->m_alive) {
-			it = m_balls.erase(it);
-		}
-		else {
-			it++;
-		}
-	}
-}
-
-void
-NosuchMaze::moveBall(MazeBall* b, int nclicks) {
-	// DEBUGPRINT(("moveBall nclicks=%d", nclicks));
 	while (nclicks-- > 0) {
-		moveBallOneClick(b);
+		for (std::list<MazeBall*>::iterator it = m_balls.begin(); it != m_balls.end();) {
+			MazeBall* b = *it;
+			if (b->m_alive) {
+				moveBallOneClick(b);	// This may result in ball being killed
+			}
+
+			if (!b->m_alive) {
+				it = m_balls.erase(it);
+			}
+			else {
+				it++;
+			}
+		}
 	}
+	DEBUGPRINT1(("moveBalls start"));
 }
 
 #define signof(x) ((x > 0) ? 1 : ((x < 0) ? -1 : 0))
 
+bool
+NosuchMaze::isFilled(MazeRowCol rc) {
+	MazeCell&  cell = getCell(rc);
+	return cell.getFilled();
+}
+
 void
 NosuchMaze::moveBallOneClick(MazeBall* b) {
+
+	DEBUGPRINT(("\n================= moveBallOneClick start"));
 
 	b->m_age += 1;
 	if ( b->m_age > (b->m_born + b->m_lifetime) ) {
 		killBall(b);
 		return;
 	}
+
 	MazePoint oldxy = b->m_xy;
 	MazePoint deltaxy = b->m_dxy;
 	MazePoint newxy(oldxy.x + deltaxy.x, oldxy.y + deltaxy.y);
+	MazeRowCol& oldrc = getRowCol(oldxy);
+	MazeRowCol& newrc = getRowCol(newxy);
+	int drow = newrc.r - oldrc.r;
+	int dcol = newrc.c - oldrc.c;
+
+	bool reversex = false;
+	bool reversey = false;
+	bool swapdxy = false;
+	bool keepoldxy = false;
 
 	MazePoint maxxy = xySize();
-
 	if (newxy.x >= maxxy.x || newxy.x < 0 || newxy.y >= maxxy.y || newxy.y < 0) {
 		killBall(b);
 		return;
 	}
 
-	MazeRowCol& oldrc = getRowCol(b->m_xy);
-	MazeRowCol& newrc = getRowCol(newxy);
-
-	int drow = newrc.r - oldrc.r;
-	int dcol = newrc.c - oldrc.c;
+	DEBUGPRINT(("oldrc = %d,%d   newrc = %d,%d  m_xy = %d,%d  m_dxy = %d,%d",oldrc.r,oldrc.c,newrc.r,newrc.c,b->m_xy.x,b->m_xy.y,b->m_dxy.x,b->m_dxy.y));
 
 	if (drow==0 && dcol==0) {
 		// It hasn't moved to a different cell
-		return;
+		DEBUGPRINT(("    didn't move"));
+		goto getout;
 	}
 
-	if (abs(drow) > 1 || abs(dcol) > 1) {
-		DEBUGPRINT(("HEY!!  drow or dcol > 1?! drow=%d dcol=%d",drow,dcol));
-		return;
-	}
+	// Verify important assumption here, requires that the m_dxy value
+	// is never greater than the cellsize, so things can only move
+	// a maximum of one cell at a time.
+	NosuchAssert(drow == -1 || drow == 0 || drow == 1);
+	NosuchAssert(dcol == -1 || dcol == 0 || dcol == 1);
 
-	MazeCell& newcell = getCell(newrc);
 	MazeCell& oldcell = getCell(oldrc);
+	MazeCell& newcell = getCell(newrc);
+	bool newfilled = newcell.getFilled();
+	bool oldfilled = oldcell.getFilled();
 
-	if (newcell.getFilled()) {
-		// We've moved into a wall, bounce the ball
-		if (drow == 0) {
-			// Bounce off a vertical wall
-			b->m_dxy.x = -(b->m_dxy.x);
+	DEBUGPRINT(("******** oldcell=%d,%d(%d) newcell=%d,%d(%d)",
+		oldrc.r, oldrc.c, oldfilled,
+		newrc.r, newrc.c, newfilled));
+
+	if (oldfilled) {
+		// If our previous location was filled (i.e. is a wall),
+		// it's because we bounced against it on our last move.
+		// The direction was changed when it bounced, so this time
+		// we just keep going
+		DEBUGPRINT(("We hit a wall last time, right??"));
+		goto getout;
+	}
+
+
+	if (drow == 0 || dcol == 0) {
+		// It's headed directly left/right/up/down,
+		if (newfilled) {
+			// bounce it back
+			if (drow == 0) {
+				// Hit a vertical wall.  Look at cells above and below the oldcell
+				// to see if it's hitting an above-diagonal or below-diagonal.
+				// Make sure to take into account whether we're hitting
+				// a wall from the left or right
+				bool belowfilled = getCell(MazeRowCol(oldrc.r-1, oldrc.c)).getFilled();
+				bool abovefilled = getCell(MazeRowCol(oldrc.r+1, oldrc.c)).getFilled();
+				bool fromright = (dcol < 0);
+				// If both are filled or not-filled, it's like a straight vertical wall 
+				if ((abovefilled && belowfilled) || (!abovefilled && !belowfilled) ) {
+					reversex = true;
+				}
+				else if (abovefilled) {
+					// It's diagonal above, bounce it as if it's 45-degrees
+					if (fromright) {
+						swapdxy = true;
+					}
+					else { // fromleft
+						swapdxy = true;
+						reversex = reversey = true;
+					}
+				}
+				else {
+					NosuchAssert(belowfilled);
+					// It's diagonal below, bounce it as if it's 45-degrees
+					if (fromright) {
+						swapdxy = true;
+						reversex = reversey = true;
+					}
+					else { // fromleft
+						swapdxy = true;
+					}
+				}
+			} else { // dcol == 0
+				// Hit a horizontal wall.  Look at cells left and right of the oldcell
+				// to see if it's hitting an left-diagonal or right-diagonal.
+				// Make sure to take into account whether we're hitting
+				// a wall from above or below
+				bool leftfilled = getCell(MazeRowCol(oldrc.r, oldrc.c-1)).getFilled();
+				bool rightfilled = getCell(MazeRowCol(oldrc.r, oldrc.c+1)).getFilled();
+				bool fromabove = (dcol < 0);
+
+		// XXX - if this remains correct, merge these two if's
+				if (leftfilled && rightfilled) {
+					// If both are filled, it's like a straight horizontal wall 
+					// that we're hitting head-on (from above or below)
+					reversey = true;
+				} else if (!leftfilled && !rightfilled) {
+					// If neither is filled, it's like a straight horizontal wall 
+					// that we're hitting at an angle
+					reversey = true;
+				}
+				else if (leftfilled) {
+					// It's diagonal left, bounce it as if it's 45-degrees
+					if (fromabove) {
+						swapdxy = true;
+						reversex = reversey = true;
+					}
+					else { // frombelow
+						swapdxy = true;
+					}
+				}
+				else {
+					NosuchAssert(rightfilled);
+					// It's diagonal right, bounce it as if it's 45-degrees
+					if (fromabove) {
+						swapdxy = true;
+					}
+					else { // frombelow
+						swapdxy = true;
+						reversex = reversey = true;
+					}
+				}
+			}
+			// Keeping the oldxy value unchanged isn't accurate for bounces,
+			// but is simple and probably accurate enough.
+			keepoldxy = true;
+			DEBUGPRINT(("    left/right/up/down filled!"));
 		}
-		else if (dcol == 0) {
-			// Bounce off a horizontal wall
-			b->m_dxy.y = -(b->m_dxy.y);
+		goto getout;
+	}
+
+	// At this point, we know that abs(drow) and abs(dcol) are both 1,
+	// i.e. the new cell can be in one of the four diagonal directions.
+	// We look around that new cell to see if whether there are
+	// horizontal or vertical walls, or corners.
+
+	bool hwall;
+	bool vwall;
+	if (drow == 1 && dcol == 1) {
+		vwall = isFilled(MazeRowCol(newrc.r - 1, newrc.c));
+		hwall = isFilled(MazeRowCol(newrc.r, newrc.c - 1));
+	}
+	else if (drow == 1 && dcol == -1) {
+		vwall = isFilled(MazeRowCol(newrc.r - 1, newrc.c));
+		hwall = isFilled(MazeRowCol(newrc.r, newrc.c + 1));
+	}
+	else if (drow == -1 && dcol == -1) {
+		vwall = isFilled(MazeRowCol(newrc.r + 1, newrc.c));
+		hwall = isFilled(MazeRowCol(newrc.r, newrc.c + 1));
+	}
+	else if (drow == -1 && dcol == 1) {
+		vwall = isFilled(MazeRowCol(newrc.r + 1, newrc.c));
+		hwall = isFilled(MazeRowCol(newrc.r, newrc.c - 1));
+	}
+
+	if ( newfilled ) {
+		// BOUNCE!  Figure out what we've hit
+		if ( (!hwall && !vwall) || (hwall && vwall) ) {
+			// outside or inside corner
+
+// TRY THIS
+			// reversex = reversey = true;
+			swapdxy = true;
+			keepoldxy = true;
+		} else if (hwall) {
+			// horizontal wall
+			reversey = true;
+			keepoldxy = true;
+		} else { // vwall
+			// vertical wall
+			reversex = true;
+			keepoldxy = true;
 		}
-		else {
-			// At this point, drow and dcol are both non-zero, either 1 or -1,
-			// meaning that newcell is at a diagonal from the oldcell.
-			MazeCell& diag1 = getCell(MazeRowCol(oldrc.r+drow,oldrc.c));
-			MazeCell& diag2 = getCell(MazeRowCol(oldrc.r,oldrc.c+dcol));
-			bool filled1 = diag1.getFilled();
-			bool filled2 = diag2.getFilled();
-			if ((filled1 && filled2) || (!filled1 && !filled2) ) {
-				// We've hit an inside or outside corner, both directions are reversed
-				b->m_dxy.x = -(b->m_dxy.x);
-				b->m_dxy.y = -(b->m_dxy.y);
-			}
-			else if (filled1) {
-				b->m_dxy.y = -(b->m_dxy.y);
-			}
-			else { // filled2 is true
-				b->m_dxy.x = -(b->m_dxy.x);
-			}
+	} else {
+		// Check the two adjacent cells
+		if (hwall && vwall) {
+			// bounce it back as if there's a line between them,
+
+// TRY THIS
+			// reversex = reversey = true;
+			swapdxy = true;
+			keepoldxy = true;
 		}
 	}
+
+getout:
+	if (reversex) {
+		b->m_dxy.x = -(b->m_dxy.x);
+	}
+	if (reversey) {
+		b->m_dxy.y = -(b->m_dxy.y);
+	}
+	if (swapdxy) {
+		int t = b->m_dxy.y;
+		b->m_dxy.y = b->m_dxy.x;
+		b->m_dxy.x = t;
+	}
+
+	// TRY THIS
 	b->m_xy = newxy;
-
 #if 0
-	# scale nfx, y to size of grid on screen
-	nxy = $.fxy2xy(nfx, nfy)
-		rc = $.grid.rxy2rc(nxy, 0)
-		newrow = rc["row"]
-		newcol = rc["col"]
-		# print("r,c=", r, c, "  newrow,col=", rc)
-		bouncetype = ""
-		if ((r != newrow || c != newcol)) {
-			if (r != newrow && c != newcol)
-				iscorner = 1
-			else
-			iscorner = 0
-
-			bouncedy = 0
-			bouncedx = 0
-			redrawbottomr = -2
-			redrawbottomc = -2
-			redrawrightr = -2
-			redrawrightc = -2
-
-			# Special cases for corners
-			if (iscorner) {
-				# print("ISCORNER");
-				if (newrow < r && newcol < c) {
-					# upper - left
-					horiz = ($.hastop(r, c) && $.hastop(r, c - 1) && !$.hasright(r, c - 1))
-						vert = ($.hasright(r, c - 1) && $.hasright(r - 1, c - 1) && !$.hastop(r, c))
-						corn1 = ($.hastop(r, c) && $.hasright(r, c - 1))
-						corn2 = ($.hasright(r - 1, c - 1) && $.hastop(r, c - 1))
-						if (horiz) {
-							bouncetype = "top"
-						}
-						else if (vert) {
-							bouncetype = "left"
-						}
-						else if (corn1 || corn2) {
-							$.hittop(r, c, cl)
-								b->m_dfy = -b->m_dfy
-								b->m_dfx = -b->m_dfx
-								bouncedy = 1
-								bouncedx = 1
-								redrawbottomr = r - 1
-								redrawbottomc = c
-								redrawrightr = r
-								redrawrightc = c - 1
-						}
-				}
-				else if (newrow > r && newcol < c) {
-					# lower - left
-					horiz = ($.hastop(r + 1, c) && $.hastop(r + 1, c - 1) && !$.hasright(r, c - 1))
-						vert = ($.hasright(r, c - 1) && $.hasright(r + 1, c - 1) && !$.hastop(r + 1, c))
-						corn1 = ($.hastop(r + 1, c) && $.hasright(r, c - 1))
-						corn2 = ($.hasright(r + 1, c - 1) && $.hastop(r + 1, c - 1))
-						if (horiz) {
-							bouncetype = "bottom"
-						}
-						else if (vert) {
-							bouncetype = "left"
-						}
-						else if (corn1 || corn2) {
-							$.hitbottom(r, c, cl)
-								b->m_dfy = -b->m_dfy
-								b->m_dfx = -b->m_dfx
-								bouncedy = 1
-								bouncedx = 1
-								redrawbottomr = r
-								redrawbottomc = c
-								redrawrightr = r
-								redrawrightc = c - 1
-						}
-				}
-				else if (newrow < r && newcol > c) {
-					# upper - right
-					horiz = ($.hastop(r, c) && $.hastop(r, c + 1) && !$.hasright(r, c))
-						vert = ($.hasright(r, c) && $.hasright(r - 1, c) && !$.hastop(r, c))
-						corn1 = ($.hastop(r, c) && $.hasright(r, c))
-						corn2 = ($.hasright(r - 1, c) && $.hastop(r, c + 1))
-						if (horiz) {
-							bouncetype = "top"
-						}
-						else if (vert) {
-							bouncetype = "right"
-						}
-						else if (corn1 || corn2) {
-							$.hittop(r, c, cl)
-								b->m_dfy = -b->m_dfy
-								b->m_dfx = -b->m_dfx
-								bouncedy = 1
-								bouncedx = 1
-								redrawbottomr = r - 1
-								redrawbottomc = c
-								redrawrightr = r
-								redrawrightc = c
-						}
-				}
-				else if (newrow > r && newcol > c) {
-					# lower - right
-					horiz = ($.hastop(r + 1, c) && $.hastop(r + 1, c + 1) && !$.hasright(r, c))
-						vert = ($.hasright(r, c) && $.hasright(r + 1, c) && !$.hastop(r + 1, c))
-						corn1 = ($.hastop(r + 1, c) && $.hasright(r, c))
-						corn2 = ($.hasright(r + 1, c) && $.hastop(r + 1, c + 1))
-						if (horiz) {
-							bouncetype = "bottom"
-						}
-						else if (vert) {
-							bouncetype = "right"
-						}
-						else if (corn1 || corn2) {
-							$.hittop(r, c, cl)
-								b->m_dfy = -b->m_dfy
-								b->m_dfx = -b->m_dfx
-								bouncedy = 1
-								bouncedx = 1
-								redrawbottomr = r
-								redrawbottomc = c
-								redrawrightr = r
-								redrawrightc = c
-						}
-				}
-			}
-
-			if (bouncetype == "") {
-				# NORMAL bounce, off one side
-				if (newrow < r) {
-					# potential bounce off top
-					if ($.hastop(r, c)) {
-						bouncetype = "top"
-					}
-				}
-				else if (newrow > r) {
-					# potential bounce off bottom
-					if ($.hasbottom(r, c)) {
-						bouncetype = "bottom"
-					}
-				}
-				else if (newcol < c) {
-					# potential bounce off left
-					if ($.hasleft(r, c)) {
-						bouncetype = "left"
-					}
-				}
-				else if (newcol > c) {
-					# potential bounce off right
-					if ($.hasright(r, c)) {
-						bouncetype = "right"
-					}
-				}
-			}
-
-			if (bouncetype == "top") {
-				$.hittop(r, c, cl)
-					b->m_dfy = -b->m_dfy
-					bouncedy = 1
-					redrawbottomr = r - 1
-					redrawbottomc = c
-			}
-			else if (bouncetype == "bottom") {
-				$.hitbottom(r, c, cl)
-					b->m_dfy = -b->m_dfy
-					bouncedy = 1
-					redrawbottomr = r
-					redrawbottomc = c
-			}
-			else if (bouncetype == "left") {
-				$.hitleft(r, c, cl)
-					b->m_dfx = -b->m_dfx
-					bouncedx = 1
-					redrawrightr = r
-					redrawrightc = c - 1
-			}
-			else if (bouncetype == "right") {
-				$.hitright(r, c, cl)
-					b->m_dfx = -b->m_dfx
-					bouncedx = 1
-					redrawrightr = r
-					redrawrightc = c
-			}
-
-
-			if (bouncedx && bouncedy) {
-				if (bouncedx)
-					nfx = b->m_fx
-					if (bouncedy)
-						nfy = b->m_fy
-			}
-			else {
-				if (bouncedx)
-					nfx = b->m_fx
-					if (bouncedy)
-						nfy = b->m_fy;
-			}
-
-			nxy = $.fxy2xy(nfx, nfy)
-				# print("BOUNCE, b=", b, "  nfxy=", nfx, nfy, "  nxy=", nxy["x"], nxy["y"])
-				rc = $.grid.rxy2rc(nxy, 0)
-				# Sanity check - if we bounce, we should
-				# be in the same cell.
-				if (!bouncedy) {
-					if (newrow < 0) {
-						print("!bouncedy, newrow<0")
-							newcol = 0
-					}
-					b["row"] = newrow
-				}
-			if (!bouncedx) {
-				if (newcol < 0) {
-					print("!bouncedx, newcol<0=", newcol)
-						newcol = 0
-				}
-				b["col"] = newcol
-			}
-			if (redrawrightr != -2) {
-				task $.redrawright(redrawrightr,
-					redrawrightc)
-			}
-			if (redrawbottomr != -2) {
-				task $.redrawbottom(redrawbottomr,
-					redrawbottomc)
-			}
-			# print("b is now ", b)
-		}
-	$.drawball(b, CLEAR)
-		$.updateball(b, nfx, nfy, nxy["x"], nxy["y"])
-		# print("MOVED ball b=", b)
-		colorset($.colorindex[cl])
-		if ($.debugmove>0){ print("drawing b=", b); }
-	$.drawball(b, STORE)
+	if (keepoldxy) {
+		b->m_xy = oldxy;
+	}
+	else {
+		b->m_xy = newxy;
+	}
 #endif
+
+	if (reversex || reversey || swapdxy) {
+		MazeRowCol rc = getRowCol(b->m_xy);
+		DEBUGPRINT(("    =================================================================== "
+			"postbounce m_xy=%d,%d  m_dxy=%d,%d  rc=%d,%d", b->m_xy.x, b->m_xy.y, b->m_dxy.x, b->m_dxy.y, rc.r, rc.c));
+	}
 }
 
 MazeBall*
 NosuchMaze::addBall(MazePoint fxy, MazePoint dxy, int born, int lifetime) {
+	NosuchAssert(dxy.x <= m_cellxsize && dxy.y <= m_cellysize);
 	MazeBall* b = new MazeBall( fxy, dxy, born, lifetime);
 	m_balls.push_back(b);
 	return b;
 }
 
+#define sign(x) (((x)>=0.0)?1:-1)
+
 void
 NosuchMaze::addLine(MazeRowCol rc0, MazeRowCol rc1) {
-	getCell(rc0).setFilled(true);
-	int dir_c = ( rc1.c > rc0.c ) ? 1 : -1;
-	int dir_r = ( rc1.r > rc0.r ) ? 1 : -1;
-	int c = rc0.c;
-	int r = rc0.r;
-	while (c != rc1.c || r != rc1.r) {
-		int dc = rc1.c - c;
-		int dr = rc1.r - r;
-		if ( abs(dc) >= abs(dr) ) {
-			c += dir_c;
-		}
-		if ( abs(dr)>= abs(dc) ) {
-			r += dir_r;
-		}
-		getCell(MazeRowCol(r,c)).setFilled(true);
-	}
 
+#if 0
+	// THIS SHOULD BE THE ALGORITHM TO USE - all integer
+	// It's from this page: http://tech-algorithm.com/articles/drawing-line-using-bresenham-algorithm/
+	public void line(int x, int y, int x2, int y2, int color) {
+		int w = x2 - x;
+		int h = y2 - y;
+		int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
+		if (w<0) dx1 = -1; else if (w>0) dx1 = 1;
+		if (h<0) dy1 = -1; else if (h>0) dy1 = 1;
+		if (w<0) dx2 = -1; else if (w>0) dx2 = 1;
+		int longest = Math.abs(w);
+		int shortest = Math.abs(h);
+		if (!(longest>shortest)) {
+			longest = Math.abs(h);
+			shortest = Math.abs(w);
+			if (h<0) dy2 = -1; else if (h>0) dy2 = 1;
+			dx2 = 0;
+		}
+		int numerator = longest >> 1;
+		for (int i = 0; i <= longest; i++) {
+			putpixel(x, y, color);
+			numerator += shortest;
+			if (!(numerator<longest)) {
+				numerator -= longest;
+				x += dx1;
+				y += dy1;
+			}
+			else {
+				x += dx2;
+				y += dy2;
+			}
+		}
+	}
+#endif
+	int x0 = rc0.c;
+	int y0 = rc0.r;
+	int x1 = rc1.c;
+	int y1 = rc1.r;
+
+	double deltax = x1 - x0;
+	double deltay = y1 - y0;
+	int signy = sign(deltay);
+	int signx = sign(deltax);
+	double error = 0.0;
+	if (deltax == 0) {
+		// vertical line
+		for (int y = y0; y != y1; y += signy) {
+			getCell(MazeRowCol(y,x0)).setFilled(true);
+		}
+		return;
+	}
+	double deltaerr = abs(deltay / deltax); // Assume deltax != 0 (line is not vertical),
+	// note that this division needs to be done in a way that preserves the fractional part
+	int y = y0;
+	for (int x = x0; x != x1; x += signx) {
+		getCell(MazeRowCol(y, x)).setFilled(true);
+		error = error + deltaerr;
+		while (error >= 0.5) {
+			getCell(MazeRowCol(y, x)).setFilled(true);
+			y = y + sign(y1 - y0);
+			error = error - 1.0;
+		}
+	}
 }
 
 static int round(double number)

@@ -17,18 +17,69 @@ static CFFGLPluginInfo PluginInfo (
 std::string vizlet_name() { return "VizMaze"; }
 CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
 
+
+// Return a random number between n1 and n2, inclusive
+int randnum(int n1, int n2) {
+	return n1 + rand() % (n2 - n1 + 1);
+}
+
+int randdir() {
+	return 2 * randnum(0, 1) - 1;
+}
+
+// Return a random rowcol, but avoid the edges.
+MazeRowCol
+VizMaze::randRowCol() {
+	return MazeRowCol(
+		randnum(1, m_maze->rowcolSize().r - 2),
+		randnum(1, m_maze->rowcolSize().c - 2)
+		);
+}
+
+MazePoint
+VizMaze::randDelta() {
+	return MazePoint(
+		randdir()*randnum(1, m_maze->cellSize().x-1),
+		randdir()*randnum(1, m_maze->cellSize().y-1)
+		);
+}
+
 VizMaze::VizMaze() : Vizlet(), MazeListener() {
 	m_maze = NULL;
+}
+
+void
+VizMaze::setup() {
+
+	if (m_maze != NULL) {
+		return;
+	}
+
 	setSize(128, 128, 1000, 1000);
 
-	m_maze->addLine(MazeRowCol(10, 10), MazeRowCol(100, 10));
+	int lifetime = 6000 * SchedulerClicksPerSecond();
 
-	int lifetime = 10 * SchedulerClicksPerSecond();
+#if 0
+	for (int i = 0; i < 10; i++) {
+		m_maze->addLine(randRowCol(),randRowCol());
+	}
 
-	MazePoint xy = m_maze->getPoint(MazeRowCol(40, 51));
-	MazePoint dxy(1000, 1000);
+	for (int i = 0; i < 2; i++) {
+		// The position here isn't completely random, it's quantized to cells
+		// addBall(m_maze->getPoint(randRowCol()), randDelta(), SchedulerCurrentClick(), lifetime);
+		MazePoint d = randDelta();
+		DEBUGPRINT(("d=%d,%d", d.x, d.y));
+		addBall(m_maze->getPoint(MazeRowCol(10,100)), d, SchedulerCurrentClick(), lifetime);
+	}
+#endif
 
-	addBall(xy, dxy, SchedulerCurrentClick(), lifetime);
+	addBall(m_maze->getPoint(MazeRowCol(90,120)), MazePoint(-500,-300), SchedulerCurrentClick(), lifetime);
+	// addBall(m_maze->getPoint(MazeRowCol(10,100)), MazePoint(492,844), SchedulerCurrentClick(), lifetime);
+
+	// addBall(m_maze->getPoint(MazeRowCol(10,100)), MazePoint(900,-100), SchedulerCurrentClick(), lifetime);
+	// addBall(m_maze->getPoint(MazeRowCol(10,100)), MazePoint(800,-200), SchedulerCurrentClick(), lifetime);
+
+	m_maze->addLine(MazeRowCol(1, 1), MazeRowCol(127, 127));
 }
 
 void
@@ -81,6 +132,7 @@ void VizMaze::processCursor(VizCursor* c, int downdragup) {
 }
 
 void VizMaze::processAdvanceClickTo(int click) {
+	setup();
 	static int lastclick = 0;
 	int nclicks = click - lastclick;
 	// DEBUGPRINT(("processAdvanceClickTo MAZE click=%d time=%ld nclicks=%d", click, timeGetTime(),nclicks));
@@ -102,6 +154,7 @@ void VizMaze::processMidiOutput(MidiMsg* m) {
 }
 
 bool VizMaze::processDraw() {
+	setup();
 	// OpenGL calls here
 	DrawVizSprites();
 	m_maze->Draw();
@@ -135,7 +188,7 @@ VizMaze::onBallDraw(MazeBall* ball, MazePoint xy)
 }
 
 void
-VizMaze::drawCell(MazeRowCol rc)
+VizMaze::drawCell(MazeRowCol rc, int sizefactor)
 {
 	float alpha = 1.0f;
 	MazePoint xysize = m_maze->xySize();
@@ -149,10 +202,10 @@ VizMaze::drawCell(MazeRowCol rc)
 	float y = rc.r * float(cellsize.y) / xysize.y;
 
 	glBegin(GL_QUADS);
-	glVertex3f(x, y, 0.0f);
-	glVertex3f(x, y+y_perrow, 0.0f);
-	glVertex3f(x+x_percol, y+y_perrow, 0.0f);
-	glVertex3f(x+x_percol, y, 0.0f);
+	glVertex3f(x-sizefactor*x_percol, y-sizefactor*y_perrow, 0.0f);
+	glVertex3f(x-sizefactor*x_percol,y+(sizefactor+1)*y_perrow, 0.0f);
+	glVertex3f(x+(sizefactor+1)*x_percol, y+(sizefactor+1)*y_perrow, 0.0f);
+	glVertex3f(x+(sizefactor+1)*x_percol, y-sizefactor*y_perrow, 0.0f);
 	glEnd();
 
 }

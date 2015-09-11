@@ -105,14 +105,17 @@ public:
 	void addLine(MazeRowCol rc0, MazeRowCol rc1);
 	MazeBall* addBall(MazePoint fxy, MazePoint dxy, int born, int lifetime);
 	void moveBalls(int nclicks);
-	void moveBall(MazeBall* b, int nclicks);
 	void moveBallOneClick(MazeBall* b);
+	bool isFilled(MazeRowCol rc);
 
 	MazePoint xySize() { return MazePoint(m_cellxsize*m_ncols, m_cellysize*m_nrows); }
 	MazePoint cellSize() { return MazePoint(m_cellxsize, m_cellysize); }
 	MazeRowCol rowcolSize() { return MazeRowCol(m_nrows, m_ncols); }
 
-	void killBall(MazeBall* b) { b->m_alive = false; }
+	void killBall(MazeBall* b) {
+		b->m_alive = false;
+		DEBUGPRINT(("Killing ball!"));
+	}
 
 	MazeCell& getCell(MazePoint xy) {
 		return getCell(getRowCol(xy));
@@ -125,7 +128,7 @@ public:
 	}
 
 	MazePoint getPoint(MazeRowCol rc) {
-		return MazePoint(rc.r * m_cellysize, rc.c * m_cellxsize);
+		return MazePoint( rc.c * m_cellxsize, rc.r * m_cellysize );
 	}
 
 	MazeCell& getCell(MazeRowCol rc) {

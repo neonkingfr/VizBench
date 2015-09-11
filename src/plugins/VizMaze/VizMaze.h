@@ -29,10 +29,13 @@ public:
 	void onBallDraw(MazeBall* b, MazePoint xy);
 
 private:
-	void drawCell(MazeRowCol rc);
+	void drawCell(MazeRowCol rc, int sizefactor = 0);
 	void setSize(int nrows, int ncols, int cellxsize, int cellysize);
+	void setup();
 	MazeBall* addBall(MazePoint xy, MazePoint dxy, int born, int lifetime);
 	void addBorder();
+	MazeRowCol randRowCol();
+	MazePoint randDelta();
 
 	VizMazeCellData* m_celldata;
 	NosuchMaze* m_maze;
