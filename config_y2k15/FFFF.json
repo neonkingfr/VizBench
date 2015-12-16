@@ -1,0 +1,33 @@
+{
+  # "ffglpath": "ffglplugins",
+  # "ff10path": "ff10plugins",
+  "ffglpath": "ffglplugins;ffglplugins_resolume;ffglplugins_loopycam",
+  "ff10path": "ff10plugins;ff10plugins_pete;ff10plugins_loopycam",
+
+  # "window_x": 50,
+  # "window_y": 50,
+  # "window_width": 800,
+  # "window_height": 600,
+  # "window_width": 1620,
+  # "window_height": 1080,
+
+  "window_x": 0,
+  "window_y": 0,
+  # "window_width": 1024,
+  # "window_height": 768,
+
+  "window_width": 800,
+  "window_height": 600,
+  # "window_width": 2560,
+  # "window_height": 1440,
+
+  # "window_width": 1920,
+  # "window_height": 1600,
+
+  "showfps": 0,
+  "trail_enable": 0,
+  "trail_amount": 0.90,
+  "camera": -1,    # a value of -1 disables the camera input
+# "camera": 1,  # the index of the camera, given to cvCreateCameraCapture
+  "foo": 0
+}

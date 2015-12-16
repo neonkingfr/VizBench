@@ -130,7 +130,7 @@ int ffffMain(std::string config, bool fullscreen)
 	glfwSetTime(0.0);
 
 	std::string err;
-	std::string fname = VizPath("config\\FFFF.json");
+	std::string fname = VizConfigPath("FFFF.json");
 	cJSON* j = jsonReadFile(fname, err);
 	if (!j) {
 		DEBUGPRINT(("Hey!  Error in reading JSON from %s!  err=%s", fname.c_str(), err.c_str()));
@@ -180,8 +180,8 @@ int ffffMain(std::string config, bool fullscreen)
 	int window_width = jsonNeedInt(j, "window_width", 800);
 	int window_height = jsonNeedInt(j, "window_height", 600);
 
-	int window_x = jsonNeedInt(j, "window_x", 100);
-	int window_y = jsonNeedInt(j, "window_y", 100);
+	int window_x = jsonNeedInt(j, "window_x", 0);
+	int window_y = jsonNeedInt(j, "window_y", 0);
 
 	int ffgl_width = window_width;
 	int ffgl_height = window_height;

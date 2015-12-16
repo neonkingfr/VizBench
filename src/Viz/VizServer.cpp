@@ -1138,8 +1138,7 @@ VizServer::Start() {
 		NosuchErrorPopup = NULL;
 	}
 	try {
-		std::string configfile = "config/vizserver.json";
-		std::string configpath = VizPath(configfile);
+		std::string configpath = VizConfigPath("vizserver.json");
 		DEBUGPRINT1(("configpath = %s", configpath.c_str()));
 
 		cJSON* json = _readconfig(configpath.c_str());

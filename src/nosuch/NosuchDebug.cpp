@@ -318,5 +318,9 @@ SetVizPath(std::string vb) {
 std::string
 VizConfigPath(std::string filepath)
 {
-	return VizPath("config") + "\\" + filepath;
+	char* v = getenv("VIZCONFIG");
+	if (v == NULL) {
+		v = "config_default";
+	}
+	return VizPath(v) + "\\" + filepath;
 }

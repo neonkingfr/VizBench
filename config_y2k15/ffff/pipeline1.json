@@ -1,0 +1,21 @@
+{
+"pipeline": [
+	{
+		"plugin": "VizExample1",
+		"params": {
+		}
+	}
+,
+	{
+		"plugin": "VizExample2",
+		"params": {
+		}
+	}
+# ,
+# 	{
+# 		"plugin": "Threshhold",
+# 		"params": {
+# 		}
+# 	}
+]
+}
