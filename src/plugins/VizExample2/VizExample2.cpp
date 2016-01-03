@@ -24,9 +24,9 @@ public:
 	bool processDraw();
 
 private:
-	AllVizParams* m_midiparams;
-	AllVizParams* m_cursorparams;
-	AllVizParams* m_apiparams;
+	SpriteVizParams* m_midiparams;
+	SpriteVizParams* m_cursorparams;
+	SpriteVizParams* m_apiparams;
 };
 
 static CFFGLPluginInfo PluginInfo ( 
@@ -48,13 +48,13 @@ CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
 VizExample2::VizExample2() : Vizlet() {
 
 	// Set up different parameters for each type of Sprite
-	m_cursorparams = new AllVizParams();
+	m_cursorparams = new SpriteVizParams();
 	m_cursorparams->shape.set("circle");
 
-	m_midiparams = new AllVizParams();
+	m_midiparams = new SpriteVizParams();
 	m_midiparams->shape.set("square");
 
-	m_apiparams = new AllVizParams();
+	m_apiparams = new SpriteVizParams();
 	m_apiparams->shape.set("triangle");
 }
 

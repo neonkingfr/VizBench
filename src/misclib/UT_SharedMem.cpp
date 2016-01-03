@@ -205,7 +205,7 @@ UT_SharedMem::createSharedMem()
 		return true;
 
 #ifdef WIN32 
-    myMapping = CreateFileMapping(INVALID_HANDLE_VALUE, 
+    myMapping = CreateFileMappingA(INVALID_HANDLE_VALUE, 
 		    						  NULL,
 		    						  PAGE_READWRITE,
 								  0,
@@ -236,7 +236,7 @@ UT_SharedMem::openSharedMem()
     createName();
 #ifdef WIN32 
     // myMapping = OpenFileMapping( FILE_MAP_ALL_ACCESS, FALSE, s2ws(myName).c_str());
-    myMapping = OpenFileMapping( FILE_MAP_ALL_ACCESS, FALSE, myName);
+    myMapping = OpenFileMappingA( FILE_MAP_ALL_ACCESS, FALSE, myName);
 #else
     assert(false);
 #endif 

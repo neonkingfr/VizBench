@@ -26,7 +26,7 @@ VizLife::VizLife() : Vizlet(), LifeListener() {
 	m_savedkey = 0;
 	m_savedrow = m_savedcol = -1;
 	m_params = defaultParams();
-	m_cellparams = new AllVizParams();
+	m_cellparams = new SpriteVizParams();
 	m_gen = 0;
 	m_doage = false;
 	m_cellseq = 0;

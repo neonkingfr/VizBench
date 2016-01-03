@@ -420,7 +420,7 @@ NosuchMaze::addLine(MazeRowCol rc0, MazeRowCol rc1) {
 	}
 }
 
-static int round(double number)
+static int myround(double number)
 {
     double d = number < 0.0f ? ceil(number - 0.5f) : floor(number + 0.5f);
 	return (int)d;
@@ -429,8 +429,8 @@ static int round(double number)
 #if 0
 static MazeRowCol
 NosuchMaze::xy2rc(double x, double y) {
-	int c1 = round( (x * m_ncols) - 0.5);
-	int r1 = round((y * m_nrows) - 0.5);
+	int c1 = myround( (x * m_ncols) - 0.5);
+	int r1 = myround((y * m_nrows) - 0.5);
 	return MazeRowCol(r1, c1);
 }
 #endif

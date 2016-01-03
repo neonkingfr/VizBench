@@ -29,14 +29,13 @@ private:
 
 	struct paramsfile_info {
 		int channel;			// 0 means unused, otherwise 1-16
-		AllVizParams* params;
-		std::string paramsfile;
-		std::string paramspath;
+		SpriteVizParams* params;
+		std::string paramsfname;
 		std::time_t lastfileupdate;
 		std::time_t lastfilecheck;
 	};
 
-	bool _loadParamsFile(std::string file, VizMidi4::paramsfile_info& spriteinfo);
+	bool _loadSpriteVizParamsFile(std::string fname, VizMidi4::paramsfile_info& spriteinfo);
 	VizSprite* _midiVizNoteOnSprite(MidiMsg* m);
 	std::string _set_params_on(int n, cJSON* json, const char* id);
 	std::string _set_params_off(int n, cJSON* json, const char* id);

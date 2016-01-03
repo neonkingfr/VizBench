@@ -18,7 +18,7 @@ std::string vizlet_name() { return "VizExample3"; }
 CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
 
 VizExample3::VizExample3() : Vizlet() {
-	m_params = new AllVizParams();
+	m_params = new SpriteVizParams();
 }
 
 VizExample3::~VizExample3() {
@@ -46,10 +46,9 @@ std::string VizExample3::processJson(std::string meth, cJSON *json, const char *
 		if (file == "") {
 			return jsonError(-32000, "Bad file value", id);
 		}
-		std::string path = VizParamPath(file);
-		AllVizParams* p = getAllVizParams(path);
+		SpriteVizParams* p = getSpriteVizParams(file);
 		if (p) {
-			m_spriteparams = path;
+			m_spriteparams = file;
 			m_params = p;
 		}
 		return jsonOK(id);

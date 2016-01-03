@@ -30,6 +30,8 @@
 
 #include <string>
 
+#include "NosuchException.h"
+
 extern int NosuchDebugLevel;
 extern bool NosuchDebugToConsole;
 extern bool NosuchDebugToLog;
@@ -53,8 +55,10 @@ void NosuchDebug(int level, char const *fmt, ... );
 void NosuchErrorOutput(const char *fmt, ...);
 std::string NosuchForwardSlash(std::string filepath);
 void SetVizPath(std::string path);
-std::string VizConfigPath(std::string file);
+std::string VizConfigPath(std::string f1 = "", std::string f2 = "", std::string f3 = "");
 std::string VizPath(std::string fname);
+std::string SpriteVizParamsPath(std::string f);
+std::string PluginParamsPath(std::string f);
 
 #define DBGLEVEL 0
 

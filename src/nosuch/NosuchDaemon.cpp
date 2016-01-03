@@ -83,24 +83,32 @@ NosuchDaemon::NosuchDaemon(
 
 NosuchDaemon::~NosuchDaemon()
 {
+	if (m_httpserver) {
+		DEBUGPRINT(("About to shutdown httpserver in NosuchDaemon"));
+		// XXXX - there probably needs to be better locking here.
+		m_httpserver->SetShouldBeShutdown(true);
+		while (m_httpserver!=NULL) {
+			Sleep(1);
+		}
+		DEBUGPRINT(("After shutting down httpserver in NosuchDaemon"));
+	}
+
+	if ( m_oscinput ) {
+		DEBUGPRINT(("About to UnListen on m_oscinput in NosuchDaemon"));
+		m_oscinput->UnListen();
+		DEBUGPRINT(("After UnListen on m_oscinput in NosuchDaemon"));
+		delete m_oscinput;
+		m_oscinput = NULL;
+		DEBUGPRINT(("After deleting m_oscinput in NosuchDaemon"));
+	}
+
+	DEBUGPRINT(("About to shutdown network thread in NosuchDaemon"));
 	daemon_shutting_down = true;
 	if ( m_network_thread_created ) {
 		// pthread_detach(_network_thread);
 		pthread_join(_network_thread,NULL);
 	}
 
-	NosuchAssert(m_httpserver != NULL);
-
-	DEBUGPRINT(("About to delete httpserver in NosuchDaemon"));
-	delete m_httpserver;
-	DEBUGPRINT(("After deleting httpserver in NosuchDaemon"));
-	m_httpserver = NULL;
-
-	if ( m_oscinput ) {
-		m_oscinput->UnListen();
-		delete m_oscinput;
-		m_oscinput = NULL;
-	}
 }
 
 void
@@ -127,7 +135,6 @@ void *NosuchDaemon::network_input_threadfunc(void *arg)
 		}
 		if ( m_httpserver ) {
 			if ( m_httpserver->ShouldBeShutdown() ) {
-				m_httpserver->Shutdown();
 				delete m_httpserver;
 				m_httpserver = NULL;
 			} else {

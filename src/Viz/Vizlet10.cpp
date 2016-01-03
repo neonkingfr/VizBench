@@ -120,7 +120,7 @@ Vizlet10::Vizlet10() {
 	DEBUGPRINT1(("--- Vizlet10 constructor, dll_pathname=%s",dll_pathname().c_str()));
 
 	VizParams::Initialize();
-	m_defaultparams = new AllVizParams();
+	m_defaultparams = new SpriteVizParams();
 	m_useparamcache = false;
 	m_callbacksInitialized = false;
 	m_passthru = true;
@@ -559,17 +559,17 @@ std::string Vizlet10::processJsonAndCatchExceptions(std::string meth, cJSON *par
 	return r;
 }
 
-AllVizParams*
-Vizlet10::findAllVizParams(std::string cachename) {
-	std::map<std::string,AllVizParams*>::iterator it = m_paramcache.find(cachename);
+SpriteVizParams*
+Vizlet10::findSpriteVizParams(std::string cachename) {
+	std::map<std::string,SpriteVizParams*>::iterator it = m_paramcache.find(cachename);
 	if ( it == m_paramcache.end() ) {
 		return NULL;
 	}
 	return it->second;
 }
 
-AllVizParams*
-readVizParams(std::string path) {
+SpriteVizParams*
+readSpriteVizParams(std::string path) {
 	std::string err;
 	cJSON* json = jsonReadFile(path,err);
 	if ( !json ) {
@@ -577,7 +577,7 @@ readVizParams(std::string path) {
 			path.c_str(),err.c_str()));
 		return NULL;
 	}
-	AllVizParams* s = new AllVizParams();
+	SpriteVizParams* s = new SpriteVizParams();
 	s->loadJson(json);
 	// XXX - should json be freed, here?
 	return s;
@@ -596,20 +596,12 @@ Vizlet10::VizPath2ConfigName(std::string path) {
 	return(path);
 }
 
-std::string
-Vizlet10::VizParamPath(std::string configname) {
-	if (!NosuchEndsWith(configname, ".json")) {
-		configname += ".json";
-	}
-	return VizConfigPath("params\\"+configname);
-}
-
-AllVizParams*
-Vizlet10::getAllVizParams(std::string path) {
+SpriteVizParams*
+Vizlet10::getSpriteVizParams(std::string path) {
 	if (m_useparamcache) {
-		std::map<std::string, AllVizParams*>::iterator it = m_paramcache.find(path);
+		std::map<std::string, SpriteVizParams*>::iterator it = m_paramcache.find(path);
 		if (it == m_paramcache.end()) {
-			m_paramcache[path] = readVizParams(path);
+			m_paramcache[path] = readSpriteVizParams(path);
 			return m_paramcache[path];
 		}
 		else {
@@ -617,12 +609,13 @@ Vizlet10::getAllVizParams(std::string path) {
 		}
 	}
 	else {
-		return readVizParams(path);
+		return readSpriteVizParams(path);
 	}
 }
 
-AllVizParams*
-Vizlet10::checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, std::time_t& lastupdate) {
+SpriteVizParams*
+Vizlet10::checkSpriteVizParamsAndLoadIfModifiedSince(std::string fname, std::time_t& lastcheck, std::time_t& lastupdate) {
+	std::string path = SpriteVizParamsPath(fname);
 	std::time_t throttle = 1;  // don't check more often than this number of seconds
 	std::time_t tm = time(0);
 	if ((tm - lastcheck) < throttle) {
@@ -637,7 +630,7 @@ Vizlet10::checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, 
 	if (lastupdate == statbuff.st_mtime) {
 		return NULL;
 	}
-	AllVizParams* p = getAllVizParams(path);
+	SpriteVizParams* p = getSpriteVizParams(path);
 	if (!p) {
 		throw NosuchException("Bad params file? path=%s", path.c_str());
 	}

@@ -122,7 +122,7 @@ Vizlet::Vizlet() {
 
 	VizParams::Initialize();
 
-	m_defaultparams = new AllVizParams();
+	m_defaultparams = new SpriteVizParams();
 	m_useparamcache = false;
 
 	m_callbacksInitialized = false;
@@ -750,25 +750,26 @@ std::string Vizlet::processJsonAndCatchExceptions(std::string meth, cJSON *param
 	return r;
 }
 
-AllVizParams*
-Vizlet::findAllVizParams(std::string cachename) {
-	std::map<std::string,AllVizParams*>::iterator it = m_paramcache.find(cachename);
+SpriteVizParams*
+Vizlet::findSpriteVizParams(std::string cachename) {
+	std::map<std::string,SpriteVizParams*>::iterator it = m_paramcache.find(cachename);
 	if ( it == m_paramcache.end() ) {
 		return NULL;
 	}
 	return it->second;
 }
 
-AllVizParams*
-readVizParams(std::string path) {
+SpriteVizParams*
+readSpriteVizParams(std::string fname) {
 	std::string err;
+	std::string path = SpriteVizParamsPath(fname);
 	cJSON* json = jsonReadFile(path,err);
 	if ( !json ) {
-		DEBUGPRINT(("Unable to load vizlet params: path=%s, err=%s",
-			path.c_str(),err.c_str()));
+		DEBUGPRINT(("Unable to load sprite params: fname=%s path=%s, err=%s",
+			fname.c_str(),path.c_str(),err.c_str()));
 		return NULL;
 	}
-	AllVizParams* p = new AllVizParams();
+	SpriteVizParams* p = new SpriteVizParams();
 	p->loadJson(json);
 	// XXX - should json be freed, here?
 	return p;
@@ -787,33 +788,28 @@ Vizlet::VizPath2ConfigName(std::string path) {
 	return(path);
 }
 
-std::string
-Vizlet::VizParamPath(std::string configname) {
-	if (!NosuchEndsWith(configname, ".json")) {
-		configname += ".json";
-	}
-	return VizConfigPath("params\\"+configname);
-}
-
-AllVizParams*
-Vizlet::getAllVizParams(std::string path) {
+SpriteVizParams*
+Vizlet::getSpriteVizParams(std::string fname) {
 	if (m_useparamcache) {
-		std::map<std::string, AllVizParams*>::iterator it = m_paramcache.find(path);
+		std::map<std::string, SpriteVizParams*>::iterator it = m_paramcache.find(fname);
 		if (it == m_paramcache.end()) {
-			m_paramcache[path] = readVizParams(path);
-			return m_paramcache[path];
+			m_paramcache[fname] = readSpriteVizParams(fname);
+			return m_paramcache[fname];
 		}
 		else {
 			return it->second;
 		}
 	}
 	else {
-		return readVizParams(path);
+		return readSpriteVizParams(fname);
 	}
 }
 
-AllVizParams*
-Vizlet::checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, std::time_t& lastupdate) {
+SpriteVizParams*
+Vizlet::checkSpriteVizParamsAndLoadIfModifiedSince(std::string fname, std::time_t& lastcheck, std::time_t& lastupdate) {
+
+	std::string path = SpriteVizParamsPath(fname);
+
 	std::time_t throttle = 1;  // don't check more often than this number of seconds
 	std::time_t tm = time(0);
 	if ((tm - lastcheck) < throttle) {
@@ -829,9 +825,9 @@ Vizlet::checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, st
 		return NULL;
 	}
 	// DEBUGPRINT(("Check and Load this=%ld", (long)this));
-	AllVizParams* p = getAllVizParams(path);
+	SpriteVizParams* p = getSpriteVizParams(fname);
 	if (!p) {
-		throw NosuchException("Bad params file? path=%s", path.c_str());
+		throw NosuchException("Bad params file? fname=%s", fname.c_str());
 	}
 	lastupdate = statbuff.st_mtime;
 	return p;
@@ -839,14 +835,14 @@ Vizlet::checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, st
 
 
 VizSprite*
-Vizlet::makeAndAddVizSprite(AllVizParams* p, NosuchPos pos) {
+Vizlet::makeAndAddVizSprite(SpriteVizParams* p, NosuchPos pos) {
 		VizSprite* s = makeAndInitVizSprite(p,pos);
 		AddVizSprite(s);
 		return s;
 }
 
 VizSprite*
-Vizlet::makeAndInitVizSprite(AllVizParams* params, NosuchPos pos) {
+Vizlet::makeAndInitVizSprite(SpriteVizParams* params, NosuchPos pos) {
 	VizSprite* s = VizSprite::makeVizSprite(params);
 	s->m_framenum = FrameNum();
 	s->initVizSpriteState(GetTime(),Handle(),pos,params);
@@ -860,7 +856,7 @@ Vizlet::channelColor(int ch) {
 }
 
 #if 0
-double Vizlet::movedirDegrees(AllVizParams* p) {
+double Vizlet::movedirDegrees(SpriteVizParams* p) {
 
 	if ( p->movedirrandom.get() ) {
 		double f = ((double)(rand()))/ RAND_MAX;

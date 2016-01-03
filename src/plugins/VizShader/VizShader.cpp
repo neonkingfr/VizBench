@@ -151,7 +151,7 @@ VizShader::VizShader():Vizlet()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 bool VizShader::ReadAndLoadShader(std::string filename) {
 	std::string err = "";
-	std::string path = VizConfigPath("shaders\\"+filename);
+	std::string path = VizConfigPath("shaders",filename);
 	if ( ! NosuchEndsWith(path,".shader") ) {
 		path += ".shader";
 	}

@@ -59,8 +59,8 @@ private:
 	void SetSize(int rows, int cols);
 
 	// Put private things here.
-	AllVizParams* m_params;
-	AllVizParams* m_cellparams;
+	SpriteVizParams* m_params;
+	SpriteVizParams* m_cellparams;
 	NosuchLife* m_life;
 	LifeCellData* m_data;
 	float m_deepestdepth;

@@ -27,7 +27,7 @@
 
 #include "NosuchUtil.h"
 #include <VizServer.h>
-#include <AllVizParams.h>
+#include <SpriteVizParams.h>
 #include <NosuchUtil.h>
 #include <NosuchJSON.h>
 #include <NosuchException.h>
@@ -343,9 +343,9 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 		DEBUGPRINT(("VizServer API meth=%s params=%s", fullmethod.c_str(),p));
 		cJSON_free(p);
 	}
-	static AllVizParams* allparams = NULL;
+	static SpriteVizParams* allparams = NULL;
 	if (allparams == NULL) {
-		allparams = new AllVizParams();
+		allparams = new SpriteVizParams();
 	}
 
 	if (fullmethod == "viztags" || fullmethod == "apitags") {  // apitags is deprecated, retained for compatibility
@@ -395,53 +395,47 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 			ss->ClearNotesDown();
 			return jsonOK(id);
 		}
-		if (api == "param_vals") {
+		if (api == "param_vals" || api == "spriteparam_vals") {
 			std::string s = allparams->JsonListOfValues();
 			return jsonStringResult(s, id);
 		}
-		if (api == "param_stringvals") {
+		if (api == "param_stringvals" || api == "spriteparam_stringvals") {
 			std::string type = jsonNeedString(params, "type", "");
 			if (type == ""){
-				return jsonError(-32000, "No type parameter specified on param_stringvals?", id);
+				return jsonError(-32000, "No type parameter specified on spriteparam_stringvals?", id);
 			}
 			std::string s = allparams->JsonListOfStringValues(type);
 			return jsonStringResult(s, id);
 		}
-		if (api == "param_list") {
+		if (api == "param_list" || api == "spriteparam_list") {
 			std::string s = allparams->JsonListOfParams();
 			return jsonStringResult(s, id);
 		}
-		if (api == "param_readfile") {
+		if (api == "param_readfile" || api == "spriteparam_readfile") {
 			std::string file = jsonNeedString(params, "paramfile", "");
 			if (file != "") {
-				if (!NosuchEndsWith(file, ".json")) {
-					file = file + ".json";
-				}
-				std::string fpath = VizConfigPath("params\\" + file);
+				std::string fpath = SpriteVizParamsPath(file);
 
 				std::string err;
 				cJSON* json = jsonReadFile(fpath, err);
 				if (!json){
-					throw NosuchException("Unable to read json from paramfile=%s err=%s", file.c_str(), err.c_str());
+					throw NosuchException("Unable to read json from paramfile=%s err=%s", fpath.c_str(), err.c_str());
 				}
 				// std::string r = cJSON_escapestring(cJSON_PrintUnformatted(json));
 				std::string r = cJSON_PrintUnformatted(json);
 				return jsonStringResult(r, id);
 			}
 			else {
-				return jsonError(-32000, "No file parameter specified on param_readfile?", id);
+				return jsonError(-32000, "No file parameter specified on spriteparam_readfile?", id);
 			}
 		}
-		if (api == "param_writefile") {
+		if (api == "param_writefile" || api == "spriteparam_writefile") {
 			std::string file = jsonNeedString(params, "paramfile", "");
 			if (file == "") {
-				return jsonError(-32000, "No file parameter specified on param_readfile?", id);
-			}
-			if (!NosuchEndsWith(file, ".json")) {
-				file = file + ".json";
+				return jsonError(-32000, "No file parameter specified on spriteparam_writefile?", id);
 			}
 			cJSON* j = jsonNeedJSON(params, "contents");
-			std::string fpath = VizConfigPath("params\\" + file);
+			std::string fpath = SpriteVizParamsPath(file);
 			std::string err;
 			if (jsonWriteFile(fpath, j, err)) {
 				return jsonOK(id);
@@ -831,7 +825,7 @@ VizServer::VizServer() {
 	m_debugApi = false;
 	m_mmtt_seqnum = 0;
 	m_htmlpath = _strdup(VizPath("html").c_str());
-	m_midifile = "";
+	m_midifile = "jsbach.mid";
 	m_midioutput = -1;
 
 	// m_jsonprocessor = NULL;

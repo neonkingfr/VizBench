@@ -16,11 +16,14 @@ NosuchOscTcpInput::NosuchOscTcpInput(std::string host, int port, NosuchOscListen
 
 NosuchOscTcpInput::~NosuchOscTcpInput() {
 	delete m_oscmsg;
+	m_oscmsg = NULL;
 	delete mi_Socket;
+	mi_Socket = NULL;
 }
 
 int
 NosuchOscTcpInput::Listen() {
+	NosuchAssert(mi_Socket);
     mi_Socket->Listen(0, m_myport, 0, 0);
     return 0;
 }
@@ -34,6 +37,7 @@ NosuchOscTcpInput::Check()
     DWORD u32_Event, u32_IP, u32_Read, u32_Sent;
 	USHORT u16_Port_source;
 
+	NosuchAssert(mi_Socket);
     DWORD u32_Err = mi_Socket->ProcessEvents(&u32_Event, &u32_IP,
 		&u16_Port_source, &h_Socket, &h_connection,
 		&recvMem, &u32_Read,  &u32_Sent);
@@ -170,6 +174,8 @@ NosuchOscTcpInput::ProcessOneOscMessage( const char *source, NosuchSocketMemory*
 void
 NosuchOscTcpInput::UnListen()
 {
+	NosuchAssert(mi_Socket);
     mi_Socket->Close();
+	mi_Socket = NULL;
 }
 

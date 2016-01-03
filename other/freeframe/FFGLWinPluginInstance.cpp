@@ -34,7 +34,7 @@ DWORD FFGLWinPluginDef::Load(const char *fname)
 
 	std::wstring wfname = s2ws(fname);
     // m_ffModule = LoadLibrary(wfname.c_str());
-    m_ffModule = LoadLibrary(fname);
+    m_ffModule = LoadLibraryA(fname);
 	DEBUGPRINT(("FFGLPluginDef Load fname=%s",fname));
     if (m_ffModule==NULL) {
 		long err = GetLastError();

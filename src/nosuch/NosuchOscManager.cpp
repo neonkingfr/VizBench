@@ -18,7 +18,6 @@ NosuchOscManager::NosuchOscManager(NosuchOscListener* server, std::string host, 
 	m_tcp = NULL;
 	m_udp = new NosuchOscUdpInput(host,port,server);
 	m_shouldbeshutdown = false;
-	m_shutdowncomplete = false;
 }
 
 NosuchOscManager::~NosuchOscManager() {
@@ -32,11 +31,6 @@ void
 NosuchOscManager::Shutdown() {
 	DEBUGPRINT(("NosuchOscManager::Shutdown called, closing listening_socket"));
 	UnListen();
-	m_shutdowncomplete = true;
-}
-
-bool NosuchOscManager::IsShutdownComplete() {
-	return m_shutdowncomplete;
 }
 
 bool NosuchOscManager::ShouldBeShutdown() {
@@ -46,7 +40,6 @@ bool NosuchOscManager::ShouldBeShutdown() {
 void
 NosuchOscManager::SetShouldBeShutdown(bool b) {
 	m_shouldbeshutdown = b;
-	m_shutdowncomplete = false;
 }
 
 void

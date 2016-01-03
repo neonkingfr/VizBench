@@ -50,9 +50,6 @@ public:
 	void CloseWebSocket(NosuchSocketConnection *kd);
 	void WebSocketMessage(NosuchSocketConnection *kdata, std::string msg);
 	void SendAllWebSocketClients(std::string msg);
-	void Shutdown();
-	void SetShutdownComplete(bool);
-	bool IsShutdownComplete();
 	void SetShouldBeShutdown(bool);
 	bool ShouldBeShutdown();
 
@@ -66,7 +63,6 @@ private:
 	NosuchSocket* m_listening_socket;
 	std::string m_htmldir;
 	bool m_shouldbeshutdown;
-	bool m_shutdowncomplete;
 	int m_port;
 };
 

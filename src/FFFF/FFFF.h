@@ -43,7 +43,7 @@ class FFFF : public NosuchJsonListener, NosuchOscListener {
 public:
 	FFFF( );
 	static void ErrorPopup(const char* msg);
-	void StartStuff();
+	bool StartStuff();
 	void StopStuff();
 
 	// submitJson gets called from a different thread than the thread that calls

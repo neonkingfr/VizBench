@@ -35,9 +35,9 @@
 
 #define RANDDOUBLE (((double)rand())/RAND_MAX)
 
-VizSprite::VizSprite(AllVizParams* sp) {
+VizSprite::VizSprite(SpriteVizParams* sp) {
 	// create a copy, since the params may change
-	m_params = new AllVizParams();  // loads it with default values
+	m_params = new SpriteVizParams();  // loads it with default values
 	m_params->applyVizParamsFrom(sp);
 	m_framenum = 0;
 	m_data = 0;
@@ -438,7 +438,7 @@ VizSpriteList::advanceTo(double tm) {
 	unlock();
 }
 
-VizSpriteSquare::VizSpriteSquare(AllVizParams* sp) : VizSprite(sp) {
+VizSpriteSquare::VizSpriteSquare(SpriteVizParams* sp) : VizSprite(sp) {
 	m_noise_x0 = vertexNoise();
 	m_noise_y0 = vertexNoise();
 	m_noise_x1 = vertexNoise();
@@ -465,7 +465,7 @@ void VizSpriteSquare::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
 	graphics->quad(x0, y0, x1, y1, x2, y2, x3, y3);
 }
 
-VizSpriteHbar::VizSpriteHbar(AllVizParams* sp) : VizSprite(sp) {
+VizSpriteHbar::VizSpriteHbar(SpriteVizParams* sp) : VizSprite(sp) {
 	m_noise_x0 = vertexNoise();
 	m_noise_y0 = vertexNoise();
 	m_noise_x1 = vertexNoise();
@@ -492,7 +492,7 @@ void VizSpriteHbar::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
 	graphics->quad(x0, y0, x1, y1, x2, y2, x3, y3);
 }
 
-VizSpriteTriangle::VizSpriteTriangle(AllVizParams* sp) : VizSprite(sp) {
+VizSpriteTriangle::VizSpriteTriangle(SpriteVizParams* sp) : VizSprite(sp) {
 	m_noise_x0 = vertexNoise();
 	m_noise_y0 = vertexNoise();
 	m_noise_x1 = vertexNoise();
@@ -516,7 +516,7 @@ void VizSpriteTriangle::drawShape(NosuchGraphics* graphics, int xdir, int ydir) 
 		p3.x + m_noise_x2*sz, p3.y + m_noise_y2*sz, xdir, ydir);
 }
 
-VizSpriteLine::VizSpriteLine(AllVizParams* sp) : VizSprite(sp) {
+VizSpriteLine::VizSpriteLine(SpriteVizParams* sp) : VizSprite(sp) {
 	m_noise_x0 = vertexNoise();
 	m_noise_y0 = vertexNoise();
 	m_noise_x1 = vertexNoise();
@@ -533,20 +533,20 @@ void VizSpriteLine::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
 	graphics->line(x0 + m_noise_x0, y0 + m_noise_y0, x1 + m_noise_x1, y1 + m_noise_y1);
 }
 
-VizSpriteCircle::VizSpriteCircle(AllVizParams* sp) : VizSprite(sp) {
+VizSpriteCircle::VizSpriteCircle(SpriteVizParams* sp) : VizSprite(sp) {
 }
 
 void VizSpriteCircle::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
 	graphics->ellipse(0, 0, 0.2f, 0.2f);
 }
 
-VizSpriteNothing::VizSpriteNothing(AllVizParams* sp) : VizSprite(sp) {
+VizSpriteNothing::VizSpriteNothing(SpriteVizParams* sp) : VizSprite(sp) {
 }
 
 void VizSpriteNothing::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
 }
 
-VizSpriteOutline::VizSpriteOutline(AllVizParams* sp) : VizSprite(sp) {
+VizSpriteOutline::VizSpriteOutline(SpriteVizParams* sp) : VizSprite(sp) {
 	m_npoints = 0;
 	m_points = NULL;
 }
@@ -574,7 +574,7 @@ VizSpriteOutline::~VizSpriteOutline() {
 }
 
 VizSprite*
-VizSprite::makeVizSprite(AllVizParams* sp)
+VizSprite::makeVizSprite(SpriteVizParams* sp)
 {
 	std::string shape = sp->shape;
 	VizSprite* s = NULL;
@@ -629,7 +629,7 @@ int rotangdirOf(std::string s) {
 	return dir;
 }
 
-void VizSprite::initVizSpriteState(double tm, void* handle, NosuchPos& pos, AllVizParams* p, bool doinitial) {
+void VizSprite::initVizSpriteState(double tm, void* handle, NosuchPos& pos, SpriteVizParams* p, bool doinitial) {
 
 	double movedir;
 	if (p->movedirrandom.get()) {

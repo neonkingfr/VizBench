@@ -51,30 +51,33 @@ NosuchHttpServer::NosuchHttpServer(NosuchJsonListener* jproc, int port, std::str
 	// of the local host, so we set h=0
 	DWORD h = 0;
 	m_shouldbeshutdown = false;
-	m_shutdowncomplete = false;
-	m_listening_socket->Listen(h, port, timeout, idletime);
+	DWORD err = m_listening_socket->Listen(h, port, timeout, idletime);
+	if (err != 0) {
+		std::string msg;
+		if (err == WSAEADDRINUSE) {
+			msg = NosuchSnprintf("NosuchHttpServer: unable to listen on port %d, it's already in use", port);
+		}
+		else {
+			msg = NosuchSnprintf("NosuchHttpServer: unable to listen on port %d, err=%ld",port,err);
+		}
+		NosuchErrorOutput(msg.c_str());
+		throw NosuchException(msg.c_str());
+	}
 	DEBUGPRINT(("Listening for HTTP on TCP port %d\n", m_port));
 }
 
 NosuchHttpServer::~NosuchHttpServer() {
-	DEBUGPRINT(("Deleting m_listening_socket for HTTP on TCP port %ld socket=%ld", (long)m_port,(long)m_listening_socket));
-	delete m_listening_socket;
-	m_listening_socket = NULL;
-	DEBUGPRINT(("After deleting socket for HTTP on TCP port %d", (long)m_port));
+	if (m_listening_socket) {
+		DEBUGPRINT(("In NosuchHttpServer destructor, deleting m_listening_socket for HTTP on TCP port %ld socket=%ld", (long)m_port,(long)m_listening_socket));
+		delete m_listening_socket;
+		m_listening_socket = NULL;
+		DEBUGPRINT(("After deleting socket for HTTP on TCP port %d", (long)m_port));
+	}
 }
 
-void NosuchHttpServer::Shutdown() {
-	DEBUGPRINT(("NosuchHttpServer::Shutdown called, closing listening_socket"));
-	m_listening_socket->Close();
-	DEBUGPRINT(("NosuchHttpServer::Shutdown is NOT deleting _listening_socket = %ld", (long)m_listening_socket));
-	// delete _listening_socket;
-	// _listening_socket = NULL;
-	m_shutdowncomplete = true;
-}
-
-bool NosuchHttpServer::IsShutdownComplete() {
-	return m_shutdowncomplete;
-}
+// void NosuchHttpServer::Shutdown() {
+// 	m_shutdowncomplete = true;
+// }
 
 bool NosuchHttpServer::ShouldBeShutdown() {
 	return m_shouldbeshutdown;
@@ -83,7 +86,6 @@ bool NosuchHttpServer::ShouldBeShutdown() {
 void
 NosuchHttpServer::SetShouldBeShutdown(bool b) {
 	m_shouldbeshutdown = b;
-	m_shutdowncomplete = false;
 }
 
 bool

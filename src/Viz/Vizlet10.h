@@ -16,7 +16,7 @@
 #include "NosuchHttpServer.h"
 // #include "VizSprite.h"
 #include "VizParams.h"
-#include "AllVizParams.h"
+#include "SpriteVizParams.h"
 #include "VizServer.h"
 #include <ctime>
 
@@ -27,9 +27,6 @@ class MMTT_SharedMemHeader;
 
 struct PointMem;
 struct OutlineMem;
-
-#define DEFAULT_RESOLUME_PORT 7000
-#define DEFAULT_PYFFLE_PORT 9876
 
 #define MAGIC_VAL_FOR_OVERRIDE_PARAMS -2
 #define MAGIC_VAL_FOR_PALETTE_PARAMS -1
@@ -111,23 +108,21 @@ public:
 	// void AddVizSprite(VizSprite* s);
 	// void DrawVizSprites();
 	// VizSpriteList* GetVizSpriteList() { return m_spritelist; }
-	// VizSprite* MakeVizSprite(AllVizParams* sp);
+	// VizSprite* MakeVizSprite(SpriteVizParams* sp);
 
-	std::string VizParamPath(std::string configname);
 	std::string VizPath2ConfigName(std::string path);
-	AllVizParams* getAllVizParams(std::string path);
-	AllVizParams* findAllVizParams(std::string cachename);
-	AllVizParams* checkAndLoadIfModifiedSince(std::string path, std::time_t& lastcheck, std::time_t& lastupdate);
+	SpriteVizParams* getSpriteVizParams(std::string path);
+	SpriteVizParams* findSpriteVizParams(std::string cachename);
+	SpriteVizParams* checkSpriteVizParamsAndLoadIfModifiedSince(std::string fname, std::time_t& lastcheck, std::time_t& lastupdate);
 
 	// VizSprite* defaultMidiVizSprite(MidiMsg* m);
 
-	AllVizParams* defaultParams() { return m_defaultparams; }
+	SpriteVizParams* defaultParams() { return m_defaultparams; }
 
 	void SetDefaults();
 
 	std::string HtmlDir();
 	std::string ParamConfigDir();
-	std::string ConfigFileName(std::string name);
 
 	std::string processJsonAndCatchExceptions(std::string meth, cJSON *params, const char *id);
 	static bool checkAddrPattern(const char *addr, char *patt);
@@ -210,7 +205,7 @@ protected:
 
 	double defaultMovedir();
 
-	// double movedirDegrees(AllVizParams* p);
+	// double movedirDegrees(SpriteVizParams* p);
 	NosuchColor channelColor(int ch);
 
 private:
@@ -250,10 +245,10 @@ private:
 
 	// VizSpriteList* m_spritelist;
 
-	AllVizParams* m_defaultparams;
-	AllVizParams* m_defaultmidiparams;
+	SpriteVizParams* m_defaultparams;
+	SpriteVizParams* m_defaultmidiparams;
 	bool m_useparamcache;
-	std::map<std::string, AllVizParams*> m_paramcache;
+	std::map<std::string, SpriteVizParams*> m_paramcache;
 
 #define DISPLEN 128
 	char m_disp[DISPLEN];

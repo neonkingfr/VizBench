@@ -429,7 +429,7 @@ void loadffgldir(std::string ffgldir)
 	std::string pathexpr = ffgldir + "\\*";
 	std::wstring wpath = s2ws(pathexpr);
 
-	hFind = FindFirstFile(pathexpr.c_str(), &ffd);
+	hFind = FindFirstFile(wpath.c_str(), &ffd);
 
 	if (INVALID_HANDLE_VALUE == hFind)
 	{
@@ -440,9 +440,9 @@ void loadffgldir(std::string ffgldir)
 			filesize.LowPart = ffd.nFileSizeLow;
 			filesize.HighPart = ffd.nFileSizeHigh;
 
-			// std::wstring wcfname = ffd.cFileName;
-			// std::string cfname = NosuchToLower(ws2s(wcfname));
-			std::string cfname = NosuchToLower(ffd.cFileName);
+			std::wstring wcfname = ffd.cFileName;
+			std::string cfname = NosuchToLower(ws2s(wcfname));
+			// std::string cfname = NosuchToLower(ffd.cFileName);
 
 			if (NosuchEndsWith(cfname, ".dll")) {
 				loadffglplugindef(ffgldir, cfname.c_str());

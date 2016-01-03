@@ -1,1 +1,1 @@
-python.exe portal.py
+c:\python27\python.exe portal.py

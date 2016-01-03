@@ -37,6 +37,8 @@
 
 #include <list>
 
+#include "NosuchUtil.h"
+
 using namespace std;
 
 int NosuchDebugLevel = 0;
@@ -316,11 +318,39 @@ SetVizPath(std::string vb) {
 }
 
 std::string
-VizConfigPath(std::string filepath)
+VizConfigPath(std::string f1, std::string f2, std::string f3)
 {
 	char* v = getenv("VIZCONFIG");
 	if (v == NULL) {
 		v = "config_default";
 	}
-	return VizPath(v) + "\\" + filepath;
+	std::string path = VizPath(v);
+	// XXX - Should use varargs
+	if (f1 != "") {
+		path += "\\" + f1;
+	}
+	if (f2 != "") {
+		path += "\\" + f2;
+	}
+	if (f3 != "") {
+		path += "\\" + f3;
+	}
+	return path;
 }
+
+std::string
+SpriteVizParamsPath(std::string f) {
+	if (!NosuchEndsWith(f, ".json")) {
+		f += ".json";
+	}
+	return VizConfigPath("sprites", f);
+}
+
+std::string
+PluginParamsPath(std::string f) {
+	if (!NosuchEndsWith(f, ".json")) {
+		f += ".json";
+	}
+	return VizConfigPath("plugins", f);
+}
+

@@ -16,7 +16,7 @@ public:
 
 private:
 	// Put private things here.
-	AllVizParams* m_params;
+	SpriteVizParams* m_params;
 	std::string m_spriteparams;
 };
 

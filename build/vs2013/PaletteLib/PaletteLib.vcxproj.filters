@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{7b703dbd-5b5f-4272-8b34-a7bf1b026569}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{42bba187-eaa6-430d-acd7-03ec27864aa0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\palettelib">
+      <UniqueIdentifier>{879b1f66-0720-42ec-be87-80c9ad6b42b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PaletteLib">
+      <UniqueIdentifier>{15f78b2a-2532-481f-b9cd-ba15540ee419}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\palettelib\Scale.h">
+      <Filter>Header Files\palettelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\palettelib\Sound.h">
+      <Filter>Header Files\palettelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\palettelib\Behaviour.h">
+      <Filter>Header Files\palettelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\palettelib\Channel.h">
+      <Filter>Header Files\palettelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\palettelib\Cursor.h">
+      <Filter>Header Files\palettelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\palettelib\Event.h">
+      <Filter>Header Files\palettelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\palettelib\GraphicBehaviour.h">
+      <Filter>Header Files\palettelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\palettelib\ManifoldPython.h">
+      <Filter>Header Files\palettelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\palettelib\MidiBehaviour.h">
+      <Filter>Header Files\palettelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\palettelib\MusicBehaviour.h">
+      <Filter>Header Files\palettelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\palettelib\NoteBehaviour.h">
+      <Filter>Header Files\palettelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\palettelib\Palette.h">
+      <Filter>Header Files\palettelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\palettelib\PaletteAll.h">
+      <Filter>Header Files\palettelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\palettelib\PaletteUtil.h">
+      <Filter>Header Files\palettelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\palettelib\Region.h">
+      <Filter>Header Files\palettelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\palettelib\FreeFrameHost.h">
+      <Filter>Header Files\palettelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\palettelib\ResolumeHost.h">
+      <Filter>Header Files\palettelib</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\palettelib\Region.cpp">
+      <Filter>Source Files\PaletteLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\palettelib\Scale.cpp">
+      <Filter>Source Files\PaletteLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\palettelib\Sound.cpp">
+      <Filter>Source Files\PaletteLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\palettelib\Behaviour.cpp">
+      <Filter>Source Files\PaletteLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\palettelib\Channel.cpp">
+      <Filter>Source Files\PaletteLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\palettelib\Cursor.cpp">
+      <Filter>Source Files\PaletteLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\palettelib\GraphicBehaviour.cpp">
+      <Filter>Source Files\PaletteLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\palettelib\MidiBehaviour.cpp">
+      <Filter>Source Files\PaletteLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\palettelib\MusicBehaviour.cpp">
+      <Filter>Source Files\PaletteLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\palettelib\NoteBehaviour.cpp">
+      <Filter>Source Files\PaletteLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\palettelib\Palette.cpp">
+      <Filter>Source Files\PaletteLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\palettelib\PaletteUtil.cpp">
+      <Filter>Source Files\PaletteLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\palettelib\FreeFrameHost.cpp">
+      <Filter>Source Files\PaletteLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\palettelib\ResolumeHost.cpp">
+      <Filter>Source Files\PaletteLib</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

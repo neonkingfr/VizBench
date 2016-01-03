@@ -23,8 +23,8 @@ VizPalette::VizPalette() : Vizlet() {
 	_palettehost = new PaletteHost(this);
 
 	for ( int ch=0; ch<16; ch++ ) {
-		// _midiparams[ch] = new AllVizParams(true);
-		_midiparams[ch] = getAllVizParams(VizParamPath("oozingcolor2_1"));
+		// _midiparams[ch] = new SpriteVizParams(true);
+		_midiparams[ch] = getSpriteVizParams(VizParamPath("oozingcolor2_1"));
 	}
 }
 

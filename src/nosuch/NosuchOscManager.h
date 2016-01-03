@@ -23,8 +23,6 @@ public:
 	void UnListen();
 	void processOsc(const char *source, const osc::ReceivedMessage& m);
 	void Shutdown();
-	void SetShutdownComplete(bool);
-	bool IsShutdownComplete();
 	void SetShouldBeShutdown(bool);
 	bool ShouldBeShutdown();
 

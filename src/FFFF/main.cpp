@@ -154,7 +154,9 @@ int ffffMain(std::string config, bool fullscreen)
 	F->SetTrailAmount(jsonNeedDouble(j, "trail_amount",0.9));
 	F->SetShowFPS(jsonNeedInt(j, "showfps", 0) ? true : false);
 
-	F->StartStuff();
+	if (!F->StartStuff()) {
+		exit(EXIT_FAILURE);
+	}
 
 	glfwSetErrorCallback(error_callback);
 

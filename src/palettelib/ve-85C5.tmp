@@ -1,0 +1,45 @@
+#include "Manifold.h"
+#include "NoteBehaviour.h"
+#include "Region.h"
+#include "Palette.h"
+
+bool NoteBehaviour::initialized = false;
+
+NoteBehaviour::NoteBehaviour(Region* r) {
+	_region = r;
+	_palette = _region->palette();
+	_manifold = _palette->manifold();
+}
+
+Palette* NoteBehaviour::palette() {
+	NosuchAssert(_palette);
+	return _palette;
+}
+
+Manifold* NoteBehaviour::manifold() {
+	NosuchAssert(_manifold);
+	return _manifold;
+}
+
+Region* NoteBehaviour::region() {
+	NosuchAssert(_region);
+	return _region;
+}
+
+void NoteBehaviour::initialize() {
+	if ( initialized )
+		return;
+	initialized = true;
+}
+
+NoteBehaviourDefault::NoteBehaviourDefault(Region* r) : NoteBehaviour(r) {
+}
+
+void NoteBehaviourDefault::gotMidiMsg(MidiMsg* mm, std::string sid) {
+	if ( mm->MidiType() == MIDI_NOTE_ON ) {
+		// NosuchDebug(1,"NOTE BEHAVIOUR!  sid=%s midi msg = %s",sid.c_str(),mm->DebugString().c_str());
+		Region* r = region();
+		NosuchAssert(r);
+		Sprite* s = r->addNoteOnSprite(mm);
+	}
+}

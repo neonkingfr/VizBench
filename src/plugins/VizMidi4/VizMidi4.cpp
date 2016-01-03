@@ -21,9 +21,9 @@ VizMidi4::VizMidi4() : Vizlet() {
 
 	for (int n = 0; n < 4; n++) {
 		m_sprite_on[n].channel = n + 1;
-		_loadParamsFile(NosuchSnprintf("patch_1_%c_on","ABCD"[n]), m_sprite_on[n]);
+		_loadSpriteVizParamsFile(NosuchSnprintf("patch_1_%c_on","ABCD"[n]), m_sprite_on[n]);
 		m_sprite_off[n].channel = n + 1;
-		_loadParamsFile(NosuchSnprintf("patch_1_%c_off","ABCD"[n]), m_sprite_off[n]);
+		_loadSpriteVizParamsFile(NosuchSnprintf("patch_1_%c_off","ABCD"[n]), m_sprite_off[n]);
 	}
 	m_autoloadparams = true;
 }
@@ -42,19 +42,16 @@ void VizMidi4::processCursor(VizCursor* c, int downdragup) {
 	// NO OpenGL calls here
 }
 
-bool VizMidi4::_loadParamsFile(std::string file, VizMidi4::paramsfile_info& spriteinfo) {
+bool VizMidi4::_loadSpriteVizParamsFile(std::string fname, VizMidi4::paramsfile_info& spriteinfo) {
 	spriteinfo.lastfilecheck = time(0);
 	spriteinfo.lastfileupdate = time(0);
-	std::string path = VizParamPath(file);
-	AllVizParams* p = getAllVizParams(path);
+	SpriteVizParams* p = getSpriteVizParams(fname);
 	if (!p) {
-		spriteinfo.paramsfile = "";
-		spriteinfo.paramspath = "";
+		spriteinfo.paramsfname = "";
 		spriteinfo.params = NULL;
 		return false;
 	}
-	spriteinfo.paramsfile = file;
-	spriteinfo.paramspath = path;
+	spriteinfo.paramsfname = fname;
 	spriteinfo.params = p;
 	return true;
 }
@@ -78,7 +75,7 @@ VizMidi4::_set_params(paramsfile_info& spriteinfo, cJSON* json, const char* id)
 	if (file == "") {
 		return jsonError(-32000, "Bad file value", id);
 	}
-	if (_loadParamsFile(file, spriteinfo)) {
+	if (_loadSpriteVizParamsFile(file, spriteinfo)) {
 		return jsonOK(id);
 	}
 	else {
@@ -114,14 +111,14 @@ std::string VizMidi4::processJson(std::string meth, cJSON *json, const char *id)
 	if (meth == "dump") {
 		std::string dump =
 			"["
-			+NosuchSnprintf("{\"method\":\"set_sprite_on_A\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[0].paramsfile.c_str())
-			+NosuchSnprintf(",{\"method\":\"set_sprite_on_B\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[1].paramsfile.c_str())
-			+NosuchSnprintf(",{\"method\":\"set_sprite_on_C\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[2].paramsfile.c_str())
-			+NosuchSnprintf(",{\"method\":\"set_sprite_on_D\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[3].paramsfile.c_str())
-			+NosuchSnprintf(",{\"method\":\"set_sprite_off_A\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[0].paramsfile.c_str())
-			+NosuchSnprintf(",{\"method\":\"set_sprite_off_B\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[1].paramsfile.c_str())
-			+NosuchSnprintf(",{\"method\":\"set_sprite_off_C\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[2].paramsfile.c_str())
-			+NosuchSnprintf(",{\"method\":\"set_sprite_off_D\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[3].paramsfile.c_str())
+			+NosuchSnprintf("{\"method\":\"set_sprite_on_A\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[0].paramsfname.c_str())
+			+NosuchSnprintf(",{\"method\":\"set_sprite_on_B\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[1].paramsfname.c_str())
+			+NosuchSnprintf(",{\"method\":\"set_sprite_on_C\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[2].paramsfname.c_str())
+			+NosuchSnprintf(",{\"method\":\"set_sprite_on_D\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[3].paramsfname.c_str())
+			+NosuchSnprintf(",{\"method\":\"set_sprite_off_A\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[0].paramsfname.c_str())
+			+NosuchSnprintf(",{\"method\":\"set_sprite_off_B\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[1].paramsfname.c_str())
+			+NosuchSnprintf(",{\"method\":\"set_sprite_off_C\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[2].paramsfname.c_str())
+			+NosuchSnprintf(",{\"method\":\"set_sprite_off_D\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[3].paramsfname.c_str())
 			+NosuchSnprintf(",{\"method\":\"set_channel_A\",\"params\":{\"channel\":%d}}", m_sprite_off[0].channel)
 			+NosuchSnprintf(",{\"method\":\"set_channel_B\",\"params\":{\"channel\":%d}}", m_sprite_off[1].channel)
 			+NosuchSnprintf(",{\"method\":\"set_channel_C\",\"params\":{\"channel\":%d}}", m_sprite_off[2].channel)
@@ -146,22 +143,22 @@ std::string VizMidi4::processJson(std::string meth, cJSON *json, const char *id)
 	if (meth == "get_channel_D") { return jsonIntResult(m_sprite_on[3].channel,id); }
 
 	if (meth == "set_sprite_on_A") { return _set_params_on(0, json,id); }
-	if (meth == "get_sprite_on_A") { return jsonStringResult(m_sprite_on[0].paramsfile, id); }
+	if (meth == "get_sprite_on_A") { return jsonStringResult(m_sprite_on[0].paramsfname, id); }
 	if (meth == "set_sprite_on_B") { return _set_params_on(1, json,id); }
-	if (meth == "get_sprite_on_B") { return jsonStringResult(m_sprite_on[1].paramsfile, id); }
+	if (meth == "get_sprite_on_B") { return jsonStringResult(m_sprite_on[1].paramsfname, id); }
 	if (meth == "set_sprite_on_C") { return _set_params_on(2, json,id); }
-	if (meth == "get_sprite_on_C") { return jsonStringResult(m_sprite_on[2].paramsfile, id); }
+	if (meth == "get_sprite_on_C") { return jsonStringResult(m_sprite_on[2].paramsfname, id); }
 	if (meth == "set_sprite_on_D") { return _set_params_on(3, json,id); }
-	if (meth == "get_sprite_on_D") { return jsonStringResult(m_sprite_on[3].paramsfile, id); }
+	if (meth == "get_sprite_on_D") { return jsonStringResult(m_sprite_on[3].paramsfname, id); }
 
 	if (meth == "set_sprite_off_A") { return _set_params_off(0, json,id); }
-	if (meth == "get_sprite_off_A") { return jsonStringResult(m_sprite_off[0].paramsfile, id); }
+	if (meth == "get_sprite_off_A") { return jsonStringResult(m_sprite_off[0].paramsfname, id); }
 	if (meth == "set_sprite_off_B") { return _set_params_off(1, json,id); }
-	if (meth == "get_sprite_off_B") { return jsonStringResult(m_sprite_off[1].paramsfile, id); }
+	if (meth == "get_sprite_off_B") { return jsonStringResult(m_sprite_off[1].paramsfname, id); }
 	if (meth == "set_sprite_off_C") { return _set_params_off(2, json,id); }
-	if (meth == "get_sprite_off_C") { return jsonStringResult(m_sprite_off[2].paramsfile, id); }
+	if (meth == "get_sprite_off_C") { return jsonStringResult(m_sprite_off[2].paramsfname, id); }
 	if (meth == "set_sprite_off_D") { return _set_params_off(3, json,id); }
-	if (meth == "get_sprite_off_D") { return jsonStringResult(m_sprite_off[3].paramsfile, id); }
+	if (meth == "get_sprite_off_D") { return jsonStringResult(m_sprite_off[3].paramsfname, id); }
 
 	// PARAMETER "autoloadparams"
 	if (meth == "set_autoloadparams") {
@@ -220,7 +217,7 @@ void VizMidi4::processMidiInput(MidiMsg* m) {
 			if (si!=NULL && si->channel == m->Channel() && si->pitch == m->Pitch()) {
 				s->m_data = NULL;
 				int i = (si->channel-1) % 4;
-				AllVizParams* p = m_sprite_off[i].params;
+				SpriteVizParams* p = m_sprite_off[i].params;
 
 				// Save the *initial values - we don't want to overwrite those
 				double save_alphainitial = s->m_params->alphainitial.get();
@@ -259,8 +256,8 @@ void VizMidi4::processMidiOutput(MidiMsg* m) {
 
 void
 VizMidi4::_reload_params(paramsfile_info& si) {
-	AllVizParams* p;
-	p = checkAndLoadIfModifiedSince(si.paramspath, si.lastfilecheck, si.lastfileupdate);
+	SpriteVizParams* p;
+	p = checkSpriteVizParamsAndLoadIfModifiedSince(si.paramsfname, si.lastfilecheck, si.lastfileupdate);
 	if (p) {
 		si.params = p;
 	}
@@ -326,9 +323,9 @@ VizSprite* VizMidi4::_midiVizNoteOnSprite(MidiMsg* m) {
 		return NULL;
 	}
 	// DEBUGPRINT(("VizMidi4 foundi=%d", foundi));
-	AllVizParams* params = m_sprite_on[foundi].params;
+	SpriteVizParams* params = m_sprite_on[foundi].params;
 	std::string place = params->placement;
-	// DEBUGPRINT(("NoteOnSprite this=%ld foundi=%d file=%s",(long)this,foundi,m_sprite_on[foundi].paramsfile.c_str()));
+	// DEBUGPRINT(("NoteOnSprite this=%ld foundi=%d file=%s",(long)this,foundi,m_sprite_on[foundi].paramsfname.c_str()));
 
 	int pitchmin = params->pitchmin.get();
 	int pitchmax = params->pitchmax.get();

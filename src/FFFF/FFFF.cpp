@@ -108,7 +108,7 @@ FFFF::InsertKeystroke(int key,int updown) {
 	m_vizserver->InsertKeystroke(key,updown);
 }
 
-void
+bool
 FFFF::StartStuff() {
 
 	// Error popups during API execution will
@@ -118,8 +118,12 @@ FFFF::StartStuff() {
 	NosuchErrorPopup = NULL;
 
 	m_vizserver = VizServer::GetServer();
-	m_vizserver->Start();
+	if (!m_vizserver->Start()) {
+		NosuchErrorOutput("Unable to start VizServer!?");
+		return false;
+	}
 	m_vizserver->AddJsonCallback((void*)this,"ffff",FFFF_json,(void*)this);
+	return true;
 }
 
 void
@@ -597,7 +601,7 @@ FFFF::loadPipeline(std::string configname, bool synthesize)
 	if (!NosuchEndsWith(configname, ".json")) {
 		configname += ".json";
 	}
-	std::string fname = VizConfigPath("ffff\\" + configname);
+	std::string fname = VizConfigPath("ffff",configname);
 	std::string err;
 
 	DEBUGPRINT(("loadPipeline configname=%s fname=%s", configname.c_str(), fname.c_str()));
@@ -1182,7 +1186,7 @@ std::string FFFF::savePipeline(std::string fname, const char* id)
 	if ( ! NosuchEndsWith(fname, ".json") ) {
 		fname += ".json";
 	}
-	std::string fpath = VizConfigPath("ffff\\"+fname);
+	std::string fpath = VizConfigPath("ffff",fname);
 
 	DEBUGPRINT(("savePipeline fpath=%s",fpath.c_str()));
 	std::string err;

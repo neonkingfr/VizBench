@@ -39,7 +39,7 @@ private:
 	void _drawBody(b2Body* b);
 	b2Body* _makeDynamicBody(b2Vec2 pos);
 
-	AllVizParams* m_params;
+	SpriteVizParams* m_params;
 };
 
 #endif

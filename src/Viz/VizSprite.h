@@ -1,7 +1,7 @@
-#ifndef _SPRITE_H
-#define _SPRITE_H
+#ifndef _VIZSPRITE_H
+#define _VIZSPRITE_H
 
-#include "AllVizParams.h"
+#include "SpriteVizParams.h"
 #include <list>
 #include <pthread.h>
 #include "NosuchGraphics.h"
@@ -88,11 +88,11 @@ class VizSprite {
 
 public:
 
-	VizSprite(AllVizParams* sp);
+	VizSprite(SpriteVizParams* sp);
 	virtual ~VizSprite();
 
-	static VizSprite* makeVizSprite(AllVizParams* sp);
-	void initVizSpriteState(double tm, void* handle, NosuchPos& pos, AllVizParams* params, bool doinitial=true);
+	static VizSprite* makeVizSprite(SpriteVizParams* sp);
+	void initVizSpriteState(double tm, void* handle, NosuchPos& pos, SpriteVizParams* params, bool doinitial=true);
 
 	static double degree2radian(double deg);
 	virtual void drawShape(NosuchGraphics* graphics, int xdir, int ydir) = 0;
@@ -114,7 +114,7 @@ public:
 	virtual void accumulate(Cursor* c) { }
 #endif
 
-	AllVizParams* m_params;
+	SpriteVizParams* m_params;
 	VizSpriteState m_state;
 	void* m_data;		// users of VizSprite can put anything here
 	int m_framenum;
@@ -129,7 +129,7 @@ private:
 class VizSpriteSquare : public VizSprite {
 
 public:
-	VizSpriteSquare(AllVizParams* sp);
+	VizSpriteSquare(SpriteVizParams* sp);
 	void drawShape(NosuchGraphics* app, int xdir, int ydir);
 
 private:
@@ -146,7 +146,7 @@ private:
 class VizSpriteHbar : public VizSprite {
 
 public:
-	VizSpriteHbar(AllVizParams* sp);
+	VizSpriteHbar(SpriteVizParams* sp);
 	void drawShape(NosuchGraphics* app, int xdir, int ydir);
 
 private:
@@ -163,7 +163,7 @@ private:
 class VizSpriteTriangle : public VizSprite {
 
 public:
-	VizSpriteTriangle(AllVizParams* sp);
+	VizSpriteTriangle(SpriteVizParams* sp);
 	void drawShape(NosuchGraphics* app, int xdir, int ydir);
 
 private:
@@ -178,14 +178,14 @@ private:
 class VizSpriteCircle : public VizSprite {
 
 public:
-	VizSpriteCircle(AllVizParams* sp);
+	VizSpriteCircle(SpriteVizParams* sp);
 	void drawShape(NosuchGraphics* app, int xdir, int ydir);
 };
 
 class VizSpriteOutline : public VizSprite {
 
 public:
-	VizSpriteOutline(AllVizParams* sp);
+	VizSpriteOutline(SpriteVizParams* sp);
 	~VizSpriteOutline();
 	void drawShape(NosuchGraphics* app, int xdir, int ydir);
 	void setOutline(OutlineMem* om, MMTT_SharedMemHeader* hdr);
@@ -200,7 +200,7 @@ private:
 class VizSpriteLine : public VizSprite {
 
 public:
-	VizSpriteLine(AllVizParams* sp);
+	VizSpriteLine(SpriteVizParams* sp);
 	void drawShape(NosuchGraphics* app, int xdir, int ydir);
 
 private:
@@ -213,7 +213,7 @@ private:
 class VizSpriteNothing : public VizSprite {
 
 public:
-	VizSpriteNothing(AllVizParams* sp);
+	VizSpriteNothing(SpriteVizParams* sp);
 	void drawShape(NosuchGraphics* app, int xdir, int ydir);
 };
 

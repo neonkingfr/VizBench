@@ -49,7 +49,7 @@ bool FF10PluginDef::Load(std::string Path)
 
 	std::wstring wPath = s2ws(Path);
     // m_hInst = LoadLibrary(wPath.c_str());
-    m_hInst = LoadLibrary(Path.c_str());
+    m_hInst = LoadLibrary(wPath.c_str());
 	DEBUGPRINT(("FF10PluginDef Load path=%s",Path.c_str()));
     if ( m_hInst == NULL ) {
         dwError = GetLastError();
@@ -435,7 +435,7 @@ void loadffdir(std::string ffdir)
 
 	std::string pathexpr = ffdir + "\\*";
 	std::wstring wpath = s2ws(pathexpr);
-	hFind = FindFirstFile(pathexpr.c_str(), &ffd);
+	hFind = FindFirstFile(wpath.c_str(), &ffd);
 
 	if (INVALID_HANDLE_VALUE == hFind)
 	{
@@ -446,9 +446,9 @@ void loadffdir(std::string ffdir)
 			filesize.LowPart = ffd.nFileSizeLow;
 			filesize.HighPart = ffd.nFileSizeHigh;
 
-			// std::wstring wcfname = ffd.cFileName;
-			// std::string cfname = NosuchToLower(ws2s(wcfname));
-			std::string cfname = NosuchToLower(ffd.cFileName);
+			std::wstring wcfname = ffd.cFileName;
+			std::string cfname = NosuchToLower(ws2s(wcfname));
+			// std::string cfname = NosuchToLower(ffd.cFileName);
 
 			if (NosuchEndsWith(cfname, ".dll")) {
 				loadff10plugindef(ffdir, cfname.c_str());

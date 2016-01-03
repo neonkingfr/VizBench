@@ -27,6 +27,10 @@
 	CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 	WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+
+// This gets rid of warnings about gethostname
+#define _WINSOCK_DEPRECATED_NO_WARNINGS 1
+
 #include "ip/NetworkingUtils.h"
 
 #include <winsock2.h>   // this must come first to prevent errors with MSVC7

@@ -4,4 +4,4 @@ cd ..\..\..\bin
 
 echo Generating param support for config=%config% project=%project%
 
-c:\python27\python.exe genparams.py All
+c:\python27\python.exe genparams.py Sprite

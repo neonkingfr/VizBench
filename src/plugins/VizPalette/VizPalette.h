@@ -27,7 +27,7 @@ private:
 
 	// The index of _midiparams is 0 (for default parameters)
 	// or 1-16 (for channel-specific parameters)
-	AllVizParams* _midiparams[17];
+	SpriteVizParams* _midiparams[17];
 
 	void _midiVizSprite(MidiMsg* m);
 };
