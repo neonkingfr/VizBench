@@ -87,7 +87,7 @@
     <Link>
       <AdditionalDependencies>FF10lib_MD.lib;pthreadVC2.lib;winmm.lib;OpenGL32.lib;Ws2_32.lib;opencv_highgui2410d.lib;opencv_core2410d.lib;opencv_flann2410d.lib;opencv_ml2410d.lib;opencv_imgproc2410d.lib;zlib.lib;vizserver.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(Configuration)\$(ProjectName).dll</OutputFile>
-      <AdditionalLibraryDirectories>$(VIZBENCH)\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;$(VIZBENCH)\build\vs2010_or_vs2013\FF10lib_MD\Debug;$(VIZBENCH)\build\vs2010_or_vs2013\VizServer\Debug;$(VIZBENCH)\other\Box2D\Build\vs2013\bin\x32\Debug;$(VIZBENCH)\other\opencv\build\x86\vc12\staticlib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(VIZBENCH)\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;$(VIZBENCH)\build\vs2013\FF10lib_MD\Debug;$(VIZBENCH)\build\vs2013\VizServer\Debug;$(VIZBENCH)\other\Box2D\Build\vs2013\bin\x32\Debug;$(VIZBENCH)\other\opencv\build\x86\vc12\staticlib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ModuleDefinitionFile>FFPlugins.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -155,7 +155,7 @@
     <Link>
       <AdditionalDependencies>FF10lib_MD.lib;pthreadVC2.lib;winmm.lib;OpenGL32.lib;Ws2_32.lib;VizServer.lib;opencv_core2410.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(Configuration)\$(ProjectName).dll</OutputFile>
-      <AdditionalLibraryDirectories>..\FF10lib_MD\Release;..\VizServer\Release;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\opencv\build\x86\vc10\staticlib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\FF10lib_MD\Release;..\VizServer\Release;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\opencv\build\x86\vc12\staticlib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>

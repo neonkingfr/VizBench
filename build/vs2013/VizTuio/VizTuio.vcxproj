@@ -14,7 +14,7 @@
     <ProjectGuid>{3C818BFA-1917-45FB-A862-6C55DA31047C}</ProjectGuid>
     <RootNamespace>Manifold</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>VizPalette</ProjectName>
+    <ProjectName>VizTuio</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -71,7 +71,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\src\plugins\VizPalette;..\..\..\src\palettelib;..\..\..\src\params;..\..\..\src\misclib;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\cJSON;..\..\..\other\freeframe;..\..\..\other\osc\include;..\..\..\other\portmidi\porttime;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\plugins\VizTuio;..\..\..\src\params;..\..\..\src\misclib;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\cJSON;..\..\..\other\freeframe;..\..\..\other\osc\include;..\..\..\other\portmidi\porttime;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;VIZBENCH_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -83,11 +83,11 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>misclib.lib;pthreadVC2.lib;winmm.lib;OpenGL32.lib;Ws2_32.lib;VizServer.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Debug\VizPalette.dll</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\misclib\Debug;..\VizServer\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>VizServer.lib;FFGLlib_MD.lib;pthreadVC2.lib;winmm.lib;OpenGL32.lib;Ws2_32.lib;Box2D.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(Configuration)\$(ProjectName).dll</OutputFile>
+      <AdditionalLibraryDirectories>$(VIZBENCH)\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;$(VIZBENCH)\build\vs2013\FFGLlib_MD\Debug;$(VIZBENCH)\build\vs2013\VizServer\Debug;$(VIZBENCH)\other\Box2D\Build\vs2013\bin\x32\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ModuleDefinitionFile>VizPalette.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>FFGLPlugins.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -97,7 +97,7 @@
       <Profile>true</Profile>
     </Link>
     <PostBuildEvent>
-      <Command>copy Debug\VizPalette.dll ..\..\..\ffglplugins\VizPalette.dll</Command>
+      <Command>copy Debug\VizTuio.dll ..\..\..\ffglplugins\VizTuio.dll</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -107,7 +107,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\src\freeframe;..\..\..\src\VizPalette;..\..\..\src\cJSON;..\..\..\src\osc\include;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\src\portmidi\porttime;..\..\..\src\portmidi\pm_common;..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\include;C:\Python26\include;..\..\..\src\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\freeframe;..\..\..\src\VizTuio;..\..\..\src\cJSON;..\..\..\src\osc\include;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\src\portmidi\porttime;..\..\..\src\portmidi\pm_common;..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\include;C:\Python26\include;..\..\..\src\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;VIZBENCH_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -119,10 +119,10 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>VizLib.lib;pthreadVC2.lib;winmm.lib;OpenGL32.lib;Glu32.lib;Ws2_32.lib;VizServer.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Debug\VizPalette.dll</OutputFile>
+      <OutputFile>Debug\VizTuio.dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\lib;..\..\..\src\freeglut-2.6.0\VisualStudio2008Static\Release;c:\Python26\libs;..\VizLib\Debug;..\VizServer\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ModuleDefinitionFile>VizPalette.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>VizTuio.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -131,7 +131,7 @@
       <Profile>true</Profile>
     </Link>
     <PostBuildEvent>
-      <Command>copy Debug\VizPalette.dll ..\..\..\ffglplugins\VizPalette.dll</Command>
+      <Command>copy Debug\VizTuio.dll ..\..\..\ffglplugins\VizTuio.dll</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -152,7 +152,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>OpenGL32.lib;pthreadVC2.lib;freeglut_static.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Release\VizPalette.dll</OutputFile>
+      <OutputFile>Release\VizTuio.dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\..\Source\pthreads-win32-2.8.0\Pre-built.2\lib;..\..\..\..\Source\freeglut-2.6.0\VisualStudio2008Static\Release;C:\Python26\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -186,7 +186,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>OpenGL32.lib;pthreadVC2.lib;freeglut_static.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Release\VizPalette.dll</OutputFile>
+      <OutputFile>Release\VizTuio.dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\..\Source\pthreads-win32-2.8.0\Pre-built.2\lib;..\..\..\..\Source\freeglut-2.6.0\VisualStudio2008Static\Release;C:\Python26\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -206,10 +206,14 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\plugins\VizPalette\VizPalette.cpp" />
+    <ClCompile Include="..\..\..\src\plugins\VizTuio\FreeFrameHost.cpp" />
+    <ClCompile Include="..\..\..\src\plugins\VizTuio\Palette.cpp" />
+    <ClCompile Include="..\..\..\src\plugins\VizTuio\ResolumeHost.cpp" />
+    <ClCompile Include="..\..\..\src\plugins\VizTuio\VizTuio.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\plugins\VizPalette\VizPalette.h" />
+    <ClInclude Include="..\..\..\src\plugins\VizTuio\Palette.h" />
+    <ClInclude Include="..\..\..\src\plugins\VizTuio\VizTuio.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

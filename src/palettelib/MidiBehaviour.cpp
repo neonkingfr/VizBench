@@ -3,7 +3,7 @@
 MidiBehaviour::MidiBehaviour(Channel* c) {
 	_channel = c;
 	_palette = _channel->palette;
-	_paletteHost = _palette->paletteHost();
+	_freeframeHost = _palette->freeframeHost();
 }
 
 Palette* MidiBehaviour::palette() {
@@ -11,9 +11,9 @@ Palette* MidiBehaviour::palette() {
 	return _palette;
 }
 
-PaletteHost* MidiBehaviour::paletteHost() {
-	NosuchAssert(_paletteHost);
-	return _paletteHost;
+PaletteHost* MidiBehaviour::freeframeHost() {
+	NosuchAssert(_freeframeHost);
+	return _freeframeHost;
 }
 
 MidiBehaviour* MidiBehaviour::makeBehaviour(std::string type, Channel* c) {

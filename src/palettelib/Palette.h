@@ -8,7 +8,7 @@ extern char* MuseumGraphics[];
 extern char* MayGraphics[];
 extern char* BurnGraphics[];
 
-class PaletteParams : public Params {
+class PaletteParams : public VizParams {
 public:
 	PaletteParams() {
 		musicscale = "newage";
@@ -21,8 +21,8 @@ public:
 		area2d = 0.03;
 		depth2d = 0.03;
 	}
-	std::string JsonString(std::string pre, std::string indent, std::string post) {
-		char* names[] = {
+	std::string JsonListOfValues() {
+		char *names[] = {
 			"musicscale",
 			"tonic",
 			"doquantize",
@@ -34,7 +34,22 @@ public:
 			"depth2d",
 			NULL
 		};
-		return JsonList(names,pre,indent,post);
+		return _JsonListOfValues(names);
+	}
+	std::string JsonListOfParams() {
+		char *names[] = {
+			"musicscale",
+			"tonic",
+			"doquantize",
+			"showfps",
+			"zexponential",
+			"zmultiply",
+			"switchyz",
+			"area2d",
+			"depth2d",
+			NULL
+		};
+		return _JsonListOfParams(names);
 	}
 	void Set(std::string nm, std::string val) {
 		if ( nm == "musicscale" ) { musicscale = val; }
@@ -134,21 +149,6 @@ public:
 
 	// NON-STATIC STUFF
 
-#if 0
-	PaletteParams params;
-	RegionParams regionOverrideParams;
-	RegionOverrides regionOverrideFlags;
-
-	ChannelParams channelOverrideParams;
-	ChannelOverrides channelOverrideFlags;
-
-	// void SetGlobalParam(std::string nm, std::string val);
-	// void SetRegionParam(int rid, std::string nm, std::string val);
-	void ResetRegionParams();
-	void ResetChannelParams();
-	NosuchScheduler* scheduler() { return _paletteHost->scheduler(); }
-#endif
-
 	FreeFrameHost* freeframeHost() { return _freeframeHost; }
 
 	void LockPalette() {
@@ -215,29 +215,8 @@ public:
 	int RandomEffectSet() {
 		return (rand() % _freeframeHost->NumEffectSet());
 	}
-	void LoadEffectSet(int eset) {
-		_effectSet = eset;
-		NosuchDebug(1, "Palette::LoadEffectSet eset=%d", eset);
-		if (eset >= NumEffectSet()) {
-			NosuchDebug("Hey!  eset=%d is >= NumEffectSet?", eset);
-			return;
-		}
-		NosuchDebug("EFFECT SELECTION! set=%d", eset);
-		EffectSet es = buttonEffectSet[eset];
-		for (int e = 0; e<13; e++) {
-			_freeframeHost->EnableEffect(e, es.effectOn[e]);
-		}
-	}
-	void LoadRandomEffectSet() {
-		int curr =  CurrentEffectSet();
-		int effset;
-		NosuchDebug(2,"Current Effect Set =%d",curr);
-		while ( (effset=RandomEffectSet()) == curr ) {
-			// try again
-		}
-		NosuchDebug("RANDOM Visual effset=%d",effset);
-		LoadEffectSet(effset);
-	}
+	void LoadEffectSet(int eset);
+	void LoadRandomEffectSet();
 
 	std::string ConfigLoad(std::string name);
 	void ConfigSave(std::string name);
@@ -321,7 +300,7 @@ private:
 
 	int _soundbank;  // 0 through 7
 
-	PaletteHost* _paletteHost;
+	FreeFrameHost* _freeframeHost;
 	pthread_mutex_t _palette_mutex;
 
 	std::string currentConfig;

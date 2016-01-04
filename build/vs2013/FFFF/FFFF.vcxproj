@@ -157,7 +157,7 @@
     <Link>
       <AdditionalDependencies>FFGLlib_MT.lib;opencv_highgui2410.lib;opencv_core2410.lib;opencv_flann2410.lib;opencv_ml2410.lib;opencv_imgproc2410.lib;libjpeg.lib;libpng.lib;libtiff.lib;libjasper.lib;IlmImf.lib;pthreadVC2.lib;winmm.lib;VizServer.lib;vfw32.lib;Ws2_32.lib;Rpcrt4.lib;zlib.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(Configuration)\$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\other\opencv\build\x86\vc10\staticlib;..\FFGLlib_MT\Release;..\VizServer\Release;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\glfw\src\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\other\opencv\build\x86\vc12\staticlib;..\FFGLlib_MT\Release;..\VizServer\Release;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\glfw\src\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>
@@ -191,7 +191,7 @@
     <Link>
       <AdditionalDependencies>opencv_highgui242.lib;opencv_core242.lib;opencv_flann242.lib;opencv_ml242.lib;opencv_imgproc242.lib;libjpeg.lib;libpng.lib;libtiff.lib;libjasper.lib;freenect.lib;pthreadVC2.lib;winmm.lib;FFFF.lib;portmidi_s.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Release\FFFF.exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\src\osc\lib\vc10;..\..\..\src\opencv_localbuild\lib\Release;..\..\..\src\opencv_localbuild\3rdparty\lib\Release;..\..\..\src\libfreenect\lib\Release;..\..\..\src\portmidi\Release;..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\src\osc\lib\vc12;..\..\..\src\opencv_localbuild\lib\Release;..\..\..\src\opencv_localbuild\3rdparty\lib\Release;..\..\..\src\libfreenect\lib\Release;..\..\..\src\portmidi\Release;..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>

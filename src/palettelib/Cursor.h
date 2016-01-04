@@ -20,7 +20,7 @@ public:
 	double radian2degree(double r) {
 		return r * 360.0 / (2.0 * (double)M_PI);
 	}
-	bool rotauto() { return _region->params.rotauto; }
+	// bool rotauto() { return _region->params.rotauto; }
 
 	Region* region() { return _region; }
 	Palette* palette() { return _palette; }
@@ -65,11 +65,14 @@ public:
 		_last_click = clk;
 		_last_channel = m->Channel();
 		_last_pitches.push_back(m->Pitch());
+		DEBUGPRINT(("HEY, possibly-important code has been commented out!"));
+#if 0
 		MidiMsg* nextm = m->next;
 		while ( nextm != NULL ) {
 			_last_pitches.push_back(nextm->Pitch());
 			nextm = nextm->next;
 		}
+#endif
 	}
 	int last_pitch() {
 		if ( _last_pitches.size() == 0 ) {

@@ -21,5 +21,4 @@
 #include "Cursor.h"
 #include "Sound.h"
 // #include "NosuchScheduler.h"
-// #include "Resolume.h"
-#include "Event.h"
+#include "ResolumeHost.h"

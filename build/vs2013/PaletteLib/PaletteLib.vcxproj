@@ -127,10 +127,8 @@
     <ClInclude Include="..\..\..\src\palettelib\Behaviour.h" />
     <ClInclude Include="..\..\..\src\palettelib\Channel.h" />
     <ClInclude Include="..\..\..\src\palettelib\Cursor.h" />
-    <ClInclude Include="..\..\..\src\palettelib\Event.h" />
     <ClInclude Include="..\..\..\src\palettelib\FreeFrameHost.h" />
     <ClInclude Include="..\..\..\src\palettelib\GraphicBehaviour.h" />
-    <ClInclude Include="..\..\..\src\palettelib\ManifoldPython.h" />
     <ClInclude Include="..\..\..\src\palettelib\MidiBehaviour.h" />
     <ClInclude Include="..\..\..\src\palettelib\MusicBehaviour.h" />
     <ClInclude Include="..\..\..\src\palettelib\NoteBehaviour.h" />

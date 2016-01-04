@@ -6,10 +6,6 @@
 
 #define DEFAULT_LOOPING false
 
-void RegionParams::Initialize() {
-
-}
-
 Region::Region(Palette* p, int i) {
 
 	spritelist = new SpriteList();
@@ -164,8 +160,8 @@ bool Region::buttonTooDeep(Cursor* c) {
 
 std::string Region::shapeOfRegion(int id) {
 	// shape 0 is "nothing", so avoid 0
-	int i = 1 + id % (RegionParams::shapeTypes.size()-1);
-	std::string s = RegionParams::shapeTypes[i];
+	int i = 1 + id % (VizParams::StringVals["shapetypes"].size()-1);
+	std::string s = VizParams::StringVals["shapetypes"][i];
 	s = DEFAULT_SHAPE;
 	return s;
 }

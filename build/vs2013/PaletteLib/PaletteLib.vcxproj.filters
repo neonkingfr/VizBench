@@ -30,13 +30,7 @@
     <ClInclude Include="..\..\..\src\palettelib\Cursor.h">
       <Filter>Header Files\palettelib</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\palettelib\Event.h">
-      <Filter>Header Files\palettelib</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\palettelib\GraphicBehaviour.h">
-      <Filter>Header Files\palettelib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\palettelib\ManifoldPython.h">
       <Filter>Header Files\palettelib</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\palettelib\MidiBehaviour.h">
@@ -77,9 +71,6 @@
     <ClCompile Include="..\..\..\src\palettelib\Sound.cpp">
       <Filter>Source Files\PaletteLib</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\palettelib\Behaviour.cpp">
-      <Filter>Source Files\PaletteLib</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\palettelib\Channel.cpp">
       <Filter>Source Files\PaletteLib</Filter>
     </ClCompile>
@@ -108,6 +99,9 @@
       <Filter>Source Files\PaletteLib</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\palettelib\ResolumeHost.cpp">
+      <Filter>Source Files\PaletteLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\palettelib\Behaviour.cpp">
       <Filter>Source Files\PaletteLib</Filter>
     </ClCompile>
   </ItemGroup>

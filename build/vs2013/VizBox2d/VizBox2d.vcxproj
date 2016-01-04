@@ -87,7 +87,7 @@
     <Link>
       <AdditionalDependencies>VizServer.lib;FFGLlib_MD.lib;pthreadVC2.lib;winmm.lib;OpenGL32.lib;Ws2_32.lib;Box2D.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(Configuration)\$(ProjectName).dll</OutputFile>
-      <AdditionalLibraryDirectories>$(VIZBENCH)\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;$(VIZBENCH)\build\vs2010_or_vs2013\FFGLlib_MD\Debug;$(VIZBENCH)\build\vs2010_or_vs2013\VizServer\Debug;$(VIZBENCH)\other\Box2D\Build\vs2013\bin\x32\Debug;$(VIZBENCH)\other\opencv\build\x86\vc10\staticlib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(VIZBENCH)\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;$(VIZBENCH)\build\vs2013\FFGLlib_MD\Debug;$(VIZBENCH)\build\vs2013\VizServer\Debug;$(VIZBENCH)\other\Box2D\Build\vs2013\bin\x32\Debug;$(VIZBENCH)\other\opencv\build\x86\vc12\staticlib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ModuleDefinitionFile>FFGLPlugins.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -155,7 +155,7 @@
     <Link>
       <AdditionalDependencies>FFGLlib_MD.lib;pthreadVC2.lib;winmm.lib;OpenGL32.lib;wsock32.lib;VizServer.lib;Box2D.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(Configuration)\$(ProjectName).dll</OutputFile>
-      <AdditionalLibraryDirectories>..\FFGLlib_MD\Release;..\VizServer\Release;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\Box2D\Build\vs2010\bin\x32\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\FFGLlib_MD\Release;..\VizServer\Release;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\Box2D\Build\vs2013\bin\x32\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>

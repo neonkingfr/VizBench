@@ -1,6 +1,0 @@
-# See README.txt
-# These ports are not normally changed, but they can be.
-
-osc input = 3333@127.0.0.1
-http input = 4445
-resolume output = 7000

@@ -307,12 +307,12 @@ EffectSet buttonEffectSet[NUM_EFFECT_SETS] = {
 	EffectSet(0,0,0,0,0,0,0,1,0,0,0,0,1),   // 11 - displace, trails
 };
 
-Palette::Palette(PaletteHost* b) {
+Palette::Palette(FreeFrameHost* b) {
 
 	// _highest_nonbutton_region_id = 4;
 	NosuchLockInit(&_palette_mutex,"palette");
 	currentConfig = "";
-	_paletteHost = b;
+	_freeframeHost = b;
 	_shifted = false;
 	_soundbank = 0;
 	_recentCursor = NULL;
@@ -350,6 +350,30 @@ Palette::Palette(PaletteHost* b) {
 		NosuchDebug("HEY!  Palette is instantiated twice!?");
 	}
 	_singleton = this;
+}
+
+void Palette::LoadEffectSet(int eset) {
+	_effectSet = eset;
+	NosuchDebug(1, "Palette::LoadEffectSet eset=%d", eset);
+	if (eset >= _freeframeHost->NumEffectSet()) {
+		NosuchDebug("Hey!  eset=%d is >= NumEffectSet?", eset);
+		return;
+	}
+	NosuchDebug("EFFECT SELECTION! set=%d", eset);
+	EffectSet es = buttonEffectSet[eset];
+	for (int e = 0; e<13; e++) {
+		_freeframeHost->EnableEffect(e, es.effectOn[e]);
+	}
+}
+void Palette::LoadRandomEffectSet() {
+	int curr = CurrentEffectSet();
+	int effset;
+	NosuchDebug(2, "Current Effect Set =%d", curr);
+	while ((effset = RandomEffectSet()) == curr) {
+		// try again
+	}
+	NosuchDebug("RANDOM Visual effset=%d", effset);
+	LoadEffectSet(effset);
 }
 
 void
@@ -427,8 +451,8 @@ Palette::SetAllFullRange(bool full) {
 }
 
 void Palette::buttonDown(std::string bn) {
-	if ( _paletteHost ) {
-		_paletteHost->_lastActivity = now;
+	if ( _freeframeHost ) {
+		_freeframeHost->_lastActivity = now;
 	}
 	_buttonDown[bn] = true;
 	PyEvent* e = new ButtonDownPyEvent(bn);
@@ -436,16 +460,16 @@ void Palette::buttonDown(std::string bn) {
 }
 
 void Palette::buttonUp(std::string bn) {
-	if ( _paletteHost ) {
-		_paletteHost->_lastActivity = now;
+	if ( _freeframeHost ) {
+		_freeframeHost->_lastActivity = now;
 	}
 	_buttonDown[bn] = false;
 	addPyEvent(new ButtonUpPyEvent(bn));
 }
 
 void Palette::cursorDown(Cursor* c) {
-	if ( _paletteHost ) {
-		_paletteHost->_lastActivity = now;
+	if ( _freeframeHost ) {
+		_freeframeHost->_lastActivity = now;
 	}
 	NosuchVector pos = c->curr_pos;
 	addPyEvent(new CursorDownPyEvent(c->region()->name,c->sidnum(),c->sidsource(),
@@ -453,8 +477,8 @@ void Palette::cursorDown(Cursor* c) {
 }
 
 void Palette::cursorDrag(Cursor* c) {
-	if ( _paletteHost ) {
-		_paletteHost->_lastActivity = now;
+	if ( _freeframeHost ) {
+		_freeframeHost->_lastActivity = now;
 	}
 	NosuchVector pos = c->curr_pos;
 	addPyEvent(new CursorDragPyEvent(c->region()->name,c->sidnum(),c->sidsource(),
@@ -462,8 +486,8 @@ void Palette::cursorDrag(Cursor* c) {
 }
 
 void Palette::cursorUp(Cursor* c) {
-	if ( _paletteHost ) {
-		_paletteHost->_lastActivity = now;
+	if ( _freeframeHost ) {
+		_freeframeHost->_lastActivity = now;
 	}
 	NosuchVector pos = c->curr_pos;
 	addPyEvent(new CursorUpPyEvent(c->region()->name,c->sidnum(),c->sidsource(),
@@ -471,13 +495,13 @@ void Palette::cursorUp(Cursor* c) {
 }
 
 void Palette::addPyEvent(PyEvent* e) {
-	if ( ! _paletteHost->python_events_disabled() ) {
+	if ( ! _freeframeHost->python_events_disabled() ) {
 		_pyevents.push_back(e);
 	}
 }
 
 PyEvent* Palette::popPyEvent() {
-	if ( _paletteHost->python_events_disabled() ) {
+	if ( _freeframeHost->python_events_disabled() ) {
 		return NULL;
 	}
 	PyEvent* e;
@@ -714,10 +738,6 @@ std::string Palette::loadConfig(std::ifstream &f) {
 			region->regionSpecificParams.Set(key,val);
 		}
 	}
-
-#if 0
-	ResetRegionParams();
-#endif
 
 	j = cJSON_GetObjectItem(json,"channels");
 	if ( j == NULL ) {
@@ -1054,7 +1074,7 @@ std::string Palette::ConfigNormalizeSuffix(std::string name) {
 }
 
 std::string Palette::ParamConfigDir() {
-	return _paletteHost->ParamConfigDir();
+	return _freeframeHost->ParamConfigDir();
 }
 
 void Palette::ConfigFiles(std::vector<std::string>& files) {
@@ -1189,9 +1209,10 @@ std::string Palette::ConfigLoad(std::string name) {
 	if ( ! f.is_open() ) {
 		return NosuchSnprintf("Unable to open config file: %s",filename.c_str());
 	}
-	_paletteHost->lock_paletteHost();
+	DEBUGPRINT(("Palette::ConfigLoad - should there be a lock here?"));
+	// _freeframeHost->lock_freeframeHost();
 	std::string r = loadConfig(f);
-	_paletteHost->unlock_paletteHost();
+	// _freeframeHost->unlock_freeframeHost();
 	f.close();
 	if ( r == "" ) {
 		currentConfig = name;

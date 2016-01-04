@@ -113,7 +113,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\..\src\opencv\build\x86\vc10\staticlib;..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\lib;..\misclib\Debug;..\nosuch\Debug;..\..\..\src\zeromq\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\src\opencv\build\x86\vc12\staticlib;..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\lib;..\misclib\Debug;..\nosuch\Debug;..\..\..\src\zeromq\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>pthreadVC2.lib;winmm.lib;OpenGL32.lib;Glu32.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
