@@ -1,0 +1,11 @@
+<style type="text/css">
+	body, html { font-family:helvetica,arial,sans-serif; font-size:90%; }
+</style>
+<style type="text/css">
+    html, body { width: 100%; margin: 0; }
+    button.incdec { width: 100%; }
+    text.spacer { width: 30%; }
+    td.valuelabel { width: 15%; text-align: center}
+    td.valuevalue { width: 15%; text-align: center}
+    td.buttontrio { width: 10%; text-align: center}
+</style>

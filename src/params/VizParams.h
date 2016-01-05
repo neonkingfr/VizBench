@@ -262,7 +262,12 @@ public:
 		}
 		return vals[i];
 	}
-	std::string _JsonListOfValues(char* names[]) {
+	// std::string JsonListOfValues() { return _JsonListOfValues(SpriteVizParamsNames); }
+	// std::string JsonListOfParams() { return _JsonListOfParams(SpriteVizParamsNames); }
+	virtual char **ListOfNames() = 0;
+
+	std::string JsonListOfValues() {
+		char **names = ListOfNames();
 		std::string s = "{";
 		std::string sep = "";
 		for (char** nm = names; *nm; nm++) {
@@ -283,8 +288,8 @@ public:
 		s += "]";
 		return s;
 	}
-	std::string _JsonListOfParams(char* names[]) {
-
+	std::string JsonListOfParams() {
+		char **names = ListOfNames();
 		std::string s = "{ ";
 		std::string sep = "";
 		int n = 0;

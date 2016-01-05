@@ -7,9 +7,17 @@ function format_error(meth,err) {
 	}
 }
 
-function editparams(inputid) {
+function edit_params(inputid,paramsclass) {
 	var filename = dojo.byId(inputid);
-	window.location.href = "params.html?paramfile="+filename.value;
+	window.location.href = ("edit_" + paramsclass + "_params.html?paramfile="+filename.value);
+}
+
+function edit_sprite_params(inputid) {
+	edit_params(inputid,"sprite");
+}
+
+function edit_midi_params(inputid) {
+	edit_params(inputid,"midi");
 }
 
 function vizapi(meth,params) {
@@ -57,10 +65,10 @@ function titlegen(titlestr) {
 	html += titlestr;
 	html += "</td>";
 	html += "<td>";
-	html += "<br><a href=index.html>Vizlets Control</a>";
 	html += "<br><a href=ffff.html>FFFF Control</a>";
 	html += "<br><a href=vizserver.html>VizServer Control</a>";
-	html += "<br><a href=params.html>SpriteParams Editor</a>";
+	html += "<br><a href=edit_sprite_params.html>SpriteParams Editor</a>";
+	html += "<br><a href=edit_midi_params.html>MidiParams Editor</a>";
 	html += "</td></tr></table>";
 
 	document.getElementById("title").innerHTML = html;
@@ -135,7 +143,13 @@ function vizpagegen(taginclude,tagexclude) {
 					html += "<td width=10></td><td align=right>"
 						+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" id=\""+inputid+"\" size=8></td>";
 					if ( argname == "paramfile" ) {
-						html += "<td><button onclick=\"editparams('"+inputid+"');\" >Edit SpriteParams</button>";
+						var paramsclass;
+						if ( api.substring(0,4) == "midi" ) {
+							paramsclass = "midi";
+						} else {
+							paramsclass = "sprite";
+						}
+						html += "<td><button onclick=\"edit_"+paramsclass+"_params('"+inputid+"');\" >Edit SpriteParams</button>";
 					}
 				}
 				html += "</tr>";

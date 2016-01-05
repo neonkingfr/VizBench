@@ -13,8 +13,12 @@
 #include "NosuchColor.h"
 #include "NosuchJSON.h"
 #include "NosuchHttpServer.h"
-#include "VizSprite.h"
+
 #include "VizParams.h"
+#include "SpriteVizParams.h"
+#include "MidiVizParams.h"
+
+#include "VizSprite.h"
 #include "VizServer.h"
 #include <ctime>
 
@@ -99,9 +103,15 @@ public:
 	VizSpriteList* GetVizSpriteList() { return m_spritelist; }
 	VizSprite* MakeVizSprite(SpriteVizParams* sp);
 	std::string VizPath2ConfigName(std::string path);
+
 	SpriteVizParams* getSpriteVizParams(std::string path);
 	SpriteVizParams* findSpriteVizParams(std::string cachename);
 	SpriteVizParams* checkSpriteVizParamsAndLoadIfModifiedSince(std::string fname, std::time_t& lastcheck, std::time_t& lastupdate);
+
+	MidiVizParams* getMidiVizParams(std::string path);
+	MidiVizParams* findMidiVizParams(std::string cachename);
+	MidiVizParams* checkMidiVizParamsAndLoadIfModifiedSince(std::string fname, std::time_t& lastcheck, std::time_t& lastupdate);
+
 	VizSprite* defaultMidiVizSprite(MidiMsg* m);
 
 	SpriteVizParams* defaultParams() { return m_defaultparams; }
@@ -237,6 +247,7 @@ private:
 	SpriteVizParams* m_defaultmidiparams;
 	bool m_useparamcache;
 	std::map<std::string, SpriteVizParams*> m_paramcache;
+	std::map<std::string, MidiVizParams*> m_midiparamcache;
 
 #define DISPLEN 128
 	char m_disp[DISPLEN];

@@ -27,6 +27,8 @@
 
 #include "NosuchUtil.h"
 #include <VizServer.h>
+#include <VizParams.h>
+#include <MidiVizParams.h>
 #include <SpriteVizParams.h>
 #include <NosuchUtil.h>
 #include <NosuchJSON.h>
@@ -343,9 +345,17 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 		DEBUGPRINT(("VizServer API meth=%s params=%s", fullmethod.c_str(),p));
 		cJSON_free(p);
 	}
-	static SpriteVizParams* allparams = NULL;
-	if (allparams == NULL) {
-		allparams = new SpriteVizParams();
+
+	// XXX - the server has only a single static instance of the various params,
+	//       so multiple clients working simultaneously will probably get very confused
+	static SpriteVizParams* spriteparams = NULL;
+	if (spriteparams == NULL) {
+		spriteparams = new SpriteVizParams();
+	}
+
+	static MidiVizParams* midiparams = NULL;
+	if (midiparams == NULL) {
+		midiparams = new MidiVizParams();
 	}
 
 	if (fullmethod == "viztags" || fullmethod == "apitags") {  // apitags is deprecated, retained for compatibility
@@ -396,7 +406,7 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 			return jsonOK(id);
 		}
 		if (api == "param_vals" || api == "spriteparam_vals") {
-			std::string s = allparams->JsonListOfValues();
+			std::string s = spriteparams->JsonListOfValues();
 			return jsonStringResult(s, id);
 		}
 		if (api == "param_stringvals" || api == "spriteparam_stringvals") {
@@ -404,11 +414,15 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 			if (type == ""){
 				return jsonError(-32000, "No type parameter specified on spriteparam_stringvals?", id);
 			}
-			std::string s = allparams->JsonListOfStringValues(type);
+			std::string s = spriteparams->JsonListOfStringValues(type);
 			return jsonStringResult(s, id);
 		}
-		if (api == "param_list" || api == "spriteparam_list") {
-			std::string s = allparams->JsonListOfParams();
+		if (api == "spriteparam_list") {        // DONE
+			std::string s = spriteparams->JsonListOfParams();
+			return jsonStringResult(s, id);
+		}
+		if (api == "midiparam_list") {         // DONE
+			std::string s = midiparams->JsonListOfParams();
 			return jsonStringResult(s, id);
 		}
 		if (api == "param_readfile" || api == "spriteparam_readfile") {
@@ -429,13 +443,19 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 				return jsonError(-32000, "No file parameter specified on spriteparam_readfile?", id);
 			}
 		}
-		if (api == "param_writefile" || api == "spriteparam_writefile") {
+		if (api == "spriteparam_writefile" || api == "midiparam_writefile") {
 			std::string file = jsonNeedString(params, "paramfile", "");
 			if (file == "") {
-				return jsonError(-32000, "No file parameter specified on spriteparam_writefile?", id);
+				return jsonError(-32000, "No file parameter specified on param_writefile?", id);
 			}
 			cJSON* j = jsonNeedJSON(params, "contents");
-			std::string fpath = SpriteVizParamsPath(file);
+			std::string fpath;
+			if (api.substr(0, 5) == "sprite") {
+				fpath = SpriteVizParamsPath(file);
+			}
+			else {
+				fpath = MidiVizParamsPath(file);
+			}
 			std::string err;
 			if (jsonWriteFile(fpath, j, err)) {
 				return jsonOK(id);

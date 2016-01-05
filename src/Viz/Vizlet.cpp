@@ -788,6 +788,9 @@ Vizlet::VizPath2ConfigName(std::string path) {
 	return(path);
 }
 
+// XXX - These 2 functions are repeated for both SpriteVizParams and MidiVizParams
+// XXX - Probably should use a template
+
 SpriteVizParams*
 Vizlet::getSpriteVizParams(std::string fname) {
 	if (m_useparamcache) {
@@ -826,6 +829,68 @@ Vizlet::checkSpriteVizParamsAndLoadIfModifiedSince(std::string fname, std::time_
 	}
 	// DEBUGPRINT(("Check and Load this=%ld", (long)this));
 	SpriteVizParams* p = getSpriteVizParams(fname);
+	if (!p) {
+		throw NosuchException("Bad params file? fname=%s", fname.c_str());
+	}
+	lastupdate = statbuff.st_mtime;
+	return p;
+}
+
+MidiVizParams*
+readMidiVizParams(std::string fname) {
+	std::string err;
+	std::string path = MidiVizParamsPath(fname);
+	cJSON* json = jsonReadFile(path, err);
+	if (!json) {
+		DEBUGPRINT(("Unable to load midi params: fname=%s path=%s, err=%s",
+			fname.c_str(), path.c_str(), err.c_str()));
+		return NULL;
+	}
+	MidiVizParams* p = new MidiVizParams();
+	p->loadJson(json);
+	// XXX - should json be freed, here?
+	return p;
+}
+
+
+MidiVizParams*
+Vizlet::getMidiVizParams(std::string fname) {
+	if (m_useparamcache) {
+		std::map<std::string, MidiVizParams*>::iterator it = m_midiparamcache.find(fname);
+		if (it == m_midiparamcache.end()) {
+			m_midiparamcache[fname] = readMidiVizParams(fname);
+			return m_midiparamcache[fname];
+		}
+		else {
+			return it->second;
+		}
+	}
+	else {
+		return readMidiVizParams(fname);
+	}
+}
+
+MidiVizParams*
+Vizlet::checkMidiVizParamsAndLoadIfModifiedSince(std::string fname, std::time_t& lastcheck, std::time_t& lastupdate) {
+
+	std::string path = MidiVizParamsPath(fname);
+
+	std::time_t throttle = 1;  // don't check more often than this number of seconds
+	std::time_t tm = time(0);
+	if ((tm - lastcheck) < throttle) {
+		return NULL;
+	}
+	lastcheck = tm;
+	struct _stat statbuff;
+	int e = _stat(path.c_str(), &statbuff);
+	if (e != 0) {
+		throw NosuchException("Error in checkAndLoad - e=%d", e);
+	}
+	if (lastupdate == statbuff.st_mtime) {
+		return NULL;
+	}
+	// DEBUGPRINT(("Check and Load this=%ld", (long)this));
+	MidiVizParams* p = getMidiVizParams(fname);
 	if (!p) {
 		throw NosuchException("Bad params file? fname=%s", fname.c_str());
 	}

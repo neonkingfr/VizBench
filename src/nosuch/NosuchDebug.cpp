@@ -339,11 +339,11 @@ VizConfigPath(std::string f1, std::string f2, std::string f3)
 }
 
 std::string
-SpriteVizParamsPath(std::string f) {
+VizParamsPath(std::string f, std::string paramtype) {
 	if (!NosuchEndsWith(f, ".json")) {
 		f += ".json";
 	}
-	return VizConfigPath("sprites", f);
+	return VizConfigPath(paramtype, f);
 }
 
 std::string

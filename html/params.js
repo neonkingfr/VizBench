@@ -1,28 +1,6 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html dir="ltr">
-    
-<head>
-<meta name="viewport"
-  content="width=device-width,
-  minimum-scale=1.0, maximum-scale=1.0" />
-<style type="text/css">
-	body, html { font-family:helvetica,arial,sans-serif; font-size:90%; }
-</style>
-<style type="text/css">
-    html, body { width: 100%; margin: 0; }
-    button.incdec { width: 100%; }
-    text.spacer { width: 30%; }
-    td.valuelabel { width: 15%; text-align: center}
-    td.valuevalue { width: 15%; text-align: center}
-    td.buttontrio { width: 10%; text-align: center}
-</style>
-
-<script src="dojo/dojo.js" djConfig="parseOnLoad: true"> </script>
-<script src="viz.js" djConfig="parseOnLoad: true"> </script>
-<script type="text/javascript">
-
 ParamList = null;
 StringVals = {};
+ParamsClass = "undefined"
 
 function updateonevalue(name,value) {
 	var obj = ParamList[name];
@@ -49,7 +27,7 @@ function readfile() {
 		status.innerHTML = "No Filename set, can't Load!"
 		return;
 	}
-	var api = vizapi('VizServer.param_readfile','{ "paramfile":"'+filename+'" }');
+	var api = vizapi('VizServer.'+ParamsClass+'param_readfile','{ "paramfile":"'+filename+'" }');
 	if ( api.result == "" ) {
 		status.innerHTML = "error="+api.error;
 	} else {
@@ -186,7 +164,7 @@ function writefile() {
 		sep = ",";
 	}
 	contents += " }";
-	var api = vizapi('VizServer.param_writefile','{ "paramfile":"'+paramfilename.value+'", "contents":'+contents+' }');
+	var api = vizapi('VizServer.'+ParamsClass+'param_writefile','{ "paramfile":"'+paramfilename.value+'", "contents":'+contents+' }');
 	var status = document.getElementById("status");
 	if ( paramfilename.value == "" ) {
 		status.innerHTML = "No Filename set, can't Save!"
@@ -282,7 +260,9 @@ function updateval2(name) {
 	autowritefile();
 }
 
-function setup() {
+function make_edit_page(paramsclass) {
+
+	ParamsClass = paramsclass
 
 	var status = document.getElementById("status");
 	var params = document.getElementById("params");
@@ -295,7 +275,8 @@ function setup() {
 		instancenum = port - 4439;
 	}
 
-	titlegen("<font style=\"font-weight: bold; font-size: 300%\">SpriteParams Editor</font>");
+	var typetitle = ParamsClass.substr(0,1).toUpperCase() + ParamsClass.substr(1);
+	titlegen("<font style=\"font-weight: bold; font-size: 300%\">"+typetitle+"Params Editor</font>");
 
 	var html = "";
 
@@ -323,7 +304,7 @@ function setup() {
 	html += "AutoSave<input type=\"checkbox\" checked=\"checked\" id=\"autosave\" value=\"AutoSave\" >";
 	html += "<p>";
 
-	var api = vizapi('VizServer.param_list');
+	var api = vizapi('VizServer.'+ParamsClass+'param_list');    // e.g. it calls VizServer.spriteparam_list
 	if ( api.result == "" ) {
 		status.innerHTML = api.error;
 	} else {
@@ -370,11 +351,11 @@ function setup() {
 				// For strings, the min/max values convey
 				// the string values type.
 				var valstype = mn;
-				var a = vizapi('VizServer.param_stringvals','{ "type":"'+valstype+'" }');
+				var a = vizapi('VizServer.'+ParamsClass+'param_stringvals','{ "type":"'+valstype+'" }');
 				if ( a.result != "" ) {
 					var j = JSON.parse(a.result);
 					if ( !j ) {
-						alert("Unable to parse param_stringvals output? result="+a.result);
+						alert("Unable to parse ...param_stringvals output? result="+a.result);
 					} else {
 						StringVals[name] = j;
 					}
@@ -415,24 +396,3 @@ function setup() {
 		readfile();
 	}
 }
-
-dojo.addOnLoad(setup);
-</script>
-</head>
-    
-<body class="claro">
-
-<center>
-<div id="title">&nbsp;</div>
-<br>
-</center>
-<p>
-<table><tr><td>Status:</td><td><div id="status"></div></td></tr></table>
-<p>
-<div id="params"></div>
-<p>
-	
-</body>
-
-</html>
-

@@ -48,7 +48,7 @@ NosuchException::NosuchException( const char *fmt, ...) {
 	if ( lng > 0 && m_msg[lng-1] == '\n' )
 		m_msg[lng-1] = '\0';
 
-	DEBUGPRINT1(("NosuchException constructor - %s",m_msg));
+	DEBUGPRINT(("NosuchException: %s",m_msg));
 
 	va_end(args);
 }

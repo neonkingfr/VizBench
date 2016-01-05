@@ -73,6 +73,9 @@
     <None Include="..\..\..\src\params\SpriteVizParams.list">
       <Filter>Source Files\params</Filter>
     </None>
+    <None Include="..\..\..\src\params\MidiVizParams.list">
+      <Filter>Source Files\params</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\nosuch\NosuchDaemon.h">
@@ -237,6 +240,9 @@
       <Filter>Source Files\nosuch</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\params\SpriteVizParams.cpp">
+      <Filter>Source Files\params</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\params\MidiVizParams.cpp">
       <Filter>Source Files\params</Filter>
     </ClCompile>
   </ItemGroup>

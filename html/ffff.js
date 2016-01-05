@@ -150,6 +150,18 @@ function changeTextVal(tag,api,argname) {
 	}
 }
 
+function params_class_of_api(api) {
+	var p;
+	if ( api.search("midi") >= 0 ) {
+		p = "midi";
+	} else if ( api.search("sprite") >= 0 ) {
+		p = "sprite";
+	} else {
+		p = "UNKNOWN";
+	}
+	return p;
+}
+
 function ffffpagegen() {
 
 	var api = vizapi("ffff.ffglpipeline");
@@ -285,9 +297,11 @@ function ffffpagegen() {
 							val = aaa.result;
 							// html += "<td width=10></td><td align=right>"
 							html += "<td align=right>"
-								+api_sans_set+"&nbsp;"+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" onChange=\"changeTextVal('"+tag+"','"+api+"','"+argname+"')\" value=\""+val+"\" id=\""+inputid+"\" size=8></td>";
+								+api_sans_set+"&nbsp;"+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" onChange=\"changeTextVal('"+tag+"','"+api+"','"+argname+"')\" value=\""+val+"\" id=\""+inputid+"\" size=20></td>";
 							if ( argname == "paramfile" ) {
-								html += "<td><button onclick=\"editparams('"+inputid+"');\" >Edit</button>";
+								var paramsclass = params_class_of_api(api)
+								alert("api="+api+" class="+paramsclass);
+								html += "<td><button onclick=\"edit_"+paramsclass+"_params('"+inputid+"');\" >Edit</button>";
 							}
 
 						} else {

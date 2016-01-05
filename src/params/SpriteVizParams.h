@@ -50,8 +50,9 @@ public:
 	SpriteVizParams() {
 		loadDefaults();
 	}
-	std::string JsonListOfValues() { return _JsonListOfValues(SpriteVizParamsNames); }
-	std::string JsonListOfParams() { return _JsonListOfParams(SpriteVizParamsNames); }
+	char **ListOfNames() { return SpriteVizParamsNames; }
+	// std::string JsonListOfValues() { return _JsonListOfValues(SpriteVizParamsNames); }
+	// std::string JsonListOfParams() { return _JsonListOfParams(SpriteVizParamsNames); }
 	std::string JsonListOfStringValues(std::string type) { return _JsonListOfStringValues(type); }
 	void loadJson(cJSON* json) {
 		cJSON* j;

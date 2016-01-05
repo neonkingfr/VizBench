@@ -4,6 +4,7 @@
 #include "Palette.h"
 #include "FreeFrameHost.h"
 #include "ResolumeHost.h"
+#include "MidiVizParams.h"
 
 class VizTuio : public Vizlet
 {
@@ -22,20 +23,40 @@ public:
 
 private:
 
-	struct paramsfile_info {
-		int channel;
-		SpriteVizParams* params;
-		std::string paramsfname;
-		std::time_t lastfileupdate;
-		std::time_t lastfilecheck;
+	struct region_info {
+		std::string sid;
+		int sid_min;
+		int sid_max;
+		SpriteVizParams* spriteparams;
+		std::string spriteparamfile;
+		std::time_t lastspritefileupdate;
+		std::time_t lastspritefilecheck;
+		MidiVizParams* midiparams;
+		std::string midiparamfile;
+		std::time_t lastmidifileupdate;
+		std::time_t lastmidifilecheck;
 	};
 
-	bool _loadSpriteVizParamsFile(std::string fname, paramsfile_info& spriteinfo);
+	struct button_info {
+		std::string sid;
+		int sid_min;
+		int sid_max;
+		std::string pipeline;
+	};
+
+	std::string _set_region_spriteparams(region_info& regioninfo, cJSON* json, const char* id);
+	bool _loadSpriteVizParamsFile(std::string fname, region_info& regioninfo);
+	std::string _set_region_midiparams(region_info& regioninfo, cJSON* json, const char* id);
+	bool _loadMidiVizParamsFile(std::string fname, region_info& regioninfo);
+	std::string _set_region_sid(region_info& regioninfo, cJSON* json, const char* id);
+
 	void _cursorSprite(VizCursor* c);
 
-	struct paramsfile_info _region[4];
+	struct region_info _region[4];
+	struct button_info _button[12];
 	FreeFrameHost* _freeframeHost;
 	Palette* _palette;
+	bool _autoloadparams;
 };
 
 #endif

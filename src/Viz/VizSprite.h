@@ -1,7 +1,6 @@
 #ifndef _VIZSPRITE_H
 #define _VIZSPRITE_H
 
-#include "SpriteVizParams.h"
 #include <list>
 #include <pthread.h>
 #include "NosuchGraphics.h"

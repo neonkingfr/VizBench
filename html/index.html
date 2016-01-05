@@ -2,51 +2,23 @@
 <html dir="ltr">
     
 <head>
+
 <meta name="viewport"
   content="width=device-width,
   minimum-scale=1.0, maximum-scale=1.0" />
-<style type="text/css">
-	body, html { font-family:helvetica,arial,sans-serif; font-size:90%; }
-</style>
-<style type="text/css">
-    html, body { width: 100%; margin: 0; }
-    button.incdec { width: 100%; }
-    text.spacer { width: 30%; }
-    td.valuelabel { width: 15%; text-align: center}
-    td.valuevalue { width: 15%; text-align: center}
-    td.buttontrio { width: 10%; text-align: center}
-</style>
 
-<script src="dojo/dojo.js" djConfig="parseOnLoad: true"> </script>
-<script src="viz.js" djConfig="parseOnLoad: true"> </script>
-<script type="text/javascript">
+<link rel="stylesheet" type="text/css" href="viz.css"/>
 
-function setup() {
-
-	titlegen("<font style=\"font-weight: bold; font-size: 300%\">Vizlets Control</font>");
-
-	var taginclude = /.*/;
-	var tagexclude = /(ffff)|(VizServer)/;
-
-	vizpagegen(taginclude,tagexclude);
-}
-
-
-dojo.addOnLoad(setup);
-</script>
 </head>
     
 <body class="claro">
 
-<center>
-<div id="title">&nbsp;</div>
-<br>
-</center>
-<p>
-<div id="vizserver"></div>
-<p>
-<div id="vizplugins"></div>
-<p>
+<ul>
+<li><a href="ffff.html">FFFF Control</a>
+<li><a href="vizserver.html">VizServer Control</a>
+<li><a href="edit_sprite_params.html">SpriteParams Editor</a>
+<li><a href="edit_midi_params.html">MidiParams Editor</a>"
+</ul>
 	
 </body>
 

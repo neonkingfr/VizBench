@@ -165,6 +165,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="..\..\..\bin\genparams.py" />
+    <None Include="..\..\..\src\params\MidiVizParams.list" />
     <None Include="..\..\..\src\params\SpriteVizParams.list" />
     <None Include="ReadMe.txt" />
   </ItemGroup>
@@ -222,6 +223,7 @@
     <ClCompile Include="..\..\..\src\nosuch\NosuchScheduler.cpp" />
     <ClCompile Include="..\..\..\src\nosuch\NosuchSocket.cpp" />
     <ClCompile Include="..\..\..\src\nosuch\NosuchUtil.cpp" />
+    <ClCompile Include="..\..\..\src\params\MidiVizParams.cpp" />
     <ClCompile Include="..\..\..\src\params\SpriteVizParams.cpp" />
     <ClCompile Include="..\..\..\src\params\VizParams.cpp" />
     <ClCompile Include="..\..\..\src\Viz\VizServer.cpp" />

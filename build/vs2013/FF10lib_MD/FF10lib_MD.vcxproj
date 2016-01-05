@@ -95,7 +95,7 @@
       </IgnoreSpecificDefaultLibraries>
     </Lib>
     <PreBuildEvent>
-      <Command>..\..\..\bin\prebuildmisclib.bat $(Configuration) $(ProjectName)</Command>
+      <Command>..\..\..\bin\prebuildviz.bat $(Configuration) $(ProjectName)</Command>
     </PreBuildEvent>
     <CustomBuildStep>
       <Command>

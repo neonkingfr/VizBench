@@ -19,21 +19,15 @@
 
 <script src="dojo/dojo.js" djConfig="parseOnLoad: true"> </script>
 <script src="viz.js" djConfig="parseOnLoad: true"> </script>
+<script src="params.js" djConfig="parseOnLoad: true"> </script>
+
 <script type="text/javascript">
-
-function setup() {
-
-	titlegen("<font style=\"font-weight: bold; font-size: 300%\">VizServer Control</font>");
-
-	var taginclude = /VizServer/;
-	var tagexclude = /donotmatchanything/;
-
-	vizpagegen(taginclude,tagexclude);
-}
-
-
-dojo.addOnLoad(setup);
+	function setupspriteparams() {
+		make_edit_page("sprite");
+	}
+	dojo.addOnLoad(setupspriteparams);
 </script>
+
 </head>
     
 <body class="claro">
@@ -43,9 +37,9 @@ dojo.addOnLoad(setup);
 <br>
 </center>
 <p>
-<div id="vizserver"></div>
+<table><tr><td>Status:</td><td><div id="status"></div></td></tr></table>
 <p>
-<div id="vizplugins"></div>
+<div id="params"></div>
 <p>
 	
 </body>

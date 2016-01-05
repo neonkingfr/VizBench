@@ -88,8 +88,9 @@ def genparamheader(params,classname):
 	writeln(tab2+"loadDefaults();")
 	writeln(tab+"}")
 
-	writeln(tab+"std::string JsonListOfValues() { return _JsonListOfValues("+paramnames+"); }");
-	writeln(tab+"std::string JsonListOfParams() { return _JsonListOfParams("+paramnames+"); }");
+	writeln(tab+"char **ListOfNames() { return "+paramnames+"; }");
+	writeln(tab+"// std::string JsonListOfValues() { return _JsonListOfValues("+paramnames+"); }");
+	writeln(tab+"// std::string JsonListOfParams() { return _JsonListOfParams("+paramnames+"); }");
 	writeln(tab+"std::string JsonListOfStringValues(std::string type) { return _JsonListOfStringValues(type); }");
 
 	### Generate the method that loads JSON
