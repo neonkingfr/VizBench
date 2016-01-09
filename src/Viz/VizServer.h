@@ -14,7 +14,6 @@
 #endif
 
 #include "NosuchJSON.h"
-#include "cJSON.h"
 #include "NosuchOsc.h"
 #include "NosuchMidi.h"
 #include "NosuchGraphics.h"
@@ -190,6 +189,7 @@ public:
 	void ChangeVizTag(void* handle, const char* newtag);
 	void AdvanceCursorTo(VizCursor* c, double tm);
 
+	void ClearJsonCallbacks();
 	void AddJsonCallback(void* handle, const char* apiprefix, jsoncallback_t cb, void* data);
 	void AddMidiInputCallback(void* handle, MidiFilter mf, midicallback_t cb, void* data);
 	void AddMidiOutputCallback(void* handle, MidiFilter mf, midicallback_t cb, void* data);
@@ -311,9 +311,9 @@ private:
 	long m_sharedmem_last_attempt;
 
 	// These things are pulled from the config file
-	const char* m_midi_input_list;
-	const char* m_midi_output_list;
-	const char* m_midi_merge_list;
+	const cJSON *m_midiinputs;
+	const cJSON *m_midioutputs;
+	const cJSON* m_midimerges;
 	bool m_do_sharedmem;
 	const char *m_sharedmemname;
 	bool m_do_errorpopup;

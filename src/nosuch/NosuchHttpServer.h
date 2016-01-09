@@ -30,7 +30,6 @@
 
 #include "NosuchJSON.h"
 #include "NosuchDaemon.h"
-#include "cJSON.h"
 #include <list>
 
 #define REQUEST_GET 1

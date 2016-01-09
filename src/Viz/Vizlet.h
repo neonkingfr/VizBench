@@ -47,7 +47,9 @@ public:
 	virtual ~Vizlet();
 
 	std::string VizTag() { return m_viztag; }
-	void SetVizTag(std::string s) { m_viztag = s; }
+	void SetVizTag(std::string s) {
+		m_viztag = NosuchToLower(s);
+	}
 	VizSprite* makeAndInitVizSprite(SpriteVizParams* sp, NosuchPos pos);
 	VizSprite* makeAndAddVizSprite(SpriteVizParams* sp, NosuchPos pos);
 
@@ -175,7 +177,6 @@ public:
 	// Factory method
 	///////////////////////////////////////////////////
 
-	void SendMidiMsg();
 	void DrawNotesDown();
 	int FrameNum() { return m_framenum; }
 

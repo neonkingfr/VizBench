@@ -147,9 +147,16 @@ class VizServerApiCallbackMap : public std::map < void*, VizServerApiCallback* >
 public:
 	VizServerApiCallbackMap() {
 	}
+	void ClearCallbacks() {
+		this->clear();
+	}
 	void addcallback(void* handle, const char* apiprefix, void* cb, void* data) {
 		DEBUGPRINT1(("VizServerApiCallbackMap addcallback handle=%ld prefix=%s", (long)handle, apiprefix));
 		if (count(handle) > 0) {
+			DEBUGPRINT(("Hey! VizServercallbackMap::addcallback finds existing callback for handle=%ld", (long)handle));
+			return;
+		}
+		if (findprefix(apiprefix) != NULL) {
 			DEBUGPRINT(("Hey! VizServercallbackMap::addcallback finds existing callback for handle=%ld", (long)handle));
 			return;
 		}
@@ -295,9 +302,11 @@ class VizServerJsonProcessor : public NosuchJsonListener {
 public:
 	VizServerJsonProcessor() {
 	}
+	void ClearCallbacks() {
+		m_callbacks.ClearCallbacks();
+	}
 	void AddJsonCallback(void* handle, const char* apiprefix, jsoncallback_t cb, void* data) {
 		const char* existing = m_callbacks.VizTags();
-		DEBUGPRINT(("AddJsonCallback handle=%ld  data=%ld existing=%s", (long)handle, (long)data, existing));
 		m_callbacks.addcallback(handle, apiprefix, (void*)cb, data);
 	}
 	void ChangeVizTag(void* handle, const char* p) {
@@ -305,7 +314,6 @@ public:
 	}
 	void RemoveJsonCallback(void* handle) {
 		m_callbacks.removecallback(handle);
-		DEBUGPRINT1(("RemoveJsonCallback, m_callbacks.size=%d", m_callbacks.size()));
 	}
 	virtual std::string processJson(std::string method, cJSON* params, const char *id);
 	int numCallbacks() { return m_callbacks.size(); }
@@ -331,6 +339,17 @@ methodPrefixProcess(std::string method, std::string& prefix, std::string& suffix
 		suffix = method;
 	}
 	prefix = NosuchToLower(prefix);
+}
+
+static std::string
+ApiSpecificVizParamsPath(std::string api, std::string file) {
+	// NOTE: depends on the API naming convention of *param_writefile
+	if (api.substr(0, 6) == "sprite") {
+		return SpriteVizParamsPath(file);
+	}
+	else {
+		return MidiVizParamsPath(file);
+	}
 }
 
 std::string
@@ -425,37 +444,28 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 			std::string s = midiparams->JsonListOfParams();
 			return jsonStringResult(s, id);
 		}
-		if (api == "param_readfile" || api == "spriteparam_readfile") {
+		if (api == "spriteparam_readfile" || api == "midiparam_readfile") {
 			std::string file = jsonNeedString(params, "paramfile", "");
-			if (file != "") {
-				std::string fpath = SpriteVizParamsPath(file);
-
-				std::string err;
-				cJSON* json = jsonReadFile(fpath, err);
-				if (!json){
-					throw NosuchException("Unable to read json from paramfile=%s err=%s", fpath.c_str(), err.c_str());
-				}
-				// std::string r = cJSON_escapestring(cJSON_PrintUnformatted(json));
-				std::string r = cJSON_PrintUnformatted(json);
-				return jsonStringResult(r, id);
+			if (file == "") {
+				return jsonError(-32000, "No paramfile parameter specified on *param_readfile?", id);
 			}
-			else {
-				return jsonError(-32000, "No file parameter specified on spriteparam_readfile?", id);
+			std::string fpath = ApiSpecificVizParamsPath(api,file);
+			std::string err;
+			cJSON* json = jsonReadFile(fpath, err);
+			if (!json){
+				throw NosuchException("Unable to read json from fpath=%s err=%s", fpath.c_str(), err.c_str());
 			}
+			// std::string r = cJSON_escapestring(cJSON_PrintUnformatted(json));
+			std::string r = cJSON_PrintUnformatted(json);
+			return jsonStringResult(r, id);
 		}
 		if (api == "spriteparam_writefile" || api == "midiparam_writefile") {
 			std::string file = jsonNeedString(params, "paramfile", "");
 			if (file == "") {
-				return jsonError(-32000, "No file parameter specified on param_writefile?", id);
+				return jsonError(-32000, "No paramfile parameter specified on *param_writefile?", id);
 			}
 			cJSON* j = jsonNeedJSON(params, "contents");
-			std::string fpath;
-			if (api.substr(0, 5) == "sprite") {
-				fpath = SpriteVizParamsPath(file);
-			}
-			else {
-				fpath = MidiVizParamsPath(file);
-			}
+			std::string fpath = ApiSpecificVizParamsPath(api,file);
 			std::string err;
 			if (jsonWriteFile(fpath, j, err)) {
 				return jsonOK(id);
@@ -598,7 +608,10 @@ public:
 		DEBUGPRINT1(("processOsc source=%s addr=%s",
 			source == NULL ? "NULL?" : source, addr));
 
-		if (checkAddrPattern(addr, "/tuio/25Dblb")) {
+		bool is25Dblb = (checkAddrPattern(addr, "/tuio/25Dblb"));
+		bool is25Dcur = (checkAddrPattern(addr, "/tuio/25Dcur"));
+
+		if (is25Dblb || is25Dcur) {
 
 			std::string cmd = ArgAsString(m, 0);
 			if (cmd == "alive") {
@@ -621,10 +634,15 @@ public:
 				// double tuio_a = ArgAsFloat(m, 5);   // Angle
 				// double tuio_w = ArgAsFloat(m, 6);
 				// double tuio_h = ArgAsFloat(m, 7);
-				double tuio_f = ArgAsFloat(m, 8);   // Area
+				double area;
+				if (is25Dblb) {
+					area = ArgAsFloat(m, 8);   // Area
+				}
+				else {
+					area = z;
+				}
 				// y = 1.0f - y;
-
-				m_vizserver->_setCursor(sidnum, source, NosuchPos(x, y, z), tuio_f, NULL, NULL);
+				m_vizserver->_setCursor(sidnum, source, NosuchPos(x, y, z), area, NULL, NULL);
 			}
 			return;
 
@@ -868,9 +886,9 @@ VizServer::VizServer() {
 	m_cursors = new std::list<VizCursor*>();
 	NosuchLockInit(&_cursors_mutex, "cursors");
 
-	m_midi_input_list = "";
-	m_midi_output_list = "";
-	m_midi_merge_list = "";
+	// m_midi_input_list = "";
+	// m_midi_output_list = "";
+	// m_midi_merge = "";
 	m_do_sharedmem = false;
 	m_sharedmem_outlines = NULL;
 	m_sharedmemname = "mmtt_outlines";
@@ -1014,7 +1032,9 @@ click_t VizServer::SchedulerClicksPerSecond() {
 const char*
 VizServer::ProcessJson(const char* fullmethod, cJSON* params, const char* id) {
 	static std::string s;  // because we're returning its c_str()
+	DEBUGPRINT1(("VizServer::ProcessJson jsonprocessor=%ld",(long)m_jsonprocessor));
 	s = m_jsonprocessor->processJson(fullmethod, params, id);
+	DEBUGPRINT1(("VizServer::ProcessJson is returning %s",s.c_str()));
 	return s.c_str();
 }
 
@@ -1155,13 +1175,13 @@ VizServer::Start() {
 		std::string configpath = VizConfigPath("vizserver.json");
 		DEBUGPRINT1(("configpath = %s", configpath.c_str()));
 
-		cJSON* json = _readconfig(configpath.c_str());
-		if (json == NULL) {
+		cJSON* config = _readconfig(configpath.c_str());
+		if (config == NULL) {
 			DEBUGPRINT(("Unable to load config?  path=%s", configpath.c_str()));
 		}
 		else {
-			_processServerConfig(json);
-			// NOTE: DO NOT FREE json - some of the char* values in it get saved/used later.
+			_processServerConfig(config);
+			// NOTE: DO NOT FREE config - some of the values in it get saved/used later.
 		}
 
 		m_scheduler->setPeriodicANO(m_do_ano);
@@ -1177,18 +1197,10 @@ VizServer::Start() {
 
 		_openSharedMemOutlines();
 
-		if (m_midi_output_list == NULL) {
-			DEBUGPRINT(("Warning: MIDI output wasn't defined in configuration!"));
-			m_midi_output_list = "loopMIDI Port 1";
-		}
-		if (m_midi_input_list == NULL) {
-			DEBUGPRINT(("Warning: MIDI input wasn't defined in configuration!"));
-			m_midi_input_list = "loopMIDI Port";
-		}
 		m_clickprocessor = new VizServerClickProcessor(this);
 		m_scheduler->SetClickProcessor(m_clickprocessor);
 
-		m_scheduler->StartMidi(m_midi_input_list, m_midi_output_list, m_midi_merge_list);
+		m_scheduler->StartMidi(config);
 	}
 	catch (NosuchException& e) {
 		DEBUGPRINT(("NosuchException: %s", e.message()));
@@ -1390,14 +1402,14 @@ VizServer::_processServerConfig(cJSON* json) {
 	if ((j = jsonGetString(json, "sharedmemname")) != NULL) {
 		m_sharedmemname = j->valuestring;
 	}
-	if ((j = jsonGetString(json, "midiinput")) != NULL) {
-		m_midi_input_list = j->valuestring;
+	if ((j = jsonGetArray(json, "midiinputs")) != NULL) {
+		m_midiinputs = j;
 	}
 	if ((j = jsonGetString(json, "midimerge")) != NULL) {
-		m_midi_merge_list = j->valuestring;
+		m_midimerges = j;
 	}
-	if ((j = jsonGetString(json, "midioutput")) != NULL) {
-		m_midi_output_list = j->valuestring;
+	if ((j = jsonGetArray(json, "midioutputs")) != NULL) {
+		m_midioutputs = j;
 	}
 	if ((j = jsonGetNumber(json, "errorpopup")) != NULL) {
 		m_do_errorpopup = (j->valueint != 0);
@@ -1488,6 +1500,12 @@ VizServer::VizTags() {
 void
 VizServer::ChangeVizTag(void* handle, const char* p) {
 	m_jsonprocessor->ChangeVizTag(handle, p);
+}
+
+void
+VizServer::ClearJsonCallbacks() {
+	m_jsonprocessor->ClearCallbacks();
+	_setMaxCallbacks();
 }
 
 void

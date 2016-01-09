@@ -2,6 +2,7 @@
 #include "NosuchException.h"
 #include "NosuchScheduler.h"
 #include "NosuchLooper.h"
+#include "NosuchJson.h"
 
 #define TIME_PROC ((int32_t (*)(void *)) Pt_Time)
 #define TIME_INFO NULL
@@ -325,9 +326,14 @@ int findInputDevice(std::string nm, std::string& found_name)
 	return findDevice(nm,1,found_name);
 }
 
-bool NosuchScheduler::StartMidi(std::string midi_input, std::string midi_output, std::string midi_merge) {
+bool NosuchScheduler::StartMidi(cJSON* config) {
+
 	if (m_running)
 		return true;
+
+	cJSON* midi_inputs = jsonGetArray(config, "midiinputs");
+	cJSON* midi_outputs = jsonGetArray(config, "midioutputs");
+	cJSON* midi_merges = jsonGetArray(config, "midimerges");
 
 	m_timestamp0 = 0;
 
@@ -335,42 +341,57 @@ bool NosuchScheduler::StartMidi(std::string midi_input, std::string midi_output,
 	DEBUGPRINT(("Calling Pt_Start with resolution=%d", resolution));
 	Pt_Start(resolution, midi_callback, (void *)this);
 
-	std::vector<std::string> inputs = NosuchSplitOnString(midi_input, ";");
-	std::vector<std::string> outputs = NosuchSplitOnString(midi_output, ";");
-	std::vector<std::string> merges = NosuchSplitOnString(midi_merge, ";");
+	// std::vector<std::string> inputs = NosuchSplitOnString(midi_input, ";");
+	// std::vector<std::string> outputs = NosuchSplitOnString(midi_output, ";");
+	// std::vector<std::string> merges = NosuchSplitOnString(midi_merge, ";");
 
-	m_midi_input_stream.resize(inputs.size());
-	m_midi_input_name.resize(inputs.size());
+	size_t ninputs = cJSON_GetArraySize(midi_inputs);
+	m_midi_input_stream.resize(ninputs);
+	m_midi_input_name.resize(ninputs);
 
-	m_midi_output_stream.resize(outputs.size());
-	m_midi_output_name.resize(outputs.size());
+	size_t noutputs = cJSON_GetArraySize(midi_outputs);
+	m_midi_output_stream.resize(noutputs);
+	m_midi_output_name.resize(noutputs);
 
-	m_midi_merge_outport.resize(merges.size());
-	m_midi_merge_name.resize(merges.size());
+	size_t nmerges = cJSON_GetArraySize(midi_merges);
+	m_midi_merge_outport.resize(nmerges);
+	m_midi_merge_name.resize(nmerges);
 
-	for (size_t i = 0; i < inputs.size(); i++) {
-		m_midi_input_stream[i] = _openMidiInput(inputs[i]);
-		m_midi_input_name[i] = inputs[i];
+	if (nmerges > 0 && nmerges != ninputs) {
+		throw NosuchException("midimerges isn't the same size as midiinputs!?");
 	}
-	for (size_t i = 0; i < outputs.size(); i++) {
-		m_midi_output_stream[i] = _openMidiOutput(outputs[i]);
-		m_midi_output_name[i] = outputs[i];
+
+	for (size_t i = 0; i < ninputs; i++) {
+		cJSON *j = cJSON_GetArrayItem(midi_inputs,i);
+		NosuchAssert(j->type == cJSON_String);
+		m_midi_input_stream[i] = _openMidiInput(j->valuestring);
+		m_midi_input_name[i] = j->valuestring;
 	}
-	for (size_t i = 0; i < merges.size(); i++) {
-		m_midi_merge_name[i] = merges[i];
+	for (size_t i = 0; i < noutputs; i++) {
+		cJSON *j = cJSON_GetArrayItem(midi_outputs,i);
+		NosuchAssert(j->type == cJSON_String);
+		m_midi_output_stream[i] = _openMidiOutput(j->valuestring);
+		m_midi_output_name[i] = j->valuestring;
+	}
+	for (size_t i = 0; i < nmerges; i++) {
+		cJSON *j = cJSON_GetArrayItem(midi_merges,i);
+		NosuchAssert(j->type == cJSON_String);
+		m_midi_merge_name[i] = j->valuestring;
 		// Find the output port in the m_midi_output_* list
 		int outport = -1;
-		for (size_t k = 0; k < outputs.size(); k++) {
-			if (merges[i] == m_midi_output_name[k]) {
+		for (size_t k = 0; k < noutputs; k++) {
+			if (m_midi_merge_name[i] == m_midi_output_name[k]) {
 				outport = k;
 				break;
 			}
 		}
-		m_midi_merge_outport[i] = outport;
 		if (outport < 0) {
-			DEBUGPRINT(("Didn't find midimerge value '%s' in midioutputs!", merges[i]));
+			throw NosuchException("Didn't find midimerge value '%s' in midioutputs!", m_midi_merge_name[i].c_str());
 		}
+		m_midi_merge_outport[i] = outport;
 	}
+
+	DEBUGPRINT(("MIDI started: %d inputs, %d outputs",ninputs,noutputs));
 
 	m_running = true;
 	return true;
@@ -388,7 +409,7 @@ NosuchScheduler::_openMidiOutput(std::string midi_output) {
 		DEBUGPRINT(("Unable to open MIDI output: %s", midi_output.c_str()));
 		return NULL;
 	}
-	DEBUGPRINT(("Found MIDI output:%s", found_output.c_str()));
+	DEBUGPRINT1(("Found MIDI output:%s", found_output.c_str()));
 
 	PmStream* pm_out;
 	/* use zero latency because we want output to be immediate */
@@ -416,7 +437,7 @@ NosuchScheduler::_openMidiInput(std::string midi_input) {
 		DEBUGPRINT(("Unable to open MIDI input: %s", midi_input.c_str()));
 		return NULL;
 	}
-	DEBUGPRINT(("Found MIDI input: %s", found_input.c_str()));
+	DEBUGPRINT1(("Found MIDI input: %s", found_input.c_str()));
 	PmStream* pm_in;
 	PmError e = Pm_OpenInput(&pm_in, 
 						id, 

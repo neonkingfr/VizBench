@@ -364,6 +364,8 @@ FFFF::randomizePipeline()
 void
 FFFF::clearPipeline()
 {
+	// Are we locked, here?
+
 	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline.begin(); it != m_ff10pipeline.end(); it++) {
 		 DEBUGPRINT1(("--- deleting FF10PluginInstance *it=%ld", (long)(*it)));
 		delete *it;
@@ -375,6 +377,10 @@ FFFF::clearPipeline()
 		delete *it;
 	}
 	m_ffglpipeline.clear();
+
+	// Forget all the callbacks
+	m_vizserver->ClearJsonCallbacks();
+	m_vizserver->AddJsonCallback((void*)this,"ffff",FFFF_json,(void*)this);
 }
 
 void
@@ -719,7 +725,7 @@ FFFF::loadPipelineJson(cJSON* json)
 				if (!params) {
 					throw NosuchException("No params value in vizletdump?");
 				}
-				// DEBUGPRINT(("Pipeline load meth=%s", meth.c_str()));
+				DEBUGPRINT1(("Pipeline load meth=%s params=%s", meth.c_str(),cJSON_PrintUnformatted(params)));
 				std::string fullmethod = std::string(name) + "." + meth;
 				const char* s = m_vizserver->ProcessJson(fullmethod.c_str(), params, "12345");
 			}

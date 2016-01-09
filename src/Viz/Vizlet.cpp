@@ -118,7 +118,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserv
 
 Vizlet::Vizlet() {
 
-	DEBUGPRINT1(("=== Vizlet constructor, dll_pathname=%s",dll_pathname().c_str()));
+	DEBUGPRINT(("=== Vizlet constructor, dll_pathname=%s",dll_pathname().c_str()));
 
 	VizParams::Initialize();
 
@@ -134,7 +134,7 @@ Vizlet::Vizlet() {
 
 	m_vizserver = VizServer::GetServer();
 
-	m_viztag = vizlet_name();
+	SetVizTag(vizlet_name());
 
 	m_mf = MidiFilter();  // ALL Midi
 	m_cf = CursorFilter();  // ALL Cursors
@@ -172,9 +172,9 @@ Vizlet::Vizlet() {
 	SetMinInputs(1);
 	SetMaxInputs(1);
 
-	// _startApiCallbacks(m_viztag.c_str(),(void*)this);
-
-	// init API callback, so the name can be found
+	// init API callback, so things like
+	// restoring a dump can occur early on
+	_startApiCallbacks(m_viztag.c_str(), (void*)this);
 
 #ifdef VIZTAG_PARAMETER
 	SetParamInfo(0,"viztag", FF_TYPE_TEXT, VizTag().c_str());
@@ -395,14 +395,6 @@ click_t Vizlet::SchedulerClicksPerSecond() {
 	}
 }
 
-void Vizlet::SendMidiMsg() {
-	DEBUGPRINT(("Vizlet::SendMidiMsg called - this should go away eventually"));
-	MidiMsg* msg = MidiNoteOn::make(1,80,100);
-	// _vizserver->MakeNoteOn(1,80,100);
-	m_vizserver->SendMidiMsg(msg);
-}
-
-
 void
 Vizlet::_drawnotes(std::list<MidiMsg*>& notes) {
 
@@ -502,7 +494,12 @@ Vizlet::InitCallbacks() {
 	if ( ! m_callbacksInitialized ) {
 
 		DEBUGPRINT1(("InitCallbacks this=%ld", (long)(this)));
-		_startApiCallbacks(m_viztag.c_str(),(void*)this);
+
+		// Api callbacks are started in the Vizlet constructor.
+		// The rest of the callbacks are started here (ie. from ProcessOpenGL),
+		// so they don't get enabled until OpenGL/etc has been completely initialized.
+		// startApiCallbacks(m_viztag.c_str(),(void*)this);
+
 		_startMidiCallbacks(m_mf,(void*)this);
 		_startCursorCallbacks(m_cf,(void*)this);
 		_startKeystrokeCallbacks((void*)this);

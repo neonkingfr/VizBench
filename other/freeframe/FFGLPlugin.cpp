@@ -410,7 +410,7 @@ void loadffglplugindef(std::string ffgldir, std::string dllnm)
 	else {
 		plugin->m_dll = dllnm;
 		plugin->name = plugin->GetPluginName();
-		DEBUGPRINT(("Loaded FFGL plugin file=%s name=%s", dll, plugin->name.c_str()));
+		DEBUGPRINT1(("Loaded FFGL plugin file=%s name=%s", dll, plugin->name.c_str()));
 		ffglplugindefs[nffglplugindefs] = plugin;
 		nffglplugindefs++;
 	}

@@ -19,12 +19,27 @@ CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
 void vizlet_setdll(std::string dll) { }
 
 VizTuio::VizTuio() : Vizlet() {
+
+	DEBUGPRINT(("VizTuio is being created and initialized! this=%ld",(long)this));
+
+	const char* regionnames[] = { "UPPER", "LOWER", "LEFT", "RIGHT", NULL };
+	const char* buttonnames[] = {	"UL1", "UL2", "UL3", "UR1", "UR2", "UR3",
+									"LL1", "LL2", "LL3", "LR1", "LR2", "LR3",
+									NULL
+									};
+
+	const char* s;
+	for (int i = 0; (s=regionnames[i])!=NULL; i++ ) {
+		_region[s] = new Region(s);
+		DEBUGPRINT(("============ NEW REGION viztuio=%ld _region[%s]=%ld",(long)this,s,(long)(_region[s])));
+	}
+	for (int i = 0; (s = buttonnames[i]) != NULL; i++) {
+		_button[s] = new Button(s);
+	}
+
 	_freeframeHost = new ResolumeHost();
 	_palette = new Palette(_freeframeHost);
 
-	// for (int n = 0; n < 4; n++) {
-	// 	_loadSpriteVizParamsFile(NosuchSnprintf("patch_1_%c_on", "ABCD"[n]), _region[n]);
-	// }
 	_autoloadparams = true;
 }
 
@@ -41,126 +56,96 @@ void VizTuio::processCursor(VizCursor* c, int downdragup) {
 	DEBUGPRINT1(("VizTuio::processCursor! downdragup=%d c=%.4f %.4f",downdragup,c->pos.x,c->pos.y));
 	// palette()->processCursor(c,downdragup);
 	if (downdragup == CURSOR_DOWN || downdragup == CURSOR_DRAG) {
-		_cursorSprite(c);
+		SpriteVizParams *sp = NULL;
+		MidiVizParams *mp = NULL;
+		// Look through the regions to find the one that matches the cursor's sid
+		int sid = c->sid;
+		for (const auto &pair : _region ) {
+			if (sid >= pair.second->sid_min && sid <= pair.second->sid_max) {
+				sp = pair.second->spriteparams;
+				mp = pair.second->midiparams;
+				break;
+			}
+		}
+		if (sp) {
+			_cursorSprite(c, sp);
+		}
+		if (mp) {
+			_cursorMidi(c,mp);
+		}
 	}
 }
 
 std::string VizTuio::processJson(std::string meth, cJSON *json, const char *id) {
 	// NO OpenGL calls here
 
+	DEBUGPRINT1(("VizTuio::processJson viztuio=%ld meth=%s",(long)this,meth.c_str()));
 	if (meth == "apis") {
-		return jsonStringResult(
-
-			"set_region_A_sid(sid);set_region_A_sprite(paramfile);set_region_A_midi(paramfile);"
-			"set_region_B_sid(sid);set_region_B_sprite(paramfile);set_region_B_midi(paramfile);"
-			"set_region_C_sid(sid);set_region_C_sprite(paramfile);set_region_C_midi(paramfile);"
-			"set_region_D_sid(sid);set_region_D_sprite(paramfile);set_region_D_midi(paramfile);"
-
-			"set_button_A_sid(sid);set_button_A_pipeline(pipeline);"
-			"set_button_B_sid(sid);set_button_B_pipeline(pipeline);"
-			"set_button_C_sid(sid);set_button_C_pipeline(pipeline);"
-			"set_button_D_sid(sid);set_button_D_pipeline(pipeline);"
-			"set_button_E_sid(sid);set_button_E_pipeline(pipeline);"
-			"set_button_F_sid(sid);set_button_F_pipeline(pipeline);"
-			"set_button_G_sid(sid);set_button_G_pipeline(pipeline);"
-			"set_button_H_sid(sid);set_button_H_pipeline(pipeline);"
-			"set_button_I_sid(sid);set_button_I_pipeline(pipeline);"
-			"set_button_J_sid(sid);set_button_J_pipeline(pipeline);"
-			"set_button_K_sid(sid);set_button_K_pipeline(pipeline);"
-			"set_button_L_sid(sid);set_button_L_pipeline(pipeline);"
-
-			"set_autoloadparams(onoff);"
-			"testapi();"
-
-			, id);
+		std::string apis = "";
+		for (const auto &pair : _region) {
+			std::string nm = pair.first;
+				apis += "set_" + nm + "_sidrange(sidrange);";
+				apis += "set_" + nm + "_sprite(paramfile);";
+				apis += "set_" + nm + "_midi(paramfile);";
+		}
+		for (const auto &pair : _button) {
+			std::string nm = pair.first;
+				apis += "set_" + nm + "_sidrange(sidrange);";
+				apis += "set_" + nm + "_pipeline(pipeline);";
+		}
+		apis += "set_autoloadparams(onoff);";
+		apis += "testapi();";
+		return jsonStringResult(apis, id);
 	}
+
 	if (meth == "testapi") {
 		DEBUGPRINT(("VizTuio.testapi called!"));
 		return jsonOK(id);
 	}
+
 	if (meth == "dump") {
-		std::string dump =
-			"["
-			+ NosuchSnprintf("{\"method\":\"set_region_A_sid\",\"params\":{\"sid\":\"%s\"}}", _region[0].sid.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_region_B_sid\",\"params\":{\"sid\":\"%s\"}}", _region[1].sid.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_region_C_sid\",\"params\":{\"sid\":\"%s\"}}", _region[2].sid.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_region_D_sid\",\"params\":{\"sid\":\"%s\"}}", _region[3].sid.c_str())
-
-			+ NosuchSnprintf("{\"method\":\"set_region_A_sprite\",\"params\":{\"paramfile\":\"%s\"}}", _region[0].spriteparamfile.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_region_B_sprite\",\"params\":{\"paramfile\":\"%s\"}}", _region[1].spriteparamfile.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_region_C_sprite\",\"params\":{\"paramfile\":\"%s\"}}", _region[2].spriteparamfile.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_region_D_sprite\",\"params\":{\"paramfile\":\"%s\"}}", _region[3].spriteparamfile.c_str())
-
-			+ NosuchSnprintf("{\"method\":\"set_region_A_midi\",\"params\":{\"paramfile\":\"%s\"}}", _region[0].midiparamfile.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_region_B_midi\",\"params\":{\"paramfile\":\"%s\"}}", _region[1].midiparamfile.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_region_C_midi\",\"params\":{\"paramfile\":\"%s\"}}", _region[2].midiparamfile.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_region_D_midi\",\"params\":{\"paramfile\":\"%s\"}}", _region[3].midiparamfile.c_str())
-
-			+ NosuchSnprintf("{\"method\":\"set_button_A_sid\",\"params\":{\"sid\":\"%s\"}}", _button[0].sid.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_B_sid\",\"params\":{\"sid\":\"%s\"}}", _button[1].sid.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_C_sid\",\"params\":{\"sid\":\"%s\"}}", _button[2].sid.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_D_sid\",\"params\":{\"sid\":\"%s\"}}", _button[3].sid.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_E_sid\",\"params\":{\"sid\":\"%s\"}}", _button[4].sid.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_F_sid\",\"params\":{\"sid\":\"%s\"}}", _button[5].sid.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_G_sid\",\"params\":{\"sid\":\"%s\"}}", _button[6].sid.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_H_sid\",\"params\":{\"sid\":\"%s\"}}", _button[7].sid.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_I_sid\",\"params\":{\"sid\":\"%s\"}}", _button[8].sid.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_J_sid\",\"params\":{\"sid\":\"%s\"}}", _button[9].sid.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_K_sid\",\"params\":{\"sid\":\"%s\"}}", _button[10].sid.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_L_sid\",\"params\":{\"sid\":\"%s\"}}", _button[11].sid.c_str())
-
-			+ NosuchSnprintf("{\"method\":\"set_button_A_pipeline\",\"params\":{\"pipeline\":\"%s\"}}", _button[0].pipeline.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_B_pipeline\",\"params\":{\"pipeline\":\"%s\"}}", _button[1].pipeline.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_C_pipeline\",\"params\":{\"pipeline\":\"%s\"}}", _button[2].pipeline.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_D_pipeline\",\"params\":{\"pipeline\":\"%s\"}}", _button[3].pipeline.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_E_pipeline\",\"params\":{\"pipeline\":\"%s\"}}", _button[4].pipeline.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_F_pipeline\",\"params\":{\"pipeline\":\"%s\"}}", _button[5].pipeline.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_G_pipeline\",\"params\":{\"pipeline\":\"%s\"}}", _button[6].pipeline.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_H_pipeline\",\"params\":{\"pipeline\":\"%s\"}}", _button[7].pipeline.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_I_pipeline\",\"params\":{\"pipeline\":\"%s\"}}", _button[8].pipeline.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_J_pipeline\",\"params\":{\"pipeline\":\"%s\"}}", _button[9].pipeline.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_K_pipeline\",\"params\":{\"pipeline\":\"%s\"}}", _button[10].pipeline.c_str())
-			+ NosuchSnprintf("{\"method\":\"set_button_L_pipeline\",\"params\":{\"pipeline\":\"%s\"}}", _button[11].pipeline.c_str())
-
-			+ "]"
-			;
+		std::string dump = "[";
+		std::string sep = "";
+		for (const auto &pair : _region) {
+			dump += sep + NosuchSnprintf("{\"method\":\"set_%s_sidrange\",\"params\":{\"sidrange\":\"%d-%d\"}}", pair.first.c_str(), pair.second->sid_min, pair.second->sid_max);
+			sep = ",";
+			dump += sep + NosuchSnprintf("{\"method\":\"set_%s_sprite\",\"params\":{\"paramfile\":\"%s\"}}", pair.first.c_str(), pair.second->spriteparamfile.c_str());
+			dump += sep + NosuchSnprintf("{\"method\":\"set_%s_midi\",\"params\":{\"paramfile\":\"%s\"}}", pair.first.c_str(), pair.second->midiparamfile.c_str());
+		}
+		for (const auto &pair : _button) {
+			dump += sep + NosuchSnprintf("{\"method\":\"set_%s_sidrange\",\"params\":{\"sidrange\":\"%d-%d\"}}", pair.first.c_str(), pair.second->sid_min, pair.second->sid_max);
+			dump += sep + NosuchSnprintf("{\"method\":\"set_%s_pipeline\",\"params\":{\"pipeline\":\"%s\"}}", pair.first.c_str(), pair.second->pipeline.c_str());
+		}
+		dump += "]";
 		return jsonStringResult(dump, id);
 	}
-	if (meth == "restore") {
-		std::string dump = jsonNeedString(json, "dump");
-		ExecuteDump(dump);
-		return jsonOK(id);
+
+	// Here we go through all the region names and look for their set/get methods
+	for (const auto &pair : _region) {
+		std::string nm = pair.first;
+		Region* r = pair.second;
+
+		if (meth == "set_" + nm + "_sidrange") { return _set_sidrange(r, json, id); }
+		if (meth == "get_" + nm + "_sidrange") { return jsonStringResult(NosuchSnprintf("%d-%d", r->sid_min, r->sid_max), id); }
+
+		if (meth == "set_" + nm + "_sprite") { return _set_region_spriteparams(r, json, id); }
+		if (meth == "get_" + nm + "_sprite") { return jsonStringResult(r->spriteparamfile, id); }
+
+		if (meth == "set_" + nm + "_midi") { return _set_region_midiparams(r, json, id); }
+		if (meth == "get_" + nm + "_midi") { return jsonStringResult(r->midiparamfile, id); }
 	}
 
-	if (meth == "set_region_A_sid") { return _set_region_sid(_region[0], json, id); }
-	if (meth == "get_region_A_sid") { return jsonStringResult(_region[0].sid, id); }
-	if (meth == "set_region_B_sid") { return _set_region_sid(_region[1], json, id); }
-	if (meth == "get_region_B_sid") { return jsonStringResult(_region[1].sid, id); }
-	if (meth == "set_region_C_sid") { return _set_region_sid(_region[2], json, id); }
-	if (meth == "get_region_C_sid") { return jsonStringResult(_region[2].sid, id); }
-	if (meth == "set_region_D_sid") { return _set_region_sid(_region[3], json, id); }
-	if (meth == "get_region_D_sid") { return jsonStringResult(_region[3].sid, id); }
+	// Here we go through all the button names and look for their set/get methods
+	for (const auto &pair : _button) {
+		std::string nm = pair.first;
+		Button* b = pair.second;
 
-	if (meth == "set_region_A_sprite") { return _set_region_spriteparams(_region[0], json, id); }
-	if (meth == "get_region_A_sprite") { return jsonStringResult(_region[0].spriteparamfile, id); }
-	if (meth == "set_region_B_sprite") { return _set_region_spriteparams(_region[1], json, id); }
-	if (meth == "get_region_B_sprite") { return jsonStringResult(_region[1].spriteparamfile, id); }
-	if (meth == "set_region_C_sprite") { return _set_region_spriteparams(_region[2], json, id); }
-	if (meth == "get_region_C_sprite") { return jsonStringResult(_region[2].spriteparamfile, id); }
-	if (meth == "set_region_D_sprite") { return _set_region_spriteparams(_region[3], json, id); }
-	if (meth == "get_region_D_sprite") { return jsonStringResult(_region[3].spriteparamfile, id); }
+		if (meth == "set_" + nm + "_sidrange") { return _set_sidrange(b, json, id); }
+		if (meth == "get_" + nm + "_sidrange") { return jsonStringResult(NosuchSnprintf("%d-%d", b->sid_min, b->sid_max), id); }
 
-	if (meth == "set_region_A_midi") { return _set_region_midiparams(_region[0], json, id); }
-	if (meth == "get_region_A_midi") { return jsonStringResult(_region[0].midiparamfile, id); }
-	if (meth == "set_region_B_midi") { return _set_region_midiparams(_region[1], json, id); }
-	if (meth == "get_region_B_midi") { return jsonStringResult(_region[1].midiparamfile, id); }
-	if (meth == "set_region_C_midi") { return _set_region_midiparams(_region[2], json, id); }
-	if (meth == "get_region_C_midi") { return jsonStringResult(_region[2].midiparamfile, id); }
-	if (meth == "set_region_D_midi") { return _set_region_midiparams(_region[3], json, id); }
-	if (meth == "get_region_D_midi") { return jsonStringResult(_region[3].midiparamfile, id); }
-
-	if (meth == "set_region_A_midi") { return _set_region_midiparams(_region[0], json, id); }
-	if (meth == "get_region_A_midi") { return jsonStringResult(_region[0].midiparamfile, id); }
+		if (meth == "set_" + nm + "_pipeline") { return _set_button_pipeline(b, json, id); }
+		if (meth == "get_" + nm + "_pipeline") { return jsonStringResult(b->pipeline, id); }
+	}
 
 	// PARAMETER "autoloadparams"
 	if (meth == "set_autoloadparams") {
@@ -174,8 +159,28 @@ std::string VizTuio::processJson(std::string meth, cJSON *json, const char *id) 
 	throw NosuchException("VizTuio - Unrecognized method '%s'",meth.c_str());
 }
 
+void
+VizTuio::_reloadParams(Region* r) {
+	SpriteVizParams* p;
+	p = checkSpriteVizParamsAndLoadIfModifiedSince(r->spriteparamfile, r->lastspritefilecheck, r->lastspritefileupdate);
+	if (p) {
+		r->spriteparams = p;
+	}
+	MidiVizParams* m;
+	m = checkMidiVizParamsAndLoadIfModifiedSince(r->midiparamfile, r->lastmidifilecheck, r->lastmidifileupdate);
+	if (m) {
+		r->midiparams = m;
+	}
+}
+
 bool VizTuio::processDraw() {
 	// OpenGL calls here
+	if (_autoloadparams) {
+		for (const auto &pair : _region ) {
+			Region* r = pair.second;
+			_reloadParams(r);
+		}
+	}
 	DrawVizSprites();
 	return true;
 }
@@ -187,70 +192,65 @@ void VizTuio::processAdvanceTimeTo(int milli) {
 	palette()->AdvanceTo(milli);
 }
 
-void VizTuio::_cursorSprite(VizCursor* c) {
+int VizTuio::_channelOf(VizCursor* c) {
+	return 1;
+}
 
-	DEBUGPRINT(("cursorSprite! xy=", c->pos.x, c->pos.y, c->pos.z));
+int VizTuio::_pitchOf(VizCursor* c) {
+	return 80;
+}
 
-#if 0
-	int minpitch = 0;
-	int maxpitch = 127;
+int VizTuio::_velocityOf(VizCursor* c) {
+	return 100;
+}
 
-	if ( m->MidiType() == MIDI_NOTE_ON ) {
-		if ( m->Velocity() == 0 ) {
-			DEBUGPRINT(("Vizlet1 sees noteon with 0 velocity, ignoring"));
-			return;
-		}
-		// control color with channel
-		NosuchColor clr = channelColor(m->Channel());
-		double hue = clr.hue();
-		int ch = m->Channel();  // returns 1-16
-		_midiparams[ch]->hueinitial.set(hue);
-		_midiparams[ch]->huefinal.set(hue);
-		_midiparams[ch]->huefillinitial.set(hue);
-		_midiparams[ch]->huefillfinal.set(hue);
+void VizTuio::_cursorMidi(VizCursor* c, MidiVizParams* p) {
+	MidiPhrase *ph = new MidiPhrase();
+	int ch = _channelOf(c);
+	int pitch = _pitchOf(c);
+	int vel = _velocityOf(c);
+	click_t now = SchedulerCurrentClick();
+	int bpm = 120;
+	click_t clksperbeat = SchedulerClicksPerSecond() * 60 / bpm;
+	click_t eighth = clksperbeat / 2;  // A beat is a quarter note, so this is an eighth note
+	click_t dur = 4 * eighth;
 
-		NosuchPos pos;
-		float movedir = 0.0;
-		bool randposdir = false;
-		if ( randposdir ) {
-			pos.x = pos.y = 0.5;
-			pos.z = (m->Velocity()*m->Velocity()) / (128.0*128.0);
-			movedir = (float)(rand() % 360);
-		} else {
-			switch ( m->Channel() % 2 ) {
-			case 0:
-				pos.x = (m->Pitch() / 127.0);
-				pos.y = 0.2;
-				movedir = 0.0;
-				break;
-			case 1:
-				pos.x = (m->Pitch() / 127.0);
-				pos.y = 0.8;
-				movedir = 180.0;
-				break;
-			}
-			pos.z = (m->Velocity()*m->Velocity()) / (128.0*128.0);
-		}
+	MidiNoteOn *noteon = MidiNoteOn::make(ch, pitch, vel);
+	MidiNoteOff *noteoff = MidiNoteOff::make(ch, pitch, 0);
+	ph->insert(noteon, 0);
+	ph->insert(noteoff, dur);
+	QueueMidiPhrase(ph, now);
+}
 
-		_midiparams[ch]->movedir.set(movedir);
+void VizTuio::_cursorSprite(VizCursor* c, SpriteVizParams* spriteparams) {
 
-		makeAndAddVizSprite(_midiparams[ch], pos);
+	DEBUGPRINT1(("cursorSprite! sid=%d xyz = %.5f %.5f %.5f", c->sid, c->pos.x, c->pos.y, c->pos.z));
 
-		// pos.x += 0.2;
-		// makeAndAddVizSprite(_midiparams, pos);
+	NosuchPos pos = c->pos;
+	double movedir = 0.0;
+	bool randpos = false;
+	if (randpos) {
+		pos.x = pos.y = 0.5;
+		// pos.z = (m->Velocity()*m->Velocity()) / (128.0*128.0);
+		movedir = (double)(rand() % 360);
+		spriteparams->movedir.set(movedir);
 	}
-#endif
+	else {
+		movedir = spriteparams->movedir.get();
+	}
 
+	DEBUGPRINT2(("_cursorSprite spriteparams=%ld shape=%s",(long)spriteparams,spriteparams->shape.get().c_str()));
+	makeAndAddVizSprite(spriteparams, pos);
 }
 
 std::string
-VizTuio::_set_region_spriteparams(region_info& regioninfo, cJSON* json, const char* id)
+VizTuio::_set_region_spriteparams(Region* r, cJSON* json, const char* id)
 {
 	std::string file = jsonNeedString(json, "paramfile", "");
 	if (file == "") {
 		return jsonError(-32000, "Bad file value", id);
 	}
-	if (_loadSpriteVizParamsFile(file, regioninfo)) {
+	if (_loadSpriteVizParamsFile(file, r)) {
 		return jsonOK(id);
 	}
 	else {
@@ -259,51 +259,62 @@ VizTuio::_set_region_spriteparams(region_info& regioninfo, cJSON* json, const ch
 }
 
 std::string
-VizTuio::_set_region_sid(region_info& regioninfo, cJSON* json, const char* id)
+VizTuio::_set_sidrange(SidRangeable* b, cJSON* json, const char* id)
 {
-	std::string sid = jsonNeedString(json, "sid", "");
-	if (sid == "") {
-		return jsonError(-32000, "Bad sid value", id);
+	std::string sidrange = jsonNeedString(json, "sidrange", "");
+	if (sidrange == "") {
+		return jsonError(-32000, "Bad sidrange value", id);
 	}
 	int sidmin;
 	int sidmax;
-	int n = sscanf(sid.c_str(), "%d-%d",&sidmin,&sidmax);
+	int n = sscanf(sidrange.c_str(), "%d-%d",&sidmin,&sidmax);
 	if (n == 1) {
-		regioninfo.sid_min = sidmin;
-		regioninfo.sid_max = sidmin;
+		b->sid_min = sidmin;
+		b->sid_max = sidmin;
 	}
 	else if (n == 2) {
-		regioninfo.sid_min = sidmin;
-		regioninfo.sid_max = sidmax;
+		b->sid_min = sidmin;
+		b->sid_max = sidmax;
 	}
 	else {
-		return jsonError(-32000, "Unable to interpret sid value: %s", sid.c_str());
+		return jsonError(-32000, "Unable to interpret sidrange value: %s", sidrange.c_str());
 	}
 	return jsonOK(id);
 }
 
-bool VizTuio::_loadSpriteVizParamsFile(std::string fname, VizTuio::region_info& regioninfo) {
-	regioninfo.lastspritefilecheck = time(0);
-	regioninfo.lastspritefileupdate = time(0);
+std::string
+VizTuio::_set_button_pipeline(Button* b, cJSON* json, const char* id)
+{
+	std::string pipeline = jsonNeedString(json, "pipeline", "");
+	if (pipeline == "") {
+		return jsonError(-32000, "Bad pipeline value", id);
+	}
+	b->pipeline = pipeline;
+	return jsonOK(id);
+}
+
+bool VizTuio::_loadSpriteVizParamsFile(std::string fname, VizTuio::Region* r) {
+	r->lastspritefilecheck = time(0);
+	r->lastspritefileupdate = time(0);
 	SpriteVizParams* p = getSpriteVizParams(fname);
 	if (!p) {
-		regioninfo.spriteparamfile = "";
-		regioninfo.spriteparams = NULL;
+		r->spriteparamfile = "";
+		r->spriteparams = NULL;
 		return false;
 	}
-	regioninfo.spriteparamfile = fname;
-	regioninfo.spriteparams = p;
+	r->spriteparamfile = fname;
+	r->spriteparams = p;
 	return true;
 }
 
 std::string
-VizTuio::_set_region_midiparams(region_info& regioninfo, cJSON* json, const char* id)
+VizTuio::_set_region_midiparams(Region* r, cJSON* json, const char* id)
 {
 	std::string file = jsonNeedString(json, "paramfile", "");
 	if (file == "") {
 		return jsonError(-32000, "Bad file value", id);
 	}
-	if (_loadMidiVizParamsFile(file, regioninfo)) {
+	if (_loadMidiVizParamsFile(file, r)) {
 		return jsonOK(id);
 	}
 	else {
@@ -311,16 +322,16 @@ VizTuio::_set_region_midiparams(region_info& regioninfo, cJSON* json, const char
 	}
 }
 
-bool VizTuio::_loadMidiVizParamsFile(std::string fname, VizTuio::region_info& regioninfo) {
-	regioninfo.lastmidifilecheck = time(0);
-	regioninfo.lastmidifileupdate = time(0);
+bool VizTuio::_loadMidiVizParamsFile(std::string fname, VizTuio::Region* r) {
+	r->lastmidifilecheck = time(0);
+	r->lastmidifileupdate = time(0);
 	MidiVizParams* p = getMidiVizParams(fname);
 	if (!p) {
-		regioninfo.midiparamfile = "";
-		regioninfo.midiparams = NULL;
+		r->midiparamfile = "";
+		r->midiparams = NULL;
 		return false;
 	}
-	regioninfo.midiparamfile = fname;
-	regioninfo.midiparams = p;
+	r->midiparamfile = fname;
+	r->midiparams = p;
 	return true;
 }

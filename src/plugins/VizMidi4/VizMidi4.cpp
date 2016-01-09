@@ -127,11 +127,6 @@ std::string VizMidi4::processJson(std::string meth, cJSON *json, const char *id)
 			;
 		return jsonStringResult(dump,id);
 	}
-	if (meth == "restore") {
-		std::string dump = jsonNeedString(json, "dump");
-		ExecuteDump(dump);
-		return jsonOK(id);
-	}
 
 	if (meth == "set_channel_A") { m_sprite_on[0].channel = jsonNeedInt(json, "channel"); return jsonOK(id); }
 	if (meth == "get_channel_A") { return jsonIntResult(m_sprite_on[0].channel,id); }
@@ -279,6 +274,7 @@ bool VizMidi4::processDraw() {
 #endif
 
 	// XXX SHOULDN'T REALLY DO THIS SO OFTEN...
+	// If you change this to do it less often, the cnt stuff below should be changed as well
 	if (m_autoloadparams) {
 		static int cnt = 999;
 		cnt = (cnt+1) % 4;	// cycle between the 4 

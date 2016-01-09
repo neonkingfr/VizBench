@@ -353,12 +353,14 @@ int Vizlet10::SchedulerCurrentClick() {
 	}
 }
 
+#if 0
 void Vizlet10::SendMidiMsg() {
 	DEBUGPRINT(("Vizlet10::SendMidiMsg called - this should go away eventually"));
 	MidiMsg* msg = MidiNoteOn::make(1,80,100);
 	// _vizserver->MakeNoteOn(1,80,100);
 	m_vizserver->SendMidiMsg(msg);
 }
+#endif
 
 void Vizlet10::_stopstuff() {
 	if ( m_stopped )

@@ -178,7 +178,7 @@ public:
 
 	NosuchGraphics graphics;
 
-	void SendMidiMsg();
+	// void SendMidiMsg();
 	// void DrawNotesDown();
 	int FrameNum() { return m_framenum; }
 

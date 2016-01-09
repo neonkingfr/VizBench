@@ -5,9 +5,8 @@ typedef int click_t;
 
 #include "NosuchUtil.h"
 #include "NosuchMidi.h"
+#include "NosuchJSON.h"
 #include "porttime.h"
-#include "portmidi.h"
-#include "pmutil.h"
 #include "NosuchGraphics.h"
 #include <pthread.h>
 #include <list>
@@ -196,7 +195,7 @@ public:
 	void SetMidiOutputListener(NosuchMidiListener* client) {
 		m_midioutput_client = client;
 	}
-	bool StartMidi(std::string midi_input, std::string midi_output, std::string midi_merge);
+	bool StartMidi(cJSON *config);
 	void Stop();
 	void AdvanceTimeAndDoEvents(PtTimestamp timestamp);
 	void Callback(PtTimestamp timestamp);

@@ -23,10 +23,25 @@ public:
 
 private:
 
-	struct region_info {
-		std::string sid;
+	class SidRangeable {
+	public:
 		int sid_min;
 		int sid_max;
+		// std::string sid_source;   // eventually
+	};
+
+	class Region : public SidRangeable {
+	public:
+		Region(std::string nm) {
+			name = nm;
+			sid_min = 0;
+			sid_max = 0;
+			spriteparamfile = nm + "_default";
+			midiparamfile = nm + "_default";
+			spriteparams = NULL;
+			midiparams = NULL;
+		}
+		std::string name;
 		SpriteVizParams* spriteparams;
 		std::string spriteparamfile;
 		std::time_t lastspritefileupdate;
@@ -37,23 +52,40 @@ private:
 		std::time_t lastmidifilecheck;
 	};
 
-	struct button_info {
-		std::string sid;
-		int sid_min;
-		int sid_max;
+	class Button : public SidRangeable {
+	public:
+		Button(std::string nm) {
+			name = nm;
+			sid_min = 0;
+			sid_max = 0;
+			pipeline = "viztuio_default";
+		}
+		std::string name;
 		std::string pipeline;
 	};
 
-	std::string _set_region_spriteparams(region_info& regioninfo, cJSON* json, const char* id);
-	bool _loadSpriteVizParamsFile(std::string fname, region_info& regioninfo);
-	std::string _set_region_midiparams(region_info& regioninfo, cJSON* json, const char* id);
-	bool _loadMidiVizParamsFile(std::string fname, region_info& regioninfo);
-	std::string _set_region_sid(region_info& regioninfo, cJSON* json, const char* id);
+	std::string _set_sidrange(SidRangeable* r, cJSON* json, const char* id);
 
-	void _cursorSprite(VizCursor* c);
+	std::string _set_region_spriteparams(Region* r, cJSON* json, const char* id);
+	std::string _set_region_midiparams(Region* r, cJSON* json, const char* id);
 
-	struct region_info _region[4];
-	struct button_info _button[12];
+	std::string _set_button_pipeline(Button* r, cJSON* json, const char* id);
+
+	bool _loadSpriteVizParamsFile(std::string fname, Region* r);
+	bool _loadMidiVizParamsFile(std::string fname, Region* r);
+
+	void _reloadParams(Region* r);
+
+	void _cursorSprite(VizCursor* c, SpriteVizParams* p);
+	void _cursorMidi(VizCursor* c, MidiVizParams* p);
+
+	int _pitchOf(VizCursor* c);
+	int _velocityOf(VizCursor* c);
+	int _channelOf(VizCursor* c);
+
+	std::map<std::string,Region*> _region;
+	std::map<std::string,Button*> _button;
+
 	FreeFrameHost* _freeframeHost;
 	Palette* _palette;
 	bool _autoloadparams;

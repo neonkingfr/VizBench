@@ -50,7 +50,7 @@ bool FF10PluginDef::Load(std::string Path)
 	std::wstring wPath = s2ws(Path);
     // m_hInst = LoadLibrary(wPath.c_str());
     m_hInst = LoadLibrary(wPath.c_str());
-	DEBUGPRINT(("FF10PluginDef Load path=%s",Path.c_str()));
+	DEBUGPRINT1(("FF10PluginDef Load path=%s",Path.c_str()));
     if ( m_hInst == NULL ) {
         dwError = GetLastError();
         DEBUGPRINT(("LoadLibrary of %s failed, dwError = %d\n",Path.c_str(),dwError));
@@ -415,10 +415,9 @@ void loadff10plugindef(std::string ffdir, std::string dllnm)
 		DEBUGPRINT(("Unable to load %s\n", dll_fname.c_str()));
 	}
 	else {
-		DEBUGPRINT1(("LOADED! %s\n", dll_fname.c_str()));
 		plugin->m_dll = dllnm;
 		plugin->name = plugin->GetPluginName();
-		DEBUGPRINT(("Loaded FF10 plugin file=%s name=%s", dll_fname.c_str(), plugin->name.c_str()));
+		DEBUGPRINT1(("Loaded FF10 plugin file=%s name=%s", dll_fname.c_str(), plugin->name.c_str()));
 		ff10plugindefs[nff10plugindefs] = plugin;
 		nff10plugindefs++;
 	}
