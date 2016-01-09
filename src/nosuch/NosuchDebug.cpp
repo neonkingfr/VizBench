@@ -320,10 +320,14 @@ SetVizPath(std::string vb) {
 std::string
 VizConfigPath(std::string f1, std::string f2, std::string f3)
 {
-	char* v = getenv("VIZCONFIG");
+	static char* v = NULL;
 	if (v == NULL) {
-		v = "config_default";
+		v = getenv("VIZCONFIG");
+		if (v == NULL) {
+			v = "config";
+		}
 	}
+
 	std::string path = VizPath(v);
 	// XXX - Should use varargs
 	if (f1 != "") {
