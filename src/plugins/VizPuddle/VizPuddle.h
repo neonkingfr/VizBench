@@ -1,16 +1,16 @@
-#ifndef _VizTuio_H
-#define _VizTuio_H
+#ifndef _VizPuddle_H
+#define _VizPuddle_H
 
 #include "Palette.h"
 #include "FreeFrameHost.h"
 #include "ResolumeHost.h"
 #include "MidiVizParams.h"
 
-class VizTuio : public Vizlet
+class VizPuddle : public Vizlet
 {
 public:
-	VizTuio();
-	~VizTuio();
+	VizPuddle();
+	~VizPuddle();
 
 	static DWORD __stdcall CreateInstance(CFreeFrameGLPlugin **ppInstance);
 
@@ -58,7 +58,7 @@ private:
 			name = nm;
 			sid_min = 0;
 			sid_max = 0;
-			pipeline = "viztuio_default";
+			pipeline = "puddle_default";
 		}
 		std::string name;
 		std::string pipeline;

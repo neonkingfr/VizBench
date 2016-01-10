@@ -36,3 +36,6 @@ sizetime	double	0.01	10.0	2.0		# secs
 speedinitial		double	0.0	1.0	0.0		#
 thickness	double	0.01	10.0	3.0		#
 zable		bool	false	true	true		#
+zexponential	double	1.00	4.0	1.0		#
+zmultiply	double	0.00	2.0	1.0		#
+zoffset		double	0.00	1.0	0.0		#

@@ -43,6 +43,9 @@ extern char* SpriteVizParamsNames[];
 	"speedinitial",\
 	"thickness",\
 	"zable",\
+	"zexponential",\
+	"zmultiply",\
+	"zoffset",\
 	NULL
 
 class SpriteVizParams : public VizParams {
@@ -130,6 +133,12 @@ public:
 		if (j) { thickness.set(j); }
 		j = cJSON_GetObjectItem(json,"zable");
 		if (j) { zable.set(j); }
+		j = cJSON_GetObjectItem(json,"zexponential");
+		if (j) { zexponential.set(j); }
+		j = cJSON_GetObjectItem(json,"zmultiply");
+		if (j) { zmultiply.set(j); }
+		j = cJSON_GetObjectItem(json,"zoffset");
+		if (j) { zoffset.set(j); }
 	}
 	void loadDefaults() {
 		alphafinal.set(0.0);
@@ -169,6 +178,9 @@ public:
 		speedinitial.set(0.0);
 		thickness.set(3.0);
 		zable.set(true);
+		zexponential.set(1.0);
+		zmultiply.set(1.0);
+		zoffset.set(0.0);
 	}
 	void applyVizParamsFrom(SpriteVizParams* p) {
 		if ( ! p ) { return; }
@@ -209,6 +221,9 @@ public:
 		if ( p->speedinitial.isset() ) { this->speedinitial.set(p->speedinitial.get()); }
 		if ( p->thickness.isset() ) { this->thickness.set(p->thickness.get()); }
 		if ( p->zable.isset() ) { this->zable.set(p->zable.get()); }
+		if ( p->zexponential.isset() ) { this->zexponential.set(p->zexponential.get()); }
+		if ( p->zmultiply.isset() ) { this->zmultiply.set(p->zmultiply.get()); }
+		if ( p->zoffset.isset() ) { this->zoffset.set(p->zoffset.get()); }
 	}
 	void Set(std::string nm, std::string val) {
 		bool stringval = false;
@@ -289,6 +304,12 @@ public:
 			thickness.set(string2double(val));
 		} else if ( nm == "zable" ) {
 			zable.set(string2bool(val));
+		} else if ( nm == "zexponential" ) {
+			zexponential.set(string2double(val));
+		} else if ( nm == "zmultiply" ) {
+			zmultiply.set(string2double(val));
+		} else if ( nm == "zoffset" ) {
+			zoffset.set(string2double(val));
 		}
 
 		if ( ! stringval ) {
@@ -370,6 +391,12 @@ public:
 			thickness.set(adjust(thickness.get(),amount,0.01,10.0));
 		} else if ( nm == "zable" ) {
 			zable.set(adjust(zable.get(),amount));
+		} else if ( nm == "zexponential" ) {
+			zexponential.set(adjust(zexponential.get(),amount,1.00,4.0));
+		} else if ( nm == "zmultiply" ) {
+			zmultiply.set(adjust(zmultiply.get(),amount,0.00,2.0));
+		} else if ( nm == "zoffset" ) {
+			zoffset.set(adjust(zoffset.get(),amount,0.00,1.0));
 		}
 
 	}
@@ -411,6 +438,9 @@ public:
 		if ( nm == "speedinitial" ) { return "0.0"; }
 		if ( nm == "thickness" ) { return "3.0"; }
 		if ( nm == "zable" ) { return "true"; }
+		if ( nm == "zexponential" ) { return "1.0"; }
+		if ( nm == "zmultiply" ) { return "1.0"; }
+		if ( nm == "zoffset" ) { return "0.0"; }
 		return "";
 	}
 	std::string MinValue(std::string nm) {
@@ -451,6 +481,9 @@ public:
 		if ( nm == "speedinitial" ) { return "0.0"; }
 		if ( nm == "thickness" ) { return "0.01"; }
 		if ( nm == "zable" ) { return "false"; }
+		if ( nm == "zexponential" ) { return "1.00"; }
+		if ( nm == "zmultiply" ) { return "0.00"; }
+		if ( nm == "zoffset" ) { return "0.00"; }
 		return "";
 	}
 	std::string MaxValue(std::string nm) {
@@ -491,6 +524,9 @@ public:
 		if ( nm == "speedinitial" ) { return "1.0"; }
 		if ( nm == "thickness" ) { return "10.0"; }
 		if ( nm == "zable" ) { return "true"; }
+		if ( nm == "zexponential" ) { return "4.0"; }
+		if ( nm == "zmultiply" ) { return "2.0"; }
+		if ( nm == "zoffset" ) { return "1.0"; }
 		return "";
 	}
 	void Toggle(std::string nm) {
@@ -595,6 +631,12 @@ public:
 			return DoubleString(thickness.get());
 		} else if ( nm == "zable" ) {
 			return BoolString(zable.get());
+		} else if ( nm == "zexponential" ) {
+			return DoubleString(zexponential.get());
+		} else if ( nm == "zmultiply" ) {
+			return DoubleString(zmultiply.get());
+		} else if ( nm == "zoffset" ) {
+			return DoubleString(zoffset.get());
 		}
 		return "";
 	}
@@ -636,6 +678,9 @@ public:
 		if ( nm == "speedinitial" ) { return "double"; }
 		if ( nm == "thickness" ) { return "double"; }
 		if ( nm == "zable" ) { return "bool"; }
+		if ( nm == "zexponential" ) { return "double"; }
+		if ( nm == "zmultiply" ) { return "double"; }
+		if ( nm == "zoffset" ) { return "double"; }
 		return "";
 	}
 
@@ -676,6 +721,9 @@ public:
 	DoubleParam speedinitial;
 	DoubleParam thickness;
 	BoolParam zable;
+	DoubleParam zexponential;
+	DoubleParam zmultiply;
+	DoubleParam zoffset;
 };
 
 #endif

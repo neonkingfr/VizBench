@@ -1,26 +1,26 @@
 #include "Vizlet.h"
-#include "VizTuio.h"
+#include "VizPuddle.h"
 
 static CFFGLPluginInfo PluginInfo ( 
-	VizTuio::CreateInstance,	// Create method
+	VizPuddle::CreateInstance,	// Create method
 	"V018",		// Plugin unique ID
-	"VizTuio",	// Plugin name	
+	"VizPuddle",	// Plugin name	
 	1,			// API major version number
 	000,		// API minor version number	
 	1,			// Plugin major version number
 	000,		// Plugin minor version number
 	FF_EFFECT,	// Plugin type
-	"VizTuio: a sample visual synth",	// description
+	"VizPuddle: a sample visual synth",	// description
 	"by Tim Thompson - me@timthompson.com" 			// About
 );
 
-std::string vizlet_name() { return "VizTuio"; }
+std::string vizlet_name() { return "VizPuddle"; }
 CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
 void vizlet_setdll(std::string dll) { }
 
-VizTuio::VizTuio() : Vizlet() {
+VizPuddle::VizPuddle() : Vizlet() {
 
-	DEBUGPRINT(("VizTuio is being created and initialized! this=%ld",(long)this));
+	DEBUGPRINT(("VizPuddle is being created and initialized! this=%ld",(long)this));
 
 	const char* regionnames[] = { "UPPER", "LOWER", "LEFT", "RIGHT", NULL };
 	const char* buttonnames[] = {	"UL1", "UL2", "UL3", "UR1", "UR2", "UR3",
@@ -31,7 +31,6 @@ VizTuio::VizTuio() : Vizlet() {
 	const char* s;
 	for (int i = 0; (s=regionnames[i])!=NULL; i++ ) {
 		_region[s] = new Region(s);
-		DEBUGPRINT(("============ NEW REGION viztuio=%ld _region[%s]=%ld",(long)this,s,(long)(_region[s])));
 	}
 	for (int i = 0; (s = buttonnames[i]) != NULL; i++) {
 		_button[s] = new Button(s);
@@ -43,17 +42,17 @@ VizTuio::VizTuio() : Vizlet() {
 	_autoloadparams = true;
 }
 
-VizTuio::~VizTuio() {
+VizPuddle::~VizPuddle() {
 }
 
-DWORD __stdcall VizTuio::CreateInstance(CFreeFrameGLPlugin **ppInstance) {
-	*ppInstance = new VizTuio();
+DWORD __stdcall VizPuddle::CreateInstance(CFreeFrameGLPlugin **ppInstance) {
+	*ppInstance = new VizPuddle();
 	return (*ppInstance != NULL)? FF_SUCCESS : FF_FAIL;
 }
 
-void VizTuio::processCursor(VizCursor* c, int downdragup) {
+void VizPuddle::processCursor(VizCursor* c, int downdragup) {
 	// NO OpenGL calls here
-	DEBUGPRINT1(("VizTuio::processCursor! downdragup=%d c=%.4f %.4f",downdragup,c->pos.x,c->pos.y));
+	DEBUGPRINT1(("VizPuddle::processCursor! downdragup=%d c=%.4f %.4f",downdragup,c->pos.x,c->pos.y));
 	// palette()->processCursor(c,downdragup);
 	if (downdragup == CURSOR_DOWN || downdragup == CURSOR_DRAG) {
 		SpriteVizParams *sp = NULL;
@@ -76,10 +75,10 @@ void VizTuio::processCursor(VizCursor* c, int downdragup) {
 	}
 }
 
-std::string VizTuio::processJson(std::string meth, cJSON *json, const char *id) {
+std::string VizPuddle::processJson(std::string meth, cJSON *json, const char *id) {
 	// NO OpenGL calls here
 
-	DEBUGPRINT1(("VizTuio::processJson viztuio=%ld meth=%s",(long)this,meth.c_str()));
+	DEBUGPRINT1(("VizPuddle::processJson puddle=%ld meth=%s",(long)this,meth.c_str()));
 	if (meth == "apis") {
 		std::string apis = "";
 		for (const auto &pair : _region) {
@@ -99,7 +98,7 @@ std::string VizTuio::processJson(std::string meth, cJSON *json, const char *id) 
 	}
 
 	if (meth == "testapi") {
-		DEBUGPRINT(("VizTuio.testapi called!"));
+		DEBUGPRINT(("VizPuddle.testapi called!"));
 		return jsonOK(id);
 	}
 
@@ -156,11 +155,11 @@ std::string VizTuio::processJson(std::string meth, cJSON *json, const char *id) 
 		return jsonIntResult(_autoloadparams ? 1 : 0, id);
 	}
 
-	throw NosuchException("VizTuio - Unrecognized method '%s'",meth.c_str());
+	throw NosuchException("VizPuddle - Unrecognized method '%s'",meth.c_str());
 }
 
 void
-VizTuio::_reloadParams(Region* r) {
+VizPuddle::_reloadParams(Region* r) {
 	SpriteVizParams* p;
 	p = checkSpriteVizParamsAndLoadIfModifiedSince(r->spriteparamfile, r->lastspritefilecheck, r->lastspritefileupdate);
 	if (p) {
@@ -173,7 +172,7 @@ VizTuio::_reloadParams(Region* r) {
 	}
 }
 
-bool VizTuio::processDraw() {
+bool VizPuddle::processDraw() {
 	// OpenGL calls here
 	if (_autoloadparams) {
 		for (const auto &pair : _region ) {
@@ -185,26 +184,26 @@ bool VizTuio::processDraw() {
 	return true;
 }
 
-void VizTuio::processAdvanceTimeTo(int milli) {
+void VizPuddle::processAdvanceTimeTo(int milli) {
 	// DO NOT PUT DEBUGPRINT HERE!
-	// DEBUGPRINT(("VizTuio::processAdvanceTimeTo milli=%d",milli));
+	// DEBUGPRINT(("VizPuddle::processAdvanceTimeTo milli=%d",milli));
 	// CheckVizCursorUp(milli);
 	palette()->AdvanceTo(milli);
 }
 
-int VizTuio::_channelOf(VizCursor* c) {
+int VizPuddle::_channelOf(VizCursor* c) {
 	return 1;
 }
 
-int VizTuio::_pitchOf(VizCursor* c) {
+int VizPuddle::_pitchOf(VizCursor* c) {
 	return 80;
 }
 
-int VizTuio::_velocityOf(VizCursor* c) {
+int VizPuddle::_velocityOf(VizCursor* c) {
 	return 100;
 }
 
-void VizTuio::_cursorMidi(VizCursor* c, MidiVizParams* p) {
+void VizPuddle::_cursorMidi(VizCursor* c, MidiVizParams* p) {
 	MidiPhrase *ph = new MidiPhrase();
 	int ch = _channelOf(c);
 	int pitch = _pitchOf(c);
@@ -222,7 +221,7 @@ void VizTuio::_cursorMidi(VizCursor* c, MidiVizParams* p) {
 	QueueMidiPhrase(ph, now);
 }
 
-void VizTuio::_cursorSprite(VizCursor* c, SpriteVizParams* spriteparams) {
+void VizPuddle::_cursorSprite(VizCursor* c, SpriteVizParams* spriteparams) {
 
 	DEBUGPRINT1(("cursorSprite! sid=%d xyz = %.5f %.5f %.5f", c->sid, c->pos.x, c->pos.y, c->pos.z));
 
@@ -244,7 +243,7 @@ void VizTuio::_cursorSprite(VizCursor* c, SpriteVizParams* spriteparams) {
 }
 
 std::string
-VizTuio::_set_region_spriteparams(Region* r, cJSON* json, const char* id)
+VizPuddle::_set_region_spriteparams(Region* r, cJSON* json, const char* id)
 {
 	std::string file = jsonNeedString(json, "paramfile", "");
 	if (file == "") {
@@ -259,7 +258,7 @@ VizTuio::_set_region_spriteparams(Region* r, cJSON* json, const char* id)
 }
 
 std::string
-VizTuio::_set_sidrange(SidRangeable* b, cJSON* json, const char* id)
+VizPuddle::_set_sidrange(SidRangeable* b, cJSON* json, const char* id)
 {
 	std::string sidrange = jsonNeedString(json, "sidrange", "");
 	if (sidrange == "") {
@@ -283,7 +282,7 @@ VizTuio::_set_sidrange(SidRangeable* b, cJSON* json, const char* id)
 }
 
 std::string
-VizTuio::_set_button_pipeline(Button* b, cJSON* json, const char* id)
+VizPuddle::_set_button_pipeline(Button* b, cJSON* json, const char* id)
 {
 	std::string pipeline = jsonNeedString(json, "pipeline", "");
 	if (pipeline == "") {
@@ -293,7 +292,7 @@ VizTuio::_set_button_pipeline(Button* b, cJSON* json, const char* id)
 	return jsonOK(id);
 }
 
-bool VizTuio::_loadSpriteVizParamsFile(std::string fname, VizTuio::Region* r) {
+bool VizPuddle::_loadSpriteVizParamsFile(std::string fname, VizPuddle::Region* r) {
 	r->lastspritefilecheck = time(0);
 	r->lastspritefileupdate = time(0);
 	SpriteVizParams* p = getSpriteVizParams(fname);
@@ -308,7 +307,7 @@ bool VizTuio::_loadSpriteVizParamsFile(std::string fname, VizTuio::Region* r) {
 }
 
 std::string
-VizTuio::_set_region_midiparams(Region* r, cJSON* json, const char* id)
+VizPuddle::_set_region_midiparams(Region* r, cJSON* json, const char* id)
 {
 	std::string file = jsonNeedString(json, "paramfile", "");
 	if (file == "") {
@@ -322,7 +321,7 @@ VizTuio::_set_region_midiparams(Region* r, cJSON* json, const char* id)
 	}
 }
 
-bool VizTuio::_loadMidiVizParamsFile(std::string fname, VizTuio::Region* r) {
+bool VizPuddle::_loadMidiVizParamsFile(std::string fname, VizPuddle::Region* r) {
 	r->lastmidifilecheck = time(0);
 	r->lastmidifileupdate = time(0);
 	MidiVizParams* p = getMidiVizParams(fname);

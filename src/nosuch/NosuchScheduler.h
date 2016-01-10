@@ -139,6 +139,7 @@ public:
 		m_clicks_per_clock = 4;
 		NosuchLockInit(&m_scheduled_mutex,"scheduled");
 		NosuchLockInit(&m_notesdown_mutex,"notesdown");
+		NosuchLockInit(&m_queue_mutex,"queue");
 		m_midioutput_client = NULL;
 
 		m_midi_input_stream = std::vector<PmStream*>();
@@ -247,6 +248,9 @@ public:
 	void LockNotesDown() { NosuchLock(&m_notesdown_mutex,"notesdown"); }
 	void UnlockNotesDown() { NosuchUnlock(&m_notesdown_mutex,"notesdown"); }
 
+	void LockQueue() { NosuchLock(&m_queue_mutex,"queue"); }
+	void UnlockQueue() { NosuchUnlock(&m_queue_mutex,"queue"); }
+
 private:
 
 	PmStream* _openMidiInput(std::string input);
@@ -303,6 +307,7 @@ private:
 
 	pthread_mutex_t m_scheduled_mutex;
 	pthread_mutex_t m_notesdown_mutex;
+	pthread_mutex_t m_queue_mutex;
 	bool m_periodic_ANO;
 };
 

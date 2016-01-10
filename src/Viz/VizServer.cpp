@@ -565,7 +565,7 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 		result = jsonError(-32000, "NULL return from json callback", id);
 	}
 	else if (r[0] != '{') {
-		DEBUGPRINT(("HEY! result from json callback doesn't start with '{' !?"));
+		DEBUGPRINT(("HEY! result from json callback doesn't start with '{' !?  r=%s",r));
 		result = jsonError(-32000, "Result from json callback doesn't start with curly brace", id);
 	}
 	else {

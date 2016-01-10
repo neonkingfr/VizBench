@@ -70,10 +70,11 @@ double scale_z(double z, double zexp, double zmult) {
 
 void VizSprite::draw(NosuchGraphics* p) {
 	if (m_params->zable && m_state.pos.z != CURSOR_Z_UNSET) {
-		double zmultiply = 1.0f;
-		double zexponential = 2.0f;
-		double scaled_z = scale_z(m_state.pos.z, zexponential, zmultiply);
-		draw(p, scaled_z);
+		double zmultiply = m_params->zmultiply.get();  // 1.0f;
+		double zexponential = m_params->zexponential.get();  // 2.0f;
+		double zoffset = m_params->zoffset.get();  // 2.0f;
+		double z = zoffset + scale_z(m_state.pos.z, zexponential, zmultiply);
+		draw(p, z);
 	}
 	else {
 		draw(p, 0.5);

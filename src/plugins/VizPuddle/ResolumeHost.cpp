@@ -38,7 +38,7 @@ ResolumeHost::EnableEffect(int effectnum, bool enabled)
 	char buffer[1024];
 	osc::OutboundPacketStream p(buffer, sizeof(buffer));
 	// The effectnum internally is 0-12 (or whatever the number of effects is)
-	// but Resolume knows them as effect 2-14 (effect 1 is the VizTuio plugin)
+	// but Resolume knows them as effect 2-14 (effect 1 is the VizPuddle plugin)
 	effectnum += 2;
 	std::string addr = NosuchSnprintf("/activeclip/video/effect%d/bypassed", effectnum);
 	int bypassed = enabled ? 0 : 1;

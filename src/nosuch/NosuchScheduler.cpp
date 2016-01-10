@@ -161,13 +161,17 @@ void NosuchScheduler::QueueMidiPhrase(MidiPhrase* ph, click_t clk) {
 }
 
 void NosuchScheduler::QueueClear() {
+	LockQueue();
 	m_queue->clear();
+	UnlockQueue();
 }
 
 bool
 NosuchScheduler::QueueAddEvent(SchedEvent* e) {
+	LockQueue();
 	m_queue->push_back(e);
 	_sortEvents(m_queue);
+	UnlockQueue();
 	return true;
 }
 
@@ -572,6 +576,7 @@ NosuchScheduler::_addQueueToScheduled() {
 	// Add _queue things to _scheduled
 	int nqueue = 0;
 
+	LockQueue();
 	SchedEventList* sl = m_queue;
 	while (sl->size() > 0) {
 		SchedEvent* ev = sl->front();
@@ -581,6 +586,7 @@ NosuchScheduler::_addQueueToScheduled() {
 		// a list of pointers)
 		ScheduleAddEvent(ev, false);  // we're already locked, so lockit==false
 	}
+	UnlockQueue();
 }
 	
 // SendPmMessage IS BEING PHASED OUT - ONLY ANO STILL USES IT

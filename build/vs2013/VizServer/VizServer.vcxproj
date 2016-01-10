@@ -166,7 +166,10 @@
   <ItemGroup>
     <Text Include="..\..\..\bin\genparams.py" />
     <None Include="..\..\..\src\params\MidiVizParams.list" />
-    <None Include="..\..\..\src\params\SpriteVizParams.list" />
+    <Text Include="..\..\..\src\params\SpriteVizParams.list">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+    </Text>
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>

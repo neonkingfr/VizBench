@@ -233,7 +233,10 @@
     <ClInclude Include="..\..\..\src\Viz\VizServer.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\src\params\SpriteVizParams.list" />
+    <Text Include="..\..\..\src\params\SpriteVizParams.list">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+    </Text>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -173,6 +173,9 @@
     <Text Include="..\..\..\bin\genparams.py">
       <Filter>Source Files\params</Filter>
     </Text>
+    <Text Include="..\..\..\src\params\SpriteVizParams.list">
+      <Filter>Source Files\params</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\other\freeframe\FFGL.h">
@@ -271,10 +274,5 @@
     <ClInclude Include="..\..\..\src\params\SpriteVizParams.h">
       <Filter>Header Files\params</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\src\params\SpriteVizParams.list">
-      <Filter>Source Files\params</Filter>
-    </None>
   </ItemGroup>
 </Project>

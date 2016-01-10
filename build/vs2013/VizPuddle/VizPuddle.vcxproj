@@ -14,7 +14,7 @@
     <ProjectGuid>{3C818BFA-1917-45FB-A862-6C55DA31047C}</ProjectGuid>
     <RootNamespace>Manifold</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>VizTuio</ProjectName>
+    <ProjectName>VizPuddle</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -71,7 +71,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\src\plugins\VizTuio;..\..\..\src\params;..\..\..\src\misclib;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\cJSON;..\..\..\other\freeframe;..\..\..\other\osc\include;..\..\..\other\portmidi\porttime;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\plugins\VizPuddle;..\..\..\src\params;..\..\..\src\misclib;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\cJSON;..\..\..\other\freeframe;..\..\..\other\osc\include;..\..\..\other\portmidi\porttime;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;VIZBENCH_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -97,7 +97,7 @@
       <Profile>true</Profile>
     </Link>
     <PostBuildEvent>
-      <Command>copy Debug\VizTuio.dll ..\..\..\ffglplugins\VizTuio.dll</Command>
+      <Command>copy Debug\VizPuddle.dll ..\..\..\ffglplugins\VizPuddle.dll</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -107,7 +107,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\src\freeframe;..\..\..\src\VizTuio;..\..\..\src\cJSON;..\..\..\src\osc\include;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\src\portmidi\porttime;..\..\..\src\portmidi\pm_common;..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\include;C:\Python26\include;..\..\..\src\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\freeframe;..\..\..\src\VizPuddle;..\..\..\src\cJSON;..\..\..\src\osc\include;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\src\portmidi\porttime;..\..\..\src\portmidi\pm_common;..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\include;C:\Python26\include;..\..\..\src\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;VIZBENCH_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -119,10 +119,10 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>VizLib.lib;pthreadVC2.lib;winmm.lib;OpenGL32.lib;Glu32.lib;Ws2_32.lib;VizServer.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Debug\VizTuio.dll</OutputFile>
+      <OutputFile>Debug\VizPuddle.dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\src\pthreads-win32-2.8.0\Pre-built.2\lib;..\..\..\src\freeglut-2.6.0\VisualStudio2008Static\Release;c:\Python26\libs;..\VizLib\Debug;..\VizServer\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ModuleDefinitionFile>VizTuio.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>VizPuddle.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -131,7 +131,7 @@
       <Profile>true</Profile>
     </Link>
     <PostBuildEvent>
-      <Command>copy Debug\VizTuio.dll ..\..\..\ffglplugins\VizTuio.dll</Command>
+      <Command>copy Debug\VizPuddle.dll ..\..\..\ffglplugins\VizPuddle.dll</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -152,7 +152,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>OpenGL32.lib;pthreadVC2.lib;freeglut_static.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Release\VizTuio.dll</OutputFile>
+      <OutputFile>Release\VizPuddle.dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\..\Source\pthreads-win32-2.8.0\Pre-built.2\lib;..\..\..\..\Source\freeglut-2.6.0\VisualStudio2008Static\Release;C:\Python26\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -186,7 +186,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>OpenGL32.lib;pthreadVC2.lib;freeglut_static.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Release\VizTuio.dll</OutputFile>
+      <OutputFile>Release\VizPuddle.dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\..\Source\pthreads-win32-2.8.0\Pre-built.2\lib;..\..\..\..\Source\freeglut-2.6.0\VisualStudio2008Static\Release;C:\Python26\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -206,14 +206,14 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\plugins\VizTuio\FreeFrameHost.cpp" />
-    <ClCompile Include="..\..\..\src\plugins\VizTuio\Palette.cpp" />
-    <ClCompile Include="..\..\..\src\plugins\VizTuio\ResolumeHost.cpp" />
-    <ClCompile Include="..\..\..\src\plugins\VizTuio\VizTuio.cpp" />
+    <ClCompile Include="..\..\..\src\plugins\VizPuddle\FreeFrameHost.cpp" />
+    <ClCompile Include="..\..\..\src\plugins\VizPuddle\Palette.cpp" />
+    <ClCompile Include="..\..\..\src\plugins\VizPuddle\ResolumeHost.cpp" />
+    <ClCompile Include="..\..\..\src\plugins\VizPuddle\VizPuddle.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\plugins\VizTuio\Palette.h" />
-    <ClInclude Include="..\..\..\src\plugins\VizTuio\VizTuio.h" />
+    <ClInclude Include="..\..\..\src\plugins\VizPuddle\Palette.h" />
+    <ClInclude Include="..\..\..\src\plugins\VizPuddle\VizPuddle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

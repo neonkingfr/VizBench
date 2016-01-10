@@ -70,9 +70,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
-    <None Include="..\..\..\src\params\SpriteVizParams.list">
-      <Filter>Source Files\params</Filter>
-    </None>
     <None Include="..\..\..\src\params\MidiVizParams.list">
       <Filter>Source Files\params</Filter>
     </None>
@@ -248,6 +245,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\..\bin\genparams.py">
+      <Filter>Source Files\params</Filter>
+    </Text>
+    <Text Include="..\..\..\src\params\SpriteVizParams.list">
       <Filter>Source Files\params</Filter>
     </Text>
   </ItemGroup>
