@@ -92,7 +92,8 @@ public:
 		NosuchPos pos_, double area_, OutlineMem* om_, MMTT_SharedMemHeader* hdr_);
 
 	void touch(double tm) {
-		last_touched = tm;
+		m_lasttouchedInSeconds = tm;
+		DEBUGPRINT1(("Setting m_lasttouchedInSeconds of cursor sid=%d to %f",sid,m_lasttouchedInSeconds));
 	}
 	bool matches(CursorFilter cf) {
 		return (sid >= cf.sidmin && sid <= cf.sidmax);
@@ -143,7 +144,7 @@ public:
 	NosuchPos pos;
 	NosuchPos target_pos;
 	VizServer* m_vizserver;
-	double last_touched;
+	double m_lasttouchedInSeconds;
 	int sid;
 	std::string source;
 	double area;
@@ -178,8 +179,7 @@ public:
 	int SchedulerTimestamp();
 	click_t SchedulerCurrentClick();
 	click_t SchedulerClicksPerSecond();
-	void SetTime(double tm);
-	double GetTime();
+	double GetTimeInSeconds();
 
 	bool Start();
 	void Stop();

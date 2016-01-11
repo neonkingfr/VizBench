@@ -54,6 +54,22 @@ void VizPuddle::processCursor(VizCursor* c, int downdragup) {
 	// NO OpenGL calls here
 	DEBUGPRINT1(("VizPuddle::processCursor! downdragup=%d c=%.4f %.4f",downdragup,c->pos.x,c->pos.y));
 	// palette()->processCursor(c,downdragup);
+	if (downdragup == CURSOR_DOWN) {
+		LoadPipeline("vizmidi4");
+#ifdef WHEN_ON_SPACE_PALETTE
+		int sid = c->sid;
+		std::string pipeline = "";
+		for (const auto &pair : _button ) {
+			if (sid >= pair.second->sid_min && sid <= pair.second->sid_max) {
+				pipeline = pair.second->pipeline;
+				break;
+			}
+		}
+		if (pipeline != "") {
+			LoadPipeline(pipeline);
+		}
+#endif
+	}
 	if (downdragup == CURSOR_DOWN || downdragup == CURSOR_DRAG) {
 		SpriteVizParams *sp = NULL;
 		MidiVizParams *mp = NULL;

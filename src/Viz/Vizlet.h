@@ -62,12 +62,14 @@ public:
 	void ChangeVizTag(const char* newtag);
 #endif
 	void advanceCursorTo(VizCursor* c, double tm);
-	double GetTime();
+	double GetTimeInSeconds();
 	click_t SchedulerCurrentClick();
 	click_t SchedulerClicksPerSecond();
 	void LockVizlet();
 	void UnlockVizlet();
 	void DisableVizlet() { m_disabled = true; }
+
+	void LoadPipeline(std::string pipeline);
 
 	void QueueMidiMsg(MidiMsg* m, click_t clk);
 	void QueueMidiPhrase(MidiPhrase* ph, click_t clk);
@@ -218,7 +220,6 @@ private:
 	virtual DWORD SetParameter(const SetParameterStruct* pParam);
 	virtual DWORD GetParameter(DWORD dwIndex);
 	virtual char* GetParameterDisplay(DWORD dwIndex);
-	// virtual DWORD SetTime(double time);
 
 	/////////////////////////////////////////////////////
 

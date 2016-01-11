@@ -1294,7 +1294,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	}
 
 	if (meth == "time") {
-		return jsonDoubleResult(m_vizserver->GetTime(), id);
+		return jsonDoubleResult(m_vizserver->GetTimeInSeconds(), id);
 	}
 	if (meth == "clicknow") {
 		return jsonIntResult(m_vizserver->SchedulerCurrentClick(), id);
@@ -1373,6 +1373,11 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		bool onoff = jsonNeedBool(params, "onoff");
 		FFGLPluginInstance* pi = FFGLNeedPluginInstance(viztag);   // throws an exception if it doesn't exist
 		pi->setEnable(onoff);
+
+		if (m_vizserver->IsVizlet(viztag.c_str())) {
+			DEBUGPRINT(("ffglenable %s is a vizlet",viztag.c_str()));
+		}
+
 		return jsonOK(id);
 	}
 	if (meth == "ffglmoveable" ) {

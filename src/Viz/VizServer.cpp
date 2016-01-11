@@ -939,12 +939,15 @@ void VizServer::_checkCursorUp() {
 	for (std::list<VizCursor*>::iterator i = m_cursors->begin(); i != m_cursors->end();) {
 		VizCursor* c = *i;
 		NosuchAssert(c);
-		double dt = GetTime() - c->last_touched;
+		double now = GetTimeInSeconds();
+		double dt = GetTimeInSeconds() - c->m_lasttouchedInSeconds;
 		// This timeout used to be 4ms, but when camera input
 		// is being used, the frame rate can be slow, so 20ms
-		// is more appropriate.
-		if (dt > 100) {
-			DEBUGPRINT1(("processing and erasing cursor c sid=%d  cursors size=%d", c->sid, m_cursors->size()));
+		// is more appropriate.  With other stuff (e.g. HTTP processing, etc)
+		// I've made it even longer (100 ms) to avoid spurious CURSOR_UPs.
+		// XXX - Probably should make this a global parameter.
+		if (dt > 0.100) {
+			DEBUGPRINT1(("doing CURSOR_UP cursor c sid=%d  cursors size=%d", c->sid, m_cursors->size()));
 			m_cursorprocessor->processCursor(c, CURSOR_UP);
 			i = m_cursors->erase(i);
 			delete c;
@@ -980,8 +983,9 @@ VizServer::_setCursor(int sidnum, std::string sidsource, NosuchPos pos, double a
 		m_cursors->push_back(c);
 		m_cursorprocessor->processCursor(c, CURSOR_DOWN);
 	}
-	c->advanceTo(GetTime());
-	c->touch(GetTime());
+	double seconds = GetTimeInSeconds();
+	c->advanceTo(seconds);
+	c->touch(seconds);
 	UnlockCursors();
 }
 
@@ -1006,18 +1010,14 @@ void VizServer::_errorPopup(const char* msg) {
 	MessageBoxA(NULL, msg, "Palette", MB_OK);
 }
 
-void VizServer::SetTime(double tm) {
-	DEBUGPRINT(("VizServer:SetTime called, we're ignoring it!?   tm=%f", tm));
-}
-
-double VizServer::GetTime() {
-	return NosuchTimeElapsed();
+double VizServer::GetTimeInSeconds() {
+	return NosuchSecondsElapsed();
 }
 
 int VizServer::SchedulerTimestamp() {
 	if (m_scheduler == NULL)
 		return 0;
-	return m_scheduler->m_timestamp;
+	return m_scheduler->m_timestampInMilliseconds;
 }
 
 click_t VizServer::SchedulerCurrentClick() {
@@ -1232,7 +1232,7 @@ void VizServer::_advanceClickTo(int current_click) {
 	for (std::list<VizCursor*>::iterator i = m_cursors->begin(); i != m_cursors->end(); i++) {
 		VizCursor* c = *i;
 		NosuchAssert(c);
-		c->advanceTo(GetTime());
+		c->advanceTo(GetTimeInSeconds());
 	}
 
 	UnlockCursors();
@@ -1597,7 +1597,7 @@ void
 VizServer::_touchCursorSid(int sid, std::string source) {
 	VizCursor* c = _getCursor(sid, source, true);
 	if (c) {
-		c->touch(GetTime());
+		c->touch(GetTimeInSeconds());
 	}
 }
 
@@ -1607,7 +1607,7 @@ VizCursor::VizCursor(VizServer* ss, int sid_, std::string source_,
 	pos = pos_;
 	target_pos = pos_;
 	m_vizserver = ss;
-	last_touched = 0;
+	m_lasttouchedInSeconds = 0;
 	sid = sid_;
 	source = source_;
 	area = area_;
@@ -1626,7 +1626,7 @@ VizCursor::VizCursor(VizServer* ss, int sid_, std::string source_,
 	m_g_firstdir = true;
 	m_smooth_degrees_factor = 0.2;
 
-	touch(ss->GetTime());
+	touch(ss->GetTimeInSeconds());
 }
 
 double

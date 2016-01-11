@@ -127,7 +127,7 @@ public:
 		DEBUGPRINT1(("NosuchScheduler CONSTRUCTED!!, count=%d",SchedulerCount++));
 		m_running = false;
 		m_currentclick = 0;
-		m_timestamp = 0;
+		m_timestampInMilliseconds = 0;
 
 #ifdef NOWPLAYING
 		m_nowplaying_note.clear();
@@ -226,11 +226,11 @@ public:
 	void ANO(PmStream* ps, int ch = -1);
 	void setPeriodicANO(bool b) { m_periodic_ANO = b; }
 
-	static int m_timestamp;
+	static int m_timestampInMilliseconds;
 	static int m_ClicksPerSecond;
 	static double m_ClicksPerMillisecond;
-	static int m_LastTimeStamp;
-	static int m_timestamp0;
+	static int m_LastTimeStampInMilliseconds;
+	static int m_timestamp0InMilliseconds;
 	static click_t m_currentclick;
 
 	click_t CurrentClick() { return m_currentclick; }

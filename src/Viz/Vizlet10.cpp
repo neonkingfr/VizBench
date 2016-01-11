@@ -177,11 +177,6 @@ Vizlet10::~Vizlet10()
 	_stopstuff();
 }
 
-DWORD Vizlet10::SetTime(double tm) {
-	m_vizserver->SetTime(tm);
-	return FF_SUCCESS;
-}
-
 DWORD Vizlet10::SetParameter(const SetParameterStruct* pParam) {
 
 	return FF_FAIL;
@@ -342,8 +337,8 @@ void Vizlet10::_stopKeystrokeCallbacks() {
 	m_vizserver->RemoveKeystrokeCallback(Handle());
 }
 
-double Vizlet10::GetTime() {
-	return m_vizserver->GetTime();
+double Vizlet10::GetTimeInSeconds() {
+	return m_vizserver->GetTimeInSeconds();
 }
 
 int Vizlet10::SchedulerCurrentClick() {
@@ -402,7 +397,7 @@ void
 Vizlet10::StartVizServer() {
 	if ( ! m_vizserver->Started() ) {
 		m_vizserver->Start();
-		srand( (unsigned int)(m_vizserver->GetTime()) );
+		srand( (unsigned int)(m_vizserver->GetTimeInSeconds()) );
 	}
 }
 
@@ -542,7 +537,7 @@ std::string Vizlet10::processJsonAndCatchExceptions(std::string meth, cJSON *par
 			std::string val = jsonNeedString(params,"value");
 			r = jsonStringResult(val,id);
 		} else if ( meth == "time"  ) {
-			r = jsonDoubleResult(GetTime(),id);
+			r = jsonDoubleResult(GetTimeInSeconds(),id);
 		} else if ( meth == "name"  ) {
 		    std::string nm = CopyFFString16((const char *)(vizlet10_plugininfo().GetPluginInfo()->PluginName));
 			r = jsonStringResult(nm,id);

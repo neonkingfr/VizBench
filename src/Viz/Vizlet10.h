@@ -58,7 +58,7 @@ public:
 #endif
 	void advanceCursorTo(VizCursor* c, double tm);
 	// int MilliTime();
-	double GetTime();
+	double GetTimeInSeconds();
 	click_t SchedulerCurrentClick();
 	void LockVizlet();
 	void UnlockVizlet();
@@ -217,7 +217,6 @@ private:
 	virtual DWORD SetParameter(const SetParameterStruct* pParam);
 	virtual DWORD GetParameter(DWORD dwIndex);
 	virtual char* GetParameterDisplay(DWORD dwIndex);
-	virtual DWORD SetTime(double time);
 
 	/////////////////////////////////////////////////////
 

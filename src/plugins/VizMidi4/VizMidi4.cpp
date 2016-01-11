@@ -223,7 +223,7 @@ void VizMidi4::processMidiInput(MidiMsg* m) {
 				s->m_params->applyVizParamsFrom(p);
 
 				// Don't use the *initial parameter values when initializing the state
-				s->initVizSpriteState(GetTime(),Handle(),s->m_state.pos,s->m_params,false);
+				s->initVizSpriteState(GetTimeInSeconds(),Handle(),s->m_state.pos,s->m_params,false);
 
 				// The initial alpha/size/hue/huefill values in the
 				// parameters should be the current state, so the

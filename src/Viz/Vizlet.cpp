@@ -187,12 +187,12 @@ Vizlet::~Vizlet()
 	_stopstuff();
 }
 
-#if 0
-DWORD Vizlet::SetTime(double tm) {
-	m_vizserver->SetTime(tm);
-	return FF_SUCCESS;
+void
+Vizlet::LoadPipeline(std::string pipeline) {
+	const char* currentpipeline = m_vizserver->ProcessJson("ffff.pipelinefilename",NULL,"12345");
+	DEBUGPRINT(("Vizlet::LoadPipeline pipeline=%s currentpipeline=%s",pipeline.c_str(),currentpipeline));
+	const char* r = m_vizserver->ProcessJson("ffff.pipelinefilename",NULL,"12345");
 }
-#endif
 
 DWORD Vizlet::SetParameter(const SetParameterStruct* pParam) {
 
@@ -375,8 +375,8 @@ void Vizlet::_stopClickCallbacks() {
 	m_vizserver->RemoveClickCallback(Handle());
 }
 
-double Vizlet::GetTime() {
-	return m_vizserver->GetTime();
+double Vizlet::GetTimeInSeconds() {
+	return m_vizserver->GetTimeInSeconds();
 }
 
 click_t Vizlet::SchedulerCurrentClick() {
@@ -487,7 +487,7 @@ void
 Vizlet::StartVizServer() {
 	if ( ! m_vizserver->Started() ) {
 		m_vizserver->Start();
-		srand( (unsigned int)(m_vizserver->GetTime()) );
+		srand( (unsigned int)(m_vizserver->GetTimeInSeconds()) );
 	}
 }
 
@@ -565,7 +565,7 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 		glScaled(2.0,2.0,1.0);
 		glTranslated(-0.5,-0.5,0.0);
 
-		double tm = GetTime();
+		double tm = GetTimeInSeconds();
 		bool r;
 		if (m_call_RealProcessOpenGL) {
 			// This is used when adapting to existing FFGL plugin code
@@ -723,7 +723,7 @@ std::string Vizlet::processJsonAndCatchExceptions(std::string meth, cJSON *param
 			std::string val = jsonNeedString(params,"value");
 			r = jsonStringResult(val,id);
 		} else if ( meth == "time"  ) {
-			r = jsonDoubleResult(GetTime(),id);
+			r = jsonDoubleResult(GetTimeInSeconds(),id);
 		} else if ( meth == "name"  ) {
 		    std::string nm = CopyFFString16((const char *)(vizlet_plugininfo().GetPluginInfo()->PluginName));
 			r = jsonStringResult(nm,id);
@@ -909,7 +909,7 @@ VizSprite*
 Vizlet::makeAndInitVizSprite(SpriteVizParams* params, NosuchPos pos) {
 	VizSprite* s = VizSprite::makeVizSprite(params);
 	s->m_framenum = FrameNum();
-	s->initVizSpriteState(GetTime(),Handle(),pos,params);
+	s->initVizSpriteState(GetTimeInSeconds(),Handle(),pos,params);
 	return s;
 }
 

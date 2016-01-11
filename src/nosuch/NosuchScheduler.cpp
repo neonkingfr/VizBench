@@ -17,11 +17,11 @@ int GlobalPitchOffset = 0;
 bool NoMultiNotes = true;
 bool LoopCursors = true;
 
-int NosuchScheduler::m_timestamp = 0;
+int NosuchScheduler::m_timestampInMilliseconds = 0;
 int NosuchScheduler::m_ClicksPerSecond = 0;
 double NosuchScheduler::m_ClicksPerMillisecond = 0;
-int NosuchScheduler::m_LastTimeStamp;
-int NosuchScheduler::m_timestamp0;
+int NosuchScheduler::m_LastTimeStampInMilliseconds;
+int NosuchScheduler::m_timestamp0InMilliseconds;
 click_t NosuchScheduler::m_currentclick;
 
 void midi_callback( PtTimestamp timestamp, void *userData ) {
@@ -130,8 +130,8 @@ void NosuchScheduler::ScheduleClear() {
 
 bool
 NosuchScheduler::ScheduleAddEvent(SchedEvent* e, bool lockit) {
-	DEBUGPRINT(("ScheduleAddEvent clicknow=%d clk=%d handle=%ld %s",
-	 	m_currentclick,e->click,(long)(e->handle),e->DebugString().c_str()));
+	// DEBUGPRINT(("ScheduleAddEvent clicknow=%d clk=%d handle=%ld %s",
+	//	m_currentclick,e->click,(long)(e->handle),e->DebugString().c_str()));
 	if ( lockit ) {
 		LockScheduled();
 	}
@@ -339,7 +339,7 @@ bool NosuchScheduler::StartMidi(cJSON* config) {
 	cJSON* midi_outputs = jsonGetArray(config, "midioutputs");
 	cJSON* midi_merges = jsonGetArray(config, "midimerges");
 
-	m_timestamp0 = 0;
+	m_timestamp0InMilliseconds = 0;
 
 	int resolution = 5;   // normally 1, maybe 5?
 	DEBUGPRINT(("Calling Pt_Start with resolution=%d", resolution));
@@ -498,11 +498,11 @@ void NosuchScheduler::Stop() {
 
 void NosuchScheduler::AdvanceTimeAndDoEvents(PtTimestamp timestamp) {
 
-	m_timestamp = timestamp;
-	m_LastTimeStamp = timestamp;
+	m_timestampInMilliseconds = timestamp;
+	m_LastTimeStampInMilliseconds = timestamp;
 	NosuchAssert(m_running==true);
 
-	int timesofar = timestamp - m_timestamp0;
+	int timesofar = timestamp - m_timestamp0InMilliseconds;
 	int clickssofar = (int)(0.5 + timesofar * m_ClicksPerMillisecond);
 
 	if ( clickssofar <= m_currentclick ) {
@@ -651,9 +651,9 @@ void NosuchScheduler::SendMidiMsg(MidiMsg* msg, void* handle) {
 	} else {
 		static int lastwarning = -99999;
 		// Only put out warnings every second
-		if ( (m_LastTimeStamp-lastwarning) > 1000 ) {
+		if ( (m_LastTimeStampInMilliseconds - lastwarning) > 1000 ) {
 			DEBUGPRINT(("SendMidiMsg: no MIDI output device for outputport=%d?", outputport));
-			lastwarning = m_LastTimeStamp;
+			lastwarning = m_LastTimeStampInMilliseconds;
 		}
 	}
 
@@ -908,7 +908,7 @@ void NosuchScheduler::SetClicksPerSecond(int clkpersec) {
 	DEBUGPRINT1(("Setting ClicksPerSecond to %d",clkpersec));
 	m_ClicksPerSecond = clkpersec;
 	m_ClicksPerMillisecond = m_ClicksPerSecond / 1000.0;
-	int timesofar = m_LastTimeStamp - m_timestamp0;
+	int timesofar = m_LastTimeStampInMilliseconds - m_timestamp0InMilliseconds;
 	int clickssofar = (int)(0.5 + timesofar * m_ClicksPerMillisecond);
 	m_currentclick = clickssofar;
 }
