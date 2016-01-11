@@ -80,9 +80,9 @@ protected:
 
 class FF10PluginInstance {
 public:
-	FF10PluginInstance(FF10PluginDef* d, std::string nm);
+	FF10PluginInstance(FF10PluginDef* d, std::string viztag);
 	virtual ~FF10PluginInstance() {
-		DEBUGPRINT1(("Destructor for %s in FF10PluginInstance",m_name.c_str()));
+		DEBUGPRINT1(("Destructor for %s in FF10PluginInstance",m_viztag.c_str()));
 		DeInstantiate();
 	}
 
@@ -106,14 +106,14 @@ public:
 	void setMoveable(bool b){ m_moveable = b; }
 	bool isMoveable(){ return m_moveable; }
 
-	std::string name() { return m_name; }
+	std::string viztag() { return m_viztag; }
 	FF10PluginDef* plugindef() { return m_plugindef; }
 	DWORD instanceid() { return m_instanceid; }
 
 	// void setInstanceID(DWORD id) { m_instanceid = id; }
 
 private:
-	std::string m_name;
+	std::string m_viztag;
 	bool m_enabled;
 	bool m_moveable;
 	FF10PluginDef* m_plugindef;

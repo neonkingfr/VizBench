@@ -130,8 +130,8 @@ void NosuchScheduler::ScheduleClear() {
 
 bool
 NosuchScheduler::ScheduleAddEvent(SchedEvent* e, bool lockit) {
-	// DEBUGPRINT(("ScheduleAddEvent clicknow=%d clk=%d handle=%ld %s",
-	// 	clicknow,e->click,(long)(e->handle),e->DebugString().c_str()));
+	DEBUGPRINT(("ScheduleAddEvent clicknow=%d clk=%d handle=%ld %s",
+	 	m_currentclick,e->click,(long)(e->handle),e->DebugString().c_str()));
 	if ( lockit ) {
 		LockScheduled();
 	}
@@ -542,7 +542,7 @@ void NosuchScheduler::AdvanceTimeAndDoEvents(PtTimestamp timestamp) {
 			// This happens occasionally, at least 1 click diff
 			click_t delta = m_currentclick - ev->click;
 			if ( delta > 4 ) {
-				DEBUGPRINT1(("Hmmm, clicknow (%d) is a lot more than ev->click (%d) !?",clicknow,ev->click));
+				DEBUGPRINT1(("Hmmm, clicknow (%d) is a lot more than ev->click (%d) !?",m_currentclick,ev->click));
 			}
 			sl->pop_front();
 			// We assume ev is still valid, right?  (since the SchedEventList is

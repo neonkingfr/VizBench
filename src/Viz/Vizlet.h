@@ -58,7 +58,9 @@ public:
 	VizServer* vizserver() { return m_vizserver; }
 	void StartVizServer();
 	void InitCallbacks();
+#ifdef VIZTAG_PARAMETER
 	void ChangeVizTag(const char* newtag);
+#endif
 	void advanceCursorTo(VizCursor* c, double tm);
 	double GetTime();
 	click_t SchedulerCurrentClick();

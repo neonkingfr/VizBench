@@ -9,10 +9,10 @@ function changeval(name) {
 function sendparamchange(name) {
 	var valueid = document.getElementById("value_"+name);
 	var a = name.split(".");
-	var instance = a[0];
+	var viztag = a[0];
 	var paramname = a[1];
 	var paramval = valueid.value;
-	var api = vizapi("ffff.ffglparamset","{\"instance\":\""+instance+"\", \"param\":\""+paramname+"\", \"val\":\""+paramval+"\" }");
+	var api = vizapi("ffff.ffglparamset","{\"viztag\":\""+viztag+"\", \"param\":\""+paramname+"\", \"val\":\""+paramval+"\" }");
 }
 
 function updateval(name) {
@@ -20,16 +20,16 @@ function updateval(name) {
 	sendparamchange(name);
 }
 
-function changeenable(instance) {
-	var enabledid = document.getElementById("enabled_"+instance);
+function changeenable(viztag) {
+	var enabledid = document.getElementById("enabled_"+viztag);
 	var onoff = enabledid.checked ? "1" : "0";
-	var a = vizapi("ffff.ffglenable","{\"instance\":\""+instance+"\", \"onoff\": "+onoff+" }");
+	var a = vizapi("ffff.ffglenable","{\"viztag\":\""+viztag+"\", \"onoff\": "+onoff+" }");
 }
 
-function changemoveable(instance) {
-	var moveableid = document.getElementById("moveable_"+instance);
+function changemoveable(viztag) {
+	var moveableid = document.getElementById("moveable_"+viztag);
 	var onoff = moveableid.checked ? "1" : "0";
-	var a = vizapi("ffff.ffglmoveable","{\"instance\":\""+instance+"\", \"onoff\": "+onoff+" }");
+	var a = vizapi("ffff.ffglmoveable","{\"viztag\":\""+viztag+"\", \"onoff\": "+onoff+" }");
 }
 
 // updateval2 propagate changes from value_ to range_ rather
@@ -52,14 +52,14 @@ function checkapi(api) {
 	}
 }
 
-function moveup(iname) {
-	var api = vizapi("ffff.moveup","{\"instance\":\""+iname+"\"}");
+function moveup(viztag) {
+	var api = vizapi("ffff.moveup","{\"viztag\":\""+viztag+"\"}");
 	checkapi(api);
 	ffffpagegen();
 }
 
-function movedown(iname) {
-	var api = vizapi("ffff.movedown","{\"instance\":\""+iname+"\"}");
+function movedown(viztag) {
+	var api = vizapi("ffff.movedown","{\"viztag\":\""+viztag+"\"}");
 	checkapi(api);
 	ffffpagegen();
 }
@@ -135,7 +135,7 @@ function enableall(onoff) {
 	for ( var i=0; i<ffglpipeline.length; i++ ) {
 
 		var f = ffglpipeline[i];
-		var a = vizapi("ffff.ffglenable","{\"instance\":\""+f.instance+"\", \"onoff\": "+onoff+" }");
+		var a = vizapi("ffff.ffglenable","{\"viztag\":\""+f.viztag+"\", \"onoff\": "+onoff+" }");
 	}
 	ffffpagegen();
 }
@@ -216,33 +216,37 @@ function ffffpagegen() {
 		html += "<tr><td colspan=10><hr></td></tr>\n";
 		html += "<tr><td valign=top>";	// first column of outer table
 
-		var enabledid = "enabled_"+f.instance;
+		var enabledid = "enabled_"+f.viztag;
 		var enabledchecked = "";
 		if ( f.enabled ) {
 			enabledchecked = "checked=\"checked\"";
 		}
 
-		var moveableid = "moveable_"+f.instance;
+		var moveableid = "moveable_"+f.viztag;
 		var moveablechecked = "";
 		if ( f.moveable ) {
 			moveablechecked = "checked=\"checked\"";
 		}
 
 		html += "<table>";
-		html += "<tr><td colspan=10><b><font style=\"font-size: 200%\">"+f.instance+"</font></b></td></tr>";
+		var parenstuff = "";
+		if ( f.viztag != f.plugin ) {
+			parenstuff = "("+f.plugin+")";
+		}
+		html += "<tr><td colspan=10><b><font style=\"font-size: 200%\">"+f.viztag+"</font>&nbsp;&nbsp;"+parenstuff+"</b></td></tr>";
 		html += "<tr>";
-		html += "<td width=60px>Enabled</td><td><input type=\"checkbox\" "+enabledchecked+" id=\""+enabledid+"\" onchange=\"changeenable('"+f.instance+"')\")></td><td></td><td width=100px></td>";
+		html += "<td width=60px>Enabled</td><td><input type=\"checkbox\" "+enabledchecked+" id=\""+enabledid+"\" onchange=\"changeenable('"+f.viztag+"')\")></td><td></td><td width=100px></td>";
 		html += "</tr>";
 		html += "<tr>";
-		html += "<td width=60px>Moveable</td><td><input type=\"checkbox\" "+moveablechecked+" id=\""+moveableid+"\" onchange=\"changemoveable('"+f.instance+"')\")></td>";
+		html += "<td width=60px>Moveable</td><td><input type=\"checkbox\" "+moveablechecked+" id=\""+moveableid+"\" onchange=\"changemoveable('"+f.viztag+"')\")></td>";
 		html += "<td>&nbsp;Move";
-		html += "&nbsp;<input type=\"button\" value=\"up\" onClick=\"moveup('"+f.instance+"')\")>";
-		html += "&nbsp;<input type=\"button\" value=\"down\" onClick=\"movedown('"+f.instance+"')\")>";
+		html += "&nbsp;<input type=\"button\" value=\"up\" onClick=\"moveup('"+f.viztag+"')\")>";
+		html += "&nbsp;<input type=\"button\" value=\"down\" onClick=\"movedown('"+f.viztag+"')\")>";
 		html += "</td></tr>";
 
-		var api = vizapi("ffff.about","{\"instance\":\""+f.instance+"\"}");
+		var api = vizapi("ffff.about","{\"viztag\":\""+f.viztag+"\"}");
 		var about = api.result;
-		var api = vizapi("ffff.description","{\"instance\":\""+f.instance+"\"}");
+		var api = vizapi("ffff.description","{\"viztag\":\""+f.viztag+"\"}");
 		var desc = api.result;
 
 		html += "<tr height=10px></tr>";
@@ -254,7 +258,7 @@ function ffffpagegen() {
 		html += "</td><td>";
 
 		if ( f.vizlet ) {
-			var tag = f.instance;
+			var tag = f.viztag;
 			var apis = vizapi(tag+'.apis').result;
 			if ( apis == "" ) {
 				html += "<p>No APIs";
@@ -294,14 +298,13 @@ function ffffpagegen() {
 
 							var api_sans_set = api.substr(4);
 							var getapi = "get_"+api_sans_set;
-							var aaa = vizapi(tag+"."+getapi,"{\"instance\":\""+f.instance+"\"}");
+							var aaa = vizapi(tag+"."+getapi,"{\"viztag\":\""+f.viztag+"\"}");
 							val = aaa.result;
 							// html += "<td width=10></td><td align=right>"
 							html += "<td align=right>"
 								+api_sans_set+"&nbsp;"+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" onChange=\"changeTextVal('"+tag+"','"+api+"','"+argname+"')\" value=\""+val+"\" id=\""+inputid+"\" size=20></td>";
 							if ( argname == "paramfile" ) {
 								var paramsclass = params_class_of_api(api)
-								alert("api="+api+" class="+paramsclass);
 								html += "<td><button onclick=\"edit_"+paramsclass+"_params('"+inputid+"');\" >Edit</button>";
 							}
 
@@ -322,7 +325,7 @@ function ffffpagegen() {
 		}
 
 		html += "<table>";   // for all the parameters
-		var api = vizapi("ffff.ffglparamvals","{\"instance\":\""+f.instance+"\"}");
+		var api = vizapi("ffff.ffglparamvals","{\"viztag\":\""+f.viztag+"\"}");
 		if ( ! checkapi(api) ) {
 			continue;
 		}
@@ -336,11 +339,11 @@ function ffffpagegen() {
 			// html += "<p>"+v.name+" "+v.value+"\n";
 			html += "<tr><td width=15%></td>";
 
-			var name = f.instance+"."+v.name;
+			var name = f.viztag+"."+v.name;
 			var valueid = "value_"+name;
 			var rangeid = "range_"+name;
 
-			var argstr = "&quot;instance&quot; : "
+			var argstr = "&quot;viztag&quot; : "
 				+ "&quot;'+document.getElementById(&quot;" + valueid + "&quot;).value+'&quot;"
 				;
 

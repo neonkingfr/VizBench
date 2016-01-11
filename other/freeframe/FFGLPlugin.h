@@ -63,9 +63,9 @@ protected:
 
 class FFGLPluginInstance {
 public:
-	FFGLPluginInstance(FFGLPluginDef* d, std::string nm);
+	FFGLPluginInstance(FFGLPluginDef* d, std::string viztag);
 	virtual ~FFGLPluginInstance() {
-		DEBUGPRINT1(("Destructor for %s in FFGLPluginInstance",m_name.c_str()));
+		DEBUGPRINT1(("Destructor for %s in FFGLPluginInstance",m_viztag.c_str()));
 		DeInstantiateGL();
 	}
 
@@ -93,12 +93,12 @@ public:
 	void setMoveable(bool b){ m_moveable = b; }
 	bool isMoveable(){ return m_moveable; }
 
-	std::string name() { return m_name; }
+	std::string viztag() { return m_viztag; }
 	FFGLPluginDef* plugindef() { return m_plugindef; }
 	DWORD instanceid() { return m_instanceid; }
 
 private:
-	std::string m_name;
+	std::string m_viztag;
 	bool m_enabled;
 	bool m_moveable;
 	FFGLPluginDef* m_plugindef;

@@ -199,6 +199,7 @@ public:
 		return s.c_str();
 	}
 
+#ifdef VIZTAG_PARAMETER
 	void ChangeVizTag(void* handle, const char* p) {
 		if (count(handle) <= 0) {
 			DEBUGPRINT(("Hey! VizServercallbackMap::ChangeVizTag didn't find existing callback for handle=%ld", (long)handle));
@@ -209,6 +210,7 @@ public:
 		// of ApiFilter, and it corrupted the heap, so I'm leary.
 		sscb->m_apiprefix = _strdup(p);
 	}
+#endif
 };
 
 class VizServerCursorCallbackMap : public std::map < void*, VizServerCursorCallback* > {
@@ -309,9 +311,11 @@ public:
 		const char* existing = m_callbacks.VizTags();
 		m_callbacks.addcallback(handle, apiprefix, (void*)cb, data);
 	}
+#ifdef VIZTAG_PARAMETER
 	void ChangeVizTag(void* handle, const char* p) {
 		m_callbacks.ChangeVizTag(handle, p);
 	}
+#endif
 	void RemoveJsonCallback(void* handle) {
 		m_callbacks.removecallback(handle);
 	}
@@ -750,6 +754,7 @@ public:
 			for (it = m_callbacks.begin(); it != m_callbacks.end(); it++) {
 				VizServerCursorCallback* sscb = it->second;
 				if (c->matches(sscb->m_cf)) {
+					// XXX - need to check if plugin is enabled
 					cursorcallback_t cb = (cursorcallback_t)(sscb->m_cb);
 					cb(sscb->m_data, c, downdragup);
 				}
@@ -1497,10 +1502,12 @@ VizServer::VizTags() {
 	return s.c_str();
 }
 
+#ifdef VIZTAG_PARAMETER
 void
 VizServer::ChangeVizTag(void* handle, const char* p) {
 	m_jsonprocessor->ChangeVizTag(handle, p);
 }
+#endif
 
 void
 VizServer::ClearJsonCallbacks() {

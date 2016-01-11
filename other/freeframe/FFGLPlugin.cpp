@@ -64,8 +64,8 @@ FFGLPluginDef::getParamNum(std::string pnm) {
 	}
 }
 
-FFGLPluginInstance::FFGLPluginInstance(FFGLPluginDef* d, std::string nm) :
-	m_plugindef(d), m_params(NULL), m_name(nm), m_enabled(false),
+FFGLPluginInstance::FFGLPluginInstance(FFGLPluginDef* d, std::string viztag) :
+	m_plugindef(d), m_params(NULL), m_viztag(viztag), m_enabled(false),
 	m_moveable(true), m_instanceid(INVALIDINSTANCE) {
 
 	NosuchAssert ( d->m_mainfunc );

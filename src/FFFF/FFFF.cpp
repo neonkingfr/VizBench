@@ -297,9 +297,9 @@ FFFF::initCamera(int camindex) {
 }
 
 FFGLPluginInstance*
-FFFF::FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string inm)
+FFFF::FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string viztag)
 {
-	FFGLPluginInstance* np = new FFGLPluginInstance(plugin,inm);
+	FFGLPluginInstance* np = new FFGLPluginInstance(plugin,viztag);
 	// DEBUGPRINT(("----- MALLOC new FFGLPluginInstance"));
 	if ( np->InstantiateGL(&fboViewport)!=FF_SUCCESS ) {
 		delete np;
@@ -309,9 +309,9 @@ FFFF::FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string inm)
 }
 
 FF10PluginInstance*
-FFFF::FF10NewPluginInstance(FF10PluginDef* plugdef, std::string inm)
+FFFF::FF10NewPluginInstance(FF10PluginDef* plugdef, std::string viztag)
 {
-	FF10PluginInstance* np = new FF10PluginInstance(plugdef,inm);
+	FF10PluginInstance* np = new FF10PluginInstance(plugdef,viztag);
 	// DEBUGPRINT(("--- MALLOC new FF10PluginInstance = %d",(long)np));
 
 	const PluginInfoStruct *pi = plugdef->GetInfo();
@@ -401,9 +401,9 @@ FFFF::loadAllPluginDefs(std::string ff10path, std::string ffglpath, int ffgl_wid
 }
 
 FFGLPluginInstance*
-FFFF::FFGLFindPluginInstance(std::string inm) {
+FFFF::FFGLFindPluginInstance(std::string viztag) {
 	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline.begin(); it != m_ffglpipeline.end(); it++) {
-		if ( inm == (*it)->name() ) {
+		if ( viztag == (*it)->viztag() ) {
 			return *it;
 		}
 	}
@@ -411,9 +411,9 @@ FFFF::FFGLFindPluginInstance(std::string inm) {
 }
 
 FF10PluginInstance*
-FFFF::FF10FindPluginInstance(std::string inm) {
+FFFF::FF10FindPluginInstance(std::string viztag) {
 	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline.begin(); it != m_ff10pipeline.end(); it++) {
-		if ( inm == (*it)->name() ) {
+		if ( viztag == (*it)->viztag() ) {
 			return *it;
 		}
 	}
@@ -421,7 +421,7 @@ FFFF::FF10FindPluginInstance(std::string inm) {
 }
 
 #if 0
-// Return a new plugin instance name, making sure it doesn't match any existing ones
+// Return a new plugin viztag name, making sure it doesn't match any existing ones
 std::string
 FFFF::newInstanceName() {
 	int inum = 0;
@@ -429,7 +429,7 @@ FFFF::newInstanceName() {
 		std::string nm = NosuchSnprintf("p%d",inum++);
 		FFGLPluginInstance* p=m_ffglpipeline;
 		for ( ; p!=NULL; p=p->next ) {
-			if ( nm == p->name() ) {
+			if ( nm == p->viztag() ) {
 				break;
 			}
 		}
@@ -441,13 +441,13 @@ FFFF::newInstanceName() {
 #endif
 
 FFGLPluginInstance*
-FFFF::FFGLAddToPipeline(std::string pluginName, std::string inm, bool autoenable, cJSON* params) {
+FFFF::FFGLAddToPipeline(std::string pluginName, std::string viztag, bool autoenable, cJSON* params) {
 
-	// First scan existing pipeline to see if this instanceName is already used
+	// First scan existing pipeline to see if this viztag is already used
 	FFGLPluginInstance* last = NULL;
 	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline.begin(); it != m_ffglpipeline.end(); it++) {
-		if ( inm == (*it)->name() ) {
-			DEBUGPRINT(("Plugin instance named '%s' already exists",inm.c_str()));
+		if ( viztag == (*it)->viztag() ) {
+			DEBUGPRINT(("Plugin with viztag '%s' already exists",viztag.c_str()));
 			return NULL;
 		}
 	}
@@ -458,13 +458,15 @@ FFFF::FFGLAddToPipeline(std::string pluginName, std::string inm, bool autoenable
 		return NULL;
 	}
 
-	FFGLPluginInstance* np = FFGLNewPluginInstance(plugin,inm);
+	FFGLPluginInstance* np = FFGLNewPluginInstance(plugin,viztag);
 
+#ifdef VIZTAG_PARAMETER
 	// If the plugin's first parameter is "viztag", set it
 	int pnum = np->plugindef()->getParamNum("viztag");
 	if ( pnum >= 0 ) {
-		np->setparam("viztag",inm);
+		np->setparam("viztag",viztag);
 	}
+#endif
 
 	// Add it to the end of the pipeline
 	m_ffglpipeline.insert(m_ffglpipeline.end(),np);
@@ -492,13 +494,13 @@ FFFF::FFGLAddToPipeline(std::string pluginName, std::string inm, bool autoenable
 }
 
 FF10PluginInstance*
-FFFF::FF10AddToPipeline(std::string pluginName, std::string inm, bool autoenable, cJSON* params) {
+FFFF::FF10AddToPipeline(std::string pluginName, std::string viztag, bool autoenable, cJSON* params) {
 
-	// First scan existing pipeline to see if this instanceName is already used
+	// First scan existing pipeline to see if this viztag is already used
 	FF10PluginInstance* last = NULL;
 	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline.begin(); it != m_ff10pipeline.end(); it++) {
-		if ( inm == (*it)->name() ) {
-			DEBUGPRINT(("Plugin instance named '%s' already exists",inm.c_str()));
+		if ( viztag == (*it)->viztag() ) {
+			DEBUGPRINT(("Plugin with viztag '%s' already exists",viztag.c_str()));
 			return NULL;
 		}
 	}
@@ -509,14 +511,16 @@ FFFF::FF10AddToPipeline(std::string pluginName, std::string inm, bool autoenable
 		return NULL;
 	}
 
-	FF10PluginInstance* np = FF10NewPluginInstance(plugin,inm);
+	FF10PluginInstance* np = FF10NewPluginInstance(plugin,viztag);
 
+#ifdef VIZTAG_PARAMETER
 	// If the plugin's first parameter is "viztag", set it
 	int pnum = np->plugindef()->getParamNum("viztag");
 	if ( pnum >= 0 ) {
-		DEBUGPRINT1(("In FF10AddToPipeline of %s, setting viztag to %s",pluginName.c_str(),inm.c_str()));
-		np->setparam("viztag",inm);
+		DEBUGPRINT1(("In FF10AddToPipeline of %s, setting viztag to %s",pluginName.c_str(),viztag.c_str()));
+		np->setparam("viztag",viztag);
 	}
+#endif
 
 	m_ff10pipeline.insert(m_ff10pipeline.end(),np);
 
@@ -543,10 +547,10 @@ FFFF::FF10AddToPipeline(std::string pluginName, std::string inm, bool autoenable
 }
 
 void
-FFFF::FFGLMoveUpInPipeline(std::string inm) {
+FFFF::FFGLMoveUpInPipeline(std::string viztag) {
 	size_t sz = m_ffglpipeline.size();
 	for (size_t n = 0; n<sz; n++ ) {
-		if (inm == m_ffglpipeline[n]->name()) {
+		if (viztag == m_ffglpipeline[n]->viztag()) {
 			if (n > 0) {
 				FFGLPluginInstance* t = m_ffglpipeline[n - 1];
 				m_ffglpipeline[n - 1] = m_ffglpipeline[n];
@@ -558,10 +562,10 @@ FFFF::FFGLMoveUpInPipeline(std::string inm) {
 }
 
 void
-FFFF::FFGLMoveDownInPipeline(std::string inm) {
+FFFF::FFGLMoveDownInPipeline(std::string viztag) {
 	size_t sz = m_ffglpipeline.size();
 	for (size_t n = 0; n<sz; n++ ) {
-		if (inm == m_ffglpipeline[n]->name()) {
+		if (viztag == m_ffglpipeline[n]->viztag()) {
 			if (n < (sz-1)) {
 				FFGLPluginInstance* t = m_ffglpipeline[n + 1];
 				m_ffglpipeline[n + 1] = m_ffglpipeline[n];
@@ -573,10 +577,10 @@ FFFF::FFGLMoveDownInPipeline(std::string inm) {
 }
 
 void
-FFFF::FFGLDeleteFromPipeline(std::string inm) {
+FFFF::FFGLDeleteFromPipeline(std::string viztag) {
 
 	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline.begin(); it != m_ffglpipeline.end(); ) {
-		if (inm == (*it)->name()) {
+		if (viztag == (*it)->viztag()) {
 			// DEBUGPRINT1(("--- deleteing BB FFGLPluginInstance *it=%ld", (long)(*it)));
 			delete *it;
 			it = m_ffglpipeline.erase(it);
@@ -588,10 +592,10 @@ FFFF::FFGLDeleteFromPipeline(std::string inm) {
 }
 
 void
-FFFF::FF10DeleteFromPipeline(std::string inm) {
+FFFF::FF10DeleteFromPipeline(std::string viztag) {
 
 	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline.begin(); it != m_ff10pipeline.end(); ) {
-		if (inm == (*it)->name()) {
+		if (viztag == (*it)->viztag()) {
 			delete *it;
 			it = m_ff10pipeline.erase(it);
 		}
@@ -887,14 +891,14 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 		}
 		if (num_ffgl_active == 1) {
 			if ( ! do_ffgl_plugin(pi,3) ) {
-				DEBUGPRINT(("DISABLING plugin - Error B in do_ffgl_plugin for plugin=%s",pi->name().c_str()));
+				DEBUGPRINT(("DISABLING plugin - Error B in do_ffgl_plugin for plugin=%s",pi->viztag().c_str()));
 				pi->setEnable(false);
 			}
 			continue;
 		}
 		if ( pi == firstplugin ) {
 			if (!do_ffgl_plugin(pi, 0)) {
-				DEBUGPRINT(("DISABLING plugin - Error D in do_ffgl_plugin for plugin=%s", pi->name().c_str()));
+				DEBUGPRINT(("DISABLING plugin - Error D in do_ffgl_plugin for plugin=%s", pi->viztag().c_str()));
 				pi->setEnable(false);
 			}
 		}
@@ -903,13 +907,13 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 			//(this re-activates rendering to the window)
 			fbo_output->UnbindAsRenderTarget(glExtensions);
 			if (!do_ffgl_plugin(pi, 2)) {
-				DEBUGPRINT(("DISABLING plugin - Error D in do_ffgl_plugin for plugin=%s", pi->name().c_str()));
+				DEBUGPRINT(("DISABLING plugin - Error D in do_ffgl_plugin for plugin=%s", pi->viztag().c_str()));
 				pi->setEnable(false);
 			}
 		} 
 		else {
 			if (!do_ffgl_plugin(pi, 1)) {
-				DEBUGPRINT(("DISABLING plugin - Error E in do_ffgl_plugin for plugin=%s", pi->name().c_str()));
+				DEBUGPRINT(("DISABLING plugin - Error E in do_ffgl_plugin for plugin=%s", pi->viztag().c_str()));
 				pi->setEnable(false);
 			}
 		}
@@ -998,7 +1002,7 @@ std::string FFFF::FFGLPipelineList(bool only_enabled) {
 	std::string sep = "";
 	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline.begin(); it != m_ffglpipeline.end(); it++) {
 		FFGLPluginInstance* p = *it;
-		bool isvizlet = m_vizserver->IsVizlet(p->name().c_str());
+		bool isvizlet = m_vizserver->IsVizlet(p->viztag().c_str());
 		std::string isviz;
 		if (isvizlet) {
 			isviz = std::string(" \"vizlet\": ") + (isvizlet ? "1" : "0") + ", ";
@@ -1006,7 +1010,7 @@ std::string FFFF::FFGLPipelineList(bool only_enabled) {
 		bool enabled = p->isEnabled();
 		if ( only_enabled==false || enabled==true ) {
 			r += (sep + "{ \"plugin\":\""+p->plugindef()->GetPluginName()+"\","
-				+ " \"instance\":\"" + p->name() + "\", "
+				+ " \"viztag\":\"" + p->viztag() + "\", "
 				+ isviz
 				+ " \"moveable\": " + (p->isMoveable() ? "1" : "0") + ","
 				+ " \"enabled\": " + (p->isEnabled() ? "1" : "0")
@@ -1025,7 +1029,7 @@ std::string FFFF::FF10PipelineList(bool only_enabled) {
 		FF10PluginInstance* p = *it;
 		bool enabled = p->isEnabled();
 		if ( only_enabled==false || enabled==true ) {
-			r += (sep + "{ \"plugin\":\""+p->plugindef()->GetPluginName()+"\", \"instance\":\"" + p->name() + "\", "
+			r += (sep + "{ \"plugin\":\""+p->plugindef()->GetPluginName()+"\", \"viztag\":\"" + p->viztag() + "\", "
 				+ " \"moveable\": " + (p->isMoveable() ? "1" : "0") + ","
 				+ " \"enabled\": " + (p->isEnabled()?"1":"0")
 				+ "  }");
@@ -1168,21 +1172,21 @@ needFFGLPlugin(std::string name)
 }
 
 FFGLPluginInstance*
-FFFF::FFGLNeedPluginInstance(std::string name)
+FFFF::FFGLNeedPluginInstance(std::string viztag)
 {
-		FFGLPluginInstance* p = FFGLFindPluginInstance(name);
+		FFGLPluginInstance* p = FFGLFindPluginInstance(viztag);
 		if ( p == NULL ) {
-			throw NosuchException("There is no plugin instance named '%s'",name.c_str());
+			throw NosuchException("There is no viztag '%s'",viztag.c_str());
 		}
 		return p;
 }
 
 FF10PluginInstance*
-FFFF::FF10NeedPluginInstance(std::string name)
+FFFF::FF10NeedPluginInstance(std::string viztag)
 {
-		FF10PluginInstance* p = FF10FindPluginInstance(name);
+		FF10PluginInstance* p = FF10FindPluginInstance(viztag);
 		if ( p == NULL ) {
-			throw NosuchException("There is no plugin instance named '%s'",name.c_str());
+			throw NosuchException("There is no viztag '%s'",viztag.c_str());
 		}
 		return p;
 }
@@ -1208,7 +1212,7 @@ std::string FFFF::savePipeline(std::string fname, const char* id)
 	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline.begin(); it != m_ff10pipeline.end(); it++) {
 		f << sep;
 		f << "\t{\n";
-		f << "\t\t\"ff10plugin\": \"" + (*it)->name() + "\",\n";
+		f << "\t\t\"ff10plugin\": \"" + (*it)->viztag() + "\",\n";
 		f << "\t\t\"enabled\": " + std::string((*it)->isEnabled()?"1":"0") + ",\n";
 		f << "\t\t\"moveable\": " + std::string((*it)->isMoveable()?"1":"0") + ",\n";
 		f << "\t\t\"params\": " + FF10ParamVals(*it,"\n\t\t\t") + "\n";
@@ -1219,11 +1223,11 @@ std::string FFFF::savePipeline(std::string fname, const char* id)
 		FFGLPluginInstance* p = *it;
 		f << sep;
 		f << "\t{\n";
-		f << "\t\t\"ffglplugin\": \"" + (*it)->name() + "\",\n";
+		f << "\t\t\"ffglplugin\": \"" + (*it)->viztag() + "\",\n";
 		f << "\t\t\"enabled\": " + std::string((*it)->isEnabled()?"1":"0") + ",\n";
 		f << "\t\t\"moveable\": " + std::string((*it)->isMoveable()?"1":"0") + ",\n";
-		if (m_vizserver->IsVizlet((*it)->name().c_str())) {
-			std::string name = (*it)->name();
+		if (m_vizserver->IsVizlet((*it)->viztag().c_str())) {
+			std::string name = (*it)->viztag();
 			f << "\t\t\"vizlet\": " + std::string(m_vizserver->IsVizlet(name.c_str()) ? "1" : "0") + ",\n";
 
 			std::string fullmethod = name + "." + "dump";
@@ -1251,17 +1255,17 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 
 	if (meth == "apis") {
 		return jsonStringResult("time;clicknow;show;hide;echo;"
-			"enable(instance,onoff);delete(instance);"
-			"ffgladd(plugin,instance,autoenable,params);"
-			"ff10add(plugin,instance,autoenable,params);"
-			"ffglparamset(instance,param,val);"
-			"ff10paramset(instance,param,val);"
-			"ffglparamget(instance,param);"
-			"ff10paramget(instance,param);"
+			"enable(viztag,onoff);delete(viztag);"
+			"ffgladd(plugin,viztag,autoenable,params);"
+			"ff10add(plugin,viztag,autoenable,params);"
+			"ffglparamset(viztag,param,val);"
+			"ff10paramset(viztag,param,val);"
+			"ffglparamget(viztag,param);"
+			"ff10paramget(viztag,param);"
 			"ff10paramlist(plugin);"
 			"ffglparamlist(plugin);"
-			"ff10paramvals(instance);"
-			"ffglparamvals(instance);"
+			"ff10paramvals(viztag);"
+			"ffglparamvals(viztag);"
 			"ffglpipeline;"
 			"ff10pipeline;"
 			"ffglplugins;"
@@ -1269,8 +1273,8 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 			"fps(onoff);"
 			"trail_enable(onoff);"
 			"trail_amount(value);"
-			"moveup(instance);"
-			"movedown(instance);"
+			"moveup(viztag);"
+			"movedown(viztag);"
 			"shufflepipeline;"
 			"randomizepipeline;"
 			, id);
@@ -1342,7 +1346,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 
 	if (meth == "add" || meth == "ffgladd") {
 		std::string plugin = jsonNeedString(params, "plugin");
-		std::string iname = jsonNeedString(params, "instance");
+		std::string iname = jsonNeedString(params, "viztag");
 		bool autoenable = jsonNeedBool(params, "autoenable", true);
 		bool moveable = jsonNeedBool(params, "moveable", true);
 		cJSON* pparams = jsonGetArray(params, "params");
@@ -1355,7 +1359,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	}
 	if (meth == "ff10add") {
 		std::string plugin = jsonNeedString(params, "plugin");
-		std::string iname = jsonNeedString(params, "instance");
+		std::string iname = jsonNeedString(params, "viztag");
 		bool autoenable = jsonNeedBool(params, "autoenable", true);
 		cJSON* pparams = jsonGetArray(params, "params");
 		FF10PluginInstance* pi = FF10AddToPipeline(plugin, iname, autoenable, pparams);
@@ -1365,21 +1369,21 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		return jsonStringResult(iname, id);
 	}
 	if (meth == "ffglenable" || meth == "enable" ) {
-		std::string instance = jsonNeedString(params, "instance");
+		std::string viztag = jsonNeedString(params, "viztag");
 		bool onoff = jsonNeedBool(params, "onoff");
-		FFGLPluginInstance* pi = FFGLNeedPluginInstance(instance);   // throws an exception if it doesn't exist
+		FFGLPluginInstance* pi = FFGLNeedPluginInstance(viztag);   // throws an exception if it doesn't exist
 		pi->setEnable(onoff);
 		return jsonOK(id);
 	}
 	if (meth == "ffglmoveable" ) {
-		std::string instance = jsonNeedString(params, "instance");
+		std::string viztag = jsonNeedString(params, "viztag");
 		bool onoff = jsonNeedBool(params, "onoff");
-		FFGLPluginInstance* pi = FFGLNeedPluginInstance(instance);   // throws an exception if it doesn't exist
+		FFGLPluginInstance* pi = FFGLNeedPluginInstance(viztag);   // throws an exception if it doesn't exist
 		pi->setMoveable(onoff);
 		return jsonOK(id);
 	}
 	if (meth == "about") {
-		std::string inst = jsonNeedString(params, "instance");
+		std::string inst = jsonNeedString(params, "viztag");
 		FFGLPluginInstance* pgl = FFGLFindPluginInstance(inst);
 		if (pgl != NULL) {
 			FFGLPluginDef* def = pgl->plugindef();
@@ -1390,36 +1394,36 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 			FF10PluginDef* def = p10->plugindef();
 			return jsonStringResult(def->GetExtendedInfo()->About, id);
 		}
-		throw NosuchException("No such instance: %s",inst.c_str());
+		throw NosuchException("No such viztag: %s",inst.c_str());
 	}
 	if (meth == "description") {
-		std::string inst = jsonNeedString(params, "instance");
-		FFGLPluginInstance* pgl = FFGLFindPluginInstance(inst);
+		std::string viztag = jsonNeedString(params, "viztag");
+		FFGLPluginInstance* pgl = FFGLFindPluginInstance(viztag);
 		if (pgl != NULL) {
 			FFGLPluginDef* def = pgl->plugindef();
 			return jsonStringResult(def->GetExtendedInfo()->Description, id);
 		}
-		FF10PluginInstance* p10 = FF10NeedPluginInstance(inst);
+		FF10PluginInstance* p10 = FF10NeedPluginInstance(viztag);
 		if (p10 != NULL) {
 			FF10PluginDef* def = p10->plugindef();
 			return jsonStringResult(def->GetExtendedInfo()->Description, id);
 		}
-		throw NosuchException("No such instance: %s",inst.c_str());
+		throw NosuchException("No such viztag: %s",viztag.c_str());
 	}
 	if ( meth == "delete" ) {
-		// It's okay if instance doesn't exist, so don't use needFFGLPluginInstance
-		std::string iname = jsonNeedString(params,"instance");
-		FFGLDeleteFromPipeline(iname);
+		// It's okay if viztag doesn't exist, so don't use needFFGLPluginInstance
+		std::string viztag = jsonNeedString(params,"viztag");
+		FFGLDeleteFromPipeline(viztag);
 		return jsonOK(id);
 	}
 	if ( meth == "moveup" ) {
-		// It's okay if instance doesn't exist, so don't use needFFGLPluginInstance
-		FFGLMoveUpInPipeline(jsonNeedString(params,"instance"));
+		// It's okay if viztag doesn't exist, so don't use needFFGLPluginInstance
+		FFGLMoveUpInPipeline(jsonNeedString(params,"viztag"));
 		return jsonOK(id);
 	}
 	if ( meth == "movedown" ) {
-		// It's okay if instance doesn't exist, so don't use needFFGLPluginInstance
-		FFGLMoveDownInPipeline(jsonNeedString(params,"instance"));
+		// It's okay if viztag doesn't exist, so don't use needFFGLPluginInstance
+		FFGLMoveDownInPipeline(jsonNeedString(params,"viztag"));
 		return jsonOK(id);
 	}
 	if (meth == "shufflepipeline") {
@@ -1435,43 +1439,43 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		return jsonOK(id);
 	}
 	if ( meth == "ffglparamset" || meth == "set" ) {
-		std::string instance = jsonNeedString(params,"instance");
+		std::string viztag = jsonNeedString(params,"viztag");
 		std::string param = jsonNeedString(params,"param");
 		float val = (float) jsonNeedDouble(params,"val");
-		DEBUGPRINT1(("ffglparamset %s %s %f", instance.c_str(), param.c_str(), val));
-		FFGLPluginInstance* pi = FFGLNeedPluginInstance(instance);
+		DEBUGPRINT1(("ffglparamset %s %s %f", viztag.c_str(), param.c_str(), val));
+		FFGLPluginInstance* pi = FFGLNeedPluginInstance(viztag);
 		if ( ! pi->setparam(param,val) ) {
-			throw NosuchException("Unable to find or set parameter '%s' in instance '%s'",param.c_str(),instance.c_str());
+			throw NosuchException("Unable to find or set parameter '%s' in viztag '%s'",param.c_str(),viztag.c_str());
 		}
 		return jsonOK(id);
 	}
 	if ( meth == "ffglparamget" || meth == "get" ) {
-		std::string instance = jsonNeedString(params,"instance");
+		std::string viztag = jsonNeedString(params,"viztag");
 		std::string param = jsonNeedString(params,"param");
-		FFGLPluginInstance* pi = FFGLNeedPluginInstance(instance);
+		FFGLPluginInstance* pi = FFGLNeedPluginInstance(viztag);
 		FFGLParameterDef* pd = pi->plugindef()->findparamdef(param);
 		if ( pd == NULL ) {
-			throw NosuchException("No parameter '%s' in plugin '%s'",param.c_str(),instance.c_str());
+			throw NosuchException("No parameter '%s' in viztag '%s'",param.c_str(),viztag.c_str());
 		}
 		return pi->getParamJsonResult(pd, pi, id);
 	}
 	if ( meth == "ff10paramset" ) {
-		std::string instance = jsonNeedString(params,"instance");
+		std::string viztag = jsonNeedString(params,"viztag");
 		std::string param = jsonNeedString(params,"param");
 		float val = (float) jsonNeedDouble(params,"val");
-		FF10PluginInstance* pi = FF10NeedPluginInstance(instance);
+		FF10PluginInstance* pi = FF10NeedPluginInstance(viztag);
 		if ( ! pi->setparam(param,val) ) {
-			throw NosuchException("Unable to find or set parameter '%s' in instance '%s'",param.c_str(),instance.c_str());
+			throw NosuchException("Unable to find or set parameter '%s' in viztag '%s'",param.c_str(),viztag.c_str());
 		}
 		return jsonOK(id);
 	}
 	if ( meth == "ff10paramget" ) {
-		std::string instance = jsonNeedString(params,"instance");
+		std::string viztag = jsonNeedString(params,"viztag");
 		std::string param = jsonNeedString(params,"param");
-		FF10PluginInstance* pi = FF10NeedPluginInstance(instance);
+		FF10PluginInstance* pi = FF10NeedPluginInstance(viztag);
 		FF10ParameterDef* pd = pi->plugindef()->findparamdef(param);
 		if ( pd == NULL ) {
-			throw NosuchException("No parameter '%s' in plugin '%s'",param.c_str(),instance.c_str());
+			throw NosuchException("No parameter '%s' in plugin '%s'",param.c_str(),viztag.c_str());
 		}
 		return pi->getParamJsonResult(pd, pi, id);
 	}
@@ -1498,32 +1502,32 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 #if 0
 	if ( meth == "ffglparamlist" ) {
 		std::string plugin = jsonNeedString(params,"plugin","");
-		std::string instance = jsonNeedString(params,"instance","");
-		if ( plugin == "" && instance != "" ) {
-			FFGLPluginInstance* pi = FFGLNeedPluginInstance(instance);   // throws an exception if it doesn't exist
+		std::string viztag = jsonNeedString(params,"viztag","");
+		if ( plugin == "" && viztag != "" ) {
+			FFGLPluginInstance* pi = FFGLNeedPluginInstance(viztag);   // throws an exception if it doesn't exist
 			plugin = pi->plugindef()->GetPluginName();
 		}
 		return FFGLParamList(plugin,id);
 	}
 	if ( meth == "ff10paramlist" ) {
 		std::string plugin = jsonNeedString(params,"plugin","");
-		std::string instance = jsonNeedString(params,"instance","");
-		if ( plugin == "" && instance != "" ) {
-			FF10PluginInstance* pi = FF10NeedPluginInstance(instance);   // throws an exception if it doesn't exist
+		std::string viztag = jsonNeedString(params,"viztag","");
+		if ( plugin == "" && viztag != "" ) {
+			FF10PluginInstance* pi = FF10NeedPluginInstance(viztag);   // throws an exception if it doesn't exist
 			plugin = pi->plugindef()->GetPluginName();
 		}
 		return FF10ParamList(plugin,id);
 	}
 #endif
 	if ( meth == "ffglparamvals" ) {
-		std::string instance = jsonNeedString(params,"instance","");
-		FFGLPluginInstance* pi = FFGLNeedPluginInstance(instance);   // throws an exception if it doesn't exist
+		std::string viztag = jsonNeedString(params,"viztag","");
+		FFGLPluginInstance* pi = FFGLNeedPluginInstance(viztag);   // throws an exception if it doesn't exist
 		std::string r = FFGLParamVals(pi);
 		return jsonResult(r,id);
 	}
 	if ( meth == "ff10paramvals" ) {
-		std::string instance = jsonNeedString(params,"instance","");
-		FF10PluginInstance* pi = FF10NeedPluginInstance(instance);   // throws an exception if it doesn't exist
+		std::string viztag = jsonNeedString(params,"viztag","");
+		FF10PluginInstance* pi = FF10NeedPluginInstance(viztag);   // throws an exception if it doesn't exist
 		std::string r = FF10ParamVals(pi);
 		return jsonResult(r,id);
 	}

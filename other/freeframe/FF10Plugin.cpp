@@ -146,7 +146,7 @@ DWORD FF10PluginInstance::Instantiate(VideoInfoStruct *vis)
 
     m_instanceid = m_mainfunc(FF_INSTANTIATE, (DWORD)vis, 0).ivalue;
     if ( m_instanceid == FF_FAIL ) {
-        DEBUGPRINT(("Unable to Instantiate!? plugin=%s\n",m_name.c_str()));
+        DEBUGPRINT(("Unable to Instantiate!? plugin=%s\n",m_viztag.c_str()));
         return FF_FAIL;
     }
     DEBUGPRINT1(("SUCCESSFUL Instantiate id=%d\n",m_instanceid));
@@ -225,8 +225,8 @@ std::string FF10PluginDef::GetPluginName() const
     return(name);
 }
 
-FF10PluginInstance::FF10PluginInstance(FF10PluginDef* d, std::string nm) :
-	m_plugindef(d), m_params(NULL), m_name(nm), m_enabled(false),
+FF10PluginInstance::FF10PluginInstance(FF10PluginDef* d, std::string viztag) :
+	m_plugindef(d), m_params(NULL), m_viztag(viztag), m_enabled(false),
 	m_moveable(true), m_instanceid(INVALIDINSTANCE) {
 
 	NosuchAssert ( d->m_mainfunc );

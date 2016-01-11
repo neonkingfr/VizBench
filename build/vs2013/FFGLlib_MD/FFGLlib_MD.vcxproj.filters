@@ -280,6 +280,9 @@
     <ClInclude Include="..\..\..\src\params\MidiVizParams.h">
       <Filter>Header Files\params</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\nosuch\NosuchJSON.h">
+      <Filter>Header Files\nosuch</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\src\params\MidiVizParams.list">

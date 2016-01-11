@@ -246,6 +246,7 @@
     <ClInclude Include="..\..\..\src\nosuch\NosuchEvent.h" />
     <ClInclude Include="..\..\..\src\nosuch\NosuchException.h" />
     <ClInclude Include="..\..\..\src\nosuch\NosuchGraphics.h" />
+    <ClInclude Include="..\..\..\src\nosuch\NosuchJSON.h" />
     <ClInclude Include="..\..\..\src\nosuch\NosuchLife.h" />
     <ClInclude Include="..\..\..\src\nosuch\NosuchLooper.h" />
     <ClInclude Include="..\..\..\src\nosuch\NosuchMaze.h" />

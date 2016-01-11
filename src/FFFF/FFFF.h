@@ -62,14 +62,14 @@ public:
 	std::string FFGLParamVals(FFGLPluginInstance* pi, std::string linebreak);
 	std::string FFGLParamInfo(std::string plugin, std::string param, const char* id);
 
-	FFGLPluginInstance* FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string inm);
-	FFGLPluginInstance* FFGLFindPluginInstance(std::string inm);
-	FFGLPluginInstance* FFGLNeedPluginInstance(std::string inm);
+	FFGLPluginInstance* FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string viztag);
+	FFGLPluginInstance* FFGLFindPluginInstance(std::string viztag);
+	FFGLPluginInstance* FFGLNeedPluginInstance(std::string viztag);
 	std::string			FFGLParamList(std::string nm, const char* id);
-	FFGLPluginInstance* FFGLAddToPipeline(std::string nm, std::string inm, bool autoenable, cJSON* params);
-	void				FFGLDeleteFromPipeline(std::string inm);
-	void				FFGLMoveUpInPipeline(std::string inm);
-	void				FFGLMoveDownInPipeline(std::string inm);
+	FFGLPluginInstance* FFGLAddToPipeline(std::string nm, std::string viztag, bool autoenable, cJSON* params);
+	void				FFGLDeleteFromPipeline(std::string viztag);
+	void				FFGLMoveUpInPipeline(std::string viztag);
+	void				FFGLMoveDownInPipeline(std::string viztag);
 
 	///////////////////////// FF10 stuff
 
@@ -78,12 +78,12 @@ public:
 	std::string FF10ParamVals(FF10PluginInstance* pi, std::string linebreak);
 	std::string FF10ParamInfo(std::string plugin, std::string param, const char* id);
 
-	FF10PluginInstance* FF10NewPluginInstance(FF10PluginDef* plugin, std::string inm);
-	FF10PluginInstance* FF10FindPluginInstance(std::string inm);
-	FF10PluginInstance* FF10NeedPluginInstance(std::string inm);
+	FF10PluginInstance* FF10NewPluginInstance(FF10PluginDef* plugin, std::string viztag);
+	FF10PluginInstance* FF10FindPluginInstance(std::string viztag);
+	FF10PluginInstance* FF10NeedPluginInstance(std::string viztag);
 	std::string			FF10ParamList(std::string nm, const char* id);
-	FF10PluginInstance* FF10AddToPipeline(std::string pluginName, std::string inm, bool autoenable, cJSON* params);
-	void				FF10DeleteFromPipeline(std::string inm);
+	FF10PluginInstance* FF10AddToPipeline(std::string pluginName, std::string viztag, bool autoenable, cJSON* params);
+	void				FF10DeleteFromPipeline(std::string viztag);
 
 	void loadAllPluginDefs(std::string ffdir, std::string ffgldir, int w, int h);
 

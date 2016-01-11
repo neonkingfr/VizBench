@@ -186,7 +186,9 @@ public:
 
 	bool IsVizlet(const char* iname);
 	const char *VizTags();
+#ifdef VIZTAG_PARAMETER
 	void ChangeVizTag(void* handle, const char* newtag);
+#endif
 	void AdvanceCursorTo(VizCursor* c, double tm);
 
 	void ClearJsonCallbacks();

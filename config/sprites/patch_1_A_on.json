@@ -31,9 +31,12 @@
 	"saturation":	"1",
 	"shape":	"square",
 	"sizefinal":	"0",
-	"sizeinitial":	"0.65935",
+	"sizeinitial":	"3.007",
 	"sizetime":	"0.7093",
 	"speedinitial":	"0.405",
 	"thickness":	"10",
-	"zable":	"true"
+	"zable":	"true",
+	"zexponential":	"1.0",
+	"zmultiply":	"1.0",
+	"zoffset":	"0.0"
 }

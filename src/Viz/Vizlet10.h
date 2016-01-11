@@ -53,7 +53,9 @@ public:
 	void StartVizServer();
 	void InitCallbacks();
 	void RemoveCallbacks();
+#ifdef VIZTAG_PARAMETER
 	void ChangeVizTag(const char* newtag);
+#endif
 	void advanceCursorTo(VizCursor* c, double tm);
 	// int MilliTime();
 	double GetTime();

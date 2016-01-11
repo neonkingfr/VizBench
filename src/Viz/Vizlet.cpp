@@ -306,9 +306,11 @@ void Vizlet::advanceCursorTo(VizCursor* c, double tm) {
 	m_vizserver->AdvanceCursorTo(c,tm);
 }
 
+#ifdef VIZTAG_PARAMETER
 void Vizlet::ChangeVizTag(const char* p) {
 	m_vizserver->ChangeVizTag(Handle(),p);
 }
+#endif
 
 void Vizlet::_startApiCallbacks(const char* apiprefix, void* data) {
 	NosuchAssert(m_vizserver);
