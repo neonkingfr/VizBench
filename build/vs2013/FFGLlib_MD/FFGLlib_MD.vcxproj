@@ -239,6 +239,7 @@
     <ClInclude Include="..\..\..\other\freeframe\FFGLPluginManager_inl.h" />
     <ClInclude Include="..\..\..\other\freeframe\FFGLPluginSDK.h" />
     <ClInclude Include="..\..\..\other\freeframe\FFGLShader.h" />
+    <ClInclude Include="..\..\..\other\freeframe\FreeFrame.h" />
     <ClInclude Include="..\..\..\src\nosuch\midifile.h" />
     <ClInclude Include="..\..\..\src\nosuch\NosuchColor.h" />
     <ClInclude Include="..\..\..\src\nosuch\NosuchDaemon.h" />

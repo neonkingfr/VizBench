@@ -94,6 +94,10 @@ extern "C" {
 #define FF_GETPARAMETERTYPE			15
 #define FF_GETIPUTSTATUS			16
 
+// These are non-standard extensions, used by Resolume (and now FFFF/Vizlets)
+#define FF_CONNECT					21
+#define FF_DISCONNECT				22
+
 // Return values
 #define FF_SUCCESS					0
 #define FF_FAIL						0xFFFFFFFF

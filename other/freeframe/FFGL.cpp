@@ -74,6 +74,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 extern CFFGLPluginInfo* g_CurrPluginInfo;
+extern bool g_constructingPrototype;
 
 static CFreeFrameGLPlugin* s_pPrototype = NULL;
 static VizServer* s_vizserver = NULL;
@@ -98,7 +99,10 @@ DWORD FFGLinitialise()
 		FPCREATEINSTANCEGL *pInstantiate = g_CurrPluginInfo->GetFactoryMethod();
 
 		//call the instantiate function
+
+		g_constructingPrototype = true;
 		DWORD dwRet = pInstantiate(&s_pPrototype);
+		g_constructingPrototype = false;
 
 		//make sure the instantiate call worked
 		if ((dwRet == FF_FAIL) || (s_pPrototype == NULL))
@@ -124,7 +128,7 @@ DWORD FFGLgetNumParameters()
 {
 	if (s_pPrototype == NULL) {
 		DWORD dwRet = FFGLinitialise();
-		if (dwRet == FF_FAIL) return FF_FAIL;
+		if (dwRet == FF_FAIL || s_pPrototype == NULL) return FF_FAIL;
 	}
 
 	return (DWORD) s_pPrototype->GetNumParams();
@@ -134,7 +138,7 @@ char* FFGLgetParameterName(DWORD index)
 {
 	if (s_pPrototype == NULL) {
 		DWORD dwRet = FFGLinitialise();
-		if (dwRet == FF_FAIL) return NULL;
+		if (dwRet == FF_FAIL || s_pPrototype == NULL) return NULL;
 	}
 	
 	return s_pPrototype->GetParamName(index);
@@ -144,7 +148,7 @@ DWORD FFGLgetParameterDefault(DWORD index)
 {
 	if (s_pPrototype == NULL) {
 		DWORD dwRet = FFGLinitialise();
-		if (dwRet == FF_FAIL) return FF_FAIL;
+		if (dwRet == FF_FAIL || s_pPrototype == NULL) return FF_FAIL;
 	}
 
 	void* pValue = s_pPrototype->GetParamDefault(index);
@@ -163,7 +167,7 @@ DWORD FFGLgetPluginCaps(DWORD index)
 
 	if (s_pPrototype == NULL) {
 		DWORD dwRet = FFGLinitialise();
-		if (dwRet == FF_FAIL) return FF_FAIL;
+		if (dwRet == FF_FAIL || s_pPrototype == NULL) return FF_FAIL;
 	}
 
 	switch (index) {
@@ -184,7 +188,7 @@ DWORD FFGLgetPluginCaps(DWORD index)
 		return FF_TRUE;
 
 	case FF_CAP_SETTIME:
-		if (s_pPrototype->GetTimeSupported())
+		if (s_pPrototype != NULL && s_pPrototype->GetTimeSupported())
 			return FF_TRUE;
 		else
 			return FF_FALSE;
@@ -218,7 +222,7 @@ DWORD FFGLgetParameterType(DWORD index)
 {
 	if (s_pPrototype == NULL) {
 		DWORD dwRet = FFGLinitialise();
-		if (dwRet == FF_FAIL) return FF_FAIL;
+		if (dwRet == FF_FAIL || s_pPrototype == NULL) return FF_FAIL;
 	}
 	
 	return s_pPrototype->GetParamType(index);
@@ -437,12 +441,24 @@ plugMainUnion plugMain(DWORD functionCode, DWORD inputValue, DWORD instanceID)
 			retval.ivalue = FF_FAIL;
 			break;
 	
-		// Resolume sends this code when a clip goes unselected (not active)
-		// I use it to disable the reception/handling of OSC.
-		case 22:
-			DEBUGPRINT1(("functionCode 22 (from Resolume?)"));
+		// Resolume sends this code when a clip is selected and made active.
+		// FFFF uses it when a plugin is enabled (to turn on handling of cursors, MIDI, etc)
+		case FF_CONNECT:
+			DEBUGPRINT(("Got FF_CONNECT"));
 			if (pPlugObj != NULL) {
-				retval.ivalue = pPlugObj->ResolumeDeactivate();
+				retval.ivalue = pPlugObj->ProcessConnect();
+			} else {
+				retval.ivalue = FF_FAIL;
+			}
+			break;
+
+		// Resolume sends this code when a clip goes unselected (not active).
+		// FFFF uses it when a plugin is disabled (but still capable of executing APIs),
+		// to disable the reception/handling of cursors, MIDI, etc.
+		case FF_DISCONNECT:
+			DEBUGPRINT(("Got FF_DISCONNECT"));
+			if (pPlugObj != NULL) {
+				retval.ivalue = pPlugObj->ProcessDisconnect();
 			} else {
 				retval.ivalue = FF_FAIL;
 			}

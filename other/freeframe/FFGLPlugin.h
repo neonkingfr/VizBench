@@ -69,6 +69,9 @@ public:
 		DeInstantiateGL();
 	}
 
+	bool ProcessConnect();
+	bool ProcessDisconnect();
+	bool isConnected();
 	std::string GetParameterDisplay(int paramNum);
 	float GetFloatParameter(int paramNum);
 	bool GetBoolParameter(int paramNum);

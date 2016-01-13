@@ -151,13 +151,13 @@ public:
 		this->clear();
 	}
 	void addcallback(void* handle, const char* apiprefix, void* cb, void* data) {
-		DEBUGPRINT1(("VizServerApiCallbackMap addcallback handle=%ld prefix=%s", (long)handle, apiprefix));
+		DEBUGPRINT(("VizServerApiCallbackMap addcallback handle=%ld prefix=%s", (long)handle, apiprefix));
 		if (count(handle) > 0) {
-			DEBUGPRINT(("Hey! VizServercallbackMap::addcallback finds existing callback for handle=%ld", (long)handle));
+			DEBUGPRINT(("Hey! VizServerApiCallbackMap::addcallback finds existing callback for handle=%ld prefix=%s", (long)handle, apiprefix));
 			return;
 		}
 		if (findprefix(apiprefix) != NULL) {
-			DEBUGPRINT(("Hey! VizServercallbackMap::addcallback finds existing callback for handle=%ld", (long)handle));
+			DEBUGPRINT(("Hey! VizServerApiCallbackMap::addcallback finds existing apiprefix for handle=%ld prefix=%s", (long)handle, apiprefix));
 			return;
 		}
 		VizServerApiCallback* sscb = new VizServerApiCallback(apiprefix, cb, data);
@@ -199,8 +199,7 @@ public:
 		return s.c_str();
 	}
 
-#ifdef VIZTAG_PARAMETER
-	void ChangeVizTag(void* handle, const char* p) {
+	void ChangeVizTag(void* handle, const char* viztag) {
 		if (count(handle) <= 0) {
 			DEBUGPRINT(("Hey! VizServercallbackMap::ChangeVizTag didn't find existing callback for handle=%ld", (long)handle));
 			return;
@@ -208,9 +207,8 @@ public:
 		VizServerApiCallback* sscb = (*this)[handle];
 		// Should we free prefix?  I tried freeing it in the destructor
 		// of ApiFilter, and it corrupted the heap, so I'm leary.
-		sscb->m_apiprefix = _strdup(p);
+		sscb->m_apiprefix = _strdup(viztag);
 	}
-#endif
 };
 
 class VizServerCursorCallbackMap : public std::map < void*, VizServerCursorCallback* > {
@@ -219,7 +217,7 @@ public:
 	}
 	void addcallback(void* handle, CursorFilter cf, void* cb, void* data) {
 		if (count(handle) > 0) {
-			DEBUGPRINT(("Hey! VizServercallbackMap::addcallback finds existing callback for handle=%ld", (long)handle));
+			DEBUGPRINT(("Hey! VizServerCursorCallbackMap::addcallback finds existing callback for handle=%ld", (long)handle));
 			return;
 		}
 		VizServerCursorCallback* sscb = new VizServerCursorCallback(cf, cb, data);
@@ -227,7 +225,7 @@ public:
 	}
 	void removecallback(void* handle) {
 		if (count(handle) == 0) {
-			DEBUGPRINT(("Hey! VizServercallbackMap::removecallback didn't find existing callback for handle=%ld", (long)handle));
+			DEBUGPRINT(("Hey! VizServerCursorCallbackMap::removecallback didn't find existing callback for handle=%ld", (long)handle));
 			return;
 		}
 		erase(handle);
@@ -303,6 +301,13 @@ class VizServerJsonProcessor : public NosuchJsonListener {
 
 public:
 	VizServerJsonProcessor() {
+		NosuchLockInit(&_mutex, "vizserver");
+	}
+	void LockJsonProcessor() {
+		NosuchLock(&_mutex,"jsonprocessor");
+	}
+	void UnlockJsonProcessor() {
+		NosuchUnlock(&_mutex,"jsonprocessor");
 	}
 	void ClearCallbacks() {
 		m_callbacks.ClearCallbacks();
@@ -311,15 +316,14 @@ public:
 		const char* existing = m_callbacks.VizTags();
 		m_callbacks.addcallback(handle, apiprefix, (void*)cb, data);
 	}
-#ifdef VIZTAG_PARAMETER
 	void ChangeVizTag(void* handle, const char* p) {
 		m_callbacks.ChangeVizTag(handle, p);
 	}
-#endif
 	void RemoveJsonCallback(void* handle) {
 		m_callbacks.removecallback(handle);
 	}
 	virtual std::string processJson(std::string method, cJSON* params, const char *id);
+	virtual std::string processJsonReal(std::string method, cJSON* params, const char *id);
 	int numCallbacks() { return m_callbacks.size(); }
 	const char* VizTags() { return m_callbacks.VizTags(); }
 	bool HasApiPrefix(std::string nm) {
@@ -328,6 +332,7 @@ public:
 
 private:
 	VizServerApiCallbackMap m_callbacks;
+	pthread_mutex_t _mutex;
 };
 
 static void
@@ -358,6 +363,14 @@ ApiSpecificVizParamsPath(std::string api, std::string file) {
 
 std::string
 VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const char* id) {
+	// LockJsonProcessor();
+	std::string r = processJsonReal(fullmethod, params, id);
+	// UnlockJsonProcessor();
+	return r;
+}
+
+std::string
+VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, const char* id) {
 
 	std::string prefix;
 	std::string api;
@@ -561,19 +574,24 @@ VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const
 	}
 
 	jsoncallback_t jsoncb = (jsoncallback_t)(cb->m_cb);
+
 	// NOTE: The interface in client DLLs uses char* rather than std::string
-	const char *r = jsoncb(cb->m_data, api.c_str(), params, id);
-	std::string result;
-	if (r == NULL) {
+	// AND: it's responsibility of the caller (here) to free the returned value
+	const char *result = jsoncb(cb->m_data, api.c_str(), params, id);
+	std::string s;
+	if (result == NULL) {
 		DEBUGPRINT(("HEY! NULL return from json callback!?"));
-		result = jsonError(-32000, "NULL return from json callback", id);
+		s = jsonError(-32000, "NULL return from json callback", id);
+		result = _strdup(s.c_str());
 	}
-	else if (r[0] != '{') {
-		DEBUGPRINT(("HEY! result from json callback doesn't start with '{' !?  r=%s",r));
-		result = jsonError(-32000, "Result from json callback doesn't start with curly brace", id);
+	else if (result[0] != '{') {
+		DEBUGPRINT(("HEY! result from json callback doesn't start with '{' !?  result=%s",result));
+		free((void*)result);
+		s = jsonError(-32000, "Result from json callback doesn't start with curly brace", id);
+		result = _strdup(s.c_str());
 	}
 	else {
-		result = std::string(r);
+		// leave the value in result alone
 	}
 	return result;
 }
@@ -890,6 +908,7 @@ VizServer::VizServer() {
 	m_daemon = NULL;
 	m_cursors = new std::list<VizCursor*>();
 	NosuchLockInit(&_cursors_mutex, "cursors");
+	NosuchLockInit(&_vizserver_mutex, "vizserver");
 
 	// m_midi_input_list = "";
 	// m_midi_output_list = "";
@@ -1037,15 +1056,14 @@ click_t VizServer::SchedulerClicksPerSecond() {
 const char*
 VizServer::ProcessJson(const char* fullmethod, cJSON* params, const char* id) {
 	static std::string s;  // because we're returning its c_str()
-	DEBUGPRINT1(("VizServer::ProcessJson jsonprocessor=%ld",(long)m_jsonprocessor));
 	s = m_jsonprocessor->processJson(fullmethod, params, id);
-	DEBUGPRINT1(("VizServer::ProcessJson is returning %s",s.c_str()));
 	return s.c_str();
 }
 
 std::string
 VizServer::_processJson(std::string fullmethod, cJSON* params, const char* id) {
-	return m_jsonprocessor->processJson(fullmethod, params, id);
+	std::string s = m_jsonprocessor->processJson(fullmethod, params, id);
+	return s;
 }
 
 cJSON*
@@ -1502,12 +1520,10 @@ VizServer::VizTags() {
 	return s.c_str();
 }
 
-#ifdef VIZTAG_PARAMETER
 void
 VizServer::ChangeVizTag(void* handle, const char* p) {
 	m_jsonprocessor->ChangeVizTag(handle, p);
 }
-#endif
 
 void
 VizServer::ClearJsonCallbacks() {

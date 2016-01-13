@@ -4,7 +4,7 @@
     <LocalDebuggerCommand>$(VIZBENCH)\bin\FFFF.exe</LocalDebuggerCommand>
     <LocalDebuggerWorkingDirectory>$(VIZBENCH)\bin</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-c puddlemidi</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-c puddle2</LocalDebuggerCommandArguments>
     <LocalDebuggerEnvironment>VIZCONFIG=config</LocalDebuggerEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

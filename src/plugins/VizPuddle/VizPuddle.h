@@ -35,7 +35,7 @@ private:
 		Region(std::string nm) {
 			name = nm;
 			sid_min = 0;
-			sid_max = 0;
+			sid_max = 99999;
 			spriteparamfile = nm + "_default";
 			midiparamfile = nm + "_default";
 			spriteparams = NULL;

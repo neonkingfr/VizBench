@@ -55,7 +55,6 @@ void VizPuddle::processCursor(VizCursor* c, int downdragup) {
 	DEBUGPRINT1(("VizPuddle::processCursor! downdragup=%d c=%.4f %.4f",downdragup,c->pos.x,c->pos.y));
 	// palette()->processCursor(c,downdragup);
 	if (downdragup == CURSOR_DOWN) {
-		LoadPipeline("vizmidi4");
 #ifdef WHEN_ON_SPACE_PALETTE
 		int sid = c->sid;
 		std::string pipeline = "";
@@ -140,14 +139,24 @@ std::string VizPuddle::processJson(std::string meth, cJSON *json, const char *id
 		std::string nm = pair.first;
 		Region* r = pair.second;
 
-		if (meth == "set_" + nm + "_sidrange") { return _set_sidrange(r, json, id); }
-		if (meth == "get_" + nm + "_sidrange") { return jsonStringResult(NosuchSnprintf("%d-%d", r->sid_min, r->sid_max), id); }
+		std::string result;
 
-		if (meth == "set_" + nm + "_sprite") { return _set_region_spriteparams(r, json, id); }
-		if (meth == "get_" + nm + "_sprite") { return jsonStringResult(r->spriteparamfile, id); }
+		if (meth == "set_" + nm + "_sidrange") { result = _set_sidrange(r, json, id); }
+		if (meth == "get_" + nm + "_sidrange") { result = jsonStringResult(NosuchSnprintf("%d-%d", r->sid_min, r->sid_max), id); }
 
-		if (meth == "set_" + nm + "_midi") { return _set_region_midiparams(r, json, id); }
-		if (meth == "get_" + nm + "_midi") { return jsonStringResult(r->midiparamfile, id); }
+		if (meth == "set_" + nm + "_sprite") { result = _set_region_spriteparams(r, json, id); }
+		if (meth == "get_" + nm + "_sprite") { result = jsonStringResult(r->spriteparamfile, id); }
+
+		if (meth == "set_" + nm + "_midi") { result = _set_region_midiparams(r, json, id); }
+		if (meth == "get_" + nm + "_midi") { result = jsonStringResult(r->midiparamfile, id); }
+
+		if (result != "") {
+			const char *p = result.c_str();
+			if (p[0] != '{') {
+				DEBUGPRINT(("Bad result in meth=%s result=%s", meth.c_str(), p));
+			}
+			return result;
+		}
 	}
 
 	// Here we go through all the button names and look for their set/get methods
@@ -155,11 +164,21 @@ std::string VizPuddle::processJson(std::string meth, cJSON *json, const char *id
 		std::string nm = pair.first;
 		Button* b = pair.second;
 
-		if (meth == "set_" + nm + "_sidrange") { return _set_sidrange(b, json, id); }
-		if (meth == "get_" + nm + "_sidrange") { return jsonStringResult(NosuchSnprintf("%d-%d", b->sid_min, b->sid_max), id); }
+		std::string result;
 
-		if (meth == "set_" + nm + "_pipeline") { return _set_button_pipeline(b, json, id); }
-		if (meth == "get_" + nm + "_pipeline") { return jsonStringResult(b->pipeline, id); }
+		if (meth == "set_" + nm + "_sidrange") { result = _set_sidrange(b, json, id); }
+		if (meth == "get_" + nm + "_sidrange") { result = jsonStringResult(NosuchSnprintf("%d-%d", b->sid_min, b->sid_max), id); }
+
+		if (meth == "set_" + nm + "_pipeline") { result = _set_button_pipeline(b, json, id); }
+		if (meth == "get_" + nm + "_pipeline") { result = jsonStringResult(b->pipeline, id); }
+
+		if (result != "") {
+			const char *p = result.c_str();
+			if (p[0] != '{') {
+				DEBUGPRINT(("Bad result in meth=%s result=%s", meth.c_str(), p));
+			}
+			return result;
+		}
 	}
 
 	// PARAMETER "autoloadparams"
@@ -234,6 +253,7 @@ void VizPuddle::_cursorMidi(VizCursor* c, MidiVizParams* p) {
 	MidiNoteOff *noteoff = MidiNoteOff::make(ch, pitch, 0);
 	ph->insert(noteon, 0);
 	ph->insert(noteoff, dur);
+	ph->SetInputPort(MIDI_PORT_OF_GENERATED_STUFF);
 	QueueMidiPhrase(ph, now);
 }
 

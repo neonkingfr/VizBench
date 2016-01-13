@@ -761,7 +761,7 @@ void VizShader::SetDefaults() {
 
 	m_channelResolution[3][0] = 0.0;
 	m_channelResolution[3][1] = 0.0;
-	m_channelResolution[4][2] = 1.0;
+	m_channelResolution[3][2] = 1.0;
 
 	m_UserSpeed               = 0.5;
 	m_UserMouseX              = 0.5;

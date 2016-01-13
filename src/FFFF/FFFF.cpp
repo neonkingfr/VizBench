@@ -452,21 +452,19 @@ FFFF::FFGLAddToPipeline(std::string pluginName, std::string viztag, bool autoena
 		}
 	}
 
-    FFGLPluginDef* plugin = findffglplugindef(pluginName);
-	if ( plugin == NULL ) {
+    FFGLPluginDef* plugindef = findffglplugindef(pluginName);
+	if ( plugindef == NULL ) {
 		DEBUGPRINT(("There is no plugin named '%s'",pluginName.c_str()));
 		return NULL;
 	}
 
-	FFGLPluginInstance* np = FFGLNewPluginInstance(plugin,viztag);
+	FFGLPluginInstance* np = FFGLNewPluginInstance(plugindef,viztag);
 
-#ifdef VIZTAG_PARAMETER
 	// If the plugin's first parameter is "viztag", set it
 	int pnum = np->plugindef()->getParamNum("viztag");
 	if ( pnum >= 0 ) {
 		np->setparam("viztag",viztag);
 	}
-#endif
 
 	// Add it to the end of the pipeline
 	m_ffglpipeline.insert(m_ffglpipeline.end(),np);
@@ -513,14 +511,12 @@ FFFF::FF10AddToPipeline(std::string pluginName, std::string viztag, bool autoena
 
 	FF10PluginInstance* np = FF10NewPluginInstance(plugin,viztag);
 
-#ifdef VIZTAG_PARAMETER
 	// If the plugin's first parameter is "viztag", set it
 	int pnum = np->plugindef()->getParamNum("viztag");
 	if ( pnum >= 0 ) {
 		DEBUGPRINT1(("In FF10AddToPipeline of %s, setting viztag to %s",pluginName.c_str(),viztag.c_str()));
 		np->setparam("viztag",viztag);
 	}
-#endif
 
 	m_ff10pipeline.insert(m_ff10pipeline.end(),np);
 
@@ -1373,11 +1369,11 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		bool onoff = jsonNeedBool(params, "onoff");
 		FFGLPluginInstance* pi = FFGLNeedPluginInstance(viztag);   // throws an exception if it doesn't exist
 		pi->setEnable(onoff);
-
-		if (m_vizserver->IsVizlet(viztag.c_str())) {
-			DEBUGPRINT(("ffglenable %s is a vizlet",viztag.c_str()));
+		if (!onoff) {
+			pi->ProcessDisconnect();
+		} else {
+			pi->ProcessConnect();
 		}
-
 		return jsonOK(id);
 	}
 	if (meth == "ffglmoveable" ) {

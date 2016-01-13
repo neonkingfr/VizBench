@@ -53,16 +53,12 @@ public:
 	void StartVizServer();
 	void InitCallbacks();
 	void RemoveCallbacks();
-#ifdef VIZTAG_PARAMETER
 	void ChangeVizTag(const char* newtag);
-#endif
 	void advanceCursorTo(VizCursor* c, double tm);
-	// int MilliTime();
 	double GetTimeInSeconds();
 	click_t SchedulerCurrentClick();
 	void LockVizlet();
 	void UnlockVizlet();
-	void DisableVizlet() { m_disabled = true; }
 
 	void QueueMidiMsg(MidiMsg* m, click_t clk);
 	void QueueMidiPhrase(MidiPhrase* ph, click_t clk);
@@ -126,7 +122,7 @@ public:
 	std::string HtmlDir();
 	std::string ParamConfigDir();
 
-	std::string processJsonAndCatchExceptions(std::string meth, cJSON *params, const char *id);
+	std::string processJsonLockAndCatchExceptions(std::string meth, cJSON *params, const char *id);
 	static bool checkAddrPattern(const char *addr, char *patt);
 
 	/////////////////////////////////////////////////////
@@ -200,7 +196,9 @@ protected:
 	pthread_cond_t json_cond;
 	pthread_mutex_t vizlet10_mutex;
 
+#if 0
 	bool json_pending;
+#endif
 	std::string json_method;
 	cJSON* json_params;
 	const char *json_id;

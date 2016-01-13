@@ -165,6 +165,16 @@ void FFGLPluginInstance::SetTime(double curTime) {
     m_main(FF_SETTIME, (DWORD)(&curTime), m_instanceid);
 }
 
+bool FFGLPluginInstance::ProcessConnect() {
+	DWORD rval = m_main(FF_CONNECT,0,m_instanceid).ivalue;
+	return (rval == FF_SUCCESS);
+}
+
+bool FFGLPluginInstance::ProcessDisconnect() {
+	DWORD rval = m_main(FF_DISCONNECT,0,m_instanceid).ivalue;
+	return (rval == FF_SUCCESS);
+}
+
 float FFGLPluginInstance::GetFloatParameter(int paramNum) {
     //make sure its a float parameter type
     DWORD ffParameterType = m_main(FF_GETPARAMETERTYPE,(DWORD)paramNum,0).ivalue;
@@ -209,7 +219,6 @@ std::string FFGLPluginInstance::GetParameterDisplay(int paramNum)
     memcpy(nm,r.svalue,16);
     nm[16] = 0;
 	std::string display = std::string(nm);
-	DEBUGPRINT(("GetParameterDisplay, display=%s",display.c_str()));
     return display;
 }
 

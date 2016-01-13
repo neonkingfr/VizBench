@@ -145,10 +145,9 @@ Vizlet10::Vizlet10() {
 #endif
 
 	NosuchLockInit(&vizlet10_mutex,"vizlet");
-
 	NosuchLockInit(&json_mutex,"json");
 	json_cond = PTHREAD_COND_INITIALIZER;
-	json_pending = false;
+	// json_pending = false;
 
 	m_disabled = false;
 	m_disable_on_exception = false;
@@ -166,9 +165,7 @@ Vizlet10::Vizlet10() {
 	SetMinInputs(1);
 	SetMaxInputs(1);
 
-#ifdef VIZTAG_PARAMETER
 	SetParamInfo(0,"viztag", FF_TYPE_TEXT, VizTag().c_str());
-#endif
 }
 
 Vizlet10::~Vizlet10()
@@ -179,47 +176,41 @@ Vizlet10::~Vizlet10()
 
 DWORD Vizlet10::SetParameter(const SetParameterStruct* pParam) {
 
-	return FF_FAIL;
-#ifdef VIZTAG_PARAMETER
 	DWORD r = FF_FAIL;
 
+#if 0
 	// make sure the VizServer is started.
 	StartVizServer();
 	InitCallbacks();
+#endif
 
 	switch ( pParam->ParameterNumber ) {
 	case 0:		// shape
 		if ( VizTag() != std::string(pParam->u.NewTextValue) ) {
 			SetVizTag(pParam->u.NewTextValue);
-			m_af = ApiFilter(VizTag().c_str());
 			ChangeVizTag(pParam->u.NewTextValue);
 		}
 		r = FF_SUCCESS;
 	}
 	return r;
-#endif
 }
 
 DWORD Vizlet10::GetParameter(DWORD n) {
-#ifdef VIZTAG_PARAMETER
 	switch ( n ) {
 	case 0:		// shape
 		return (DWORD)(VizTag().c_str());
 	}
-#endif
 	return FF_FAIL;
 }
 
 char* Vizlet10::GetParameterDisplay(DWORD n)
 {
-#ifdef VIZTAG_PARAMETER
 	switch ( n ) {
 	case 0:
-	    strncpy_s(_disp,DISPLEN,VizTag().c_str(),VizTag().size());
-	    _disp[DISPLEN-1] = 0;
-		return _disp;
+	    strncpy_s(m_disp,DISPLEN,VizTag().c_str(),VizTag().size());
+	    m_disp[DISPLEN-1] = 0;
+		return m_disp;
 	}
-#endif
 	return "";
 }
 
@@ -240,10 +231,10 @@ const char* vizlet10_json(void* data,const char *method, cJSON* params, const ch
 			std::string desc = vizlet10_plugininfo().GetPluginExtendedInfo()->About;
 			v->m_json_result = jsonStringResult(desc, id);
 		} else {
-			v->m_json_result = v->processJsonAndCatchExceptions(std::string(method), params, id);
+			v->m_json_result = v->processJsonLockAndCatchExceptions(std::string(method), params, id);
 		}
 #endif
-		v->m_json_result = v->processJsonAndCatchExceptions(std::string(method), params, id);
+		v->m_json_result = v->processJsonLockAndCatchExceptions(std::string(method), params, id);
 		return v->m_json_result.c_str();
 	}
 }
@@ -282,11 +273,9 @@ void Vizlet10::advanceCursorTo(VizCursor* c, double tm) {
 	m_vizserver->AdvanceCursorTo(c,tm);
 }
 
-#ifdef VIZTAG_PARAMETER
 void Vizlet10::ChangeVizTag(const char* p) {
 	m_vizserver->ChangeVizTag(Handle(),p);
 }
-#endif
 
 void Vizlet10::_startApiCallbacks(const char* apiprefix, void* data) {
 	NosuchAssert(m_vizserver);
@@ -455,11 +444,12 @@ DWORD Vizlet10::ProcessFrame(void* pFrame)
 
 	m_framenum++;
 
+#if 0
 	NosuchLock(&json_mutex, "json");
 	if (json_pending) {
 		// Execute json stuff and generate response
 
-		m_json_result = processJsonAndCatchExceptions(json_method, json_params, json_id);
+		m_json_result = processJsonLockAndCatchExceptions(json_method, json_params, json_id);
 		json_pending = false;
 		int e = pthread_cond_signal(&json_cond);
 		if (e) {
@@ -467,6 +457,7 @@ DWORD Vizlet10::ProcessFrame(void* pFrame)
 		}
 	}
 	NosuchUnlock(&json_mutex, "json");
+#endif
 
 	LockVizlet();
 
@@ -527,8 +518,10 @@ void Vizlet10::UnlockVizlet() {
 	NosuchUnlock(&vizlet10_mutex,"Vizlet10");
 }
 
-std::string Vizlet10::processJsonAndCatchExceptions(std::string meth, cJSON *params, const char *id) {
+std::string Vizlet10::processJsonLockAndCatchExceptions(std::string meth, cJSON *params, const char *id) {
 	std::string r;
+
+	LockVizlet();
 	try {
 		CATCH_NULL_POINTERS;
 
@@ -555,6 +548,7 @@ std::string Vizlet10::processJsonAndCatchExceptions(std::string meth, cJSON *par
 		std::string s = NosuchSnprintf("Some other kind of exception occured in executeJson!?");
 		r = error_json(-32000,s.c_str(),id);
 	}
+	UnlockVizlet();
 	return r;
 }
 

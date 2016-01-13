@@ -186,9 +186,7 @@ public:
 
 	bool IsVizlet(const char* iname);
 	const char *VizTags();
-#ifdef VIZTAG_PARAMETER
 	void ChangeVizTag(void* handle, const char* newtag);
-#endif
 	void AdvanceCursorTo(VizCursor* c, double tm);
 
 	void ClearJsonCallbacks();
@@ -260,6 +258,12 @@ public:
 	void UnlockCursors() {
 		NosuchUnlock(&_cursors_mutex,"cursors");
 	}
+	void LockVizServer() {
+		NosuchLock(&_vizserver_mutex,"vizserver");
+	}
+	void UnlockVizServer() {
+		NosuchUnlock(&_vizserver_mutex,"vizserver");
+	}
 
 	int MmttSeqNum() { return m_mmtt_seqnum; }
 
@@ -329,6 +333,8 @@ private:
 	int m_maxcallbacks;
 	int m_mmtt_seqnum;
 	double m_time;
+
+	pthread_mutex_t _vizserver_mutex;
 
 	pthread_mutex_t _cursors_mutex;
 	std::list<VizCursor*>* m_cursors;

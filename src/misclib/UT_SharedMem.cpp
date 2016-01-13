@@ -125,6 +125,7 @@ UT_SharedMem::checkInfo()
 
 		char pn[UT_SHM_MAX_POST_FIX_SIZE];
 		memcpy(pn, info->namePostFix, UT_SHM_MAX_POST_FIX_SIZE);
+		pn[UT_SHM_MAX_POST_FIX_SIZE - 1] = 0;  // make sure it's terminated
 		
 		if (strcmp(pn, myNamePostFix) != 0)
 		{

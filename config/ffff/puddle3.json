@@ -2,6 +2,7 @@
 "pipeline": [
 	{
 		"ffglplugin": "VizPuddle",
+		"viztag": "VizPuddleTagA",
 		"enabled": 1,
 		"moveable": 0,
 		"vizlet": 1,

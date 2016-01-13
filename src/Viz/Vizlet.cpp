@@ -118,7 +118,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserv
 
 Vizlet::Vizlet() {
 
-	DEBUGPRINT(("=== Vizlet constructor, dll_pathname=%s",dll_pathname().c_str()));
+	DEBUGPRINT(("=== Vizlet constructor, dll_pathname=%s", dll_pathname().c_str()));
 
 	VizParams::Initialize();
 
@@ -134,7 +134,15 @@ Vizlet::Vizlet() {
 
 	m_vizserver = VizServer::GetServer();
 
-	SetVizTag(vizlet_name());
+#if 0
+	extern bool g_constructingPrototype;
+	if (g_constructingPrototype) {
+		DEBUGPRINT(("Vizlet construct for prototype!!"));
+	}
+	else {
+		SetVizTag(vizlet_name());
+	}
+#endif
 
 	m_mf = MidiFilter();  // ALL Midi
 	m_cf = CursorFilter();  // ALL Cursors
@@ -147,24 +155,24 @@ Vizlet::Vizlet() {
 	_recompileFunc = NULL;
 	_python_enabled = FALSE;
 	m_python_events_disabled = TRUE;
-	NosuchLockInit(&python_mutex,"python");
+	NosuchLockInit(&python_mutex, "python");
 #endif
 
-	NosuchLockInit(&vizlet_mutex,"vizlet");
-
-	NosuchLockInit(&json_mutex,"json");
+	NosuchLockInit(&vizlet_mutex, "vizlet");
+	NosuchLockInit(&json_mutex, "json");
 	json_cond = PTHREAD_COND_INITIALIZER;
-	json_pending = false;
+	// json_pending = false;
 
 	m_disabled = false;
 	m_disable_on_exception = false;
 
 	m_stopped = false;
+	m_connected = false;
 
 	// The most common reason for being disabled at this point
 	// is when the config JSON file can't be parsed.
-	if ( m_disabled ) {
-		DEBUGPRINT(("WARNING! Vizlet (viztag=%s) has been disabled!",VizTag().c_str()));
+	if (m_disabled) {
+		DEBUGPRINT(("WARNING! Vizlet (viztag=%s) has been disabled!", VizTag().c_str()));
 	}
 
 	SetTimeSupported(false);
@@ -172,13 +180,17 @@ Vizlet::Vizlet() {
 	SetMinInputs(1);
 	SetMaxInputs(1);
 
-	// init API callback, so things like
-	// restoring a dump can occur early on
-	_startApiCallbacks(m_viztag.c_str(), (void*)this);
+	// const char* defviztag = vizlet_name().c_str();
+	const char* defviztag = "";
 
-#ifdef VIZTAG_PARAMETER
-	SetParamInfo(0,"viztag", FF_TYPE_TEXT, VizTag().c_str());
-#endif
+	extern bool g_constructingPrototype;
+	if ( ! g_constructingPrototype ) {
+		// init API callback, so things like
+		// restoring a dump can occur early on
+		_startApiCallbacks(defviztag, (void*)this);
+	}
+
+	SetParamInfo(0, "viztag", FF_TYPE_TEXT, defviztag);
 }
 
 Vizlet::~Vizlet()
@@ -196,98 +208,102 @@ Vizlet::LoadPipeline(std::string pipeline) {
 
 DWORD Vizlet::SetParameter(const SetParameterStruct* pParam) {
 
-	return FF_FAIL;
-#ifdef VIZTAG_PARAMETER
 	DWORD r = FF_FAIL;
 
+#if 0
 	// Sometimes SetParameter is called before ProcessOpenGL,
 	// so make sure the VizServer is started.
 	StartVizServer();
-	InitCallbacks();
+	InitCallbacks();  // Api callbacks?
+#endif
 
 	switch ( pParam->ParameterNumber ) {
-	case 0:		// shape
+	case 0:
 		if ( VizTag() != std::string(pParam->u.NewTextValue) ) {
 			SetVizTag(pParam->u.NewTextValue);
-			m_af = ApiFilter(VizTag().c_str());
 			ChangeVizTag(pParam->u.NewTextValue);
 		}
 		r = FF_SUCCESS;
 	}
 	return r;
-#endif
 }
 
 DWORD Vizlet::GetParameter(DWORD n) {
-#ifdef VIZTAG_PARAMETER
 	switch ( n ) {
 	case 0:		// shape
 		return (DWORD)(VizTag().c_str());
 	}
-#endif
 	return FF_FAIL;
 }
 
 char* Vizlet::GetParameterDisplay(DWORD n)
 {
-#ifdef VIZTAG_PARAMETER
 	switch ( n ) {
 	case 0:
-	    strncpy_s(_disp,DISPLEN,VizTag().c_str(),VizTag().size());
-	    _disp[DISPLEN-1] = 0;
-		return _disp;
+	    strncpy_s(m_disp,DISPLEN,VizTag().c_str(),VizTag().size());
+	    m_disp[DISPLEN-1] = 0;
+		return m_disp;
 	}
-#endif
 	return "";
 }
 
+// The caller of vizlet_json must free the returned memory.
+// char* is used because it's crossing dll boundaries
 const char* vizlet_json(void* data,const char *method, cJSON* params, const char* id) {
 	Vizlet* v = (Vizlet*)data;
 	if ( v == NULL ) {
 		static std::string err = error_json(-32000,"v is NULL is vizlet_json?",id);
-		return err.c_str();
+		return _strdup(err.c_str());
 	}
-	else {
+
+	std::string result;
 #if 0
-		// A few methods are built-in.  If it isn't one of those,
-		// it is given to the plugin to handle.
-		if (std::string(method) == "description") {
-			std::string desc = vizlet_plugininfo().GetPluginExtendedInfo()->Description;
-			v->m_json_result = jsonStringResult(desc, id);
-		} else if (std::string(method) == "about") {
-			std::string desc = vizlet_plugininfo().GetPluginExtendedInfo()->About;
-			v->m_json_result = jsonStringResult(desc, id);
-		} else {
-			v->m_json_result = v->processJsonAndCatchExceptions(std::string(method), params, id);
-		}
-#endif
-		v->m_json_result = v->processJsonAndCatchExceptions(std::string(method), params, id);
-		return v->m_json_result.c_str();
+	// A few methods are built-in.  If it isn't one of those,
+	// it is given to the plugin to handle.
+	if (std::string(method) == "description") {
+		std::string desc = vizlet_plugininfo().GetPluginExtendedInfo()->Description;
+		result = jsonStringResult(desc, id);
+	} else if (std::string(method) == "about") {
+		std::string desc = vizlet_plugininfo().GetPluginExtendedInfo()->About;
+		result = jsonStringResult(desc, id);
+	} else {
+		result = v->processJsonLockAndCatchExceptions(std::string(method), params, id);
 	}
+#endif
+	result = v->processJsonLockAndCatchExceptions(std::string(method), params, id);
+	return _strdup(result.c_str());
 }
 
 void vizlet_osc(void* data,const char *source, const osc::ReceivedMessage& m) {
 	Vizlet* v = (Vizlet*)data;
 	NosuchAssert(v);
-	v->processOsc(source,m);
+	if (v->IsConnected()) {
+		v->processOsc(source, m);
+	}
 }
 
 void vizlet_midiinput(void* data,MidiMsg* m) {
 	Vizlet* v = (Vizlet*)data;
 	NosuchAssert(v);
-	v->processMidiInput(m);
+	if (v->IsConnected()) {
+		v->processMidiInput(m);
+	}
 }
 
 void vizlet_midioutput(void* data,MidiMsg* m) {
 	Vizlet* v = (Vizlet*)data;
 	NosuchAssert(v);
-	v->processMidiOutput(m);
+	if (v->IsConnected()) {
+		v->processMidiOutput(m);
+	}
 }
 
 void vizlet_cursor(void* data,VizCursor* c, int downdragup) {
 	Vizlet* v = (Vizlet*)data;
 	NosuchAssert(v);
-	v->processCursor(c,downdragup);
+	if (v->IsConnected()) {
+		v->processCursor(c, downdragup);
+	}
 }
 
 void vizlet_keystroke(void* data,int key, int downup) {
@@ -306,11 +322,9 @@ void Vizlet::advanceCursorTo(VizCursor* c, double tm) {
 	m_vizserver->AdvanceCursorTo(c,tm);
 }
 
-#ifdef VIZTAG_PARAMETER
 void Vizlet::ChangeVizTag(const char* p) {
 	m_vizserver->ChangeVizTag(Handle(),p);
 }
-#endif
 
 void Vizlet::_startApiCallbacks(const char* apiprefix, void* data) {
 	NosuchAssert(m_vizserver);
@@ -336,17 +350,6 @@ void Vizlet::_startKeystrokeCallbacks(void* data) {
 void Vizlet::_startClickCallbacks(void* data) {
 	NosuchAssert(m_vizserver);
 	m_vizserver->AddClickCallback(Handle(),vizlet_click,data);
-}
-
-void Vizlet::_stopCallbacks() {
-	if ( m_callbacksInitialized ) {
-		_stopApiCallbacks();
-		_stopMidiCallbacks();
-		_stopCursorCallbacks();
-		_stopKeystrokeCallbacks();
-		_stopClickCallbacks();
-		m_callbacksInitialized = false;
-	}
 }
 
 void Vizlet::_stopApiCallbacks() {
@@ -440,7 +443,12 @@ void Vizlet::_stopstuff() {
 	if ( m_stopped )
 		return;
 	m_stopped = true;
-	_stopCallbacks();
+
+	// Should this be the equivalent of a ProcessDisconnect?
+	_stopNonApiCallbacks();
+
+	_stopApiCallbacks();
+
 	if ( m_vizserver ) {
 		int ncb = m_vizserver->NumCallbacks();
 		int mcb = m_vizserver->MaxCallbacks();
@@ -492,23 +500,40 @@ Vizlet::StartVizServer() {
 }
 
 void
-Vizlet::InitCallbacks() {
-	if ( ! m_callbacksInitialized ) {
-
-		DEBUGPRINT1(("InitCallbacks this=%ld", (long)(this)));
-
-		// Api callbacks are started in the Vizlet constructor.
-		// The rest of the callbacks are started here (ie. from ProcessOpenGL),
-		// so they don't get enabled until OpenGL/etc has been completely initialized.
-		// startApiCallbacks(m_viztag.c_str(),(void*)this);
-
-		_startMidiCallbacks(m_mf,(void*)this);
-		_startCursorCallbacks(m_cf,(void*)this);
+Vizlet::_startNonApiCallbacks() {
+	// Api callbacks are started in the Vizlet constructor.
+	// The rest of the callbacks are started here (from ProcessOpenGL),
+	// so they don't get enabled until OpenGL/etc has been completely initialized.
+	// This is also used when the plugin is re-activated after being de-activated.
+	if (!m_connected) {
+		_startMidiCallbacks(m_mf, (void*)this);
+		_startCursorCallbacks(m_cf, (void*)this);
 		_startKeystrokeCallbacks((void*)this);
 		_startClickCallbacks((void*)this);
-
-		m_callbacksInitialized = true;
+		m_connected = true;
 	}
+}
+
+void Vizlet::_stopNonApiCallbacks() {
+	if ( m_connected ) {
+		_stopMidiCallbacks();
+		_stopCursorCallbacks();
+		_stopKeystrokeCallbacks();
+		_stopClickCallbacks();
+		m_connected = false;
+	}
+}
+
+DWORD Vizlet::ProcessConnect()
+{
+	_startNonApiCallbacks();
+	return FF_SUCCESS;
+}
+
+DWORD Vizlet::ProcessDisconnect()
+{
+	_stopNonApiCallbacks();
+	return FF_SUCCESS;
 }
 
 DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
@@ -521,7 +546,9 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 	}
 
 	StartVizServer();
-	InitCallbacks();
+
+	// Should this be the equivalent of a ProcessConnect?
+	_startNonApiCallbacks();
 
 	m_framenum++;
 
@@ -529,19 +556,6 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 	static int framenum = 0;
 	static bool framelooping = FALSE;
 #endif
-
-	NosuchLock(&json_mutex,"json");
-	if (json_pending) {
-		// Execute json stuff and generate response
-	
-		m_json_result = processJsonAndCatchExceptions(json_method, json_params, json_id);
-		json_pending = false;
-		int e = pthread_cond_signal(&json_cond);
-		if ( e ) {
-			DEBUGPRINT(("ERROR from pthread_cond_signal e=%d\n",e));
-		}
-	}
-	NosuchUnlock(&json_mutex,"json");
 
 	if ( m_passthru && pGL != NULL ) {
 		if ( ! ff_passthru(pGL) ) {
@@ -713,8 +727,11 @@ std::string Vizlet::DumpVals() {
 }
 #endif
 
-std::string Vizlet::processJsonAndCatchExceptions(std::string meth, cJSON *params, const char *id) {
+std::string Vizlet::processJsonLockAndCatchExceptions(std::string meth, cJSON *params, const char *id) {
+
 	std::string r;
+
+	LockVizlet();
 	try {
 		CATCH_NULL_POINTERS;
 
@@ -727,6 +744,8 @@ std::string Vizlet::processJsonAndCatchExceptions(std::string meth, cJSON *param
 		} else if ( meth == "name"  ) {
 		    std::string nm = CopyFFString16((const char *)(vizlet_plugininfo().GetPluginInfo()->PluginName));
 			r = jsonStringResult(nm,id);
+		} else if (meth == "enableinputs") {
+		} else if (meth == "disableinputs") {
 		} else if ( meth == "dllpathname"  ) {
 			r = jsonStringResult(dll_pathname(),id);
 #if 0
@@ -746,6 +765,7 @@ std::string Vizlet::processJsonAndCatchExceptions(std::string meth, cJSON *param
 		std::string s = NosuchSnprintf("Some other kind of exception occured in executeJson!?");
 		r = error_json(-32000,s.c_str(),id);
 	}
+	UnlockVizlet();
 	return r;
 }
 

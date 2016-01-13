@@ -28,6 +28,8 @@
 #define MIDI_SONGSEL    0xF3
 #define MIDI_TUNE       0xF6
 
+#define MIDI_PORT_OF_GENERATED_STUFF (-2)
+
 // Other defines that are like MIDI_* ,
 // but the values are arbitrary, not status nibbles.
 #define MIDI_ALL	0x100
@@ -445,6 +447,11 @@ public:
 		}
 		first = NULL;
 		last = NULL;
+	}
+	void SetInputPort(int port) {
+		for (MidiPhraseUnit* pu = first; pu != NULL; pu = pu->next) {
+			pu->msg->SetInputPort(port);
+		}
 	}
 	void insert(MidiMsg* msg, click_t click);  // takes ownership
 

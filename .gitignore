@@ -37,6 +37,7 @@ src/ShaderMaker-1.0.0
 src/bonjour
 src/freeglut-2.6.0
 src/opencv
+other/oscpack_1_1_0
 html/polymer-tutorial
 html/palette
 patches

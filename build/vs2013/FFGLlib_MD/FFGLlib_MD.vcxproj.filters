@@ -283,6 +283,9 @@
     <ClInclude Include="..\..\..\src\nosuch\NosuchJSON.h">
       <Filter>Header Files\nosuch</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\other\freeframe\FreeFrame.h">
+      <Filter>Header Files\freeframe</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\src\params\MidiVizParams.list">

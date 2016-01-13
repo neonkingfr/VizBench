@@ -177,22 +177,6 @@ void VizMidi4::processMidiInput(MidiMsg* m) {
 	switch (m->MidiType()) {
 	case MIDI_CONTROL:
 		// DEBUGPRINT(("processMidiInput control! ch=%d ctrl=%d val=%d", m->Channel(), m->Controller(), m->Value()));
-#if 0
-		// CC #127 messages on channel 16 will be used to change the visualization
-		XXX - Aborted attempt to use ProcessJson from within a Vizlet
-			to reload the pipeline
-
-		if (m->Controller() == 127 && m->Channel() == 16) {
-			int v = m->Value();
-			DEBUGPRINT(("Setting visual to %d", v));
-			std::string fullmethod = "ffff.loadpipeline";
-			std::string p = NosuchSnprintf("{\"filename\":\"patch_%d\"}",v+1);
-			cJSON* params = cJSON_Parse(p.c_str());
-			// USING ProcessJson DOESN'T WORK!!  BECAUSE LOADING THE PIPELINE
-			// WILL UNLOADE THIS VIZLET (unless I do something to prevent it)
-			// const char* s = vizserver()->ProcessJson(fullmethod.c_str(), params, "12345");
-		}
-#endif
 		break;
 	case MIDI_NOTE_ON:
 		// DEBUGPRINT(("NOTE_ON"));
@@ -246,7 +230,11 @@ void VizMidi4::processMidiInput(MidiMsg* m) {
 
 void VizMidi4::processMidiOutput(MidiMsg* m) {
 	// NO OpenGL calls here
-	processMidiInput(m);
+	// We want to process MIDI output from VizServer-generated stuff,
+	// but not other-plugin-generated stuff
+	if (m->InputPort() != MIDI_PORT_OF_GENERATED_STUFF) {
+		processMidiInput(m);
+	}
 }
 
 void

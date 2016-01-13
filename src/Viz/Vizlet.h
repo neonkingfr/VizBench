@@ -58,16 +58,17 @@ public:
 	VizServer* vizserver() { return m_vizserver; }
 	void StartVizServer();
 	void InitCallbacks();
-#ifdef VIZTAG_PARAMETER
 	void ChangeVizTag(const char* newtag);
-#endif
 	void advanceCursorTo(VizCursor* c, double tm);
 	double GetTimeInSeconds();
 	click_t SchedulerCurrentClick();
 	click_t SchedulerClicksPerSecond();
 	void LockVizlet();
 	void UnlockVizlet();
-	void DisableVizlet() { m_disabled = true; }
+
+	bool IsConnected() {
+		return m_connected;
+	};
 
 	void LoadPipeline(std::string pipeline);
 
@@ -127,7 +128,7 @@ public:
 	std::string HtmlDir();
 	void ExecuteDump(std::string dump);
 
-	std::string processJsonAndCatchExceptions(std::string meth, cJSON *params, const char *id);
+	std::string processJsonLockAndCatchExceptions(std::string meth, cJSON *params, const char *id);
 	static bool checkAddrPattern(const char *addr, char *patt);
 
 	/////////////////////////////////////////////////////
@@ -184,7 +185,7 @@ public:
 	void DrawNotesDown();
 	int FrameNum() { return m_framenum; }
 
-	std::string m_json_result;
+	// std::string m_json_result;
 
 protected:	
 
@@ -200,7 +201,9 @@ protected:
 	pthread_cond_t json_cond;
 	pthread_mutex_t vizlet_mutex;
 
+#if 0
 	bool json_pending;
+#endif
 	std::string json_method;
 	cJSON* json_params;
 	const char *json_id;
@@ -220,13 +223,18 @@ private:
 	virtual DWORD SetParameter(const SetParameterStruct* pParam);
 	virtual DWORD GetParameter(DWORD dwIndex);
 	virtual char* GetParameterDisplay(DWORD dwIndex);
+	virtual DWORD ProcessConnect();
+	virtual DWORD ProcessDisconnect();
 
 	/////////////////////////////////////////////////////
 
 	void _stopstuff();
-	void _stopCallbacks();
 	void _startApiCallbacks(const char* apiprefix, void* data);
 	void _stopApiCallbacks();
+
+	void _startNonApiCallbacks();
+	void _stopNonApiCallbacks();
+
 	void _startMidiCallbacks(MidiFilter mf, void* data);
 	void _stopMidiCallbacks();
 	void _startCursorCallbacks(CursorFilter mf, void* data);
@@ -243,6 +251,7 @@ private:
 	bool m_stopped;
 	bool m_disabled;
 	bool m_disable_on_exception;
+	bool m_connected;
 	VizServer* m_vizserver;
 	bool m_callbacksInitialized;
 	std::string m_viztag;

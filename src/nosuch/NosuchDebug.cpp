@@ -271,6 +271,9 @@ NosuchSnprintf(const char *fmt, ...)
 
 	if ( buff == NULL ) {
 		buff = (char*)malloc(bufflen);
+		if (buff == NULL) {
+			throw NosuchException("Out of memory in NosuchSnprintf!?");
+		}
 	}
 
 	while (1) {

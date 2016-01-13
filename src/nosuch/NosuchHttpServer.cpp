@@ -477,7 +477,9 @@ NosuchHttpServer::RespondToGetOrPost(NosuchSocketConnection *conn) {
 			const char *id = i.c_str();
 			try {
 				CATCH_NULL_POINTERS;
+				DEBUGPRINT1(("HttpServer calling processJson for meth=%s",method));
 				ret = m_json_processor->processJson(method, c_params, id);
+				DEBUGPRINT1(("HttpServer after processJson for meth=%s ret=%s",method,ret.c_str()));
 			}
 			catch (NosuchException& e) {
 				std::string s = NosuchSnprintf("Exception in '%s' API - %s", method, e.message());

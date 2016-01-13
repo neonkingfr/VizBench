@@ -118,7 +118,7 @@ DWORD getNumParameters()
 {
 	if (s_pPrototype == NULL) {
 		DWORD dwRet = FF10initialise();
-		if (dwRet == FF_FAIL) return FF_FAIL;
+		if (dwRet == FF_FAIL || s_pPrototype == NULL) return FF_FAIL;
 	}
 
 	return (DWORD) s_pPrototype->GetNumParams();
@@ -128,7 +128,7 @@ char* getParameterName(DWORD index)
 {
 	if (s_pPrototype == NULL) {
 		DWORD dwRet = FF10initialise();
-		if (dwRet == FF_FAIL) return NULL;
+		if (dwRet == FF_FAIL || s_pPrototype == NULL) return NULL;
 	}
 	
 	return s_pPrototype->GetParamName(index);
@@ -373,13 +373,22 @@ plugMainUnion plugMain(DWORD functionCode, DWORD inputValue, DWORD instanceID)
 		retval.ivalue = FF_FAIL;
 		break;
 
-	// Resolume sends this code when a clip goes unselected (not active)
-	// I use it to disable the reception/handling of OSC.
-	case 22:
-		DEBUGPRINT1(("functionCode 22 (from Resolume?)"));
+	case FF_CONNECT:
+		DEBUGPRINT(("Got FF_CONNECT"));
 		if (pPlugObj != NULL) {
-			retval.ivalue = pPlugObj->ResolumeDeactivate();
-		} else {
+			retval.ivalue = pPlugObj->ProcessConnect();
+		}
+		else {
+			retval.ivalue = FF_FAIL;
+		}
+		break;
+
+	case FF_DISCONNECT:
+		DEBUGPRINT(("Got FF_DISCONNECT"));
+		if (pPlugObj != NULL) {
+			retval.ivalue = pPlugObj->ProcessDisconnect();
+		}
+		else {
 			retval.ivalue = FF_FAIL;
 		}
 		break;

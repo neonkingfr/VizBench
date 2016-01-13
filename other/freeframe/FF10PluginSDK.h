@@ -105,7 +105,8 @@ public:
 
 	virtual DWORD GetInputStatus(DWORD dwIndex);
 
-	virtual DWORD ResolumeDeactivate() { return FF_FAIL; }
+	virtual DWORD ProcessConnect() { return FF_FAIL; }
+	virtual DWORD ProcessDisconnect() { return FF_FAIL; }
 
 	IplImage* FrameImage();
 

@@ -401,7 +401,6 @@ std::string FF10PluginInstance::GetParameterDisplay(int paramNum)
 	memcpy(nm, r.svalue, 16);
 	nm[16] = 0;
 	std::string display = std::string(nm);
-	DEBUGPRINT(("GetParameterDisplay, display=%s", display.c_str()));
 	return display;
 }
 

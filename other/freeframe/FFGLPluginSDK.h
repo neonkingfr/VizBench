@@ -124,7 +124,10 @@ public:
 	///							is out of range. A custom implementation may be provided by every specific plugin.
 	virtual DWORD GetInputStatus(DWORD dwIndex);
 
-	virtual DWORD ResolumeDeactivate() { return FF_FAIL; }
+	// These are for handling the non-standard FF_CONNECT/FF_DISCONNECT messages
+	// that Resolume and FFFF send.
+	virtual DWORD ProcessConnect() { return FF_FAIL; }
+	virtual DWORD ProcessDisconnect() { return FF_FAIL; }
 
 	/// The only public data field CFreeFrameGLPlugin contains is m_pPlugin, a pointer to the plugin instance. 
 	/// Subclasses may use this pointer for self-referencing (e.g., a plugin may pass this pointer to external modules, 
