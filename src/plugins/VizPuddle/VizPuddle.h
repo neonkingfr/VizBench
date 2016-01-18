@@ -1,9 +1,6 @@
 #ifndef _VizPuddle_H
 #define _VizPuddle_H
 
-#include "Palette.h"
-#include "FreeFrameHost.h"
-#include "ResolumeHost.h"
 #include "MidiVizParams.h"
 
 class VizPuddle : public Vizlet
@@ -18,8 +15,6 @@ public:
 	void processCursor(VizCursor* c, int downdragup);
 	bool processDraw();
 	void processAdvanceTimeTo(int milli);
-
-	Palette* palette() { return _palette; }
 
 private:
 
@@ -86,8 +81,6 @@ private:
 	std::map<std::string,Region*> _region;
 	std::map<std::string,Button*> _button;
 
-	FreeFrameHost* _freeframeHost;
-	Palette* _palette;
 	bool _autoloadparams;
 };
 

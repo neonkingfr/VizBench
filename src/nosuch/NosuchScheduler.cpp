@@ -136,8 +136,13 @@ NosuchScheduler::ScheduleAddEvent(SchedEvent* e, bool lockit) {
 		LockScheduled();
 	}
 
+	// XXX - profiling shows this to be a hotspot
 	SchedEventList* sl = ScheduleOf(e->handle);
 	sl->push_back(e);
+	// XXX - especially here.  Need to replace SchedEventList with
+	// XXX - something that keeps track of the end of the list and
+	// XXX - adds it there quickly if it can, rather than blindly
+	// XXX - adding it and sorting.
 	_sortEvents(sl);
 
 	if ( lockit ) {
@@ -169,6 +174,10 @@ void NosuchScheduler::QueueClear() {
 bool
 NosuchScheduler::QueueAddEvent(SchedEvent* e) {
 	LockQueue();
+	// XXX - profiling shows this to be a hotspot
+	// XXX - need to rework m_queue - most additions will be
+	// XXX - at the end of the list, which can be done quickly
+	// XXX - without sorting.
 	m_queue->push_back(e);
 	_sortEvents(m_queue);
 	UnlockQueue();
@@ -577,6 +586,7 @@ NosuchScheduler::_addQueueToScheduled() {
 	int nqueue = 0;
 
 	LockQueue();
+	// XXX - profiling shows this to be a hotspot
 	SchedEventList* sl = m_queue;
 	while (sl->size() > 0) {
 		SchedEvent* ev = sl->front();

@@ -8,6 +8,7 @@
 #include <GLFW/glfw3.h>
 
 #include "VizServer.h"
+#include "AudioHost.h"
 
 #include "ffffutil.h"
 
@@ -20,6 +21,10 @@ extern int 		camWidth;
 extern int 		camHeight;
 extern int		ffWidth;
 extern int		ffHeight;
+
+extern std::string FfffOutputPrefix;
+extern int FfffOutputFPS;
+extern FILE* FfffOutputFile;
 
 void loadffplugindef(std::string fn);
 
@@ -41,7 +46,7 @@ class Timer;
 class FFFF : public NosuchJsonListener, NosuchOscListener {
 
 public:
-	FFFF( );
+	FFFF(cJSON* config);
 	static void ErrorPopup(const char* msg);
 	bool StartStuff();
 	void StopStuff();
@@ -100,11 +105,11 @@ public:
 	bool doOneFrame(bool use_camera,int window_width, int window_height);
 	void CheckFPS();
 
+	void *imagewriter_thread(void *arg);
+	void imagewriter_addimage(IplImage* img);
+
 	void InsertKeystroke(int key, int downup);
 
-	void SetShowFPS(bool b) { m_showfps = b; }
-	void SetTrailEnable(bool b) { m_trail_enable = b; }
-	void SetTrailAmount(double v) { m_trail_amount = v; }
 	GLFWwindow* window;
 	bool hidden;
 
@@ -117,13 +122,21 @@ private:
 	IplImage* m_img_into_pipeline;
 	VizServer* m_vizserver;
 	CvCapture* m_capture;
+	pthread_t m_imagewriter_thread;
 	bool m_showfps;
+	bool m_record;
+	AudioHost* m_audiohost;
+	std::string m_audiohost_type;
 	pthread_mutex_t _json_mutex;
 	pthread_cond_t m_json_cond;
 	bool m_json_pending;
 	std::string m_json_method;
 	cJSON* m_json_params;
 	const char* m_json_id;
+
+	GLubyte *m_output_framedata;
+	double m_output_lastwrite;  // in seconds
+	int m_output_framenum;
 
 	// FPS stuff
 	Timer* m_timer;
@@ -135,6 +148,9 @@ private:
 
 	bool m_trail_enable;
 	double m_trail_amount;
+
+	int m_window_width;
+	int m_window_height;
 
 	// FFGLPluginInstance* m_ffglpipeline;
 	// FF10PluginInstance* m_ff10pipeline;

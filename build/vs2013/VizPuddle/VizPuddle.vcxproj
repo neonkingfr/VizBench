@@ -206,13 +206,9 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\plugins\VizPuddle\FreeFrameHost.cpp" />
-    <ClCompile Include="..\..\..\src\plugins\VizPuddle\Palette.cpp" />
-    <ClCompile Include="..\..\..\src\plugins\VizPuddle\ResolumeHost.cpp" />
     <ClCompile Include="..\..\..\src\plugins\VizPuddle\VizPuddle.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\plugins\VizPuddle\Palette.h" />
     <ClInclude Include="..\..\..\src\plugins\VizPuddle\VizPuddle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

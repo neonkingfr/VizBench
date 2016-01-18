@@ -144,7 +144,7 @@ NosuchNetworkInit()
   return 0;
 }
 
-int
+bool
 SendToUDPServer(std::string host, int serverport, const char *data, int leng)
 {
     SOCKET s;
@@ -157,12 +157,12 @@ SendToUDPServer(std::string host, int serverport, const char *data, int leng)
     phe = gethostbyname(serverhost);
     if (phe == NULL) {
         DEBUGPRINT(("SendToNthServer: gethostbyname(host=%s) fails?",serverhost));
-        return 1;
+        return false;
     }
     s = socket(PF_INET, SOCK_DGRAM, 0);
     if ( s < 0 ) {
         DEBUGPRINT(("SendToNthServer: unable to create socket!?"));
-        return 1;
+        return false;
     }
     sin.sin_family = AF_INET;
     memcpy((struct sockaddr FAR *) &(sin.sin_addr),
@@ -172,10 +172,10 @@ SendToUDPServer(std::string host, int serverport, const char *data, int leng)
     i = sendto(s,data,leng,0,(LPSOCKADDR)&sin,sin_len);
 
     closesocket(s);
-    return 0;
+    return true;
 }
 
-int
+bool
 SendToSLIPServer(std::string shost, int port, const char *data, int leng)
 {
     SOCKET lhSocket;
@@ -189,7 +189,7 @@ SendToSLIPServer(std::string shost, int port, const char *data, int leng)
     if(lhSocket == INVALID_SOCKET)
     {
         DEBUGPRINT(("INVALID SOCKET!"));
-        return 1;
+        return false;
     }
     memset(&lSockAddr,0, sizeof(SOCKADDR_IN));
     lSockAddr.sin_family = AF_INET;
@@ -203,7 +203,7 @@ SendToSLIPServer(std::string shost, int port, const char *data, int leng)
     if(lConnect != 0)
     {
         DEBUGPRINT(("connect() failed to %s:%d, err=%d  WSAerr=%d",host,port,lConnect,WSAGetLastError()));
-        return 1;
+        return false;
     }
     char *buff = (char*) malloc(leng*2+2);
     char *bp = buff;
@@ -231,38 +231,8 @@ SendToSLIPServer(std::string shost, int port, const char *data, int leng)
         DEBUGPRINT(("Send error, all bytes not sent\n"));
     }
     closesocket(lhSocket);
-    return 0;
+    return true;
 }
-
-#if 0
-int
-RegisterWithNthServer(char *serverhost, int serverport, char *myhost, int myport)
-{
-    char buffer[1024];
-    osc::OutboundPacketStream p( buffer, sizeof(buffer) );
-    p << osc::BeginMessage( "/registerclient" )
-      << "localhost" << myport << osc::EndMessage;
-    return SendToNthServer(serverhost,serverport,p.Data(),(int)p.Size());
-}
-
-int
-UnRegisterWithNthServer(char *serverhost, int serverport, char *myhost, int myport)
-{
-    char buffer[1024];
-    osc::OutboundPacketStream p( buffer, sizeof(buffer) );
-    p << osc::BeginMessage( "/unregisterclient" )
-      << "localhost" << myport << osc::EndMessage;
-    return SendToNthServer(serverhost,serverport,p.Data(),(int)p.Size());
-}
-
-int
-OscSocketError(char *s)
-{
-    int e = WSAGetLastError();
-    DEBUGPRINT(("NSPlugin socket error: %s e=%d",s,e));
-    return e;
-}
-#endif
 
 #if 0
 CvScalar

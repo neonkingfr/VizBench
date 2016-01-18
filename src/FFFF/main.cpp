@@ -89,35 +89,13 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	}
 }
 
-char* SaveFrames = NULL;
-char* FfmpegFile = NULL;
-FILE* Ffmpeg = NULL;
+char* FfffOutput = NULL;
+FILE* FfffOutputFile = NULL;
+std::string FfffOutputPrefix;
+int FfffOutputFPS;
 
-int ffffMain(std::string config, bool fullscreen)
+int ffffMain(std::string pipelinename, bool fullscreen)
 {
-	SaveFrames = getenv("SAVEFRAMES");
-	FfmpegFile = getenv("FFMPEGFILE");
-
-	if (FfmpegFile) {
-		// start ffmpeg telling it to expect raw rgba 720p-60hz frames
-		// -i - tells it to read frames from stdin
-		// XXX - should replace newest.mp4 with FFMPEGFILE value
-		std::string path = VizPath("recording") + NosuchSnprintf("\\%s.mp4", FfmpegFile);
-
-		std::string cmd = NosuchSnprintf("ffmpeg -r 60 -f rawvideo -pix_fmt bgr24 -s 1024x768 -i - "
-			"-threads 0 -preset fast -y -r 60 -vf vflip %s", path.c_str());
-#ifdef EXPERIMENT
-		std::string cmd = NosuchSnprintf("ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s 1024x768 -i - "
-			"-threads 0 -preset fast -y -r 60 -vf vflip %s", path.c_str());
-#endif
-
-//	const char* cmd = "ffmpeg -r 60 -f rawvideo -pix_fmt bgr8 -s 1024x768 -i - "
-// "-threads 0 -preset fast -y -crf 21 -vf vflip newest.mp4";
-
-		// open pipe to ffmpeg's stdin in binary write mode
-		Ffmpeg = _popen(cmd.c_str(), "wb");
-	}
-
 	NosuchDebugInit();
 	NosuchDebugSetLogDirFile(VizPath("log"), "ffff.debug");
 	DEBUGPRINT(("FFFF is starting."));
@@ -131,28 +109,31 @@ int ffffMain(std::string config, bool fullscreen)
 
 	std::string err;
 	std::string fname = VizConfigPath("FFFF.json");
-	cJSON* j = jsonReadFile(fname, err);
-	if (!j) {
+	cJSON* config = jsonReadFile(fname, err);
+	if (!config) {
 		DEBUGPRINT(("Hey!  Error in reading JSON from %s!  err=%s", fname.c_str(), err.c_str()));
 		return false;
 	}
 
-	jsonSetDebugConfig(j);
+	jsonSetDebugConfig(config);
 
 	// Allow the config to override the default paths for these
-	std::string ff10path = jsonNeedString(j, "ff10path", "ff10plugins");
-	std::string ffglpath = jsonNeedString(j, "ffglpath", "ffglplugins");
+	std::string ff10path = jsonNeedString(config, "ff10path", "ff10plugins");
+	std::string ffglpath = jsonNeedString(config, "ffglpath", "ffglplugins");
 
 	// Remove shell expansion, because I want things to be the same between the
 	// Vizbench and Vizlets repositories.  If anything, a general environment
 	// variable subsitution mechanism should be put here.
 
-	int camera_index = jsonNeedInt(j, "camera", -1);  // -1 for no camera, 0+ for camera
+	int camera_index = jsonNeedInt(config, "camera", -1);  // -1 for no camera, 0+ for camera
+	int window_width = jsonNeedInt(config, "window_width", 800);
+	int window_height = jsonNeedInt(config, "window_height", 600);
+	int window_x = jsonNeedInt(config, "window_x", 0);
+	int window_y = jsonNeedInt(config, "window_y", 0);
+	FfffOutputPrefix = jsonNeedString(config, "outputprefix", "");
+	FfffOutputFPS = jsonNeedInt(config, "outputfps", 30);
 
-	F = new FFFF();
-	F->SetTrailEnable(jsonNeedBool(j, "trail_enable",true));
-	F->SetTrailAmount(jsonNeedDouble(j, "trail_amount",0.9));
-	F->SetShowFPS(jsonNeedInt(j, "showfps", 0) ? true : false);
+	F = new FFFF(config);
 
 	if (!F->StartStuff()) {
 		exit(EXIT_FAILURE);
@@ -178,12 +159,6 @@ int ffffMain(std::string config, bool fullscreen)
 	else {
 		monitor = NULL;
 	}
-
-	int window_width = jsonNeedInt(j, "window_width", 800);
-	int window_height = jsonNeedInt(j, "window_height", 600);
-
-	int window_x = jsonNeedInt(j, "window_x", 0);
-	int window_y = jsonNeedInt(j, "window_y", 0);
 
 	int ffgl_width = window_width;
 	int ffgl_height = window_height;
@@ -219,7 +194,7 @@ int ffffMain(std::string config, bool fullscreen)
 
 	try {
 		CATCH_NULL_POINTERS;
-		F->loadPipeline(config,true);
+		F->loadPipeline(pipelinename,true);
 	}
 	catch (NosuchException& e) {
 		NosuchErrorOutput("NosuchException while loading Pipeline!! - %s", e.message());
@@ -262,8 +237,8 @@ int ffffMain(std::string config, bool fullscreen)
 
 	F->StopStuff();
 
-	if ( Ffmpeg ) {
-		_pclose(Ffmpeg);
+	if ( FfffOutputFile ) {
+		_pclose(FfffOutputFile);
 	}
 
 #ifdef _DEBUG

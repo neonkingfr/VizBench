@@ -38,7 +38,7 @@ NosuchOscInput::processOscBundle( const char *source, const osc::ReceivedBundle&
     }
 }
 
-int
+bool
 SendToUDPServer(char *serverhost, int serverport, const char *data, int leng)
 {
     SOCKET s;
@@ -51,12 +51,12 @@ SendToUDPServer(char *serverhost, int serverport, const char *data, int leng)
     phe = gethostbyname(serverhost);
     if (phe == NULL) {
         DEBUGPRINT(("SendToUDPServer: gethostbyname(localhost) fails?"));
-        return 1;
+        return false;
     }
     s = socket(PF_INET, SOCK_DGRAM, 0);
     if ( s < 0 ) {
         DEBUGPRINT(("SendToUDPServer: unable to create socket!?"));
-        return 1;
+        return false;
     }
     sin.sin_family = AF_INET;
     memcpy((struct sockaddr FAR *) &(sin.sin_addr),
@@ -66,27 +66,5 @@ SendToUDPServer(char *serverhost, int serverport, const char *data, int leng)
     i = sendto(s,data,leng,0,(LPSOCKADDR)&sin,sin_len);
 
     closesocket(s);
-    return 0;
+    return true;
 }
-
-int
-RegisterWithAServer(char *serverhost, int serverport, char *myhost, int myport)
-{
-    char buffer[1024];
-    osc::OutboundPacketStream p( buffer, sizeof(buffer) );
-    p << osc::BeginMessage( "/registerclient" )
-      << "localhost" << myport << osc::EndMessage;
-    return SendToUDPServer(serverhost,serverport,p.Data(),(int)p.Size());
-}
-
-int
-UnRegisterWithAServer(char *serverhost, int serverport, char *myhost, int myport)
-{
-    char buffer[1024];
-    osc::OutboundPacketStream p( buffer, sizeof(buffer) );
-    p << osc::BeginMessage( "/unregisterclient" )
-      << "localhost" << myport << osc::EndMessage;
-    return SendToUDPServer(serverhost,serverport,p.Data(),(int)p.Size());
-}
-
-

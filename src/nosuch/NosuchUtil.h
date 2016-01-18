@@ -91,8 +91,8 @@
 // Every so many milliseconds, we re-register with the Nth Server
 #define NTHEVENTSERVER_REREGISTER_MILLISECONDS 3000
 
-int SendToUDPServer(std::string host, int serverport, const char *data, int leng);
-int SendToSLIPServer(std::string host, int serverport, const char *data, int leng);
+bool SendToUDPServer(std::string host, int serverport, const char *data, int leng);
+bool SendToSLIPServer(std::string host, int serverport, const char *data, int leng);
 int SlipBoundaries(char *p, int leng, char** pbegin, char** pend);
 
 #define PARAM_DISPLAY_LEN 16

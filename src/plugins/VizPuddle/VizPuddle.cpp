@@ -36,9 +36,6 @@ VizPuddle::VizPuddle() : Vizlet() {
 		_button[s] = new Button(s);
 	}
 
-	_freeframeHost = new ResolumeHost();
-	_palette = new Palette(_freeframeHost);
-
 	_autoloadparams = true;
 }
 
@@ -219,19 +216,12 @@ bool VizPuddle::processDraw() {
 	return true;
 }
 
-void VizPuddle::processAdvanceTimeTo(int milli) {
-	// DO NOT PUT DEBUGPRINT HERE!
-	// DEBUGPRINT(("VizPuddle::processAdvanceTimeTo milli=%d",milli));
-	// CheckVizCursorUp(milli);
-	palette()->AdvanceTo(milli);
-}
-
 int VizPuddle::_channelOf(VizCursor* c) {
 	return 1;
 }
 
 int VizPuddle::_pitchOf(VizCursor* c) {
-	return 80;
+	return 60 + (int)(c->pos.x * 40);
 }
 
 int VizPuddle::_velocityOf(VizCursor* c) {

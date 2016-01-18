@@ -2,6 +2,8 @@
 *~HEAD_0
 *~tjtwork
 *~tjtwork_0
+recordings
+html/oldstuff
 build/*/*/Release
 build/*/*/Debug
 bin/FFFF.exe
@@ -44,6 +46,7 @@ patches
 recording
 vstplugins
 vs2010/ipch
+*.vspx
 *.debug
 *.tlog
 #ignore thumbnails created by windows

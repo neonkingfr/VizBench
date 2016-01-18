@@ -32,6 +32,7 @@
 #include "FFFF.h"
 #include "NosuchJSON.h"
 #include "Timer.h"
+#include "AudioHost.h"
 
 #include "opencv/cv.h"
 #include "opencv/highgui.h"
@@ -58,16 +59,33 @@ const char* FFFF_json(void* data,const char *method, cJSON* params, const char* 
 	return ffff->m_json_result.c_str();
 }
 
-FFFF::FFFF() {
+FFFF::FFFF(cJSON* config) {
+
+	m_output_framedata = NULL;
+	m_output_lastwrite = 0.0;
+	m_output_framenum = 0;
+
 	m_img1 = NULL;
 	m_img2 = NULL;
 	m_img_into_pipeline = NULL;
-	m_showfps = false;
+	m_record = false;
 	m_capture = NULL;
 	m_ffglpipeline.clear();
 	m_ff10pipeline.clear();
 	hidden = false;
 
+	m_window_width = jsonNeedInt(config, "window_width", 800);
+	m_window_height = jsonNeedInt(config, "window_height", 600);
+	m_trail_enable = jsonNeedBool(config, "trail_enable",true);
+	m_trail_amount = jsonNeedDouble(config, "trail_amount",0.9);
+	m_showfps = jsonNeedInt(config, "showfps", 0) ? true : false;
+	m_audiohost_type = jsonNeedString(config, "audiohost_type", "");
+	if (m_audiohost_type != "") {
+		m_audiohost = new AudioHost(m_audiohost_type, jsonNeedJSON(config, "audiohost_config", NULL));
+	}
+	else {
+		m_audiohost = NULL;
+	}
 #ifdef ZRE_TEST
 	zre_msg_test(true);
     zre_log_msg_test (true);
@@ -108,6 +126,23 @@ FFFF::InsertKeystroke(int key,int updown) {
 	m_vizserver->InsertKeystroke(key,updown);
 }
 
+void *imagewriter_threadfunc(void *arg)
+{
+	FFFF* b = (FFFF*)arg;
+	return b->imagewriter_thread(arg);
+}
+
+void FFFF::imagewriter_addimage(IplImage* img) {
+}
+
+void *FFFF::imagewriter_thread(void *arg)
+{
+	int textcount = 0;
+	DEBUGPRINT(("FFFF:imagewriter_threadfunc start"));
+	DEBUGPRINT(("FFFF:imagewriter_threadfunc end"));
+	return NULL;
+}
+
 bool
 FFFF::StartStuff() {
 
@@ -123,13 +158,32 @@ FFFF::StartStuff() {
 		return false;
 	}
 	m_vizserver->AddJsonCallback((void*)this,"ffff",FFFF_json,(void*)this);
+
+	// Might not actually be used if we're not recording.
+	DEBUGPRINT(("About to create ImageWriter thread"));
+	int err = pthread_create(&m_imagewriter_thread, NULL, imagewriter_threadfunc, this);
+	if (err) {
+		NosuchErrorOutput("pthread_create failed!? err=%d",err);
+	}
+
+	if (m_audiohost) {
+	 	m_audiohost->Start();
+	}
+
 	return true;
 }
 
+
 void
 FFFF::StopStuff() {
+
 	m_vizserver->Stop();
 	VizServer::DeleteServer();
+
+	if (FfffOutputFile) {
+		fclose(FfffOutputFile);
+		FfffOutputFile = NULL;
+	}
 }
 
 void
@@ -923,39 +977,67 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 	}
 #endif
 
-	static GLubyte *m_data = NULL;
-
-	extern char* SaveFrames;
-	extern FILE* Ffmpeg;
-
+#if 0
+	// This old stuff that writes out individual frames is no longer needed,
+	// but it might come in handy for something someday, so I'm not deleting it completely yet
 	// Now read the pixels back and save them
-	if (SaveFrames && *SaveFrames!='\0') {
-		static int filenum = 0;
-		std::string path = VizPath("recording") + NosuchSnprintf("/%s%06d.ppm", SaveFrames, filenum++);
-		if (m_data == NULL) {
-			m_data = (GLubyte*)malloc(4 * window_width*window_height);  // 4, should work for both 3 and 4 bytes
+	if (m_record && SaveFrames && *SaveFrames!='\0') {
+
+		std::string path = VizPath("recordings") + NosuchSnprintf("/%s_%06d.ppm", SaveFrames, m_output_framenum);
+		if (m_output_framedata == NULL) {
+			m_output_framedata = (GLubyte*)malloc(4 * window_width*window_height);  // 4, should work for both 3 and 4 bytes
 			// DEBUGPRINT(("---- MALLOC SaveFrames data %d", data));
 		}
-		glReadPixels(0, 0, window_width, window_height, GL_BGR_EXT, GL_UNSIGNED_BYTE, m_data);
+		// The glReadPixles changes it from 60fps (on a blank screen) to 45fps
+		glReadPixels(0, 0, window_width, window_height, GL_BGR_EXT, GL_UNSIGNED_BYTE, m_output_framedata);
 		IplImage* img = cvCreateImageHeader(cvSize(window_width, window_height), IPL_DEPTH_8U, 3);
 		// DEBUGPRINT(("---- MALLOC SaveFrames img %d", (long)img));
 		img->origin = 1;  // ???
-		img->imageData = (char*)m_data;
+		img->imageData = (char*)m_output_framedata;
+		// The cvSaveImage (with glReadPixels) changes it from 60fps (on a blank screen) to 20fps
+		// Perhaps async file writing will help
 		if (!cvSaveImage(path.c_str(), img)) {
 			DEBUGPRINT(("Unable to save image: %s", path.c_str()));
 		}
 		// free(data);  it's static, now
 		img->imageData = NULL;
-		DEBUGPRINT(("---- RELEASE SaveFrames img %d", (long)img));
+		DEBUGPRINT1(("---- RELEASE SaveFrames img %d", (long)img));
 		cvReleaseImageHeader(&img);
 	}
-	if (Ffmpeg) {
-		if (m_data == NULL) {
-			m_data = (GLubyte*)malloc(4 * window_width*window_height);  // 4, should work for both 3 and 4 bytes
-			// DEBUGPRINT(("---- MALLOC Ffmpeg data %d", data));
+#endif
+
+	if (m_record && FfffOutputFile) {
+
+		if (m_output_framedata == NULL) {
+			m_output_framedata = (GLubyte*)malloc(4 * window_width*window_height);  // 4, should work for both 3 and 4 bytes
+			// DEBUGPRINT(("---- MALLOC FfffOutputFile data %d", data));
 		}
-		glReadPixels(0, 0, window_width, window_height, GL_BGR_EXT, GL_UNSIGNED_BYTE, m_data);
-		fwrite(m_data, window_width*window_height, 3, Ffmpeg);
+
+		glReadPixels(0, 0, window_width, window_height, GL_BGR_EXT, GL_UNSIGNED_BYTE, m_output_framedata);
+
+		double tm = NosuchSecondsElapsed();
+		double timePerFrame = 1.0 / FfffOutputFPS;
+		// Pehaps this should be a loop, but handle first one, too
+		if (m_output_framenum == 0) {
+			// First frame of a recording
+			fwrite(m_output_framedata, window_width*window_height, 3, FfffOutputFile);
+			DEBUGPRINT1(("Writing frame %d  time=%lf",m_output_framenum,NosuchSecondsElapsed()));
+			m_output_framenum++;
+			m_output_lastwrite = tm;
+		}
+		else {
+			int frameswritten = 0;
+			while ((tm - m_output_lastwrite) > timePerFrame) {
+				fwrite(m_output_framedata, window_width*window_height, 3, FfffOutputFile);
+				frameswritten++;
+				m_output_lastwrite += timePerFrame;
+			}
+			if (frameswritten > 0) {
+				m_output_framenum += frameswritten;
+				m_output_lastwrite = tm;
+				DEBUGPRINT1(("Wrote %d frames, framenum is now %d  time=%lf", frameswritten, m_output_framenum, NosuchSecondsElapsed()));
+			}
+		}
 	}
 
 #ifdef NOMORERELEASE
@@ -1250,6 +1332,8 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	std::string err;
 
 	if (meth == "apis") {
+		// XXX - this is out of date - need some better way of
+		// XXX - maintaining this.
 		return jsonStringResult("time;clicknow;show;hide;echo;"
 			"enable(viztag,onoff);delete(viztag);"
 			"ffgladd(plugin,viztag,autoenable,params);"
@@ -1267,6 +1351,8 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 			"ffglplugins;"
 			"ff10plugins;"
 			"fps(onoff);"
+			"record(onoff);"
+			"audio(onoff);"
 			"trail_enable(onoff);"
 			"trail_amount(value);"
 			"moveup(viztag);"
@@ -1278,6 +1364,88 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	// DEBUGPRINT(("FFFF api = %s", meth.c_str()));
 	if (meth == "fps") {
 		m_showfps = jsonNeedBool(params, "onoff");
+		return jsonOK(id);
+	}
+	if (meth == "audio") {
+		bool onoff = jsonNeedBool(params, "onoff",true);
+		if (m_audiohost == NULL) {
+			throw NosuchException("No audio host!?");
+		}
+		if (!m_audiohost->Playing(onoff)) {
+			throw NosuchException("Unable to control audio playback?!");
+		}
+		return jsonOK(id);
+	}
+	if (meth == "record") {
+		bool onoff = jsonNeedBool(params, "onoff");
+		if (m_audiohost) {
+			if (!m_audiohost->Recording(onoff)) {
+				throw NosuchException("Unable to %s audio recording?!",onoff?"start":"stop");
+			}
+			DEBUGPRINT(("Audio recording %s",onoff?"started":"stopped"));
+		}
+		else {
+			DEBUGPRINT(("No audio host, only recording video frames"));
+		}
+		if (m_record == true && onoff == false) {
+			// recording is being turned off
+			if (FfffOutputFile == NULL) {
+					DEBUGPRINT(("Video recording was already stopped"));
+			}
+			// If we've got an FfffOutputFile, close it
+			if (FfffOutputFile) {
+				fclose(FfffOutputFile);
+				FfffOutputFile = NULL;
+				DEBUGPRINT(("Video recording stopped"));
+			}
+			// Execute the "recordingfinished.bat" script which can do things like
+			// rename or copy the files to another machine for encoding, uploading, etc.
+			STARTUPINFOA info = { 0 };
+			PROCESS_INFORMATION processInfo;
+
+			ZeroMemory(&info, sizeof(info));
+			info.cb = sizeof(info);
+			ZeroMemory(&processInfo, sizeof(processInfo));
+
+			info.dwFlags = STARTF_USESHOWWINDOW;
+			info.wShowWindow = TRUE;
+
+			std::string batpath = VizPath("bin\\recordingfinished.bat");
+			std::string cmdexe = "c:\\windows\\system32\\cmd.exe";
+			char* cmdline = _strdup(NosuchSnprintf("%s /c \"%s %s\"",cmdexe.c_str(),batpath.c_str(),FfffOutputPrefix.c_str()).c_str());
+			// Second argument must be writable
+			if (CreateProcessA(cmdexe.c_str(), cmdline, NULL, NULL, TRUE, 0, NULL, NULL, &info, &processInfo))
+			{
+				DEBUGPRINT(("Started: %s",batpath.c_str()));
+				// We don't wait, we want it running separately
+				// ::WaitForSingleObject(processInfo.hProcess, INFINITE);
+				CloseHandle(processInfo.hProcess);
+				CloseHandle(processInfo.hThread);
+			}
+			else {
+				DEBUGPRINT(("Unable to execute: %s",batpath.c_str()));
+			}
+		}
+		else if (m_record == false && onoff == true) {
+			// recording is being turned on.  If we're writing output, open it
+			if (FfffOutputPrefix == "") {
+				throw NosuchException("Recording not turned on - there is no outputprefix value");
+			}
+			if ( FfffOutputFile ) {
+				DEBUGPRINT(("Video recording was already started"));
+			} else {
+				m_output_framenum = 0;
+				// raw video gets saved in this file
+				std::string path = VizPath("recordings") + NosuchSnprintf("\\%s-%dx%d-%ld.rawvideo", FfffOutputPrefix.c_str(), m_window_width, m_window_height, time(NULL));
+				FfffOutputFile = fopen(path.c_str(), "wb");
+				if (FfffOutputFile == NULL) {
+					NosuchErrorOutput("Unable to open output file: %s",path.c_str());
+					DEBUGPRINT(("Unable to open output file: %s",path.c_str()));
+				}
+				DEBUGPRINT(("Video recording started, path=%s",path.c_str()));
+			}
+		}
+		m_record = onoff;	// This will cause video frames to be recorded
 		return jsonOK(id);
 	}
 	if (meth == "trail_enable") {

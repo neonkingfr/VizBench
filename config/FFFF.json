@@ -10,7 +10,19 @@
   # "window_width": 1920,
   # "window_height": 1080,
 
-  "showfps": 0,
+  "outputprefix": "tjt",
+  "outputfps": 30,
+
+  # The only audio host currently supported is Plogue Bidule, which
+  # has excellent OSC support
+  "audiohost_type": "bidule",
+  "audiohost_config": {
+	  "executable": "C:\\Program Files\\Plogue\\Bidule\\PlogueBidule_x64.exe",
+	  "patch": "bidule\\spacepuddle.bidule",
+	  "oscport": 3210
+  },
+
+  "showfps": 1,
   "trail_enable": 0,
   "trail_amount": 0.90,
   "camera": -1,    # a value of -1 disables the camera input

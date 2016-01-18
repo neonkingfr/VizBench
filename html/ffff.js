@@ -125,6 +125,11 @@ function randomizepipeline() {
 	}
 }
 
+function ffffrecord(onoff) {
+	var api = vizapi("ffff.record","{\"onoff\": "+onoff+" }");
+	checkapi(api);
+}
+
 function enableall(onoff) {
 	var api = vizapi("ffff.ffglpipeline");
 	if ( ! checkapi(api) ) {
@@ -202,7 +207,13 @@ function ffffpagegen() {
 	html += "&nbsp;&nbsp;";
 	html += "<input type=\"button\" value=\"Randomize Pipeline\" onClick=\"randomizepipeline();\">";
 	html += "&nbsp;&nbsp;";
-	html += "<input type=\"button\" value=\"Randomize FFGL Params\" onClick=\"randomizeffglparams();\">";
+	html += "<input type=\"button\" value=\"Recording ON\" onClick=\"ffffrecord(1);\">";
+	html += "&nbsp;&nbsp;";
+	html += "<input type=\"button\" value=\"Recording OFF\" onClick=\"ffffrecord(0);\">";
+
+	// html += "&nbsp;&nbsp;";
+	// html += "<input type=\"button\" value=\"Randomize FFGL Params\" onClick=\"randomizeffglparams();\">";
+
 
 	var r;
 	html += "<table>";	// two columns, left column for plugin name

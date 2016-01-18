@@ -184,6 +184,8 @@ public:
 	bool Start();
 	void Stop();
 
+	bool SendOsc(const char* host, int serverport, const char *data, int leng);
+
 	bool IsVizlet(const char* iname);
 	const char *VizTags();
 	void ChangeVizTag(void* handle, const char* newtag);

@@ -206,6 +206,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\other\freeframe\FF10Plugin.cpp" />
     <ClCompile Include="..\..\..\other\freeframe\FFGLPlugin.cpp" />
+    <ClCompile Include="..\..\..\src\FFFF\AudioHost.cpp" />
     <ClCompile Include="..\..\..\src\FFFF\ffffutil.cpp" />
     <ClCompile Include="..\..\..\src\FFFF\main.cpp" />
     <ClCompile Include="..\..\..\src\FFFF\FFFF.cpp" />
@@ -219,6 +220,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\other\freeframe\FF10Plugin.h" />
     <ClInclude Include="..\..\..\other\freeframe\FFGLPlugin.h" />
+    <ClInclude Include="..\..\..\src\FFFF\AudioHost.h" />
     <ClInclude Include="..\..\..\src\FFFF\FFFF.h" />
     <ClInclude Include="..\..\..\src\FFFF\ffffutil.h" />
   </ItemGroup>

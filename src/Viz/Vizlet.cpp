@@ -199,6 +199,14 @@ Vizlet::~Vizlet()
 	_stopstuff();
 }
 
+bool Vizlet::SendOsc(std::string host, int port, const char* data, size_t leng) {
+	// Remember, don't use std::string across the dll boundary.
+	// This api has not been tested (when I thought I would be using it,
+	// it was more appropriate to do what I wanted to do in FFFF.
+	// This will eventually be needed for something, I assume.
+	return m_vizserver->SendOsc(host.c_str(), port, data, leng);
+}
+
 void
 Vizlet::LoadPipeline(std::string pipeline) {
 	const char* currentpipeline = m_vizserver->ProcessJson("ffff.pipelinefilename",NULL,"12345");

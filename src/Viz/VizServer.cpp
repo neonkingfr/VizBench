@@ -931,6 +931,11 @@ VizServer::~VizServer() {
 	Stop();
 }
 
+bool
+VizServer::SendOsc(const char* host, int port, const char *data, int leng) {
+	return SendToUDPServer(host, port, data, leng);
+}
+
 VizCursor*
 VizServer::_getCursor(int sidnum, std::string sidsource, bool lockit) {
 

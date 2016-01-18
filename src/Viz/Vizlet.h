@@ -76,6 +76,8 @@ public:
 	void QueueMidiPhrase(MidiPhrase* ph, click_t clk);
 	void QueueClear();
 
+	bool SendOsc(std::string host, int port, const char* data, size_t size);
+
 	std::string MidiInputName(size_t n) { return m_vizserver->MidiInputName(n);  }
 	std::string MidiOutputName(size_t n) { return m_vizserver->MidiOutputName(n);  }
 
