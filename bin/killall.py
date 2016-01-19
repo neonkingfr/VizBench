@@ -4,6 +4,7 @@ from time import sleep
 def killtask(nm):
 	call(["c:/windows/system32/taskkill","/f","/im",nm])
 
+killtask("debut.exe")
 killtask("FFFF.exe")
 killtask("mmtt.exe")
 killtask("mmtt_depth.exe")
