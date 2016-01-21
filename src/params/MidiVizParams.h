@@ -15,7 +15,9 @@ extern char* MidiVizParamsNames[];
 #define MidiVizParamsNames_INIT \
 	"arpeggiate",\
 	"channel",\
-	"depthcontroller",\
+	"depthctlmax",\
+	"depthctlmin",\
+	"depthctlnum",\
 	"duration",\
 	"notelimit",\
 	"pitchmax",\
@@ -39,8 +41,12 @@ public:
 		if (j) { arpeggiate.set(j); }
 		j = cJSON_GetObjectItem(json,"channel");
 		if (j) { channel.set(j); }
-		j = cJSON_GetObjectItem(json,"depthcontroller");
-		if (j) { depthcontroller.set(j); }
+		j = cJSON_GetObjectItem(json,"depthctlmax");
+		if (j) { depthctlmax.set(j); }
+		j = cJSON_GetObjectItem(json,"depthctlmin");
+		if (j) { depthctlmin.set(j); }
+		j = cJSON_GetObjectItem(json,"depthctlnum");
+		if (j) { depthctlnum.set(j); }
 		j = cJSON_GetObjectItem(json,"duration");
 		if (j) { duration.set(j); }
 		j = cJSON_GetObjectItem(json,"notelimit");
@@ -57,7 +63,9 @@ public:
 	void loadDefaults() {
 		arpeggiate.set(0);
 		channel.set(1);
-		depthcontroller.set(0);
+		depthctlmax.set(127);
+		depthctlmin.set(0);
+		depthctlnum.set(0);
 		duration.set("hold");
 		notelimit.set(4);
 		pitchmax.set(100);
@@ -69,7 +77,9 @@ public:
 		if ( ! p ) { return; }
 		if ( p->arpeggiate.isset() ) { this->arpeggiate.set(p->arpeggiate.get()); }
 		if ( p->channel.isset() ) { this->channel.set(p->channel.get()); }
-		if ( p->depthcontroller.isset() ) { this->depthcontroller.set(p->depthcontroller.get()); }
+		if ( p->depthctlmax.isset() ) { this->depthctlmax.set(p->depthctlmax.get()); }
+		if ( p->depthctlmin.isset() ) { this->depthctlmin.set(p->depthctlmin.get()); }
+		if ( p->depthctlnum.isset() ) { this->depthctlnum.set(p->depthctlnum.get()); }
 		if ( p->duration.isset() ) { this->duration.set(p->duration.get()); }
 		if ( p->notelimit.isset() ) { this->notelimit.set(p->notelimit.get()); }
 		if ( p->pitchmax.isset() ) { this->pitchmax.set(p->pitchmax.get()); }
@@ -83,8 +93,12 @@ public:
 			arpeggiate.set(string2int(val));
 		} else if ( nm == "channel" ) {
 			channel.set(string2int(val));
-		} else if ( nm == "depthcontroller" ) {
-			depthcontroller.set(string2int(val));
+		} else if ( nm == "depthctlmax" ) {
+			depthctlmax.set(string2int(val));
+		} else if ( nm == "depthctlmin" ) {
+			depthctlmin.set(string2int(val));
+		} else if ( nm == "depthctlnum" ) {
+			depthctlnum.set(string2int(val));
 		} else if ( nm == "duration" ) {
 			duration.set(val);
 			stringval = true;
@@ -110,8 +124,12 @@ public:
 			arpeggiate.set(adjust(arpeggiate.get(),amount,0,1));
 		} else if ( nm == "channel" ) {
 			channel.set(adjust(channel.get(),amount,1,16));
-		} else if ( nm == "depthcontroller" ) {
-			depthcontroller.set(adjust(depthcontroller.get(),amount,0,127));
+		} else if ( nm == "depthctlmax" ) {
+			depthctlmax.set(adjust(depthctlmax.get(),amount,0,127));
+		} else if ( nm == "depthctlmin" ) {
+			depthctlmin.set(adjust(depthctlmin.get(),amount,0,127));
+		} else if ( nm == "depthctlnum" ) {
+			depthctlnum.set(adjust(depthctlnum.get(),amount,0,127));
 		} else if ( nm == "duration" ) {
 			duration.set(adjust(duration.get(),amount,VizParams::StringVals["durationTypes"]));
 		} else if ( nm == "notelimit" ) {
@@ -130,7 +148,9 @@ public:
 	std::string DefaultValue(std::string nm) {
 		if ( nm == "arpeggiate" ) { return "0"; }
 		if ( nm == "channel" ) { return "1"; }
-		if ( nm == "depthcontroller" ) { return "0"; }
+		if ( nm == "depthctlmax" ) { return "127"; }
+		if ( nm == "depthctlmin" ) { return "0"; }
+		if ( nm == "depthctlnum" ) { return "0"; }
 		if ( nm == "duration" ) { return "hold"; }
 		if ( nm == "notelimit" ) { return "4"; }
 		if ( nm == "pitchmax" ) { return "100"; }
@@ -142,7 +162,9 @@ public:
 	std::string MinValue(std::string nm) {
 		if ( nm == "arpeggiate" ) { return "0"; }
 		if ( nm == "channel" ) { return "1"; }
-		if ( nm == "depthcontroller" ) { return "0"; }
+		if ( nm == "depthctlmax" ) { return "0"; }
+		if ( nm == "depthctlmin" ) { return "0"; }
+		if ( nm == "depthctlnum" ) { return "0"; }
 		if ( nm == "duration" ) { return "durationTypes"; }
 		if ( nm == "notelimit" ) { return "1"; }
 		if ( nm == "pitchmax" ) { return "1"; }
@@ -154,7 +176,9 @@ public:
 	std::string MaxValue(std::string nm) {
 		if ( nm == "arpeggiate" ) { return "1"; }
 		if ( nm == "channel" ) { return "16"; }
-		if ( nm == "depthcontroller" ) { return "127"; }
+		if ( nm == "depthctlmax" ) { return "127"; }
+		if ( nm == "depthctlmin" ) { return "127"; }
+		if ( nm == "depthctlnum" ) { return "127"; }
 		if ( nm == "duration" ) { return "durationTypes"; }
 		if ( nm == "notelimit" ) { return "16"; }
 		if ( nm == "pitchmax" ) { return "127"; }
@@ -171,8 +195,12 @@ public:
 			return IntString(arpeggiate.get());
 		} else if ( nm == "channel" ) {
 			return IntString(channel.get());
-		} else if ( nm == "depthcontroller" ) {
-			return IntString(depthcontroller.get());
+		} else if ( nm == "depthctlmax" ) {
+			return IntString(depthctlmax.get());
+		} else if ( nm == "depthctlmin" ) {
+			return IntString(depthctlmin.get());
+		} else if ( nm == "depthctlnum" ) {
+			return IntString(depthctlnum.get());
 		} else if ( nm == "duration" ) {
 			return duration.get();
 		} else if ( nm == "notelimit" ) {
@@ -191,7 +219,9 @@ public:
 	std::string GetType(std::string nm) {
 		if ( nm == "arpeggiate" ) { return "int"; }
 		if ( nm == "channel" ) { return "int"; }
-		if ( nm == "depthcontroller" ) { return "int"; }
+		if ( nm == "depthctlmax" ) { return "int"; }
+		if ( nm == "depthctlmin" ) { return "int"; }
+		if ( nm == "depthctlnum" ) { return "int"; }
 		if ( nm == "duration" ) { return "string"; }
 		if ( nm == "notelimit" ) { return "int"; }
 		if ( nm == "pitchmax" ) { return "int"; }
@@ -203,7 +233,9 @@ public:
 
 	IntParam arpeggiate;
 	IntParam channel;
-	IntParam depthcontroller;
+	IntParam depthctlmax;
+	IntParam depthctlmin;
+	IntParam depthctlnum;
 	StringParam duration;
 	IntParam notelimit;
 	IntParam pitchmax;

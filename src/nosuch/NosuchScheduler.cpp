@@ -784,6 +784,7 @@ NosuchScheduler::DoMidiMsgEvent(MidiMsg* m, const char* handle)
 #endif
 }
 
+#if 0
 // SendControllerMsg takes ownership of MidiMsg pointed-to by m.
 void
 NosuchScheduler::SendControllerMsg(MidiMsg* m, const char* handle, bool smooth)
@@ -867,6 +868,7 @@ NosuchScheduler::SendPitchBendMsg(MidiMsg* m, const char* handle, bool smooth)
 	m_nowplaying_pitchbend[sidnum] = m;
 #endif
 }
+#endif
 
 std::string
 NosuchScheduler::DebugString() {

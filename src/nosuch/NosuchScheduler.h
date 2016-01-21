@@ -223,11 +223,12 @@ public:
 
 	void SendPmMessage(PmMessage pm, PmStream* ps, const char* handle);
 	void SendMidiMsg(MidiMsg* mm, const char* handle);
-	void SendControllerMsg(MidiMsg* m, const char* handle, bool smooth);  // gives ownership of m away
-	void SendPitchBendMsg(MidiMsg* m, const char* handle, bool smooth);  // gives ownership of m away
 	void ANO(int psi = -1, int ch = -1);
 	void ANO(PmStream* ps, int ch = -1);
 	void setPeriodicANO(bool b) { m_periodic_ANO = b; }
+
+	// void SendControllerMsg(MidiMsg* m, const char* handle, bool smooth);  // gives ownership of m away
+	// void SendPitchBendMsg(MidiMsg* m, const char* handle, bool smooth);  // gives ownership of m away
 
 	static int m_timestampInMilliseconds;
 	static int m_ClicksPerSecond;

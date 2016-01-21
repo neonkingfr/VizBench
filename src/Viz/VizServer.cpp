@@ -1116,6 +1116,7 @@ VizServer::GetClicksPerSecond() {
 	return m_scheduler->m_ClicksPerSecond;
 }
 
+#if 0
 void
 VizServer::SendControllerMsg(MidiMsg* m, const char* handle, bool smooth) {
 	m_scheduler->SendControllerMsg(m, handle, smooth);
@@ -1126,7 +1127,6 @@ VizServer::SendPitchBendMsg(MidiMsg* m, const char* handle, bool smooth) {
 	m_scheduler->SendPitchBendMsg(m, handle, smooth);
 }
 
-#if 0
 void
 VizServer::IncomingNoteOff(click_t clk, int ch, int pitch, int vel, const char* handle) {
 	m_scheduler->IncomingNoteOff(clk, ch, pitch, vel, handle);
@@ -1664,6 +1664,7 @@ VizCursor::VizCursor(VizServer* ss, int sid_, std::string source_,
 	m_target_degrees = 0;
 	m_g_firstdir = true;
 	m_smooth_degrees_factor = 0.2;
+	m_pending_noteoff = NULL;
 
 	touch(ss->GetTimeInSeconds());
 }

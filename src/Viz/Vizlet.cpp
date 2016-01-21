@@ -489,12 +489,10 @@ Vizlet::QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle) {
 	m_vizserver->QueueMidiPhrase(ph,clk,handle);
 }
 
-#if 0
 void
-Vizlet::QueueMidiMsg(MidiMsg* m, click_t clk) {
-	m_vizserver->QueueMidiMsg(m,clk);
+Vizlet::QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle) {
+	m_vizserver->QueueMidiMsg(m,clk,handle);
 }
-#endif
 
 void
 Vizlet::QueueClear() {

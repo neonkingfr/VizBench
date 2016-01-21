@@ -6,5 +6,7 @@ port		int		0	32	0		# 0-based index into midioutputs list in vizserver.json
 arpeggiate	int		0	1	0		#
 notelimit	int		1	16	4		# number of simultaneous notes
 duration	string	durationTypes	durationTypes	"hold"	#
-depthcontroller	int	0	127	0		# MIDI controller for depth
+depthctlnum	int	0	127	0		# depth MIDI controller number, 0 = disabled
+depthctlmin	int	0	127	0		# minimum controller value
+depthctlmax	int	0	127	127		# maximum controller value
 scale		string	scaleTypes	scaleTypes	"newage"		#

@@ -155,6 +155,8 @@ public:
 	double curr_speed;
 	double curr_degrees;
 
+	MidiNoteOff* m_pending_noteoff;
+
 private:
 	double m_target_depth;
 	double m_last_depth;
@@ -227,9 +229,6 @@ public:
 
 	// void IncomingNoteOff(click_t clk, int ch, int pitch, int vel, void* handle);
 	// void IncomingMidiMsg(MidiMsg* m, click_t clk, void* handle);
-	void SendControllerMsg(MidiMsg* m, const char* handle, bool smooth);
-	void SendPitchBendMsg(MidiMsg* m, const char* handle, bool smooth);
-
 	void InsertKeystroke(int key, int downup);
 
 	bool Started() { return m_started; }
@@ -249,27 +248,31 @@ public:
 		m_scheduler->UnlockNotesDown();
 	}
 
-	int TryLockCursors() {
-		return NosuchTryLock(&_cursors_mutex,"cursors");
-	}
+	// int MmttSeqNum() { return m_mmtt_seqnum; }
+
+	const char* ProcessJson(const char* fullmethod,cJSON* params,const char* id);
+
+private:
+
+	// void SendControllerMsg(MidiMsg* m, const char* handle, bool smooth);
+	// void SendPitchBendMsg(MidiMsg* m, const char* handle, bool smooth);
+
 	void LockCursors() {
 		NosuchLock(&_cursors_mutex,"cursors");
+	}
+	int TryLockCursors() {
+		return NosuchTryLock(&_cursors_mutex,"cursors");
 	}
 	void UnlockCursors() {
 		NosuchUnlock(&_cursors_mutex,"cursors");
 	}
+
 	void LockVizServer() {
 		NosuchLock(&_vizserver_mutex,"vizserver");
 	}
 	void UnlockVizServer() {
 		NosuchUnlock(&_vizserver_mutex,"vizserver");
 	}
-
-	int MmttSeqNum() { return m_mmtt_seqnum; }
-
-	const char* ProcessJson(const char* fullmethod,cJSON* params,const char* id);
-
-private:
 	
 	friend class VizServerOscProcessor;	// so it can access _touchCursorSid, _checkCursorUp, _setCursor
 	friend class VizServerClickProcessor;	// so it can access _advanceClickTo

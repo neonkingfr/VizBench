@@ -31,6 +31,18 @@ char* ReadableMidiPitch(int p) {
 	return ReadableMidiPitches[p];
 }
 
+// Should this be inline?
+int
+BoundValue(int v, int minval, int maxval) {
+	if (v < minval) {
+		v = minval;
+	}
+	else if (v > maxval) {
+		v = maxval;
+	}
+	return v;
+}
+
 MidiMsg* MidiMsg::make(int msg) {
 	int status = Pm_MessageStatus(msg);
 	int command = status & 0xf0;

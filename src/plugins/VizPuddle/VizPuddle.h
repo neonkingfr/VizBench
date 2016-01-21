@@ -73,10 +73,12 @@ private:
 
 	void _cursorSprite(VizCursor* c, int downdragup, SpriteVizParams* p);
 	void _cursorMidi(VizCursor* c, int downdragup, MidiVizParams* p);
+	void _cursorArpeggiatedMidi(VizCursor* c, int downdragup, MidiVizParams* p);
+	void _cursorNormalMidi(VizCursor* c, int downdragup, MidiVizParams* p);
 
 	int _pitchOf(VizCursor* c, MidiVizParams* mp);
 	int _velocityOf(VizCursor* c);
-	int _channelOf(VizCursor* c);
+	int _channelOf(VizCursor* c, MidiVizParams* mp);
 	click_t _durationOf(VizCursor* c);
 	click_t _quantOf(VizCursor* c);
 	click_t _clicksPerBeat();

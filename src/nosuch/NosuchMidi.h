@@ -42,9 +42,12 @@ extern bool NosuchDebugMidiNotes;
 
 typedef long MidiTimestamp;
 
+#define LIMIT_0_TO_127(v) if(v<0)v=0;else if (v>127)v=127
+
 #define NO_VALUE -1
 
-char* ReadableMidiPitch(int pitch);
+extern char* ReadableMidiPitch(int pitch);
+extern int BoundValue(int v, int minval, int maxval);
 
 class MidiFilter {
 public:
