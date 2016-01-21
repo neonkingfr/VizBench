@@ -1,3 +1,10 @@
+/************************************************
+ *
+ * This file is generated from 'SpriteVizParams.list' by genparams.py
+ *
+ * DO NOT EDIT!
+ *
+ ************************************************/
 #ifndef _SPRITEVIZPARAMS_H
 #define _SPRITEVIZPARAMS_H
 #include "VizParams.h"

@@ -485,14 +485,16 @@ void Vizlet::DrawVizSprites() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-Vizlet::QueueMidiPhrase(MidiPhrase* ph, click_t clk) {
-	m_vizserver->QueueMidiPhrase(ph,clk);
+Vizlet::QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle) {
+	m_vizserver->QueueMidiPhrase(ph,clk,handle);
 }
 
+#if 0
 void
 Vizlet::QueueMidiMsg(MidiMsg* m, click_t clk) {
 	m_vizserver->QueueMidiMsg(m,clk);
 }
+#endif
 
 void
 Vizlet::QueueClear() {

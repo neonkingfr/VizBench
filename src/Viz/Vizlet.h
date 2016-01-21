@@ -72,8 +72,8 @@ public:
 
 	void LoadPipeline(std::string pipeline);
 
-	void QueueMidiMsg(MidiMsg* m, click_t clk);
-	void QueueMidiPhrase(MidiPhrase* ph, click_t clk);
+	void QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle);
+	void QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle);
 	void QueueClear();
 
 	bool SendOsc(std::string host, int port, const char* data, size_t size);

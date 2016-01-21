@@ -175,14 +175,10 @@ public:
 	static VizServer* GetServer();
 	static void DeleteServer();
 
-	// Some utilities
-	int SchedulerTimestamp();
-	click_t SchedulerCurrentClick();
-	click_t SchedulerClicksPerSecond();
-	double GetTimeInSeconds();
-
 	bool Start();
 	void Stop();
+
+	double GetTimeInSeconds();
 
 	bool SendOsc(const char* host, int serverport, const char *data, int leng);
 
@@ -206,10 +202,12 @@ public:
 	void RemoveKeystrokeCallback(void* handle);
 	void RemoveClickCallback(void* handle);
 
-	void SendMidiMsg(MidiMsg* msg);
+	int SchedulerTimestamp();
+	click_t SchedulerCurrentClick();
+	click_t SchedulerClicksPerSecond();
 
-	void QueueMidiMsg(MidiMsg* m, click_t clk);
-	void QueueMidiPhrase(MidiPhrase* ph, click_t clk);
+	void QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle);
+	void QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle);
 	void QueueClear();
 
 	const char* MidiInputName(size_t n) {
@@ -227,10 +225,10 @@ public:
 		GlobalPitchOffset = offset;
 	}
 
-	void IncomingNoteOff(click_t clk, int ch, int pitch, int vel, void* handle);
-	void IncomingMidiMsg(MidiMsg* m, click_t clk, void* handle);
-	void SendControllerMsg(MidiMsg* m, void* handle, bool smooth);
-	void SendPitchBendMsg(MidiMsg* m, void* handle, bool smooth);
+	// void IncomingNoteOff(click_t clk, int ch, int pitch, int vel, void* handle);
+	// void IncomingMidiMsg(MidiMsg* m, click_t clk, void* handle);
+	void SendControllerMsg(MidiMsg* m, const char* handle, bool smooth);
+	void SendPitchBendMsg(MidiMsg* m, const char* handle, bool smooth);
 
 	void InsertKeystroke(int key, int downup);
 
@@ -305,8 +303,8 @@ private:
 	void _setCursorSid(int sidnum, const char* source, double x, double y, double z, double tuio_f, OutlineMem* om, MMTT_SharedMemHeader* hdr );
 	void _processCursorsFromBuff(MMTT_SharedMemHeader* hdr);
 
-	void _scheduleMidiMsg(MidiMsg* m, click_t clk, void* handle);
-	void _scheduleMidiPhrase(MidiPhrase* ph, click_t clk, void* handle);
+	void _scheduleMidiMsg(MidiMsg* m, click_t clk, const char* handle);
+	void _scheduleMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle);
 	void _scheduleClear();
 
 	static void _errorPopup(const char* msg);

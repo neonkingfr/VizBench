@@ -422,7 +422,15 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 
 	if (prefix == "vizserver") {
 		if (api == "apis") {
-			return jsonStringResult("clearmidi;allnotesoff;play_midifile;set_midifile(file);set_clickspersecond(clicks);set_midioutput(index);set_debugapi(onoff);toggledebug", id);
+			return jsonStringResult(
+				"clearmidi;"
+				"allnotesoff;"
+				"play_midifile;"
+				"set_midifile(file);"
+				"set_clickspersecond(clicks);"
+				"set_midioutput(index);"
+				"set_debugapi(onoff);"
+				"toggledebug", id);
 		}
 		if (api == "description") {
 			return jsonStringResult("Server which distributes things to Viz plugins", id);
@@ -441,11 +449,15 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 			ss->ClearNotesDown();
 			return jsonOK(id);
 		}
-		if (api == "param_vals" || api == "spriteparam_vals") {
+		if (api == "spriteparam_vals") {
 			std::string s = spriteparams->JsonListOfValues();
 			return jsonStringResult(s, id);
 		}
-		if (api == "param_stringvals" || api == "spriteparam_stringvals") {
+		if (api == "midiparam_vals") {
+			std::string s = midiparams->JsonListOfValues();
+			return jsonStringResult(s, id);
+		}
+		if (api == "spriteparam_stringvals") {
 			std::string type = jsonNeedString(params, "type", "");
 			if (type == ""){
 				return jsonError(-32000, "No type parameter specified on spriteparam_stringvals?", id);
@@ -453,11 +465,19 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 			std::string s = spriteparams->JsonListOfStringValues(type);
 			return jsonStringResult(s, id);
 		}
-		if (api == "spriteparam_list") {        // DONE
+		if (api == "midiparam_stringvals") {
+			std::string type = jsonNeedString(params, "type", "");
+			if (type == ""){
+				return jsonError(-32000, "No type parameter specified on midiparam_stringvals?", id);
+			}
+			std::string s = midiparams->JsonListOfStringValues(type);
+			return jsonStringResult(s, id);
+		}
+		if (api == "spriteparam_list") {
 			std::string s = spriteparams->JsonListOfParams();
 			return jsonStringResult(s, id);
 		}
-		if (api == "midiparam_list") {         // DONE
+		if (api == "midiparam_list") {
 			std::string s = midiparams->JsonListOfParams();
 			return jsonStringResult(s, id);
 		}
@@ -1095,39 +1115,37 @@ int
 VizServer::GetClicksPerSecond() {
 	return m_scheduler->m_ClicksPerSecond;
 }
-void
-VizServer::SendMidiMsg(MidiMsg* msg) {
-	DEBUGPRINT(("Hi from VizServer::SendMidiMsg IS NOT DOING ANYTHING?"));
-}
 
 void
-VizServer::SendControllerMsg(MidiMsg* m, void* handle, bool smooth) {
+VizServer::SendControllerMsg(MidiMsg* m, const char* handle, bool smooth) {
 	m_scheduler->SendControllerMsg(m, handle, smooth);
 }
 
 void
-VizServer::SendPitchBendMsg(MidiMsg* m, void* handle, bool smooth) {
+VizServer::SendPitchBendMsg(MidiMsg* m, const char* handle, bool smooth) {
 	m_scheduler->SendPitchBendMsg(m, handle, smooth);
 }
 
+#if 0
 void
-VizServer::IncomingNoteOff(click_t clk, int ch, int pitch, int vel, void* handle) {
+VizServer::IncomingNoteOff(click_t clk, int ch, int pitch, int vel, const char* handle) {
 	m_scheduler->IncomingNoteOff(clk, ch, pitch, vel, handle);
 }
 
 void
-VizServer::IncomingMidiMsg(MidiMsg* m, click_t clk, void* handle) {
+VizServer::IncomingMidiMsg(MidiMsg* m, click_t clk, const char* handle) {
 	m_scheduler->IncomingMidiMsg(m, clk, handle);
 }
+#endif
 
 void
-VizServer::_scheduleMidiPhrase(MidiPhrase* ph, click_t clk, void* handle) {
+VizServer::_scheduleMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle) {
 	NosuchAssert(m_scheduler);
 	m_scheduler->ScheduleMidiPhrase(ph, clk, handle);
 }
 
 void
-VizServer::_scheduleMidiMsg(MidiMsg* m, click_t clk, void* handle) {
+VizServer::_scheduleMidiMsg(MidiMsg* m, click_t clk, const char* handle) {
 	NosuchAssert(m_scheduler);
 	m_scheduler->ScheduleMidiMsg(m, clk, handle);
 }
@@ -1139,15 +1157,15 @@ VizServer::_scheduleClear() {
 }
 
 void
-VizServer::QueueMidiPhrase(MidiPhrase* ph, click_t clk) {
+VizServer::QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle) {
 	NosuchAssert(m_scheduler);
-	m_scheduler->QueueMidiPhrase(ph, clk);
+	m_scheduler->QueueMidiPhrase(ph, clk, handle);
 }
 
 void
-VizServer::QueueMidiMsg(MidiMsg* m, click_t clk) {
+VizServer::QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle) {
 	NosuchAssert(m_scheduler);
-	m_scheduler->QueueMidiMsg(m, clk);
+	m_scheduler->QueueMidiMsg(m, clk, handle);
 }
 
 void

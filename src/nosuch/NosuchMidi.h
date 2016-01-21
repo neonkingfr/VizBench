@@ -453,6 +453,11 @@ public:
 			pu->msg->SetInputPort(port);
 		}
 	}
+	void SetOutputPort(int port) {
+		for (MidiPhraseUnit* pu = first; pu != NULL; pu = pu->next) {
+			pu->msg->SetOutputPort(port);
+		}
+	}
 	void insert(MidiMsg* msg, click_t click);  // takes ownership
 
 #ifdef TOO_EXPENSIVE

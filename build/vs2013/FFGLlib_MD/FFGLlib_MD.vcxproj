@@ -216,6 +216,7 @@
     <ClCompile Include="..\..\..\src\nosuch\NosuchMidi.cpp" />
     <ClCompile Include="..\..\..\src\nosuch\NosuchOsc.cpp" />
     <ClCompile Include="..\..\..\src\nosuch\NosuchUtil.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\Scale.cpp" />
     <ClCompile Include="..\..\..\src\params\MidiVizParams.cpp" />
     <ClCompile Include="..\..\..\src\params\SpriteVizParams.cpp" />
     <ClCompile Include="..\..\..\src\params\VizParams.cpp" />
@@ -258,6 +259,7 @@
     <ClInclude Include="..\..\..\src\nosuch\NosuchOscUdpInput.h" />
     <ClInclude Include="..\..\..\src\nosuch\NosuchScheduler.h" />
     <ClInclude Include="..\..\..\src\nosuch\NosuchSocket.h" />
+    <ClInclude Include="..\..\..\src\nosuch\Scale.h" />
     <ClInclude Include="..\..\..\src\params\MidiVizParams.h" />
     <ClInclude Include="..\..\..\src\params\SpriteVizParams.h" />
     <ClInclude Include="..\..\..\src\params\VizParams.h" />
@@ -267,7 +269,10 @@
     <ClInclude Include="..\..\..\src\Viz\VizSprite.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\src\params\MidiVizParams.list" />
+    <Text Include="..\..\..\src\params\MidiVizParams.list">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+    </Text>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -109,6 +109,12 @@
     <ClCompile Include="..\..\..\src\params\SpriteVizParams.cpp">
       <Filter>Source Files\params</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\Scale.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\params\MidiVizParams.cpp">
+      <Filter>Source Files\params</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">
@@ -174,6 +180,9 @@
       <Filter>Source Files\params</Filter>
     </Text>
     <Text Include="..\..\..\src\params\SpriteVizParams.list">
+      <Filter>Source Files\params</Filter>
+    </Text>
+    <Text Include="..\..\..\src\params\MidiVizParams.list">
       <Filter>Source Files\params</Filter>
     </Text>
   </ItemGroup>
@@ -273,6 +282,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\params\SpriteVizParams.h">
       <Filter>Header Files\params</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\nosuch\Scale.h">
+      <Filter>Header Files\nosuch</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -70,9 +70,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
-    <None Include="..\..\..\src\params\MidiVizParams.list">
-      <Filter>Source Files\params</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\nosuch\NosuchDaemon.h">
@@ -122,6 +119,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\params\SpriteVizParams.h">
       <Filter>Header Files\params</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\nosuch\Scale.h">
+      <Filter>Header Files\nosuch</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -242,12 +242,18 @@
     <ClCompile Include="..\..\..\src\params\MidiVizParams.cpp">
       <Filter>Source Files\params</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\Scale.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\..\bin\genparams.py">
       <Filter>Source Files\params</Filter>
     </Text>
     <Text Include="..\..\..\src\params\SpriteVizParams.list">
+      <Filter>Source Files\params</Filter>
+    </Text>
+    <Text Include="..\..\..\src\params\MidiVizParams.list">
       <Filter>Source Files\params</Filter>
     </Text>
   </ItemGroup>

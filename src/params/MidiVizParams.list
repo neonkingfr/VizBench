@@ -1,5 +1,10 @@
 #name			#type	#min		#max		#init		#comment 
-channel		int	1	16	1		#
-pitchmin	int	1	127	60		#
-pitchmax	int	1	127	100		#
-port		int	1	32	1		#
+channel		int		1	16	1		#  1-based MIDI channel
+pitchmin	int		1	127	60		#
+pitchmax	int		1	127	100		#
+port		int		0	32	0		# 0-based index into midioutputs list in vizserver.json
+arpeggiate	int		0	1	0		#
+notelimit	int		1	16	4		# number of simultaneous notes
+duration	string	durationTypes	durationTypes	"hold"	#
+depthcontroller	int	0	127	0		# MIDI controller for depth
+scale		string	scaleTypes	scaleTypes	"newage"		#

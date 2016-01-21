@@ -15,6 +15,8 @@ typedef int click_t;
 
 #define OUT_QUEUE_SIZE 1024
 
+#define HANDLE_DEFAULT ((const char*)0)
+
 // Session IDs (TUIO cursor sessions) and Loop IDs need to be distinct,
 // since these IDs are attached to scheduled events so we can know
 // who was responsible for creating the events.
@@ -66,6 +68,8 @@ public:
 	float m_depth;
 };
 
+typedef long eventid_t;
+
 class SchedEvent {
 public:
 	enum Type {
@@ -73,26 +77,26 @@ public:
 		CURSORMOTION,
 		MIDIPHRASE
 	};
-	SchedEvent(MidiMsg* m, click_t c, void* h = 0) {
+	SchedEvent(MidiMsg* m, click_t c, const char* h) {
 		m_eventtype = SchedEvent::MIDIMSG;
 		u.midimsg = m;
 		click = c;
-		handle = h;
+		m_handle = h;
 		m_created = GlobalClick;
 	}
-	SchedEvent(MidiPhrase* ph, click_t c, void* h = 0) {
+	SchedEvent(MidiPhrase* ph, click_t c, const char* h) {
 		m_eventtype = SchedEvent::MIDIPHRASE;
 		u.midiphrase = ph;
 		click = c;
-		handle = h;
+		m_handle = h;
 		m_created = GlobalClick;
 	}
-	SchedEvent(NosuchCursorMotion* cm,click_t c, void* h = 0) {
+	SchedEvent(NosuchCursorMotion* cm,click_t c, const char* h) {
 		m_eventtype = SchedEvent::CURSORMOTION;
 		u.midimsg = NULL;
 		u.cursormotion = cm;
 		click = c;
-		handle = h;
+		m_handle = h;
 		m_created = GlobalClick;
 	}
 	virtual ~SchedEvent();
@@ -109,7 +113,7 @@ public:
 	click_t created() { return m_created; }
 
 protected:
-	void* handle;	// handle to thing that created it
+	const char* m_handle;	// handle to thing that created it
 	friend class NosuchScheduler;
 
 private:
@@ -203,25 +207,24 @@ public:
 	std::string DebugString();
 
 	// int NumberScheduled(click_t minclicks, click_t maxclicks, std::string sid);
-	bool AnythingPlayingAt(click_t clk, void* handle);
-	void IncomingNoteOff(click_t clk, int ch, int pitch, int vel, void* handle);
-	void IncomingMidiMsg(MidiMsg* m, click_t clk, void* handle);
+	// void IncomingNoteOff(click_t clk, int ch, int pitch, int vel, void* handle);
+	// void IncomingMidiMsg(MidiMsg* m, click_t clk, void* handle);
 
-	SchedEventList* ScheduleOf(void* handle);
-	void ScheduleMidiMsg(MidiMsg* m, click_t clk, void* handle);
-	void ScheduleMidiPhrase(MidiPhrase* m, click_t clk, void* handle);
+	SchedEventList* ScheduleOf(const char* handle);
+	void ScheduleMidiMsg(MidiMsg* m, click_t clk, const char* handle);
+	void ScheduleMidiPhrase(MidiPhrase* m, click_t clk, const char* handle);
 	void ScheduleClear();
 	bool ScheduleAddEvent(SchedEvent* e, bool lockit=true);  // returns false if not added, i.e. means caller should free it
 
-	void QueueMidiMsg(MidiMsg* m, click_t clk);
-	void QueueMidiPhrase(MidiPhrase* m, click_t clk);
+	void QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle);
+	void QueueMidiPhrase(MidiPhrase* m, click_t clk, const char* handle);
 	void QueueClear();
 	bool QueueAddEvent(SchedEvent* e);  // returns false if not added, i.e. means caller should free it
 
-	void SendPmMessage(PmMessage pm, PmStream* ps, void* handle);
-	void SendMidiMsg(MidiMsg* mm, void* handle);
-	void SendControllerMsg(MidiMsg* m, void* handle, bool smooth);  // gives ownership of m away
-	void SendPitchBendMsg(MidiMsg* m, void* handle, bool smooth);  // gives ownership of m away
+	void SendPmMessage(PmMessage pm, PmStream* ps, const char* handle);
+	void SendMidiMsg(MidiMsg* mm, const char* handle);
+	void SendControllerMsg(MidiMsg* m, const char* handle, bool smooth);  // gives ownership of m away
+	void SendPitchBendMsg(MidiMsg* m, const char* handle, bool smooth);  // gives ownership of m away
 	void ANO(int psi = -1, int ch = -1);
 	void ANO(PmStream* ps, int ch = -1);
 	void setPeriodicANO(bool b) { m_periodic_ANO = b; }
@@ -266,13 +269,13 @@ private:
 	void _addQueueToScheduled();
 
 	void _sortEvents(SchedEventList* sl);
-	void DoEventAndDelete(SchedEvent* e, void* handle);
-	void DoMidiMsgEvent(MidiMsg* m, void* handle);
+	void DoEventAndDelete(SchedEvent* e, const char* handle);
+	void DoMidiMsgEvent(MidiMsg* m, const char* handle);
 	bool m_running;
 	int m_clicks_per_clock;
 
 	// Per-handle scheduled events
-	std::map<void*,SchedEventList*> m_scheduled;
+	std::map<const char*,SchedEventList*> m_scheduled;
 	SchedEventList* m_queue;  // Things to be added to _scheduled
 
 #ifdef NOWPLAYING

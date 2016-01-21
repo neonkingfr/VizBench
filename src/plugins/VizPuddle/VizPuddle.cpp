@@ -35,7 +35,9 @@ VizPuddle::VizPuddle() : Vizlet() {
 	for (int i = 0; (s = buttonnames[i]) != NULL; i++) {
 		_button[s] = new Button(s);
 	}
-
+	for (int i = 0; i < MAX_MIDI_PORTS; i++) {
+		m_porthandle[i] = _strdup(NosuchSnprintf("port%d", i).c_str());
+	}
 	_autoloadparams = true;
 }
 
@@ -55,6 +57,7 @@ void VizPuddle::processCursor(VizCursor* c, int downdragup) {
 #ifdef WHEN_ON_SPACE_PALETTE
 		int sid = c->sid;
 		std::string pipeline = "";
+		// See if it's a button
 		for (const auto &pair : _button ) {
 			if (sid >= pair.second->sid_min && sid <= pair.second->sid_max) {
 				pipeline = pair.second->pipeline;
@@ -79,10 +82,10 @@ void VizPuddle::processCursor(VizCursor* c, int downdragup) {
 			}
 		}
 		if (sp) {
-			_cursorSprite(c, sp);
+			_cursorSprite(c, downdragup, sp);
 		}
 		if (mp) {
-			_cursorMidi(c,mp);
+			_cursorMidi(c, downdragup, mp);
 		}
 	}
 }
@@ -220,34 +223,119 @@ int VizPuddle::_channelOf(VizCursor* c) {
 	return 1;
 }
 
-int VizPuddle::_pitchOf(VizCursor* c) {
-	return 60 + (int)(c->pos.x * 40);
+int VizPuddle::_pitchOf(VizCursor* c, MidiVizParams* mp) {
+
+	int dpitch = mp->pitchmax - mp->pitchmin;
+
+	// The (dpitch+1) in the next expression is intended to make the
+	// 0 to 1.0 range of x map evenly to the entire pitch range, otherwise the top pitch
+	// would only be generated for exactly 1.0.
+
+	int pshift = (int)(c->pos.x * (dpitch+1));
+	if (pshift > dpitch) {
+		pshift = dpitch;
+	}
+	int p = mp->pitchmin + pshift;
+
+	std::string scale = mp->scale.get();
+	Scale s = Scale::Scales[scale];
+	p = s.closestTo(p);
+	return p;
 }
 
 int VizPuddle::_velocityOf(VizCursor* c) {
 	return 100;
 }
 
-void VizPuddle::_cursorMidi(VizCursor* c, MidiVizParams* p) {
+// A "beat" is a quarter note, typically
+click_t VizPuddle::_clicksPerBeat() {
+	// Might want to cache this?
+	int bpm = 120;
+	return SchedulerClicksPerSecond() * 60 / bpm;
+}
+
+click_t VizPuddle::_durationOf(VizCursor* c) {
+	return _clicksPerBeat()/2;
+}
+
+click_t VizPuddle::_quantOf(VizCursor* c) {
+	double f = 1.0;
+	// Slower/larger quantization toward the bottom.
+#define TIMEFRETS_3
+#ifdef TIMEFRETS_4
+	if (c->pos.y < 0.25) {
+		f = 1.0;
+	}
+	else if (c->pos.y < 0.5) {
+		f = 0.5;
+	}
+	else if (c->pos.y < 0.75) {
+		f = 0.25;
+	}
+	else {
+		f = 0.125;
+	}
+#endif
+#ifdef TIMEFRETS_3
+	if (c->pos.y < 0.33) {
+		f = 0.5;
+	}
+	else if (c->pos.y < 0.66) {
+		f = 0.25;
+	}
+	else {
+		f = 0.125;
+	}
+#endif
+	click_t q = (click_t)(f * _clicksPerBeat());  // round?
+	return q;
+}
+
+click_t VizPuddle::_quantizeToNext(click_t tm, click_t q) {
+	return tm - (tm%q) + q;
+}
+
+void VizPuddle::_cursorMidi(VizCursor* c, int downdragup, MidiVizParams* mp) {
+
+	// the MidiVizParams is region-specific
+
+	// When not arpeggiating/repeating, only generate notes for cursor down.
+	if ( ! mp->arpeggiate.get() && downdragup != CURSOR_DOWN ) {
+		return;
+	}
+
+	if (downdragup == CURSOR_UP && mp->duration.get() == "hold") {
+	}
+
 	MidiPhrase *ph = new MidiPhrase();
 	int ch = _channelOf(c);
-	int pitch = _pitchOf(c);
+	int pitch = _pitchOf(c,mp);
 	int vel = _velocityOf(c);
+	click_t dur = _durationOf(c);
+	click_t quant = _quantOf(c);
 	click_t now = SchedulerCurrentClick();
-	int bpm = 120;
-	click_t clksperbeat = SchedulerClicksPerSecond() * 60 / bpm;
-	click_t eighth = clksperbeat / 2;  // A beat is a quarter note, so this is an eighth note
-	click_t dur = 4 * eighth;
+
+	// int bpm = 120;
+	// click_t clksperbeat = SchedulerClicksPerSecond() * 60 / bpm;
+	// click_t eighth = clksperbeat / 2;  // A beat is a quarter note, so this is an eighth note
 
 	MidiNoteOn *noteon = MidiNoteOn::make(ch, pitch, vel);
 	MidiNoteOff *noteoff = MidiNoteOff::make(ch, pitch, 0);
 	ph->insert(noteon, 0);
 	ph->insert(noteoff, dur);
 	ph->SetInputPort(MIDI_PORT_OF_GENERATED_STUFF);
-	QueueMidiPhrase(ph, now);
+	int outport = mp->port.get();
+	ph->SetOutputPort(outport);
+	click_t tm = _quantizeToNext(now, quant);
+
+	if (outport >= MAX_MIDI_PORTS) {
+		throw NosuchException("port value (%d) is too large!?",outport);
+	}
+	// The handle is per-port
+	QueueMidiPhrase(ph, tm, m_porthandle[outport]);
 }
 
-void VizPuddle::_cursorSprite(VizCursor* c, SpriteVizParams* spriteparams) {
+void VizPuddle::_cursorSprite(VizCursor* c, int downdragup, SpriteVizParams* spriteparams) {
 
 	DEBUGPRINT1(("cursorSprite! sid=%d xyz = %.5f %.5f %.5f", c->sid, c->pos.x, c->pos.y, c->pos.z));
 

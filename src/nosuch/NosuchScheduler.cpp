@@ -92,6 +92,7 @@ void NosuchScheduler::ANO(PmStream* ps,int ch) {
 	}
 }
 
+#if 0
 void NosuchScheduler::IncomingNoteOff(click_t clk, int ch, int pitch, int vel, void* handle) {
 	DEBUGPRINT1(("NosuchScheduler::IncomingNoteOff clk=%d ch=%d pitch=%d sid=%d",clk,ch,pitch,handle));
 	ScheduleMidiMsg(MidiNoteOff::make(ch,pitch,vel),clk,handle);
@@ -103,15 +104,16 @@ void NosuchScheduler::IncomingMidiMsg(MidiMsg* m, click_t clk, void* handle) {
 		delete e;
 	}
 }
+#endif
 
-void NosuchScheduler::ScheduleMidiMsg(MidiMsg* m, click_t clk, void* handle) {
+void NosuchScheduler::ScheduleMidiMsg(MidiMsg* m, click_t clk, const char* handle) {
 	SchedEvent* e = new SchedEvent(m,clk,handle);
 	if ( ! ScheduleAddEvent(e) ) {
 		delete e;
 	}
 }
 
-void NosuchScheduler::ScheduleMidiPhrase(MidiPhrase* ph, click_t clk, void* handle) {
+void NosuchScheduler::ScheduleMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle) {
 	SchedEvent* e = new SchedEvent(ph,clk,handle);
 	if ( ! ScheduleAddEvent(e) ) {
 		delete e;
@@ -120,7 +122,7 @@ void NosuchScheduler::ScheduleMidiPhrase(MidiPhrase* ph, click_t clk, void* hand
 
 void NosuchScheduler::ScheduleClear() {
 	LockScheduled();
-	std::map<void*,SchedEventList*>::iterator it = m_scheduled.begin();
+	std::map<const char*,SchedEventList*>::iterator it = m_scheduled.begin();
 	for (; it != m_scheduled.end(); it++ ) {
 		SchedEventList* sl = it->second;
 		sl->clear();
@@ -137,7 +139,7 @@ NosuchScheduler::ScheduleAddEvent(SchedEvent* e, bool lockit) {
 	}
 
 	// XXX - profiling shows this to be a hotspot
-	SchedEventList* sl = ScheduleOf(e->handle);
+	SchedEventList* sl = ScheduleOf(e->m_handle);
 	sl->push_back(e);
 	// XXX - especially here.  Need to replace SchedEventList with
 	// XXX - something that keeps track of the end of the list and
@@ -151,15 +153,15 @@ NosuchScheduler::ScheduleAddEvent(SchedEvent* e, bool lockit) {
 	return true;
 }
 
-void NosuchScheduler::QueueMidiMsg(MidiMsg* m, click_t clk) {
-	SchedEvent* e = new SchedEvent(m,clk);
+void NosuchScheduler::QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle) {
+	SchedEvent* e = new SchedEvent(m,clk,handle);
 	if ( ! QueueAddEvent(e) ) {
 		delete e;
 	}
 }
 
-void NosuchScheduler::QueueMidiPhrase(MidiPhrase* ph, click_t clk) {
-	SchedEvent* e = new SchedEvent(ph,clk);
+void NosuchScheduler::QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle) {
+	SchedEvent* e = new SchedEvent(ph,clk,handle);
 	if ( ! QueueAddEvent(e) ) {
 		delete e;
 	}
@@ -277,7 +279,7 @@ void NosuchScheduler::Callback(PtTimestamp timestamp) {
 								if (outport>=0) {
 									// DEBUGPRINT(("Sending to midi_merge j=%d outport=%d", j,outport));
 									cloned->SetOutputPort(outport);
-									QueueMidiMsg(cloned, m_currentclick);
+									QueueMidiMsg(cloned, m_currentclick, HANDLE_DEFAULT);
 								}
 							}
 						}
@@ -466,8 +468,8 @@ NosuchScheduler::_openMidiInput(std::string midi_input) {
 	return pm_in;
 }
 
-SchedEventList* NosuchScheduler::ScheduleOf(void* handle) {
-	std::map<void*,SchedEventList*>::iterator it = m_scheduled.find(handle);
+SchedEventList* NosuchScheduler::ScheduleOf(const char* handle) {
+	std::map<const char*,SchedEventList*>::iterator it = m_scheduled.find(handle);
 	if ( it == m_scheduled.end() ) {
 		DEBUGPRINT1(("CREATING NEW SchedEventList SCHEDULE for handle = %ld",(long)handle));
 		m_scheduled[handle] = new SchedEventList();
@@ -533,11 +535,11 @@ void NosuchScheduler::AdvanceTimeAndDoEvents(PtTimestamp timestamp) {
 
 	int nevents = 0;
 
-	std::map<void*,SchedEventList*>::iterator itsid = m_scheduled.begin();
+	std::map<const char*,SchedEventList*>::iterator itsid = m_scheduled.begin();
 
 	for (; itsid != m_scheduled.end(); itsid++ ) {
 
-		void* handle = itsid->first;
+		const char* handle = itsid->first;
 
 		SchedEventList* sl = itsid->second;
 		NosuchAssert(sl);
@@ -600,7 +602,7 @@ NosuchScheduler::_addQueueToScheduled() {
 }
 	
 // SendPmMessage IS BEING PHASED OUT - ONLY ANO STILL USES IT
-void NosuchScheduler::SendPmMessage(PmMessage pm, PmStream* ps, void* handle) {
+void NosuchScheduler::SendPmMessage(PmMessage pm, PmStream* ps, const char* handle) {
 
 	PmEvent ev[1];
 	ev[0].timestamp = TIME_PROC(TIME_INFO);
@@ -621,7 +623,7 @@ void NosuchScheduler::SendPmMessage(PmMessage pm, PmStream* ps, void* handle) {
 // The sid (session-id) indicates who sent it.  It can either be a
 // TUIO session id, a Loop ID, or -1.
 // The reason we pass in MidiMsg* is so we can use it for the Notification call.
-void NosuchScheduler::SendMidiMsg(MidiMsg* msg, void* handle) {
+void NosuchScheduler::SendMidiMsg(MidiMsg* msg, const char* handle) {
 	MidiMsg* origmsg = msg;
 	MidiMsg* mm = msg;
 	MidiMsg* newmm = NULL;
@@ -689,7 +691,7 @@ void NosuchScheduler::SendMidiMsg(MidiMsg* msg, void* handle) {
 
 }
 
-void NosuchScheduler::DoEventAndDelete(SchedEvent* e, void* handle) {
+void NosuchScheduler::DoEventAndDelete(SchedEvent* e, const char* handle) {
 	bool deleteit = true;
 	if (e->eventtype() == SchedEvent::MIDIMSG ) {
 		MidiMsg* m = e->u.midimsg;
@@ -723,7 +725,7 @@ void NosuchScheduler::DoEventAndDelete(SchedEvent* e, void* handle) {
 // NOTE: this routine takes ownership of the MidiMsg pointed to by m,
 // so the caller shouldn't delete it or even try to access it afterward.
 void
-NosuchScheduler::DoMidiMsgEvent(MidiMsg* m, void* handle)
+NosuchScheduler::DoMidiMsgEvent(MidiMsg* m, const char* handle)
 {
 	NosuchAssert(m);
 	SendMidiMsg(m,handle);
@@ -784,7 +786,7 @@ NosuchScheduler::DoMidiMsgEvent(MidiMsg* m, void* handle)
 
 // SendControllerMsg takes ownership of MidiMsg pointed-to by m.
 void
-NosuchScheduler::SendControllerMsg(MidiMsg* m, void* handle, bool smooth)
+NosuchScheduler::SendControllerMsg(MidiMsg* m, const char* handle, bool smooth)
 {
 	int mc = m->Controller();
 	SendMidiMsg(m,handle);
@@ -831,7 +833,7 @@ NosuchScheduler::SendControllerMsg(MidiMsg* m, void* handle, bool smooth)
 
 // SendPitchBendMsg takes ownership of MidiMsg pointed-to by m.
 void
-NosuchScheduler::SendPitchBendMsg(MidiMsg* m, void* handle, bool smooth)
+NosuchScheduler::SendPitchBendMsg(MidiMsg* m, const char* handle, bool smooth)
 {
 	SendMidiMsg(m,handle);
 	delete m;
@@ -872,9 +874,9 @@ NosuchScheduler::DebugString() {
 	std::string s;
 	s = "NosuchScheduler (\n";
 
-	std::map<void*,SchedEventList*>::iterator itsid = m_scheduled.begin();
+	std::map<const char*,SchedEventList*>::iterator itsid = m_scheduled.begin();
 	for (; itsid != m_scheduled.end(); itsid++ ) {
-		void* handle = itsid->first;
+		const char* handle = itsid->first;
 		SchedEventList* sl = itsid->second;
 		NosuchAssert(sl);
 		SchedEventIterator it = sl->begin();

@@ -71,17 +71,24 @@ private:
 
 	void _reloadParams(Region* r);
 
-	void _cursorSprite(VizCursor* c, SpriteVizParams* p);
-	void _cursorMidi(VizCursor* c, MidiVizParams* p);
+	void _cursorSprite(VizCursor* c, int downdragup, SpriteVizParams* p);
+	void _cursorMidi(VizCursor* c, int downdragup, MidiVizParams* p);
 
-	int _pitchOf(VizCursor* c);
+	int _pitchOf(VizCursor* c, MidiVizParams* mp);
 	int _velocityOf(VizCursor* c);
 	int _channelOf(VizCursor* c);
+	click_t _durationOf(VizCursor* c);
+	click_t _quantOf(VizCursor* c);
+	click_t _clicksPerBeat();
+	click_t _quantizeToNext(click_t tm, click_t q);
 
 	std::map<std::string,Region*> _region;
 	std::map<std::string,Button*> _button;
 
 	bool _autoloadparams;
+
+#define MAX_MIDI_PORTS 64
+	const char* m_porthandle[MAX_MIDI_PORTS];
 };
 
 #endif

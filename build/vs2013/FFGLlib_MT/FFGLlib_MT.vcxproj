@@ -89,9 +89,9 @@
       </IgnoreSpecificDefaultLibraries>
     </Lib>
     <PreBuildEvent>
-      <Command>
-      </Command>
-      <Message>See FFGLlib_MD for build event for genparams.py</Message>
+      <Command>..\..\..\bin\prebuildviz.bat $(Configuration) $(ProjectName)</Command>
+      <Message>
+      </Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -190,6 +190,8 @@
     <ClCompile Include="..\..\..\src\nosuch\NosuchMidi.cpp" />
     <ClCompile Include="..\..\..\src\nosuch\NosuchOsc.cpp" />
     <ClCompile Include="..\..\..\src\nosuch\NosuchUtil.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\Scale.cpp" />
+    <ClCompile Include="..\..\..\src\params\MidiVizParams.cpp" />
     <ClCompile Include="..\..\..\src\params\SpriteVizParams.cpp" />
     <ClCompile Include="..\..\..\src\params\VizParams.cpp" />
     <ClCompile Include="..\..\..\src\Viz\Vizlet.cpp" />
@@ -227,6 +229,7 @@
     <ClInclude Include="..\..\..\src\nosuch\NosuchOscUdpInput.h" />
     <ClInclude Include="..\..\..\src\nosuch\NosuchScheduler.h" />
     <ClInclude Include="..\..\..\src\nosuch\NosuchSocket.h" />
+    <ClInclude Include="..\..\..\src\nosuch\Scale.h" />
     <ClInclude Include="..\..\..\src\params\SpriteVizParams.h" />
     <ClInclude Include="..\..\..\src\params\VizParams.h" />
     <ClInclude Include="..\..\..\src\Viz\Vizlet.h" />
@@ -235,6 +238,13 @@
   <ItemGroup>
     <Text Include="..\..\..\src\params\SpriteVizParams.list">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\src\params\MidiVizParams.list">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

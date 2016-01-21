@@ -1,4 +1,4 @@
-# This script reads *VizParams.list files that define Vizlet parameters
+﻿# This script reads *VizParams.list files that define Vizlet parameters
 # and generates .h files for them, making runtime access to them much faster.
 # This allows new parameters to be added just by editing one file.
 
@@ -304,7 +304,13 @@ if not os.path.isdir(paramdir):
 
 os.chdir(paramdir)
 
-parambase = sys.argv[1]
+force = False
+if len(sys.argv) > 2 and sys.argv[1] == "-f":
+	force = True
+	parambase = sys.argv[2]
+else:
+	parambase = sys.argv[1]
+
 paramclass = parambase+"VizParams"
 paramlist = parambase+"VizParams.list"
 paramtouch = parambase+"VizParams.touch"
@@ -312,19 +318,29 @@ paramnames = parambase+"VizParamsNames"
 file_h = parambase + "VizParams.h"
 file_cpp = parambase + "VizParams.cpp"
 
-changed = (modtime(paramlist) > modtime(paramtouch) ) or not os.path.exists(file_h) or not os.path.exists(file_cpp)
+changed = force or (modtime(paramlist) > modtime(paramtouch) ) or not os.path.exists(file_h) or not os.path.exists(file_cpp)
 
 if not changed:
 	print "No change in "+paramlist
 	sys.exit(0)
 
+do_not_edit = "/************************************************\n" \
+			  " *\n" \
+              " * This file is generated from '"+paramlist+"' by genparams.py\n" \
+			  " *\n" \
+			  " * DO NOT EDIT!\n" \
+			  " *\n" \
+			  " ************************************************/\n";
+
 f = open(file_h,"w")
+f.write(do_not_edit)
 sys.stdout = f
 params = readparams(paramlist)
 genparamheader(params,paramclass)
 f.close()
 
 f = open(file_cpp,"w")
+f.write(do_not_edit);
 sys.stdout = f
 genparamcpp(paramclass)
 f.close()
