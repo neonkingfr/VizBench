@@ -48,6 +48,8 @@
   ### If non-zero, use shared memory to get things from MMTT
   "sharedmem": 1,
 
+  "debugmidinotes": 0,
+
   # This next line is just at the end as a dummy value so you don't have to
   # remember to always remove the comma on the last entry.
   "foo": "bar"

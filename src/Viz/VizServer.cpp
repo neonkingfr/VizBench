@@ -802,7 +802,6 @@ public:
 			DEBUGPRINT(("NosuchException in processCursor: %s", e.message()));
 		}
 		catch (...) {
-			// Does this really work?  Not sure
 			DEBUGPRINT(("Some other kind of exception in processCursor occured!?"));
 		}
 	}
@@ -1665,6 +1664,7 @@ VizCursor::VizCursor(VizServer* ss, int sid_, std::string source_,
 	m_g_firstdir = true;
 	m_smooth_degrees_factor = 0.2;
 	m_pending_noteoff = NULL;
+	// m_controllerval = -1;
 
 	touch(ss->GetTimeInSeconds());
 }

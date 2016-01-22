@@ -80,6 +80,7 @@ FFFF::FFFF(cJSON* config) {
 	m_trail_amount = jsonNeedDouble(config, "trail_amount",0.9);
 	m_showfps = jsonNeedInt(config, "showfps", 0) ? true : false;
 	m_audiohost_type = jsonNeedString(config, "audiohost_type", "");
+	m_desired_FPS = jsonNeedInt(config, "fps", 30);
 	if (m_audiohost_type != "") {
 		m_audiohost = new AudioHost(m_audiohost_type, jsonNeedJSON(config, "audiohost_config", NULL));
 	}
@@ -109,8 +110,8 @@ FFFF::FFFF(cJSON* config) {
 	m_json_cond = PTHREAD_COND_INITIALIZER;
 	m_json_pending = false;
 	m_timer = Timer::New();
-	m_desired_FPS = 60.0;
-	m_desired_FPS = 120.0;
+	// m_desired_FPS = 60.0;
+	// m_desired_FPS = 120.0;
 	m_throttle_timePerFrame = 1.0 / m_desired_FPS;
 	m_throttle_lasttime = 0.0;
 

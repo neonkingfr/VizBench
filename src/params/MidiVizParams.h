@@ -18,6 +18,7 @@ extern char* MidiVizParamsNames[];
 	"depthctlmax",\
 	"depthctlmin",\
 	"depthctlnum",\
+	"depthsmooth",\
 	"duration",\
 	"notelimit",\
 	"pitchmax",\
@@ -47,6 +48,8 @@ public:
 		if (j) { depthctlmin.set(j); }
 		j = cJSON_GetObjectItem(json,"depthctlnum");
 		if (j) { depthctlnum.set(j); }
+		j = cJSON_GetObjectItem(json,"depthsmooth");
+		if (j) { depthsmooth.set(j); }
 		j = cJSON_GetObjectItem(json,"duration");
 		if (j) { duration.set(j); }
 		j = cJSON_GetObjectItem(json,"notelimit");
@@ -66,6 +69,7 @@ public:
 		depthctlmax.set(127);
 		depthctlmin.set(0);
 		depthctlnum.set(0);
+		depthsmooth.set(2);
 		duration.set("hold");
 		notelimit.set(4);
 		pitchmax.set(100);
@@ -80,6 +84,7 @@ public:
 		if ( p->depthctlmax.isset() ) { this->depthctlmax.set(p->depthctlmax.get()); }
 		if ( p->depthctlmin.isset() ) { this->depthctlmin.set(p->depthctlmin.get()); }
 		if ( p->depthctlnum.isset() ) { this->depthctlnum.set(p->depthctlnum.get()); }
+		if ( p->depthsmooth.isset() ) { this->depthsmooth.set(p->depthsmooth.get()); }
 		if ( p->duration.isset() ) { this->duration.set(p->duration.get()); }
 		if ( p->notelimit.isset() ) { this->notelimit.set(p->notelimit.get()); }
 		if ( p->pitchmax.isset() ) { this->pitchmax.set(p->pitchmax.get()); }
@@ -99,6 +104,8 @@ public:
 			depthctlmin.set(string2int(val));
 		} else if ( nm == "depthctlnum" ) {
 			depthctlnum.set(string2int(val));
+		} else if ( nm == "depthsmooth" ) {
+			depthsmooth.set(string2int(val));
 		} else if ( nm == "duration" ) {
 			duration.set(val);
 			stringval = true;
@@ -130,6 +137,8 @@ public:
 			depthctlmin.set(adjust(depthctlmin.get(),amount,0,127));
 		} else if ( nm == "depthctlnum" ) {
 			depthctlnum.set(adjust(depthctlnum.get(),amount,0,127));
+		} else if ( nm == "depthsmooth" ) {
+			depthsmooth.set(adjust(depthsmooth.get(),amount,0,32));
 		} else if ( nm == "duration" ) {
 			duration.set(adjust(duration.get(),amount,VizParams::StringVals["durationTypes"]));
 		} else if ( nm == "notelimit" ) {
@@ -151,6 +160,7 @@ public:
 		if ( nm == "depthctlmax" ) { return "127"; }
 		if ( nm == "depthctlmin" ) { return "0"; }
 		if ( nm == "depthctlnum" ) { return "0"; }
+		if ( nm == "depthsmooth" ) { return "2"; }
 		if ( nm == "duration" ) { return "hold"; }
 		if ( nm == "notelimit" ) { return "4"; }
 		if ( nm == "pitchmax" ) { return "100"; }
@@ -165,6 +175,7 @@ public:
 		if ( nm == "depthctlmax" ) { return "0"; }
 		if ( nm == "depthctlmin" ) { return "0"; }
 		if ( nm == "depthctlnum" ) { return "0"; }
+		if ( nm == "depthsmooth" ) { return "0"; }
 		if ( nm == "duration" ) { return "durationTypes"; }
 		if ( nm == "notelimit" ) { return "1"; }
 		if ( nm == "pitchmax" ) { return "1"; }
@@ -179,6 +190,7 @@ public:
 		if ( nm == "depthctlmax" ) { return "127"; }
 		if ( nm == "depthctlmin" ) { return "127"; }
 		if ( nm == "depthctlnum" ) { return "127"; }
+		if ( nm == "depthsmooth" ) { return "32"; }
 		if ( nm == "duration" ) { return "durationTypes"; }
 		if ( nm == "notelimit" ) { return "16"; }
 		if ( nm == "pitchmax" ) { return "127"; }
@@ -201,6 +213,8 @@ public:
 			return IntString(depthctlmin.get());
 		} else if ( nm == "depthctlnum" ) {
 			return IntString(depthctlnum.get());
+		} else if ( nm == "depthsmooth" ) {
+			return IntString(depthsmooth.get());
 		} else if ( nm == "duration" ) {
 			return duration.get();
 		} else if ( nm == "notelimit" ) {
@@ -222,6 +236,7 @@ public:
 		if ( nm == "depthctlmax" ) { return "int"; }
 		if ( nm == "depthctlmin" ) { return "int"; }
 		if ( nm == "depthctlnum" ) { return "int"; }
+		if ( nm == "depthsmooth" ) { return "int"; }
 		if ( nm == "duration" ) { return "string"; }
 		if ( nm == "notelimit" ) { return "int"; }
 		if ( nm == "pitchmax" ) { return "int"; }
@@ -236,6 +251,7 @@ public:
 	IntParam depthctlmax;
 	IntParam depthctlmin;
 	IntParam depthctlnum;
+	IntParam depthsmooth;
 	StringParam duration;
 	IntParam notelimit;
 	IntParam pitchmax;

@@ -156,6 +156,7 @@ public:
 	double curr_degrees;
 
 	MidiNoteOff* m_pending_noteoff;
+	click_t m_noteon_click;
 
 private:
 	double m_target_depth;

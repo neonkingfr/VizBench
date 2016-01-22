@@ -49,6 +49,34 @@ DWORD __stdcall VizPuddle::CreateInstance(CFreeFrameGLPlugin **ppInstance) {
 	return (*ppInstance != NULL)? FF_SUCCESS : FF_FAIL;
 }
 
+void VizPuddle::_trackRegionCursors(Region* r, VizCursor* c, int downdragup) {
+	// Keep track of cursors per-region
+	switch (downdragup) {
+	case CURSOR_DOWN:
+		r->m_cursors.insert(c);
+		DEBUGPRINT1(("track region cursors DOWN ncursors=%d",r->m_cursors.size()));
+		break;
+	case CURSOR_DRAG:
+		// Make sure cursor is in our list.
+		{
+			auto fc = r->m_cursors.find(c);
+			if (fc != r->m_cursors.end()) {
+				VizCursor* vc = *fc;
+				NosuchAssert(vc == c);
+				DEBUGPRINT1(("track region cursors DRAG ncursors=%d", r->m_cursors.size()));
+			}
+			else {
+				DEBUGPRINT1(("track region cursors got CURSOR_DRAG without a matching cursor in m_cursors"));
+			}
+		}
+		break;
+	case CURSOR_UP:
+		r->m_cursors.erase(c);
+		DEBUGPRINT1(("track region cursors UP ncursors=%d", r->m_cursors.size()));
+		break;
+	}
+}
+
 void VizPuddle::processCursor(VizCursor* c, int downdragup) {
 	// NO OpenGL calls here
 	DEBUGPRINT1(("VizPuddle::processCursor! downdragup=%d c=%.4f %.4f",downdragup,c->pos.x,c->pos.y));
@@ -70,22 +98,22 @@ void VizPuddle::processCursor(VizCursor* c, int downdragup) {
 #endif
 	}
 
-	SpriteVizParams *sp = NULL;
-	MidiVizParams *mp = NULL;
 	// Look through the regions to find the one that matches the cursor's sid
 	int sid = c->sid;
 	for (const auto &pair : _region ) {
-		if (sid >= pair.second->sid_min && sid <= pair.second->sid_max) {
-			sp = pair.second->spriteparams;
-			mp = pair.second->midiparams;
+		Region* r = pair.second;
+		if (sid >= r->sid_min && sid <= r->sid_max) {
+
+			// Found a region that matches it
+			if (r) {
+				_trackRegionCursors(r, c, downdragup);
+				_cursorSprite(c, downdragup, r);
+				_cursorMidi(c, downdragup, r);
+			}
+			// For the moment, we only pay attention to the first region that matches.
+			// This might change (just remove the break, here).
 			break;
 		}
-	}
-	if (sp) {
-		_cursorSprite(c, downdragup, sp);
-	}
-	if (mp) {
-		_cursorMidi(c, downdragup, mp);
 	}
 }
 
@@ -295,19 +323,24 @@ click_t VizPuddle::_quantizeToNext(click_t tm, click_t q) {
 	return tm - (tm%q) + q;
 }
 
-void VizPuddle::_cursorMidi(VizCursor* c, int downdragup, MidiVizParams* mp) {
+void VizPuddle::_cursorMidi(VizCursor* c, int downdragup, Region* r) {
 
-	// the MidiVizParams is region-specific
+	MidiVizParams* mp = r->midiparams;
+	if (mp == NULL) {
+		return;
+	}
+
 	if (mp->arpeggiate.get()) {
-		_cursorArpeggiatedMidi(c, downdragup, mp);
+		_doArpeggiatedMidi(c, downdragup, mp);
 	}
 	else {
-		_cursorNormalMidi(c, downdragup, mp);
+		_doNormalMidi(c, downdragup, mp);
 	}
+	// Go through cursors, compute average depth for controllervalue
 	return;
 }
 
-void VizPuddle::_cursorArpeggiatedMidi(VizCursor* c, int downdragup, MidiVizParams* mp) {
+void VizPuddle::_doArpeggiatedMidi(VizCursor* c, int downdragup, MidiVizParams* mp) {
 
 	MidiPhrase *ph = new MidiPhrase();
 	int ch = _channelOf(c,mp);
@@ -341,7 +374,69 @@ int _outputPort(MidiVizParams* mp) {
 	return outport;
 }
 
-void VizPuddle::_cursorNormalMidi(VizCursor* c, int downdragup, MidiVizParams* mp) {
+#if 0
+			// the only thing we want to do is
+			// (possibly) generated a controller message from the depth.
+				if (mp->depthctlnum.get() <= 0) {
+					DEBUGPRINT1(("depthctl <= 0, no controller msg sent"));
+					return;
+				}
+				int dv = mp->depthctlmax - mp->depthctlmin;
+				int newv = _interpolate(c->pos.z, mp->depthctlmin.get(), mp->depthctlmax.get());
+				newv = BoundValue(newv, 0, 127);
+				DEBUGPRINT1(("sid=%d raw newv=%d", c->sid, newv));
+				if (c->m_controllerval >= 0) {    // 
+					// on subsequent times, smooth the new value with the old one
+					int dv = (newv - c->m_controllerval);
+					int newdv = dv / (mp->depthsmooth + 1);
+					if (newdv == 0) {
+						newdv = (dv > 0 ? 1 : -1);
+					}
+					newv = c->m_controllerval + newdv;
+					DEBUGPRINT1(("sid=%d oldval=%d newdv=%d newv=%d",c->sid,c->m_controllerval,newdv,newv));
+				}
+				else {
+					DEBUGPRINT1(("sid=%d first val=%d", c->sid, newv));
+				}
+				MidiController* ctl = MidiController::make(ch, mp->depthctlnum, newv);
+				c->m_controllerval = newv;
+
+				QueueMidiMsg(ctl, now, m_porthandle[outport]);
+				DEBUGPRINT1(("Queued sid=%d updated controllerval=%d",c->sid,c->m_controllerval));
+				return;
+#endif
+
+void
+VizPuddle::_queueNoteonWithNoteoffPending(VizCursor* c, MidiVizParams* mp) {
+
+	int ch = _channelOf(c,mp);
+	int pitch = _pitchOf(c, mp);
+	int vel = _velocityOf(c);
+	click_t dur = _durationOf(c);
+	click_t quant = _quantOf(c);
+	int outport = _outputPort(mp);
+
+	click_t now = SchedulerCurrentClick();
+	click_t nowquant = _quantizeToNext(now, quant);
+
+	MidiNoteOn *noteon = MidiNoteOn::make(ch, pitch, vel);
+	noteon->SetInputPort(MIDI_PORT_OF_GENERATED_STUFF);
+	noteon->SetOutputPort(outport);
+
+	MidiNoteOff *noteoff = MidiNoteOff::make(ch, pitch, 0);
+	noteoff->SetInputPort(MIDI_PORT_OF_GENERATED_STUFF);
+	noteoff->SetOutputPort(outport);
+
+	// Send the noteon, but don't sent the noteoff until we get a CURSOR_UP
+
+	QueueMidiMsg(noteon, nowquant, m_porthandle[outport]);
+	DEBUGPRINT1(("QueueMidi of noteon %d click=%ld(in down)",noteon->Pitch(),nowquant));
+	DEBUGPRINT1(("CURSOR_DOWN setting c=%ld noteoff to %ld", (long)c,(long)(noteoff)));
+	c->m_pending_noteoff = noteoff;
+	c->m_noteon_click = nowquant;
+}
+
+void VizPuddle::_doNormalMidi(VizCursor* c, int downdragup, MidiVizParams* mp) {
 
 	// In "NormalMidi" mode, the noteon/noteoff's are generated separately, so that
 	// if you hold a cursor down, the note will stay on until you release the cursor
@@ -357,131 +452,63 @@ void VizPuddle::_cursorNormalMidi(VizCursor* c, int downdragup, MidiVizParams* m
 	click_t now = SchedulerCurrentClick();
 	click_t nowquant = _quantizeToNext(now, quant);
 
-	// The first thing to do is check for CURSOR_DRAG, because if we've been dragged into a
-	// position that triggers a different pitch, we're going to make it look like a CURSOR_DOWN
+	if (downdragup == CURSOR_DOWN) {
+		if (c->m_pending_noteoff) {
+			DEBUGPRINT(("Hey! m_pending_noteoff isn't NULL for CURSOR_DOWN? c=%ld noteoff=%ld",(long)c,(long)(c->m_pending_noteoff)));
+		}
+		_queueNoteonWithNoteoffPending(c, mp);
+	}
 
-	if (downdragup == CURSOR_DRAG) {
+	else if (downdragup == CURSOR_DRAG) {
 		if (c->m_pending_noteoff == NULL) {
 			DEBUGPRINT(("No pending_noteoff in CURSOR_DRAG!?"));
 			// but keep going, to generate noteon
 		}
 		else {
-			// See if the pitch value of the current position has changed from the
-			// saved noteoff.  If it's the same, the only thing we want to do is
-			// (possibly) generated a controller message from the depth.
-			if (pitch == c->m_pending_noteoff->Pitch()) {
-				if (mp->depthctlnum.get() <= 0) {
-					DEBUGPRINT1(("depthctl <= 0, no controller msg sent"));
-					return;
-				}
-				int dv = mp->depthctlmax - mp->depthctlmin;
-				int v = _interpolate(c->pos.z, mp->depthctlmin.get(), mp->depthctlmax.get());
-				v = BoundValue(v, 0, 127);
-				MidiController* ctl = MidiController::make(ch, mp->depthctlnum, v);
-				QueueMidiMsg(ctl, nowquant, m_porthandle[outport]);
-				return;
+			if (pitch != c->m_pending_noteoff->Pitch()) {
+				// When the new pitch is different, terminate the current note.
+				// Schedule the noteoff to make sure it happens after the noteon,
+				// which might not have been sent yet.
+				click_t noteoff_click = c->m_noteon_click + 1;
+				QueueMidiMsg(c->m_pending_noteoff, noteoff_click, m_porthandle[outport]);
+
+				// And then generate a new noteon with a pending noteoff
+				_queueNoteonWithNoteoffPending(c, mp);
 			}
-			
-			// When the new pitch is different, terminate the current note
-			// (i.e. send the saved noteoff) and then generate a new noteon/noteoff
-			QueueMidiMsg(c->m_pending_noteoff, nowquant, m_porthandle[outport]);
-			c->m_pending_noteoff = NULL;
-
 		}
-		// Pretent we've just gotten a CURSOR_DOWN event in the new position
-		downdragup = CURSOR_DOWN;
-		// No return here, fall through
 	}
 
-	if (downdragup == CURSOR_DOWN) {
-
-		if (c->m_pending_noteoff) {
-			DEBUGPRINT(("Hey! m_pending_noteoff isn't NULL for CURSOR_DOWN?"));
-		}
-
-		MidiNoteOn *noteon = MidiNoteOn::make(ch, pitch, vel);
-		MidiNoteOff *noteoff = MidiNoteOff::make(ch, pitch, 0);
-
-		noteon->SetInputPort(MIDI_PORT_OF_GENERATED_STUFF);
-		noteon->SetOutputPort(outport);
-
-		noteoff->SetInputPort(MIDI_PORT_OF_GENERATED_STUFF);
-		noteoff->SetOutputPort(outport);
-
-		// Send the noteon, but don't sent the noteoff until we get a CURSOR_UP
-
-		QueueMidiMsg(noteon, nowquant, m_porthandle[outport]);
-		c->m_pending_noteoff = noteoff;
-	}
 	else if (downdragup == CURSOR_UP) {
 
 		if (c->m_pending_noteoff == NULL) {
 			DEBUGPRINT(("Hey, no m_pending_noteoff for CURSOR_UP!?"));
 		}
 		else {
-			// Should the noteoff time really be quantized?
+			// If noteoff is not quantized, it may preceded noteon, resulting in stuck note
 			QueueMidiMsg(c->m_pending_noteoff, nowquant, m_porthandle[outport]);
 			c->m_pending_noteoff = NULL;
 		}
+#if 0
+		if (mp->depthctlnum.get() > 0) {
+			c->m_controllerval = (int)(mp->depthctlmin);
+			MidiController* ctl = MidiController::make(ch, mp->depthctlnum, c->m_controllerval);
+			QueueMidiMsg(ctl, now, m_porthandle[outport]);
+			DEBUGPRINT1(("Queued ctl val=%d",c->m_controllerval));
+			return;
+		}
+#endif
 	}
 	else {
 		DEBUGPRINT(("Invalid value for downdragup = %d !?", downdragup));
 	}
-
-#if 0
-			MidiNoteOn *noteon = MidiNoteOn::make(ch, pitch, vel);
-			MidiNoteOff *noteoff = MidiNoteOff::make(ch, pitch, 0);
-			ph->insert(noteon, 0);
-			ph->insert(noteoff, dur);
-			ph->SetInputPort(MIDI_PORT_OF_GENERATED_STUFF);
-			ph->SetOutputPort(outport);
-			click_t tm = _quantizeToNext(now, quant);
-
-			// The handle is per-port
-			QueueMidiPhrase(ph, tm, m_porthandle[outport]);
-#endif
 }
 
-#if 0
-void VizPuddle::_cursorMidi(VizCursor* c, int downdragup, MidiVizParams* mp) {
+void VizPuddle::_cursorSprite(VizCursor* c, int downdragup, Region* r) {
 
-	// the MidiVizParams is region-specific
-
-	// When not arpeggiating/repeating, only generate notes for cursor down.
-	if ( ! mp->arpeggiate.get() && downdragup != CURSOR_DOWN ) {
+	SpriteVizParams* sp = r->spriteparams;
+	if (sp == NULL) {
 		return;
 	}
-
-	if (downdragup == CURSOR_UP && mp->duration.get() == "hold") {
-	}
-
-	MidiPhrase *ph = new MidiPhrase();
-	int ch = _channelOf(c,mp);
-	int pitch = _pitchOf(c,mp);
-	int vel = _velocityOf(c);
-	click_t dur = _durationOf(c);
-	click_t quant = _quantOf(c);
-	click_t now = SchedulerCurrentClick();
-	int outport = mp->port.get();
-
-	MidiNoteOn *noteon = MidiNoteOn::make(ch, pitch, vel);
-	MidiNoteOff *noteoff = MidiNoteOff::make(ch, pitch, 0);
-	ph->insert(noteon, 0);
-	ph->insert(noteoff, dur);
-	ph->SetInputPort(MIDI_PORT_OF_GENERATED_STUFF);
-	ph->SetOutputPort(outport);
-	click_t tm = _quantizeToNext(now, quant);
-
-	if (outport >= MAX_MIDI_PORTS) {
-		throw NosuchException("port value (%d) is too large!?",outport);
-	}
-	// The handle is per-port
-	QueueMidiPhrase(ph, tm, m_porthandle[outport]);
-}
-#endif
-
-void VizPuddle::_cursorSprite(VizCursor* c, int downdragup, SpriteVizParams* spriteparams) {
-
 	DEBUGPRINT1(("cursorSprite! sid=%d xyz = %.5f %.5f %.5f", c->sid, c->pos.x, c->pos.y, c->pos.z));
 
 	NosuchPos pos = c->pos;
@@ -491,14 +518,14 @@ void VizPuddle::_cursorSprite(VizCursor* c, int downdragup, SpriteVizParams* spr
 		pos.x = pos.y = 0.5;
 		// pos.z = (m->Velocity()*m->Velocity()) / (128.0*128.0);
 		movedir = (double)(rand() % 360);
-		spriteparams->movedir.set(movedir);
+		sp->movedir.set(movedir);
 	}
 	else {
-		movedir = spriteparams->movedir.get();
+		movedir = sp->movedir.get();
 	}
 
-	DEBUGPRINT2(("_cursorSprite spriteparams=%ld shape=%s",(long)spriteparams,spriteparams->shape.get().c_str()));
-	makeAndAddVizSprite(spriteparams, pos);
+	DEBUGPRINT2(("_cursorSprite spriteparams=%ld shape=%s",(long)sp,sp->shape.get().c_str()));
+	makeAndAddVizSprite(sp, pos);
 }
 
 std::string

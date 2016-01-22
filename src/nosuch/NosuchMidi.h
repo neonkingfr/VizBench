@@ -83,8 +83,8 @@ public:
 	virtual int Value(int val = NO_VALUE) { return NO_VALUE; }
 	int InputPort() { return m_inport; }
 	int OutputPort() { return m_outport; }
-	void SetInputPort(int n) { m_inport = n; }
-	void SetOutputPort(int n) { m_outport = n; }
+	MidiMsg* SetInputPort(int n) { m_inport = n; return this; }
+	MidiMsg* SetOutputPort(int n) { m_outport = n; return this; }
 	bool isSameAs(MidiMsg* m) {
 		NosuchAssert(m);
 		switch (MidiType()) {

@@ -9,4 +9,5 @@ duration	string	durationTypes	durationTypes	"hold"	#
 depthctlnum	int	0	127	0		# depth MIDI controller number, 0 = disabled
 depthctlmin	int	0	127	0		# minimum controller value
 depthctlmax	int	0	127	127		# maximum controller value
+depthsmooth	int	0	32	2		#
 scale		string	scaleTypes	scaleTypes	"newage"		#

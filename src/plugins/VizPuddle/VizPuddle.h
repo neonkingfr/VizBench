@@ -1,6 +1,8 @@
 #ifndef _VizPuddle_H
 #define _VizPuddle_H
 
+#include <set>
+
 #include "MidiVizParams.h"
 
 class VizPuddle : public Vizlet
@@ -45,6 +47,9 @@ private:
 		std::string midiparamfile;
 		std::time_t lastmidifileupdate;
 		std::time_t lastmidifilecheck;
+
+		std::set<VizCursor*> m_cursors;
+		int m_controllerval;
 	};
 
 	class Button : public SidRangeable {
@@ -71,10 +76,14 @@ private:
 
 	void _reloadParams(Region* r);
 
-	void _cursorSprite(VizCursor* c, int downdragup, SpriteVizParams* p);
-	void _cursorMidi(VizCursor* c, int downdragup, MidiVizParams* p);
-	void _cursorArpeggiatedMidi(VizCursor* c, int downdragup, MidiVizParams* p);
-	void _cursorNormalMidi(VizCursor* c, int downdragup, MidiVizParams* p);
+	void _trackRegionCursors(Region* r, VizCursor* c, int downdragup);
+	void _cursorSprite(VizCursor* c, int downdragup, Region* r);
+	void _cursorMidi(VizCursor* c, int downdragup, Region* r);
+
+	void _queueNoteonWithNoteoffPending(VizCursor* c, MidiVizParams* mp);
+
+	void _doArpeggiatedMidi(VizCursor* c, int downdragup, MidiVizParams* mp);
+	void _doNormalMidi(VizCursor* c, int downdragup, MidiVizParams* mp);
 
 	int _pitchOf(VizCursor* c, MidiVizParams* mp);
 	int _velocityOf(VizCursor* c);
