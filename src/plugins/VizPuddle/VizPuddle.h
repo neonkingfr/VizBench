@@ -37,6 +37,7 @@ private:
 			midiparamfile = nm + "_default";
 			spriteparams = NULL;
 			midiparams = NULL;
+			m_controllerval = 0;
 		}
 		std::string name;
 		SpriteVizParams* spriteparams;
@@ -76,14 +77,17 @@ private:
 
 	void _reloadParams(Region* r);
 
-	void _trackRegionCursors(Region* r, VizCursor* c, int downdragup);
+	Region* _findRegion(VizCursor* c);
+	void _trackCursorsPerRegion(VizCursor* c, int downdragup, Region* r);
 	void _cursorSprite(VizCursor* c, int downdragup, Region* r);
 	void _cursorMidi(VizCursor* c, int downdragup, Region* r);
 
 	void _queueNoteonWithNoteoffPending(VizCursor* c, MidiVizParams* mp);
 
-	void _doArpeggiatedMidi(VizCursor* c, int downdragup, MidiVizParams* mp);
-	void _doNormalMidi(VizCursor* c, int downdragup, MidiVizParams* mp);
+	void _genArpeggiatedMidi(VizCursor* c, int downdragup, MidiVizParams* mp);
+	void _genNormalMidi(VizCursor* c, int downdragup, MidiVizParams* mp);
+	void _genControlMidi(VizCursor* c, int downdragup, MidiVizParams* mp);
+	void _genControllerReset(VizCursor* c, MidiVizParams* mp);
 
 	int _pitchOf(VizCursor* c, MidiVizParams* mp);
 	int _velocityOf(VizCursor* c);
