@@ -404,7 +404,7 @@ void VizLife::processCursor(VizCursor* c, int downdragup) {
 		int row, col;
 		cursor2Cell(c,row,col);
 		if (downdragup == CURSOR_DOWN) {
-			DEBUGPRINT(("fakeCellBirth (down) at row/col = %d / %d",m_savedrow,m_savedcol));
+			DEBUGPRINT1(("fakeCellBirth (down) at row/col = %d / %d",m_savedrow,m_savedcol));
 			fakeCellBirth(row, col);
 			m_savedrow = row;
 			m_savedcol = col;
@@ -413,21 +413,23 @@ void VizLife::processCursor(VizCursor* c, int downdragup) {
 			while (m_savedrow>=0 && m_savedcol>= 0 && row != m_savedrow && col != m_savedcol) {
 				int dr = row - m_savedrow;
 				int dc = col - m_savedcol;
-				if (dr == dc) {
+				int adr = abs(dr);
+				int adc = abs(dc);
+				if (dr == dc || adr == adc) {
 					m_savedrow += (dr < 0 ? -1 : 1);
 					m_savedcol += (dc < 0 ? -1 : 1);
 				}
-				else if (abs(dr) > abs(dc)) {
+				else if (adr > adc) {
 					m_savedrow += (dr < 0 ? -1 : 1);
 				}
-				else if (abs(dc) > abs(dr)) {
+				else if (adc > adr) {
 					m_savedcol += (dc < 0 ? -1 : 1);
 				}
 				else {
-					DEBUGPRINT(("VizLife should not get here"));
+					DEBUGPRINT(("VizLife should not get here"));   // but it does!
 					break;
 				}
-				DEBUGPRINT(("fakeCellBirth (drag) at row/col = %d / %d",m_savedrow,m_savedcol));
+				DEBUGPRINT1(("fakeCellBirth (drag) at row/col = %d / %d",m_savedrow,m_savedcol));
 				fakeCellBirth(m_savedrow, m_savedcol);
 			}
 		}

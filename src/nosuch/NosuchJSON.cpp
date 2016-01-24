@@ -160,6 +160,23 @@ cJSON* jsonNeedJSON(cJSON *j,std::string nm, cJSON* dflt) {
 	return c;
 }
 
+cJSON* jsonNeedArray(cJSON *j,std::string nm, cJSON* dflt) {
+	if ( j == NULL ) {
+		throw NosuchException("j is NULL in jsonNeedArray");
+	}
+	cJSON *c = cJSON_GetObjectItem(j,nm.c_str());
+	if ( ! c ) {
+		if ( dflt == DFLT_ARRAY_THROW_EXCEPTION ) {
+			throw NosuchException("Missing '%s' value in JSON",nm.c_str());
+		}
+		return dflt;
+	}
+	if ( c->type != cJSON_Array ) {
+		throw NosuchException("Unexpected type for %s value, expecting Array",nm.c_str());
+	}
+	return c;
+}
+
 int jsonNeedInt(cJSON *j,std::string nm, int dflt) {
 	if ( j == NULL ) {
 		return dflt;

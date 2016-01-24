@@ -12,6 +12,8 @@
 
 #include "ffffutil.h"
 
+#include "spout.h"
+
 int FFGLinit();
 int FFGLinit2(int width, int height);
 void socket_check();
@@ -36,7 +38,7 @@ FFGLParameterDef* findffglparam(FFGLPluginDef* ff, std::string nm);
 
 void non_of_init(int x, int y, int w, int h);
 
-bool do_ffgl_plugin(FFGLPluginInstance* plugin1,int which);
+// bool do_ffgl_plugin(FFGLPluginInstance* plugin1,int which, GLuint* output_texturehandle = NULL);
 
 class FFFF;
 class FFFFHttp;
@@ -47,7 +49,7 @@ class FFFF : public NosuchJsonListener, NosuchOscListener {
 
 public:
 	FFFF(cJSON* config);
-	static void ErrorPopup(const char* msg);
+	void ErrorPopup(const char* msg);
 	bool StartStuff();
 	void StopStuff();
 
@@ -105,6 +107,8 @@ public:
 	bool doOneFrame(bool use_camera,int window_width, int window_height);
 	void CheckFPS();
 
+	bool do_ffgl_plugin(FFGLPluginInstance* plugin, int which); // which: 0 = first one, 1 = middle, 2 = last, 3 = one and only one, 4 none
+
 	void *imagewriter_thread(void *arg);
 	void imagewriter_addimage(IplImage* img);
 
@@ -114,6 +118,11 @@ public:
 	bool hidden;
 
 	std::string m_json_result;
+
+	bool m_spout;
+	SpoutSender* m_spoutsender;
+	// The Spout documentation says the sender name buffer must be at least 256 characters long.
+	char m_sendername[256];
 
 private:
 	std::string m_pipelinename;
@@ -145,9 +154,6 @@ private:
 	double m_throttle_lasttime;
 	int m_fps_accumulator;
 	double m_fps_lasttime;
-
-	bool m_trail_enable;
-	double m_trail_amount;
 
 	int m_window_width;
 	int m_window_height;

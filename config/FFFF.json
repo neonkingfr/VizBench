@@ -23,6 +23,7 @@
 	  "oscport": 3210
   },
 
+  "spout": 1,
   "showfps": 0,
   "fps": 30,
   "trail_enable": 0,

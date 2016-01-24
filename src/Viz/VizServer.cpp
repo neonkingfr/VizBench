@@ -899,6 +899,9 @@ private:
 
 VizServer::VizServer() {
 
+	m_errorCallback = NULL;
+	m_errorCallbackData = NULL;
+
 	VizParams::Initialize();
 
 	m_started = false;
@@ -935,7 +938,6 @@ VizServer::VizServer() {
 	m_do_sharedmem = false;
 	m_sharedmem_outlines = NULL;
 	m_sharedmemname = "mmtt_outlines";
-	m_do_errorpopup = false;
 	m_do_ano = false;
 	m_maxcallbacks = 0;
 
@@ -948,6 +950,12 @@ VizServer::VizServer() {
 VizServer::~VizServer() {
 	DEBUGPRINT(("VizServer destructor called"));
 	Stop();
+}
+
+void
+VizServer::SetErrorCallback(ErrorCallbackFuncType cb, void* data) {
+	m_errorCallback = cb;
+	m_errorCallbackData = data;
 }
 
 bool
@@ -1210,12 +1218,6 @@ VizServer::Start() {
 	}
 	DEBUGPRINT(("VizServer::Start"));
 
-	if (m_do_errorpopup) {
-		NosuchErrorPopup = VizServer::_errorPopup;
-	}
-	else {
-		NosuchErrorPopup = NULL;
-	}
 	try {
 		std::string configpath = VizConfigPath("vizserver.json");
 		DEBUGPRINT1(("configpath = %s", configpath.c_str()));
@@ -1455,9 +1457,6 @@ VizServer::_processServerConfig(cJSON* json) {
 	}
 	if ((j = jsonGetArray(json, "midioutputs")) != NULL) {
 		m_midioutputs = j;
-	}
-	if ((j = jsonGetNumber(json, "errorpopup")) != NULL) {
-		m_do_errorpopup = (j->valueint != 0);
 	}
 	if ((j = jsonGetNumber(json, "tuio")) != NULL) {
 		DEBUGPRINT(("tuio value in palette.json no longer used.  Remove tuioport value to disable tuio"));

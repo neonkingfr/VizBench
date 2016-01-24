@@ -190,6 +190,8 @@ public:
 	void ChangeVizTag(void* handle, const char* newtag);
 	void AdvanceCursorTo(VizCursor* c, double tm);
 
+	void SetErrorCallback(ErrorCallbackFuncType cb, void* data);
+
 	void ClearJsonCallbacks();
 	void AddJsonCallback(void* handle, const char* apiprefix, jsoncallback_t cb, void* data);
 	void AddMidiInputCallback(void* handle, MidiFilter mf, midicallback_t cb, void* data);
@@ -254,6 +256,9 @@ public:
 	const char* ProcessJson(const char* fullmethod,cJSON* params,const char* id);
 
 private:
+
+	ErrorCallbackFuncType m_errorCallback;
+	void* m_errorCallbackData;
 
 	// void SendControllerMsg(MidiMsg* m, const char* handle, bool smooth);
 	// void SendPitchBendMsg(MidiMsg* m, const char* handle, bool smooth);
@@ -326,7 +331,6 @@ private:
 	const cJSON* m_midimerges;
 	bool m_do_sharedmem;
 	const char *m_sharedmemname;
-	bool m_do_errorpopup;
 	bool m_do_ano;
 	const char* m_midifile;
 	int m_midioutput;   // default MIDI output index

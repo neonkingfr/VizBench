@@ -85,7 +85,6 @@ std::string PluginParamsPath(std::string f);
 
 #define NosuchAssert(expr) if(!(expr)){ throw NosuchException("NosuchAssert (%s) failed at %s:%d",#expr,__FILE__,__LINE__);}
 
-typedef void (*ErrorPopupFuncType)(const char* msg); 
-extern ErrorPopupFuncType NosuchErrorPopup;
+typedef void (*ErrorCallbackFuncType)(void* data, const char* msg); 
 
 #endif

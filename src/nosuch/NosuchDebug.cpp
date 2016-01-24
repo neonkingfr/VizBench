@@ -50,7 +50,6 @@ bool NosuchDebugToLogWarned = false;
 bool NosuchDebugAutoFlush = true;
 
 typedef void (*ErrorPopupFuncType)(const char* msg); 
-ErrorPopupFuncType NosuchErrorPopup = NULL;
 
 std::string NosuchDebugPrefix = "";
 std::string NosuchDebugLogFile = "nosuch.debug";
@@ -251,10 +250,6 @@ NosuchErrorOutput(const char *fmt, ...)
 	char *p = strchr(msg,'\0');
 	if ( p != NULL && p != msg && *(p-1) != '\n' ) {
 		strcat_s(msg,sizeof(msg),"\n");
-	}
-
-	if ( NosuchErrorPopup != NULL ) {
-		NosuchErrorPopup(msg);
 	}
 
 	OutputDebugStringA(msg);

@@ -59,11 +59,22 @@ const char* FFFF_json(void* data,const char *method, cJSON* params, const char* 
 	return ffff->m_json_result.c_str();
 }
 
+void FFFF_error(void* data,const char* msg) {
+
+	// NEEDS to be static, since we return the c_str() of it.
+	// This also assumes that JSON API calls are serialized.
+	static std::string result;
+
+	FFFF* ffff = (FFFF*)data;
+	ffff->ErrorPopup(msg);
+}
+
 FFFF::FFFF(cJSON* config) {
 
 	m_output_framedata = NULL;
 	m_output_lastwrite = 0.0;
 	m_output_framenum = 0;
+	m_spoutsender = NULL;
 
 	m_img1 = NULL;
 	m_img2 = NULL;
@@ -76,11 +87,10 @@ FFFF::FFFF(cJSON* config) {
 
 	m_window_width = jsonNeedInt(config, "window_width", 800);
 	m_window_height = jsonNeedInt(config, "window_height", 600);
-	m_trail_enable = jsonNeedBool(config, "trail_enable",true);
-	m_trail_amount = jsonNeedDouble(config, "trail_amount",0.9);
 	m_showfps = jsonNeedInt(config, "showfps", 0) ? true : false;
 	m_audiohost_type = jsonNeedString(config, "audiohost_type", "");
 	m_desired_FPS = jsonNeedInt(config, "fps", 30);
+	m_spout = jsonNeedBool(config, "spout", true);
 	if (m_audiohost_type != "") {
 		m_audiohost = new AudioHost(m_audiohost_type, jsonNeedJSON(config, "audiohost_config", NULL));
 	}
@@ -118,8 +128,6 @@ FFFF::FFFF(cJSON* config) {
 	m_fps_accumulator = 0;
 	m_fps_lasttime = -1.0;
 
-	m_trail_enable = false;
-	m_trail_amount = 0.0f;
 }
 
 void
@@ -147,17 +155,15 @@ void *FFFF::imagewriter_thread(void *arg)
 bool
 FFFF::StartStuff() {
 
-	// Error popups during API execution will
-	// hang the API (unless we make it non-modal),
-	// so don't do it.  Error messages should
-	// end up in the log anyway.
-	NosuchErrorPopup = NULL;
-
 	m_vizserver = VizServer::GetServer();
+
+	m_vizserver->SetErrorCallback(FFFF_error,this);
+
 	if (!m_vizserver->Start()) {
 		NosuchErrorOutput("Unable to start VizServer!?");
 		return false;
 	}
+
 	m_vizserver->AddJsonCallback((void*)this,"ffff",FFFF_json,(void*)this);
 
 	// Might not actually be used if we're not recording.
@@ -656,6 +662,10 @@ FFFF::FF10DeleteFromPipeline(std::string viztag) {
 	}
 }
 
+void FFFF::ErrorPopup(const char* msg) {
+	MessageBoxA(NULL, msg, "FFFF", MB_OK);
+}
+
 void
 FFFF::loadPipeline(std::string configname, bool synthesize)
 {
@@ -689,7 +699,9 @@ FFFF::loadPipeline(std::string configname, bool synthesize)
 	} else {
 		json = jsonReadFile(fname,err);
 		if (!json) {
-			throw NosuchException("Unable to parse file!? fname=%s", fname.c_str());
+			std::string err = NosuchSnprintf("Unable to parse file!? fname=%s", fname.c_str());
+			ErrorPopup(err.c_str());
+			throw NosuchException(err.c_str());
 		}
 	}
 	loadPipelineJson(json);
@@ -739,8 +751,7 @@ FFFF::loadPipelineJson(cJSON* json)
 		std::string viztag = jsonNeedString(p, "viztag", name);
 		bool enabled = jsonNeedBool(p, "enabled", true);  // optional, default is 1 (true)
 		bool moveable = jsonNeedBool(p, "moveable", true);  // optional, default is 1 (true)
-		cJSON* params = jsonGetArray(p, "params");
-		NosuchAssert(plugin && params);
+		cJSON* params = jsonGetArray(p, "params");  // optional, params can be NULL
 
 		// Default is to enable the plugin as soon as we added it, but you
 		// can add an "enabled" value to change that.
@@ -788,6 +799,7 @@ FFFF::loadPipelineJson(cJSON* json)
 
 	}
 
+#if 0
 	if (m_trail_enable) {
 		FFGLPluginInstance* pi = FFGLAddToPipeline("Trails", "Trails", true, NULL);
 		if (!pi) {
@@ -797,6 +809,8 @@ FFFF::loadPipelineJson(cJSON* json)
 			pi->setparam("Opacity", (float)m_trail_amount);
 		}
 	}
+#endif
+
 }
 
 void
@@ -842,13 +856,11 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 
 		if (m_img1 == NULL) {
 			m_img1 = cvCreateImageHeader(camsz, IPL_DEPTH_8U, 3);
-			// DEBUGPRINT(("----- MALLOC m_img1 = %d", (long)m_img1));
 		}
 		cvSetImageData(m_img1, pixels, camWidth * 3);
 
 		if (m_img2 == NULL) {
 			m_img2 = cvCreateImage(ffsz, IPL_DEPTH_8U, 3);
-			// DEBUGPRINT(("----- MALLOC m_img2 = %d", (long)m_img2));
 		}
 
 		if (m_img_into_pipeline == NULL) {
@@ -971,14 +983,6 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 	}
 
 #if 0
-	//deactivate rendering to the fbo
-	//(this re-activates rendering to the window)
-	if (num_ffgl_active > 0) {
-		fbo_output->UnbindAsRenderTarget(glExtensions);
-	}
-#endif
-
-#if 0
 	// This old stuff that writes out individual frames is no longer needed,
 	// but it might come in handy for something someday, so I'm not deleting it completely yet
 	// Now read the pixels back and save them
@@ -1038,6 +1042,20 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 				m_output_lastwrite = tm;
 				DEBUGPRINT1(("Wrote %d frames, framenum is now %d  time=%lf", frameswritten, m_output_framenum, NosuchSecondsElapsed()));
 			}
+		}
+	}
+
+	if (m_spoutsender != NULL && spoutTexture.Handle != 0) {
+
+		// Copy screen into spoutTexture
+		glBindTexture(GL_TEXTURE_2D, spoutTexture.Handle);
+		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, window_width, window_height);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		// Send it.
+		bool b = m_spoutsender->SendTexture(spoutTexture.Handle, GL_TEXTURE_2D, window_width, window_height);
+		if (!b) {
+			DEBUGPRINT(("Error in spout SendTexture!?"));
 		}
 	}
 
@@ -1354,8 +1372,6 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 			"fps(onoff);"
 			"record(onoff);"
 			"audio(onoff);"
-			"trail_enable(onoff);"
-			"trail_amount(value);"
 			"moveup(viztag);"
 			"movedown(viztag);"
 			"shufflepipeline;"
@@ -1449,15 +1465,6 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		m_record = onoff;	// This will cause video frames to be recorded
 		return jsonOK(id);
 	}
-	if (meth == "trail_enable") {
-		m_trail_enable = jsonNeedBool(params, "onoff");
-		return jsonOK(id);
-	}
-	if (meth == "trail_amount") {
-		m_trail_amount = jsonNeedDouble(params, "value");
-		return jsonOK(id);
-	}
-
 	if (meth == "time") {
 		return jsonDoubleResult(m_vizserver->GetTimeInSeconds(), id);
 	}
@@ -1608,14 +1615,33 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		clearPipeline();
 		return jsonOK(id);
 	}
-	if ( meth == "ffglparamset" || meth == "set" ) {
-		std::string viztag = jsonNeedString(params,"viztag");
-		std::string param = jsonNeedString(params,"param");
-		float val = (float) jsonNeedDouble(params,"val");
-		DEBUGPRINT1(("ffglparamset %s %s %f", viztag.c_str(), param.c_str(), val));
+	if (meth == "ffglparamset" || meth == "set") {
+
+		std::string viztag = jsonNeedString(params, "viztag");
+		std::string param = jsonNeedString(params, "param");
+		cJSON *jv = cJSON_GetObjectItem(params, "val");
+
 		FFGLPluginInstance* pi = FFGLNeedPluginInstance(viztag);
-		if ( ! pi->setparam(param,val) ) {
-			throw NosuchException("Unable to find or set parameter '%s' in viztag '%s'",param.c_str(),viztag.c_str());
+		if (pi == NULL) {
+			throw NosuchException("Unable find find plugin with viztag='%s'", viztag.c_str());
+		}
+		if (jv == NULL) {
+			throw NosuchException("Missing 'val' parameter in ffglparamset call");
+		}
+		if (jv->type == cJSON_Number) {
+			float val = (float)jsonNeedDouble(params, "val");
+			if (!pi->setparam(param, val)) {
+				throw NosuchException("Unable to find or set parameter '%s' in viztag '%s'", param.c_str(), viztag.c_str());
+			}
+		}
+		else if (jv->type == cJSON_String) {
+			std::string val = jsonNeedString(params,"val");
+			if ( ! pi->setparam(param,val) ) {
+				throw NosuchException("Unable to find or set parameter '%s' in viztag '%s'",param.c_str(),viztag.c_str());
+			}
+		}
+		else {
+			throw NosuchException("Unable to handle jv->type=%d", jv->type);
 		}
 		return jsonOK(id);
 	}

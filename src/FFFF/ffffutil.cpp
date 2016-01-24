@@ -31,6 +31,7 @@
 
 #include "NosuchDebug.h"
 #include "NosuchUtil.h"
+#include "FFFF.h"
 #include "ffffutil.h"
 
 #include "FF10Plugin.h"
@@ -47,18 +48,19 @@ FFGLPluginDef *ffglplugindefs[MAXPLUGINS];
 
 // FF10PluginDef *preplugins[NPREPLUGINS];
 
-// I don't think these initial values actually matter
-int	ffWidth = 640;
-int	ffHeight = 480;
+int	ffWidth;
+int	ffHeight;
 
 FFGLViewportStruct fboViewport;
 FFGLViewportStruct windowViewport;
 FFGLTextureStruct mapTexture;
+FFGLTextureStruct spoutTexture;
 int fboWidth;
 int fboHeight;
 FFGLExtensions glExtensions;
 FFGLFBO fbo1;
 FFGLFBO fbo2;
+FFGLFBO fbospout;
 FFGLFBO* fbo_input;
 FFGLFBO* fbo_output;
 
@@ -230,6 +232,11 @@ int FFGLinit2(int ffgl_width, int ffgl_height)
         DEBUGPRINT(("Framebuffer Object Init Failed"));
         return 0;
     }
+    if (!fbospout.Create(fboWidth, fboHeight, glExtensions))
+    {
+        DEBUGPRINT(("Framebuffer Object Init Failed"));
+        return 0;
+    }
     //instantiate the first plugin with the FBO viewport
     fboViewport.x = 0;
     fboViewport.y = 0;
@@ -252,6 +259,12 @@ int FFGLinit2(int ffgl_width, int ffgl_height)
     if (mapTexture.Handle==0)
     {
         DEBUGPRINT(("Texture allocation failed"));
+        return 0;
+    }
+    spoutTexture = CreateOpenGLTexture(fboWidth,fboHeight);
+    if (spoutTexture.Handle==0)
+    {
+        DEBUGPRINT(("Spout Texture allocation failed"));
         return 0;
     }
 
@@ -311,9 +324,11 @@ void ResetIdentity()
 }
 
 bool
-do_ffgl_plugin(FFGLPluginInstance* plugin, int which) // which: 0 = first one, 1 = middle, 2 = last, 3 = one and only one, 4 none
+FFFF::do_ffgl_plugin(FFGLPluginInstance* plugin, int which ) // which: 0 = first one, 1 = middle, 2 = last, 3 = one and only one, 4 none
 {
-	DEBUGPRINT1(("do_ffgl_plugin which=%d", which));
+#if 0
+	GLuint testhandle = 0;
+#endif
 
 	//prepare the structure used to call
 	//the plugin's ProcessOpenGL method
@@ -338,6 +353,7 @@ do_ffgl_plugin(FFGLPluginInstance* plugin, int which) // which: 0 = first one, 1
 		//we must let the plugin know that it is rendering into a FBO
 		//by sharing with it the handle to the currently bound FBO
 		processStruct.HostFBO = fbo_output->GetFBOHandle();
+
 	}
 	else if (which == 1) {
 
@@ -388,10 +404,12 @@ do_ffgl_plugin(FFGLPluginInstance* plugin, int which) // which: 0 = first one, 1
 	else if (which == 3) {
 		fbo_input = NULL;
 		fbo_output = NULL;
+
 		inputTextures[0] = &mapTexture;
 		processStruct.numInputTextures = 1;
 		processStruct.inputTextures = inputTextures;
 		processStruct.HostFBO = 0;
+
 	}
 	else if (which == 4) {
 		fbo_input = NULL;
@@ -446,5 +464,6 @@ do_ffgl_plugin(FFGLPluginInstance* plugin, int which) // which: 0 = first one, 1
 	else {
 		ff_passthru(&processStruct);
 	}
+
 	return true;
 }

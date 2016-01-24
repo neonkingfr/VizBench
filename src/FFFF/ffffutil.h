@@ -53,12 +53,14 @@ extern FFGLViewportStruct fboViewport;
 extern FFGLViewportStruct windowViewport;
 extern FFGLFBO fbo1;
 extern FFGLFBO fbo2;
+extern FFGLFBO fbospout;
 extern FFGLFBO* fbo_input;
 extern FFGLFBO* fbo_output;
 
 extern double curFrameTime;
 
 extern FFGLTextureStruct mapTexture;
+extern FFGLTextureStruct spoutTexture;
 extern int fboWidth;
 extern int fboHeight;
 extern FFGLFBO* fbo_output;

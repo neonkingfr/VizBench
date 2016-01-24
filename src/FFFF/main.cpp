@@ -51,6 +51,8 @@
 #include "Timer.h"
 #include "XGetopt.h"
 
+#include "spout.h"
+
 // #include "Python.h"
 
 FFFF* F;
@@ -179,8 +181,6 @@ int ffffMain(std::string pipelinename, bool fullscreen)
 
 	// glfwShowWindow(F->window);
 
-	// F->setupTrails();
-
 	bool use_camera = FALSE;
 	if (camera_index < 0) {
 		DEBUGPRINT(("Camera is disabled (camera < 0)"));
@@ -213,6 +213,18 @@ int ffffMain(std::string pipelinename, bool fullscreen)
 	glfwSetWindowSize(F->window, window_width, window_height);
 	// glfwIconifyWindow(F->window);
 	glfwShowWindow(F->window);
+
+	if (F->m_spout) {
+		strcpy(F->m_sendername, "FFFF");
+		F->m_spoutsender = new SpoutSender;
+		bool b = F->m_spoutsender->CreateSender(F->m_sendername,window_width,window_height);
+		if (!b) {
+			DEBUGPRINT(("Unable to CreateSender for Spout!?"));
+			NosuchErrorOutput("Unable to CreateSender for Spout!?");
+			delete F->m_spoutsender;
+			F->m_spoutsender = NULL;
+		}
+	}
 
 	// int count = 0;
 	while (!glfwWindowShouldClose(F->window))
