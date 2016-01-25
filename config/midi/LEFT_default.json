@@ -4,11 +4,14 @@
 	"depthctlmax":	"127",
 	"depthctlmin":	"13",
 	"depthctlnum":	"1",
+	"depthretrigger_on":	"1",
+	"depthretrigger_thresh":	"0",
 	"depthsmooth":	"32",
 	"duration":	"hold",
 	"notelimit":	"4",
 	"pitchmax":	"88",
 	"pitchmin":	"41",
 	"port":	"0",
-	"scale":	"newage"
+	"scale":	"newage",
+	"scale_on":	"1"
 }

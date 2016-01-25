@@ -148,46 +148,46 @@ public:
 		if (j) { zoffset.set(j); }
 	}
 	void loadDefaults() {
-		alphafinal.set(0.0);
-		alphainitial.set(1.0);
-		alphatime.set(2.0);
-		aspect.set(1.0);
+		alphafinal.set(0.000000);
+		alphainitial.set(1.000000);
+		alphatime.set(2.000000);
+		aspect.set(1.000000);
 		bounce.set(false);
 		filled.set(true);
 		gravity.set(false);
-		huefillfinal.set(0.0);
-		huefillinitial.set(360.0);
-		huefilltime.set(2.0);
-		huefinal.set(360.0);
-		hueinitial.set(0.0);
-		huetime.set(2.0);
-		lifetime.set(3.0);
-		luminance.set(0.5);
-		mass.set(0.5);
+		huefillfinal.set(0.000000);
+		huefillinitial.set(360.000000);
+		huefilltime.set(2.000000);
+		huefinal.set(360.000000);
+		hueinitial.set(0.000000);
+		huetime.set(2.000000);
+		lifetime.set(3.000000);
+		luminance.set(0.500000);
+		mass.set(0.500000);
 		mirror.set("none");
-		movedir.set(0.0);
+		movedir.set(0.000000);
 		movedirrandom.set(false);
 		movefollowcursor.set(false);
-		noisevertex.set(0.0);
+		noisevertex.set(0.000000);
 		nsprites.set(1000);
 		pitchmax.set(90);
 		pitchmin.set(40);
 		pitchwrap.set(true);
 		placement.set("center");
-		rotanginit.set(0.0);
-		rotangspeed.set(0.0);
+		rotanginit.set(0.000000);
+		rotangspeed.set(0.000000);
 		rotdirrandom.set(false);
-		saturation.set(1.0);
+		saturation.set(1.000000);
 		shape.set("circle");
-		sizefinal.set(0.5);
-		sizeinitial.set(0.2);
-		sizetime.set(2.0);
-		speedinitial.set(0.0);
-		thickness.set(3.0);
+		sizefinal.set(0.500000);
+		sizeinitial.set(0.200000);
+		sizetime.set(2.000000);
+		speedinitial.set(0.000000);
+		thickness.set(3.000000);
 		zable.set(true);
-		zexponential.set(1.0);
-		zmultiply.set(1.0);
-		zoffset.set(0.0);
+		zexponential.set(1.000000);
+		zmultiply.set(1.000000);
+		zoffset.set(0.000000);
 	}
 	void applyVizParamsFrom(SpriteVizParams* p) {
 		if ( ! p ) { return; }
@@ -325,13 +325,13 @@ public:
 	}
 	void Increment(std::string nm, double amount) {
 		if ( nm == "alphafinal" ) {
-			alphafinal.set(adjust(alphafinal.get(),amount,0.0,1.0));
+			alphafinal.set(adjust(alphafinal.get(),amount,0.000000,1.000000));
 		} else if ( nm == "alphainitial" ) {
-			alphainitial.set(adjust(alphainitial.get(),amount,0.0,1.0));
+			alphainitial.set(adjust(alphainitial.get(),amount,0.000000,1.000000));
 		} else if ( nm == "alphatime" ) {
-			alphatime.set(adjust(alphatime.get(),amount,0.01,10.0));
+			alphatime.set(adjust(alphatime.get(),amount,0.010000,10.000000));
 		} else if ( nm == "aspect" ) {
-			aspect.set(adjust(aspect.get(),amount,1.0,4.0));
+			aspect.set(adjust(aspect.get(),amount,1.000000,4.000000));
 		} else if ( nm == "bounce" ) {
 			bounce.set(adjust(bounce.get(),amount));
 		} else if ( nm == "filled" ) {
@@ -339,33 +339,33 @@ public:
 		} else if ( nm == "gravity" ) {
 			gravity.set(adjust(gravity.get(),amount));
 		} else if ( nm == "huefillfinal" ) {
-			huefillfinal.set(adjust(huefillfinal.get(),amount,0.0,360.0));
+			huefillfinal.set(adjust(huefillfinal.get(),amount,0.000000,360.000000));
 		} else if ( nm == "huefillinitial" ) {
-			huefillinitial.set(adjust(huefillinitial.get(),amount,0.0,360.0));
+			huefillinitial.set(adjust(huefillinitial.get(),amount,0.000000,360.000000));
 		} else if ( nm == "huefilltime" ) {
-			huefilltime.set(adjust(huefilltime.get(),amount,0.01,10.0));
+			huefilltime.set(adjust(huefilltime.get(),amount,0.010000,10.000000));
 		} else if ( nm == "huefinal" ) {
-			huefinal.set(adjust(huefinal.get(),amount,0.0,360.0));
+			huefinal.set(adjust(huefinal.get(),amount,0.000000,360.000000));
 		} else if ( nm == "hueinitial" ) {
-			hueinitial.set(adjust(hueinitial.get(),amount,0.0,360.0));
+			hueinitial.set(adjust(hueinitial.get(),amount,0.000000,360.000000));
 		} else if ( nm == "huetime" ) {
-			huetime.set(adjust(huetime.get(),amount,0.01,10.0));
+			huetime.set(adjust(huetime.get(),amount,0.010000,10.000000));
 		} else if ( nm == "lifetime" ) {
-			lifetime.set(adjust(lifetime.get(),amount,0.01,10.0));
+			lifetime.set(adjust(lifetime.get(),amount,0.010000,10.000000));
 		} else if ( nm == "luminance" ) {
-			luminance.set(adjust(luminance.get(),amount,0.0,1.0));
+			luminance.set(adjust(luminance.get(),amount,0.000000,1.000000));
 		} else if ( nm == "mass" ) {
-			mass.set(adjust(mass.get(),amount,0.0,1.0));
+			mass.set(adjust(mass.get(),amount,0.000000,1.000000));
 		} else if ( nm == "mirror" ) {
 			mirror.set(adjust(mirror.get(),amount,VizParams::StringVals["mirrorTypes"]));
 		} else if ( nm == "movedir" ) {
-			movedir.set(adjust(movedir.get(),amount,0.0,360.0));
+			movedir.set(adjust(movedir.get(),amount,0.000000,360.000000));
 		} else if ( nm == "movedirrandom" ) {
 			movedirrandom.set(adjust(movedirrandom.get(),amount));
 		} else if ( nm == "movefollowcursor" ) {
 			movefollowcursor.set(adjust(movefollowcursor.get(),amount));
 		} else if ( nm == "noisevertex" ) {
-			noisevertex.set(adjust(noisevertex.get(),amount,0.0,1.0));
+			noisevertex.set(adjust(noisevertex.get(),amount,0.000000,1.000000));
 		} else if ( nm == "nsprites" ) {
 			nsprites.set(adjust(nsprites.get(),amount,1,10000));
 		} else if ( nm == "pitchmax" ) {
@@ -377,33 +377,33 @@ public:
 		} else if ( nm == "placement" ) {
 			placement.set(adjust(placement.get(),amount,VizParams::StringVals["placementTypes"]));
 		} else if ( nm == "rotanginit" ) {
-			rotanginit.set(adjust(rotanginit.get(),amount,0.0,360.0));
+			rotanginit.set(adjust(rotanginit.get(),amount,0.000000,360.000000));
 		} else if ( nm == "rotangspeed" ) {
-			rotangspeed.set(adjust(rotangspeed.get(),amount,-360.0,360.0));
+			rotangspeed.set(adjust(rotangspeed.get(),amount,-360.000000,360.000000));
 		} else if ( nm == "rotdirrandom" ) {
 			rotdirrandom.set(adjust(rotdirrandom.get(),amount));
 		} else if ( nm == "saturation" ) {
-			saturation.set(adjust(saturation.get(),amount,0.0,1.0));
+			saturation.set(adjust(saturation.get(),amount,0.000000,1.000000));
 		} else if ( nm == "shape" ) {
 			shape.set(adjust(shape.get(),amount,VizParams::StringVals["shapeTypes"]));
 		} else if ( nm == "sizefinal" ) {
-			sizefinal.set(adjust(sizefinal.get(),amount,0.0,10.0));
+			sizefinal.set(adjust(sizefinal.get(),amount,0.000000,10.000000));
 		} else if ( nm == "sizeinitial" ) {
-			sizeinitial.set(adjust(sizeinitial.get(),amount,0.01,10.0));
+			sizeinitial.set(adjust(sizeinitial.get(),amount,0.010000,10.000000));
 		} else if ( nm == "sizetime" ) {
-			sizetime.set(adjust(sizetime.get(),amount,0.01,10.0));
+			sizetime.set(adjust(sizetime.get(),amount,0.010000,10.000000));
 		} else if ( nm == "speedinitial" ) {
-			speedinitial.set(adjust(speedinitial.get(),amount,0.0,1.0));
+			speedinitial.set(adjust(speedinitial.get(),amount,0.000000,1.000000));
 		} else if ( nm == "thickness" ) {
-			thickness.set(adjust(thickness.get(),amount,0.01,10.0));
+			thickness.set(adjust(thickness.get(),amount,0.010000,10.000000));
 		} else if ( nm == "zable" ) {
 			zable.set(adjust(zable.get(),amount));
 		} else if ( nm == "zexponential" ) {
-			zexponential.set(adjust(zexponential.get(),amount,1.00,4.0));
+			zexponential.set(adjust(zexponential.get(),amount,1.000000,4.000000));
 		} else if ( nm == "zmultiply" ) {
-			zmultiply.set(adjust(zmultiply.get(),amount,0.00,2.0));
+			zmultiply.set(adjust(zmultiply.get(),amount,0.000000,2.000000));
 		} else if ( nm == "zoffset" ) {
-			zoffset.set(adjust(zoffset.get(),amount,0.00,1.0));
+			zoffset.set(adjust(zoffset.get(),amount,0.000000,1.000000));
 		}
 
 	}

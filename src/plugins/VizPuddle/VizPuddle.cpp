@@ -269,9 +269,11 @@ int _interpolate(double f, int minval, int maxval) {
 int VizPuddle::_pitchOf(VizCursor* c, MidiVizParams* mp) {
 
 	int p = _interpolate(c->pos.x, mp->pitchmin, mp->pitchmax);
-	std::string scale = mp->scale.get();
-	Scale s = Scale::Scales[scale];
-	p = s.closestTo(p);
+	if (mp->scale_on) {
+		std::string scale = mp->scale.get();
+		Scale s = Scale::Scales[scale];
+		p = s.closestTo(p);
+	}
 	return p;
 }
 
@@ -536,6 +538,7 @@ VizPuddle::_queueNoteonWithNoteoffPending(VizCursor* c, MidiVizParams* mp) {
 	DEBUGPRINT1(("CURSOR_DOWN setting c=%ld noteoff to %ld", (long)c,(long)(noteoff)));
 	c->m_pending_noteoff = noteoff;
 	c->m_noteon_click = nowquant;
+	c->m_noteon_depth = c->pos.z;
 }
 
 void VizPuddle::_genNormalMidi(VizCursor* c, int downdragup, MidiVizParams* mp) {
@@ -564,7 +567,12 @@ void VizPuddle::_genNormalMidi(VizCursor* c, int downdragup, MidiVizParams* mp) 
 			// but keep going, to generate noteon
 		}
 		else {
-			if (pitch != c->m_pending_noteoff->Pitch()) {
+			int dpitch = (pitch - c->m_pending_noteoff->Pitch());
+			double dz = abs(c->pos.z - c->m_noteon_depth);
+			if (mp->depthretrigger_on == 0) {
+				dz = 0.0;
+			}
+			if (dpitch != 0 || dz > mp->depthretrigger_thresh.get()) {
 				// When the new pitch is different, terminate the current note.
 				// Schedule the noteoff to make sure it happens after the noteon,
 				// which might not have been sent yet.

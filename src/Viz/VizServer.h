@@ -157,6 +157,7 @@ public:
 
 	MidiNoteOff* m_pending_noteoff;
 	click_t m_noteon_click;
+	double m_noteon_depth;
 
 private:
 	double m_target_depth;

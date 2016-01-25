@@ -44,7 +44,6 @@ function readfile() {
 				var type = obj["type"];
 				if ( type=="string" && stringvalindex(name,value) < 0 ) {
 					// default to first value
-					alert("Invalid value \""+value+"\" for \""+name+"\" is being changed to \""+StringVals[name][0]+"\"");
 					value = StringVals[name][0];
 				}
 				updateonevalue(name,value);

@@ -52,6 +52,12 @@ def genparamcpp(paramclass):
 	writeln("#include \""+paramclass+".h\"")
 	writeln("char* "+paramclass+"Names[] = { "+paramclass+"Names_INIT };")
 
+## utility to make sure floating-point values are printed with a decimal point
+## so function calls/etc get disambiguated between double and int.
+def s2d(d):
+	return "%f" % float(d);
+
+
 def genparamheader(params,classname):
 
 	uptype = classname.upper()
@@ -109,6 +115,8 @@ def genparamheader(params,classname):
 		name = p["name"]
 		typ = p["type"]
 		defaultvalue = p["default"]
+		if typ == "double":
+			defaultvalue = s2d(defaultvalue)
 		writeln(tab2+name+".set("+defaultvalue+");")
 	writeln(tab+"}")
 
@@ -156,7 +164,7 @@ def genparamheader(params,classname):
 		mx = p["max"]
 		writeln(tab2+estr+"if ( nm == \""+name+"\" ) {")
 		if typ == "double":
-			writeln(tab3+name+".set(adjust("+name+".get(),amount,"+mn+","+mx+"));")
+			writeln(tab3+name+".set(adjust("+name+".get(),amount,"+s2d(mn)+","+s2d(mx)+"));")
 		elif typ == "int":
 			writeln(tab3+name+".set(adjust("+name+".get(),amount,"+mn+","+mx+"));")
 		elif typ == "bool":

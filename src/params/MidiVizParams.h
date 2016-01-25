@@ -18,6 +18,8 @@ extern char* MidiVizParamsNames[];
 	"depthctlmax",\
 	"depthctlmin",\
 	"depthctlnum",\
+	"depthretrigger_on",\
+	"depthretrigger_thresh",\
 	"depthsmooth",\
 	"duration",\
 	"notelimit",\
@@ -25,6 +27,7 @@ extern char* MidiVizParamsNames[];
 	"pitchmin",\
 	"port",\
 	"scale",\
+	"scale_on",\
 	NULL
 
 class MidiVizParams : public VizParams {
@@ -48,6 +51,10 @@ public:
 		if (j) { depthctlmin.set(j); }
 		j = cJSON_GetObjectItem(json,"depthctlnum");
 		if (j) { depthctlnum.set(j); }
+		j = cJSON_GetObjectItem(json,"depthretrigger_on");
+		if (j) { depthretrigger_on.set(j); }
+		j = cJSON_GetObjectItem(json,"depthretrigger_thresh");
+		if (j) { depthretrigger_thresh.set(j); }
 		j = cJSON_GetObjectItem(json,"depthsmooth");
 		if (j) { depthsmooth.set(j); }
 		j = cJSON_GetObjectItem(json,"duration");
@@ -62,6 +69,8 @@ public:
 		if (j) { port.set(j); }
 		j = cJSON_GetObjectItem(json,"scale");
 		if (j) { scale.set(j); }
+		j = cJSON_GetObjectItem(json,"scale_on");
+		if (j) { scale_on.set(j); }
 	}
 	void loadDefaults() {
 		arpeggiate.set(0);
@@ -69,6 +78,8 @@ public:
 		depthctlmax.set(127);
 		depthctlmin.set(0);
 		depthctlnum.set(0);
+		depthretrigger_on.set(1);
+		depthretrigger_thresh.set(0.000000);
 		depthsmooth.set(2);
 		duration.set("hold");
 		notelimit.set(4);
@@ -76,6 +87,7 @@ public:
 		pitchmin.set(60);
 		port.set(0);
 		scale.set("newage");
+		scale_on.set(1);
 	}
 	void applyVizParamsFrom(MidiVizParams* p) {
 		if ( ! p ) { return; }
@@ -84,6 +96,8 @@ public:
 		if ( p->depthctlmax.isset() ) { this->depthctlmax.set(p->depthctlmax.get()); }
 		if ( p->depthctlmin.isset() ) { this->depthctlmin.set(p->depthctlmin.get()); }
 		if ( p->depthctlnum.isset() ) { this->depthctlnum.set(p->depthctlnum.get()); }
+		if ( p->depthretrigger_on.isset() ) { this->depthretrigger_on.set(p->depthretrigger_on.get()); }
+		if ( p->depthretrigger_thresh.isset() ) { this->depthretrigger_thresh.set(p->depthretrigger_thresh.get()); }
 		if ( p->depthsmooth.isset() ) { this->depthsmooth.set(p->depthsmooth.get()); }
 		if ( p->duration.isset() ) { this->duration.set(p->duration.get()); }
 		if ( p->notelimit.isset() ) { this->notelimit.set(p->notelimit.get()); }
@@ -91,6 +105,7 @@ public:
 		if ( p->pitchmin.isset() ) { this->pitchmin.set(p->pitchmin.get()); }
 		if ( p->port.isset() ) { this->port.set(p->port.get()); }
 		if ( p->scale.isset() ) { this->scale.set(p->scale.get()); }
+		if ( p->scale_on.isset() ) { this->scale_on.set(p->scale_on.get()); }
 	}
 	void Set(std::string nm, std::string val) {
 		bool stringval = false;
@@ -104,6 +119,10 @@ public:
 			depthctlmin.set(string2int(val));
 		} else if ( nm == "depthctlnum" ) {
 			depthctlnum.set(string2int(val));
+		} else if ( nm == "depthretrigger_on" ) {
+			depthretrigger_on.set(string2int(val));
+		} else if ( nm == "depthretrigger_thresh" ) {
+			depthretrigger_thresh.set(string2double(val));
 		} else if ( nm == "depthsmooth" ) {
 			depthsmooth.set(string2int(val));
 		} else if ( nm == "duration" ) {
@@ -120,6 +139,8 @@ public:
 		} else if ( nm == "scale" ) {
 			scale.set(val);
 			stringval = true;
+		} else if ( nm == "scale_on" ) {
+			scale_on.set(string2int(val));
 		}
 
 		if ( ! stringval ) {
@@ -137,8 +158,12 @@ public:
 			depthctlmin.set(adjust(depthctlmin.get(),amount,0,127));
 		} else if ( nm == "depthctlnum" ) {
 			depthctlnum.set(adjust(depthctlnum.get(),amount,0,127));
+		} else if ( nm == "depthretrigger_on" ) {
+			depthretrigger_on.set(adjust(depthretrigger_on.get(),amount,0,1));
+		} else if ( nm == "depthretrigger_thresh" ) {
+			depthretrigger_thresh.set(adjust(depthretrigger_thresh.get(),amount,0.000000,1.000000));
 		} else if ( nm == "depthsmooth" ) {
-			depthsmooth.set(adjust(depthsmooth.get(),amount,0,32));
+			depthsmooth.set(adjust(depthsmooth.get(),amount,0,128));
 		} else if ( nm == "duration" ) {
 			duration.set(adjust(duration.get(),amount,VizParams::StringVals["durationTypes"]));
 		} else if ( nm == "notelimit" ) {
@@ -151,6 +176,8 @@ public:
 			port.set(adjust(port.get(),amount,0,32));
 		} else if ( nm == "scale" ) {
 			scale.set(adjust(scale.get(),amount,VizParams::StringVals["scaleTypes"]));
+		} else if ( nm == "scale_on" ) {
+			scale_on.set(adjust(scale_on.get(),amount,0,1));
 		}
 
 	}
@@ -160,6 +187,8 @@ public:
 		if ( nm == "depthctlmax" ) { return "127"; }
 		if ( nm == "depthctlmin" ) { return "0"; }
 		if ( nm == "depthctlnum" ) { return "0"; }
+		if ( nm == "depthretrigger_on" ) { return "1"; }
+		if ( nm == "depthretrigger_thresh" ) { return "0"; }
 		if ( nm == "depthsmooth" ) { return "2"; }
 		if ( nm == "duration" ) { return "hold"; }
 		if ( nm == "notelimit" ) { return "4"; }
@@ -167,6 +196,7 @@ public:
 		if ( nm == "pitchmin" ) { return "60"; }
 		if ( nm == "port" ) { return "0"; }
 		if ( nm == "scale" ) { return "newage"; }
+		if ( nm == "scale_on" ) { return "1"; }
 		return "";
 	}
 	std::string MinValue(std::string nm) {
@@ -175,6 +205,8 @@ public:
 		if ( nm == "depthctlmax" ) { return "0"; }
 		if ( nm == "depthctlmin" ) { return "0"; }
 		if ( nm == "depthctlnum" ) { return "0"; }
+		if ( nm == "depthretrigger_on" ) { return "0"; }
+		if ( nm == "depthretrigger_thresh" ) { return "0"; }
 		if ( nm == "depthsmooth" ) { return "0"; }
 		if ( nm == "duration" ) { return "durationTypes"; }
 		if ( nm == "notelimit" ) { return "1"; }
@@ -182,6 +214,7 @@ public:
 		if ( nm == "pitchmin" ) { return "1"; }
 		if ( nm == "port" ) { return "0"; }
 		if ( nm == "scale" ) { return "scaleTypes"; }
+		if ( nm == "scale_on" ) { return "0"; }
 		return "";
 	}
 	std::string MaxValue(std::string nm) {
@@ -190,13 +223,16 @@ public:
 		if ( nm == "depthctlmax" ) { return "127"; }
 		if ( nm == "depthctlmin" ) { return "127"; }
 		if ( nm == "depthctlnum" ) { return "127"; }
-		if ( nm == "depthsmooth" ) { return "32"; }
+		if ( nm == "depthretrigger_on" ) { return "1"; }
+		if ( nm == "depthretrigger_thresh" ) { return "1"; }
+		if ( nm == "depthsmooth" ) { return "128"; }
 		if ( nm == "duration" ) { return "durationTypes"; }
 		if ( nm == "notelimit" ) { return "16"; }
 		if ( nm == "pitchmax" ) { return "127"; }
 		if ( nm == "pitchmin" ) { return "127"; }
 		if ( nm == "port" ) { return "32"; }
 		if ( nm == "scale" ) { return "scaleTypes"; }
+		if ( nm == "scale_on" ) { return "1"; }
 		return "";
 	}
 	void Toggle(std::string nm) {
@@ -213,6 +249,10 @@ public:
 			return IntString(depthctlmin.get());
 		} else if ( nm == "depthctlnum" ) {
 			return IntString(depthctlnum.get());
+		} else if ( nm == "depthretrigger_on" ) {
+			return IntString(depthretrigger_on.get());
+		} else if ( nm == "depthretrigger_thresh" ) {
+			return DoubleString(depthretrigger_thresh.get());
 		} else if ( nm == "depthsmooth" ) {
 			return IntString(depthsmooth.get());
 		} else if ( nm == "duration" ) {
@@ -227,6 +267,8 @@ public:
 			return IntString(port.get());
 		} else if ( nm == "scale" ) {
 			return scale.get();
+		} else if ( nm == "scale_on" ) {
+			return IntString(scale_on.get());
 		}
 		return "";
 	}
@@ -236,6 +278,8 @@ public:
 		if ( nm == "depthctlmax" ) { return "int"; }
 		if ( nm == "depthctlmin" ) { return "int"; }
 		if ( nm == "depthctlnum" ) { return "int"; }
+		if ( nm == "depthretrigger_on" ) { return "int"; }
+		if ( nm == "depthretrigger_thresh" ) { return "double"; }
 		if ( nm == "depthsmooth" ) { return "int"; }
 		if ( nm == "duration" ) { return "string"; }
 		if ( nm == "notelimit" ) { return "int"; }
@@ -243,6 +287,7 @@ public:
 		if ( nm == "pitchmin" ) { return "int"; }
 		if ( nm == "port" ) { return "int"; }
 		if ( nm == "scale" ) { return "string"; }
+		if ( nm == "scale_on" ) { return "int"; }
 		return "";
 	}
 
@@ -251,6 +296,8 @@ public:
 	IntParam depthctlmax;
 	IntParam depthctlmin;
 	IntParam depthctlnum;
+	IntParam depthretrigger_on;
+	DoubleParam depthretrigger_thresh;
 	IntParam depthsmooth;
 	StringParam duration;
 	IntParam notelimit;
@@ -258,6 +305,7 @@ public:
 	IntParam pitchmin;
 	IntParam port;
 	StringParam scale;
+	IntParam scale_on;
 };
 
 #endif

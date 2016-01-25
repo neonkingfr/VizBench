@@ -147,7 +147,6 @@ function enableall(onoff) {
 
 function changeTextVal(tag,api,argname) {
 	var inputid = document.getElementById(tag+"_"+api);
-alert("changeTextVal tag="+tag+" api="+api);
 	var api = vizapi(tag+"."+api,"{\""+argname+"\":\""+inputid.value+"\"}");
 	if ( ! checkapi(api) ) {
 		status.innerHTML = api.error;
