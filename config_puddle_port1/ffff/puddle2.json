@@ -1,0 +1,177 @@
+{
+"pipeline": [
+	{
+		"ffglplugin": "VizPuddle",
+		"enabled": 1,
+		"moveable": 0,
+		"vizlet": 1,
+		"vizletdump": [{"method":"set_LEFT_sidrange","params":{"sidrange":"12000-12999"}},{"method":"set_LEFT_sprite","params":{"paramfile":"LEFT_default"}},{"method":"set_LEFT_midi","params":{"paramfile":"synth_port0_chan1"}},{"method":"set_LOWER_sidrange","params":{"sidrange":"11000-11999"}},{"method":"set_LOWER_sprite","params":{"paramfile":"LOWER_default"}},{"method":"set_LOWER_midi","params":{"paramfile":"drums1"}},{"method":"set_RIGHT_sidrange","params":{"sidrange":"13000-13999"}},{"method":"set_RIGHT_sprite","params":{"paramfile":"RIGHT_default"}},{"method":"set_RIGHT_midi","params":{"paramfile":"synth_port0_chan2"}},{"method":"set_UPPER_sidrange","params":{"sidrange":"14000-14999"}},{"method":"set_UPPER_sprite","params":{"paramfile":"UPPER_default"}},{"method":"set_UPPER_midi","params":{"paramfile":"synth_port0_chan3"}},{"method":"set_LL1_sidrange","params":{"sidrange":"41000-41999"}},{"method":"set_LL1_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_LL2_sidrange","params":{"sidrange":"0-0"}},{"method":"set_LL2_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_LL3_sidrange","params":{"sidrange":"0-0"}},{"method":"set_LL3_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_LR1_sidrange","params":{"sidrange":"0-0"}},{"method":"set_LR1_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_LR2_sidrange","params":{"sidrange":"0-0"}},{"method":"set_LR2_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_LR3_sidrange","params":{"sidrange":"0-0"}},{"method":"set_LR3_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_UL1_sidrange","params":{"sidrange":"0-0"}},{"method":"set_UL1_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_UL2_sidrange","params":{"sidrange":"0-0"}},{"method":"set_UL2_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_UL3_sidrange","params":{"sidrange":"0-0"}},{"method":"set_UL3_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_UR1_sidrange","params":{"sidrange":"0-0"}},{"method":"set_UR1_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_UR2_sidrange","params":{"sidrange":"0-0"}},{"method":"set_UR2_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_UR3_sidrange","params":{"sidrange":"0-0"}},{"method":"set_UR3_pipeline","params":{"pipeline":"puddle_default"}}],
+		"params": [
+			{"name":"viztag", "value":"vizpuddle" }
+			]
+	},
+	{
+		"ffglplugin": "Twisted",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"Twirl", "value":0.270000 }, 
+			{"name":"Radius", "value":0.270000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"ffglplugin": "Wave Warp",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"Mode", "value":0.020000 }, 
+			{"name":"Height", "value":0.470000 }, 
+			{"name":"Width", "value":0.930000 }, 
+			{"name":"Angle", "value":0.500000 }, 
+			{"name":"Speed", "value":0.000000 }, 
+			{"name":"Pin edges?", "value":1.000000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"ffglplugin": "Kaleidoscope",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"Angles", "value":0.350000 }, 
+			{"name":"Rotation", "value":0.000000 }, 
+			{"name":"Zoom", "value":1.000000 }, 
+			{"name":"Input Rotation", "value":0.000000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"ffglplugin": "Blur",
+		"enabled": 1,
+		"moveable": 1,
+		"params": [
+			{"name":"Blur X Distance", "value":0.000000 }, 
+			{"name":"Blur Y Distance", "value":0.110000 }, 
+			{"name":"Quality", "value":0.280000 }, 
+			{"name":"Gaussian", "value":0.370000 }
+			]
+	},
+	{
+		"ffglplugin": "Goo",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"Speed", "value":0.250000 }, 
+			{"name":"MaxDistortionX", "value":1.000000 }, 
+			{"name":"MaxDistortionY", "value":1.000000 }, 
+			{"name":"MaxDistortionZ", "value":0.000000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"ffglplugin": "Fragment",
+		"enabled": 1,
+		"moveable": 1,
+		"params": [
+			{"name":"Fragments", "value":0.300000 }, 
+			{"name":"Distance", "value":0.020000 }, 
+			{"name":"Rotation", "value":0.000000 }, 
+			{"name":"FragRotationX", "value":0.500000 }, 
+			{"name":"FragRotationY", "value":0.500000 }, 
+			{"name":"FragRotationZ", "value":0.500000 }, 
+			{"name":"FragScale", "value":1.000000 }, 
+			{"name":"CompositeOpacity", "value":0.710000 }
+			]
+	},
+	{
+		"ffglplugin": "Posterize",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"Posterize", "value":0.380000 }
+			]
+	},
+	{
+		"ffglplugin": "Displace",
+		"enabled": 1,
+		"moveable": 1,
+		"params": [
+			{"name":"X factor", "value":0.760000 }, 
+			{"name":"Y factor", "value":0.240000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"ffglplugin": "Iterate",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"TransformStrengt", "value":1.000000 }, 
+			{"name":"Iterations", "value":0.300000 }, 
+			{"name":"StartOpacity", "value":1.000000 }, 
+			{"name":"OpacityChange", "value":0.500000 }, 
+			{"name":"TranslateX", "value":0.490000 }, 
+			{"name":"TranslateY", "value":0.500000 }, 
+			{"name":"TranslateZ", "value":0.480000 }, 
+			{"name":"RotateX", "value":0.700000 }, 
+			{"name":"RotateY", "value":0.210000 }, 
+			{"name":"RotateZ", "value":0.710000 }, 
+			{"name":"Scale", "value":0.350000 }, 
+			{"name":"DOpacityChange", "value":0.500000 }, 
+			{"name":"DTranslateX", "value":0.500000 }, 
+			{"name":"DTranslateY", "value":0.500000 }, 
+			{"name":"DTranslateZ", "value":0.500000 }, 
+			{"name":"DRotateX", "value":0.500000 }, 
+			{"name":"DRotateY", "value":0.500000 }, 
+			{"name":"DRotateZ", "value":0.500000 }, 
+			{"name":"DScale", "value":0.430000 }, 
+			{"name":"BlendMode", "value":1.000000 }, 
+			{"name":"GRotateX", "value":1.000000 }, 
+			{"name":"GRotateY", "value":1.000000 }, 
+			{"name":"GRotateZ", "value":1.000000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"ffglplugin": "Edge Detection",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"Mode", "value":0.920000 }, 
+			{"name":"Multiplier", "value":0.240000 }
+			]
+	},
+	{
+		"ffglplugin": "Bendoscope",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"Divisions", "value":0.220000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"ffglplugin": "Mirror",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"X", "value":0.500000 }, 
+			{"name":"Y", "value":0.500000 }, 
+			{"name":"In / Out", "value":0.500000 }, 
+			{"name":"Flip X", "value":0.000000 }, 
+			{"name":"Flip Y", "value":0.000000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"ffglplugin": "Trails",
+		"enabled": 1,
+		"moveable": 0,
+		"params": [
+			{"name":"Feedback", "value":0.580000 }, 
+			{"name":"Mode", "value":0.000000 }
+			]
+	}
+	]
+}

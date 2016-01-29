@@ -13,6 +13,7 @@ function sendparamchange(name) {
 	var paramname = a[1];
 	var paramval = valueid.value;
 	var api = vizapi("ffff.ffglparamset","{\"viztag\":\""+viztag+"\", \"param\":\""+paramname+"\", \"val\":\""+paramval+"\" }");
+	checkapi(api);
 }
 
 function updateval(name) {
@@ -24,12 +25,14 @@ function changeenable(viztag) {
 	var enabledid = document.getElementById("enabled_"+viztag);
 	var onoff = enabledid.checked ? "1" : "0";
 	var a = vizapi("ffff.ffglenable","{\"viztag\":\""+viztag+"\", \"onoff\": "+onoff+" }");
+	checkapi(api);
 }
 
 function changemoveable(viztag) {
 	var moveableid = document.getElementById("moveable_"+viztag);
 	var onoff = moveableid.checked ? "1" : "0";
 	var a = vizapi("ffff.ffglmoveable","{\"viztag\":\""+viztag+"\", \"onoff\": "+onoff+" }");
+	checkapi(api);
 }
 
 // updateval2 propagate changes from value_ to range_ rather
@@ -205,10 +208,6 @@ function ffffpagegen() {
 	html += "<input type=\"button\" value=\"Shuffle Pipeline\" onClick=\"shufflepipeline();\">";
 	html += "&nbsp;&nbsp;";
 	html += "<input type=\"button\" value=\"Randomize Pipeline\" onClick=\"randomizepipeline();\">";
-	html += "&nbsp;&nbsp;";
-	html += "<input type=\"button\" value=\"Recording ON\" onClick=\"ffffrecord(1);\">";
-	html += "&nbsp;&nbsp;";
-	html += "<input type=\"button\" value=\"Recording OFF\" onClick=\"ffffrecord(0);\">";
 
 	// html += "&nbsp;&nbsp;";
 	// html += "<input type=\"button\" value=\"Randomize FFGL Params\" onClick=\"randomizeffglparams();\">";

@@ -149,16 +149,25 @@ void FFGLPluginInstance::SetFloatParameter(int paramNum, float value)
 
 void FFGLPluginInstance::SetStringParameter(int paramNum, std::string value)
 {
+	SetParameterStruct ArgStruct;
+
+	ArgStruct.ParameterNumber = paramNum;
+
     //make sure its a text parameter type
     DWORD ffParameterType = m_main(FF_GETPARAMETERTYPE,(DWORD)paramNum,0).ivalue;
-    if (ffParameterType==FF_TYPE_TEXT) {
-        SetParameterStruct ArgStruct;
-        ArgStruct.ParameterNumber = paramNum;
-        ArgStruct.u.NewTextValue = value.c_str();
-        m_main(FF_SETPARAMETER,(DWORD)(&ArgStruct), m_instanceid);
+	if (ffParameterType == FF_TYPE_TEXT) {
+		ArgStruct.u.NewTextValue = value.c_str();
+		m_main(FF_SETPARAMETER, (DWORD)(&ArgStruct), m_instanceid);
+	} else if ( ffParameterType == FF_TYPE_STANDARD ) {
+		ArgStruct.u.NewFloatValue = (float) atof(value.c_str());
     } else {
-		DEBUGPRINT(("HEY! SetStringParameter called on non-TEXT parameter (paramnum=%d)",paramNum));
+		throw NosuchException("HEY! SetStringParameter called on non-TEXT/STANDARD parameter (paramnum=%d)",paramNum);
 	}
+	DWORD rval = m_main(FF_SETPARAMETER, (DWORD)(&ArgStruct), m_instanceid).ivalue;
+	if (rval != FF_SUCCESS) {
+		throw NosuchException("FF_SETPARAMETER failed!? (paramnum=%d)",paramNum);
+	}
+	return;
 }
 
 void FFGLPluginInstance::SetTime(double curTime) {

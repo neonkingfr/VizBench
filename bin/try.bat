@@ -1,1 +1,1 @@
-"C:\Program Files\Plogue\Bidule\PlogueBidule_x64.exe" %VIZBENCH%\patches\bidule\Palette_Alchemy_Burn.bidule
+api ffff.ffglparamset "{\"viztag\":\"SpoutSender2\", \"param\":\"Sender Name\", \"val\":\"foobar\"}"
