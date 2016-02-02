@@ -1,0 +1,36 @@
+{
+"pipeline": [
+	{
+		"ffglplugin": "VizPuddle",
+		"viztag": "VizPuddleTag",
+		"enabled": 1,
+		"moveable": 0,
+		"vizlet": 1,
+		"vizletdump": [{"method":"set_LEFT_sidrange","params":{"sidrange":"12000-12999"}},{"method":"set_LEFT_sprite","params":{"paramfile":"LEFT_default"}},{"method":"set_LEFT_midi","params":{"paramfile":"LEFT_default"}},{"method":"set_LOWER_sidrange","params":{"sidrange":"11000-11999"}},{"method":"set_LOWER_sprite","params":{"paramfile":"LOWER_default"}},{"method":"set_LOWER_midi","params":{"paramfile":"LOWER_default"}},{"method":"set_RIGHT_sidrange","params":{"sidrange":"13000-13999"}},{"method":"set_RIGHT_sprite","params":{"paramfile":"RIGHT_default"}},{"method":"set_RIGHT_midi","params":{"paramfile":"RIGHT_default"}},{"method":"set_UPPER_sidrange","params":{"sidrange":"14000-14999"}},{"method":"set_UPPER_sprite","params":{"paramfile":"UPPER_default"}},{"method":"set_UPPER_midi","params":{"paramfile":"UPPER_default"}},{"method":"set_LL1_sidrange","params":{"sidrange":"41000-41999"}},{"method":"set_LL1_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_LL2_sidrange","params":{"sidrange":"0-0"}},{"method":"set_LL2_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_LL3_sidrange","params":{"sidrange":"0-0"}},{"method":"set_LL3_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_LR1_sidrange","params":{"sidrange":"0-0"}},{"method":"set_LR1_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_LR2_sidrange","params":{"sidrange":"0-0"}},{"method":"set_LR2_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_LR3_sidrange","params":{"sidrange":"0-0"}},{"method":"set_LR3_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_UL1_sidrange","params":{"sidrange":"0-0"}},{"method":"set_UL1_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_UL2_sidrange","params":{"sidrange":"0-0"}},{"method":"set_UL2_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_UL3_sidrange","params":{"sidrange":"0-0"}},{"method":"set_UL3_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_UR1_sidrange","params":{"sidrange":"0-0"}},{"method":"set_UR1_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_UR2_sidrange","params":{"sidrange":"0-0"}},{"method":"set_UR2_pipeline","params":{"pipeline":"puddle_default"}},{"method":"set_UR3_sidrange","params":{"sidrange":"0-0"}},{"method":"set_UR3_pipeline","params":{"pipeline":"puddle_default"}}],
+		"params": [
+			]
+	},
+	{
+		"ffglplugin": "Twisted",
+		"viztag": "Twisted1",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"Twirl", "value":0.270000 }, 
+			{"name":"Radius", "value":0.270000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"ffglplugin": "Twisted",
+		"viztag": "Twisted2",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"Twirl", "value":0.270000 }, 
+			{"name":"Radius", "value":0.270000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	}
+	]
+}

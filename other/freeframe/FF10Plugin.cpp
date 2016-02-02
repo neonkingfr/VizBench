@@ -352,7 +352,7 @@ void FF10PluginInstance::SetStringParameter(int paramNum, std::string value)
 		m_mainfunc(FF_SETPARAMETER, (DWORD)(&ArgStruct), m_instanceid);
 	}
 	else {
-		DEBUGPRINT(("HEY! SetStringParameter called on non-TEXT parameter (paramnum=%d)", paramNum));
+		throw NosuchException("HEY! SetStringParameter called on non-TEXT parameter (paramnum=%d)", paramNum);
 	}
 }
 

@@ -46,9 +46,9 @@ void VizParams::Initialize() {
 	StringVals["shapeTypes"].push_back("square");
 	StringVals["shapeTypes"].push_back("hbar");
 	StringVals["shapeTypes"].push_back("vbar");
-	StringVals["shapeTypes"].push_back("arc");
+	// StringVals["shapeTypes"].push_back("arc");
 	StringVals["shapeTypes"].push_back("circle");
-	StringVals["shapeTypes"].push_back("outline");
+	// StringVals["shapeTypes"].push_back("outline");
 
 	StringVals["mirrorTypes"] = StringList();
 	StringVals["mirrorTypes"].push_back("none");

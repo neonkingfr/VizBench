@@ -358,17 +358,22 @@ jsonReadFile(std::string fname, std::string& err)
 bool
 jsonWriteFile(std::string fname, cJSON* json, std::string& err) {
 	DEBUGPRINT1(("jsonWriteFile fname=%s",fname.c_str()));
+	char *s = cJSON_Print(json);
+	bool r = jsonWriteFileContents(fname,s,err);
+	cJSON_free(s);
+	return r;
+}
+
+bool
+jsonWriteFileContents(std::string fname, const char* contents, std::string& err) {
 	std::ofstream f;
 	f.open(fname.c_str(),std::ios::trunc);
 	if ( ! f.is_open() ) {
 		err = NosuchSnprintf("Unable to open file - %s",fname.c_str());
 		return false;
 	}
-	char *s = cJSON_Print(json);
-	f << s;
-	f << "\n";
+	f << contents << "\n";
 	f.close();
-	cJSON_free(s);
 	return true;
 }
 

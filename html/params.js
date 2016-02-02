@@ -73,23 +73,36 @@ function randparams() {
 		var randableid = document.getElementById("randable_"+name);
 		var randminid = document.getElementById("randmin_"+name);
 		var randmaxid = document.getElementById("randmax_"+name);
-		if ( !randableid || !randminid || !randmaxid ) {
+
+		if ( ! randableid || ! randableid.checked ) {
 			continue;
 		}
-		var rmn = randminid.value;
-		var rmx = randmaxid.value;
-		if ( rmn == "" ) {
-			rmn = mn;
+
+		var v;
+		if ( type == "bool" ) {
+			v = (Math.random() < 0.5);
+		} else if ( type == "string" ) {
+			var valarray = StringVals[name];
+			i = Math.random() * (valarray.length+1);
+			i = Math.floor(i) % valarray.length;
+			v = valarray[i];
+		} else {
+			if ( !randminid || !randmaxid ) {
+				continue;
+			}
+			var rmn = randminid.value;
+			var rmx = randmaxid.value;
+			if ( rmn == "" ) {
+				rmn = mn;
+			}
+			if ( rmx == "" ) {
+				rmx = mx;
+			}
+			rmn = Number(rmn);
+			rmx = Number(rmx);
+			v = rmn + Math.random() * (rmx-rmn);
 		}
-		if ( rmx == "" ) {
-			rmx = mx;
-		}
-		rmn = Number(rmn);
-		rmx = Number(rmx);
-		if ( randableid.checked ) {
-			var v = rmn + Math.random() * (rmx-rmn);
-			updateonevalue(name,v);
-		}
+		updateonevalue(name,v);
 	}
 	autowritefile();
 }

@@ -22,7 +22,7 @@ VizPuddle::VizPuddle() : Vizlet() {
 
 	DEBUGPRINT(("VizPuddle is being created and initialized! this=%ld",(long)this));
 
-	const char* regionnames[] = { "UPPER", "LOWER", "LEFT", "RIGHT", NULL };
+	const char* regionnames[] = { "pad1", "pad2", "pad3", "pad4", NULL };
 	const char* buttonnames[] = {	"UL1", "UL2", "UL3", "UR1", "UR2", "UR3",
 									"LL1", "LL2", "LL3", "LR1", "LR2", "LR3",
 									NULL
@@ -646,7 +646,10 @@ VizPuddle::_set_region_spriteparams(Region* r, cJSON* json, const char* id)
 		return jsonOK(id);
 	}
 	else {
-		return jsonError(-32000, "Unable to load spriteparams file", id);
+		// To make it easier to create new spriteparams files,
+		// a non-existent file is now not an error.
+		// return jsonError(-32000, "Unable to load spriteparams file", id);
+		return jsonOK(id);
 	}
 }
 
@@ -690,7 +693,8 @@ bool VizPuddle::_loadSpriteVizParamsFile(std::string fname, VizPuddle::Region* r
 	r->lastspritefileupdate = time(0);
 	SpriteVizParams* p = getSpriteVizParams(fname);
 	if (!p) {
-		r->spriteparamfile = "";
+		// A non-existent params file is now okay
+		// r->spriteparamfile = "";
 		r->spriteparams = NULL;
 		return false;
 	}

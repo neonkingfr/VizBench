@@ -69,12 +69,13 @@ bool NosuchFileExists(const std::string fname)
 	}
 }
 
-std::string NosuchReplaceAll(std::string instr, std::string toreplace, std::string replacement) {
-	size_t pos;
-	while ( (pos=instr.find(toreplace)) != instr.npos) {
-		instr.replace(pos, toreplace.length(), replacement);
+std::string NosuchReplaceAll(std::string str, const std::string from, const std::string to) {
+	size_t start_pos = 0;
+	while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+		str.replace(start_pos, from.length(), to);
+		start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
 	}
-	return instr;
+	return str;
 }
 
 std::vector<std::string> NosuchSplitOnAnyChar(std::string s, std::string sepchars)

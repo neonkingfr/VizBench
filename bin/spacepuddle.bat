@@ -1,3 +1,10 @@
+@echo off
+
+if x%1 == x echo "you need to provide an argument!"
+if x%1 == x goto getout:
+
+set VIZCONFIG=config_puddle_%1
+set FFFFPIPELINE=spacepuddle_%1
 
 taskkill /f /im igesture.exe
 taskkill /f /im ffff.exe
@@ -25,8 +32,10 @@ rem If I start ffff.exe right after Bidule, Bidule crashes - possibly/probably
 rem because FFFF sends OSC to Bidule, before Bidule is ready.
 sleep 5
 
-start c:\users\tjt\documents\github\vizbench\bin\ffff.exe -c spacepuddle
+start c:\users\tjt\documents\github\vizbench\bin\ffff.exe -c %FFFFPIPELINE%
 
 rem Don't put the resize right after the invokation of igesture.exe,
 rem because the window won't exist right away.
 nircmd win setsize ititle igesture.exe 10 550 1000 200
+
+:getout

@@ -187,6 +187,7 @@ Vizlet::Vizlet() {
 	if ( ! g_constructingPrototype ) {
 		// init API callback, so things like
 		// restoring a dump can occur early on
+		defviztag = vizlet_name().c_str();
 		_startApiCallbacks(defviztag, (void*)this);
 	}
 
@@ -790,15 +791,21 @@ SpriteVizParams*
 readSpriteVizParams(std::string fname) {
 	std::string err;
 	std::string path = SpriteVizParamsPath(fname);
-	cJSON* json = jsonReadFile(path,err);
-	if ( !json ) {
-		DEBUGPRINT(("Unable to load sprite params: fname=%s path=%s, err=%s",
-			fname.c_str(),path.c_str(),err.c_str()));
-		return NULL;
-	}
 	SpriteVizParams* p = new SpriteVizParams();
-	p->loadJson(json);
-	// XXX - should json be freed, here?
+	cJSON* json = jsonReadFile(path,err);
+	if (json) {
+		p->loadJson(json);
+		// XXX - should json be freed, here?
+	}
+	else {
+		// The file (presumably) doesn't exist, so create it with the default values
+		std::string contents = p->JsonListOfValues();
+		std::string err;
+		if (!jsonWriteFileContents(path, contents.c_str(), err)) {
+			throw NosuchException("Unable to write contents of %s", path.c_str());
+		}
+		DEBUGPRINT(("Created spriteparams file with default parameters: %s",path.c_str()));
+	}
 	return p;
 }
 
@@ -849,7 +856,7 @@ Vizlet::checkSpriteVizParamsAndLoadIfModifiedSince(std::string fname, std::time_
 	struct _stat statbuff;
 	int e = _stat(path.c_str(), &statbuff);
 	if (e != 0) {
-		throw NosuchException("Error in checkAndLoad - e=%d", e);
+		throw NosuchException("Error in checkAndLoad of path=%s - e=%d",path.c_str(), e);
 	}
 	if (lastupdate == statbuff.st_mtime) {
 		return NULL;
@@ -869,9 +876,8 @@ readMidiVizParams(std::string fname) {
 	std::string path = MidiVizParamsPath(fname);
 	cJSON* json = jsonReadFile(path, err);
 	if (!json) {
-		DEBUGPRINT(("Unable to load midi params: fname=%s path=%s, err=%s",
-			fname.c_str(), path.c_str(), err.c_str()));
-		return NULL;
+		throw NosuchException("Unable to load midi params: fname=%s path=%s, err=%s",
+			fname.c_str(), path.c_str(), err.c_str());
 	}
 	MidiVizParams* p = new MidiVizParams();
 	p->loadJson(json);
@@ -911,7 +917,7 @@ Vizlet::checkMidiVizParamsAndLoadIfModifiedSince(std::string fname, std::time_t&
 	struct _stat statbuff;
 	int e = _stat(path.c_str(), &statbuff);
 	if (e != 0) {
-		throw NosuchException("Error in checkAndLoad - e=%d", e);
+		throw NosuchException("Error in checkAndLoad of path=%s - e=%d",path.c_str(), e);
 	}
 	if (lastupdate == statbuff.st_mtime) {
 		return NULL;

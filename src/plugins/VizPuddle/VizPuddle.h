@@ -33,8 +33,8 @@ private:
 			name = nm;
 			sid_min = 0;
 			sid_max = 99999;
-			spriteparamfile = nm + "_default";
-			midiparamfile = nm + "_default";
+			spriteparamfile = "default_" + nm;
+			midiparamfile = "default_" + nm;
 			spriteparams = NULL;
 			midiparams = NULL;
 			m_controllerval = 0;

@@ -160,6 +160,8 @@ void FFGLPluginInstance::SetStringParameter(int paramNum, std::string value)
 		m_main(FF_SETPARAMETER, (DWORD)(&ArgStruct), m_instanceid);
 	} else if ( ffParameterType == FF_TYPE_STANDARD ) {
 		ArgStruct.u.NewFloatValue = (float) atof(value.c_str());
+	} else if ( ffParameterType == FF_TYPE_BOOLEAN ) {
+		ArgStruct.u.NewParameterValue = jsonIsTrueValue(value.c_str());
     } else {
 		throw NosuchException("HEY! SetStringParameter called on non-TEXT/STANDARD parameter (paramnum=%d)",paramNum);
 	}

@@ -1412,7 +1412,8 @@ VizServer::_openSharedMemOutlines()
 	UT_SharedMemError err = m_sharedmem_outlines->getErrorState();
 	if (err != UT_SHM_ERR_NONE) {
 		static long last_warning = 0;
-		if (last_warning == 0 || (now - last_warning) > 60000) {
+		int warning_repeat_seconds = 300;  // warn every 5 minutes = 300 seconds
+		if (last_warning == 0 || (now - last_warning) > (warning_repeat_seconds*1000)) {
 			last_warning = now;
 			DEBUGPRINT(("Unable to open shared memory with name='%s' ?  Is MMTT running?  err=%d", m_sharedmemname, err));
 		}

@@ -73,6 +73,7 @@ std::string jsonNeedStringForced(cJSON*j, std::string nm);
 std::string NosuchReadFile(std::string fanme, std::string& err, std::string commentstart = "", bool ignoreblanklines = false, std::string replaceEOL = "");
 cJSON* jsonReadFile(std::string fname, std::string& err);
 bool jsonWriteFile(std::string fname, cJSON* j, std::string& err);
+bool jsonWriteFileContents(std::string fname, const char* contents, std::string& err);
 void jsonSetDebugConfig(cJSON* json);
 
 class NosuchJsonListener {

@@ -537,11 +537,19 @@ FFFF::FFGLAddToPipeline(std::string pluginName, std::string viztag, bool autoena
 			if (nm == "") {
 				throw NosuchException("Missing parameter name");
 			}
-			double v = jsonNeedDouble(pn, "value", -1.0);
-			if (v < 0) {
+			cJSON *t = cJSON_GetObjectItem(pn,"value");
+			if (t == NULL) {
 				throw NosuchException("Missing parameter value");
 			}
-			np->setparam(nm, (float)v);
+			if (t->type == cJSON_String ) {
+				np->setparam(nm, t->valuestring);
+			}
+			else if (t->type == cJSON_Number) {
+				np->setparam(nm, (float)(t->valuedouble));
+			}
+			else {
+				throw NosuchException("FFGLAddToPipeline unable to handle type=%d",t->type);
+			}
 		}
 	}
 
@@ -1334,7 +1342,11 @@ std::string FFFF::savePipeline(std::string fname, const char* id)
 				throw NosuchException("Unable to parse .dump json in savePipeline!?");
 			}
 			std::string result = jsonNeedString(json, "result","");
-			f << "\t\t\"vizletdump\": " + result + ",\n";
+			// The result should be a big long json value.  We want to pretty-print it.
+			cJSON* prettyj = cJSON_Parse(result.c_str());
+			const char* prettys = cJSON_Print(prettyj);
+			f << "\t\t\"vizletdump\": " + NosuchReplaceAll(prettys,"\n","\n\t\t") + ",\n";
+			cJSON_free((void*)prettys);
 			jsonFree(json);
 		}
 		f << "\t\t\"params\": " + FFGLParamVals(*it,"\n\t\t\t") + "\n";
