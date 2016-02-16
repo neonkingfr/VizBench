@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Space Puddle</title>
+
+	<link rel="stylesheet" href="../css/themes/default/jquery.mobile-1.4.5.min.css">
+	<script src="../js/jquery.js"></script>
+	<script src="../_assets/js/index.js"></script>
+	<script src="../js/jquery.mobile-1.4.5.min.js"></script>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("#loopingon").click(function() {
+				alert("button");
+			});
+
+			$("#pad1").click(function() {
+
+				var o = $("#pad1");
+				console.log("Hi!!");
+				console.log(Object.getOwnPropertyNames(o));
+
+				// $("#pad2").disable();
+				// $("#pad3").disable();
+				// $("#pad4").disable();
+			});
+		});
+	</script>
+</head>
+<body>
+
+<div data-role="tabs">
+	<div data-role="navbar">
+		<ul>
+	      <li><a href="#global" data-theme="a" data-ajax="false">GLOBAL SETTINGS</a></li>
+	      <li><a href="#perpad" data-theme="a" data-ajax="false">PER-PAD SETTINGS</a></li>
+	      <li><a href="#util" data-theme="a" data-ajax="false">UTILITIES</a></li>
+	    </ul>
+	</div>
+
+	<div id="global" class="ui-content">
+		<input type="button" data-inline="true" value="Clear">
+		<input type="button" data-inline="true" value="Reset">
+	</div>
+
+	<div id="perpad" class="ui-content">
+
+		<table width=100%>
+		<tr>
+		<td width=25%>
+			<checkbox id="loopingon">Looping On</checkbox>
+		</td>
+		<td width=25%></td>
+		<td width=25%></td>
+		<td width=25%>
+			<button class="ui-btn ui-btn-inline">Looping Off</button>
+		</td></tr>
+		</table>
+
+		<fieldset data-role="controlgroup" data-type="horizontal">
+		<form>
+		<table width=100%>
+
+		<tr>
+		<td width=10%></td>
+		<td valign=top>
+			<input type="button" name="pad1" id="pad1">
+			<label for="pad1">PAD1</label>
+		</td>
+		<td width=10%></td>
+		<td width=10%></td>
+		<td valign=bottom>
+			&nbsp;<br>
+			&nbsp;<br>
+			<input type="button" name="pad2" id="pad2">
+			<label for="pad2">PAD2</label>
+		</td>
+		<td width=10%></td>
+		<td width=10%></td>
+		<td valign=bottom>
+			&nbsp;<br>
+			&nbsp;<br>
+			<input type="button" name="pad3" id="pad3">
+			<label for="pad3">PAD3</label>
+		</td>
+		<td width=10%></td>
+		<td width=10%></td>
+		<td valign=top >
+			<input type="button" name="pad4" id="pad4">
+			<label for="pad4">PAD4</label>
+		</td>
+		<td width=10%></td>
+		</tr>
+
+		</table>
+		</fieldset>
+		<form>
+	</div>
+
+	<div id="util" class="ui-content">
+	</div>
+
+</div>
+
+</body>
+</html>

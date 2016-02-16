@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>W2UI Demo: grid-24</title>
+    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.4.2.min.css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.2.min.js"></script>
+</head>
+<body>
+
+
+<div id="tabs" style="width: 100%;"></div>
+<div id="selected-tab" style="padding: 10px 0px"></div>
+
+<script type="text/javascript">
+
+var pages = {};
+
+pages["global"] = "Global controls";
+
+pages["perpad"] = " \
+		<table width=100%>\
+		<tr>\
+		<td width=10%></td>\
+		<td valign=top>\
+			PAD1\
+		</td>\
+		<td width=10%></td>\
+		<td width=10%></td>\
+		<td valign=bottom>\
+			&nbsp;<br>\
+			&nbsp;<br>\
+			PAD2\
+		</td>\
+		<td width=10%></td>\
+		<td width=10%></td>\
+		<td valign=bottom>\
+			&nbsp;<br>\
+			&nbsp;<br>\
+			PAD3\
+		</td>\
+		<td width=10%></td>\
+		<td width=10%></td>\
+		<td valign=top >\
+			PAD4\
+		</td>\
+		<td width=10%></td>\
+		</tr>\
+		</table>\
+		";
+
+pages["util"] = "\
+	<button class=\"btn\" onclick=\"w2ui.grid.unlock();\">Unlock</button>\
+	";
+
+$(function () {
+    $('#tabs').w2tabs({
+        name: 'tabs',
+        active: 'tab1',
+        tabs: [
+            { id: 'global', caption: 'Global' },
+            { id: 'perpad', caption: 'PerPad' },
+            { id: 'util', caption: 'Util' }
+        ],
+        onClick: function (event) {
+	    var h = pages[event.target];
+            $('#selected-tab').html(h);
+        }
+    });
+});
+
+</script>
+<br>
+
+</body>
+</html>

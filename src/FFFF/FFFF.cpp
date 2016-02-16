@@ -1028,13 +1028,13 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 
 		glReadPixels(0, 0, window_width, window_height, GL_BGR_EXT, GL_UNSIGNED_BYTE, m_output_framedata);
 
-		double tm = NosuchSecondsElapsed();
+		double tm = NosuchTimeElapsedInSeconds();
 		double timePerFrame = 1.0 / FfffOutputFPS;
 		// Pehaps this should be a loop, but handle first one, too
 		if (m_output_framenum == 0) {
 			// First frame of a recording
 			fwrite(m_output_framedata, window_width*window_height, 3, FfffOutputFile);
-			DEBUGPRINT1(("Writing frame %d  time=%lf",m_output_framenum,NosuchSecondsElapsed()));
+			DEBUGPRINT1(("Writing frame %d  time=%lf",m_output_framenum,NosuchTimeElapsedInSeconds()));
 			m_output_framenum++;
 			m_output_lastwrite = tm;
 		}
@@ -1048,7 +1048,7 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 			if (frameswritten > 0) {
 				m_output_framenum += frameswritten;
 				m_output_lastwrite = tm;
-				DEBUGPRINT1(("Wrote %d frames, framenum is now %d  time=%lf", frameswritten, m_output_framenum, NosuchSecondsElapsed()));
+				DEBUGPRINT1(("Wrote %d frames, framenum is now %d  time=%lf", frameswritten, m_output_framenum, NosuchTimeElapsedInSeconds()));
 			}
 		}
 	}
@@ -1478,7 +1478,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		return jsonOK(id);
 	}
 	if (meth == "time") {
-		return jsonDoubleResult(m_vizserver->GetTimeInSeconds(), id);
+		return jsonDoubleResult(m_vizserver->SchedulerCurrentTimeInSeconds(), id);
 	}
 	if (meth == "clicknow") {
 		return jsonIntResult(m_vizserver->SchedulerCurrentClick(), id);

@@ -46,7 +46,7 @@ std::string VizExample3::processJson(std::string meth, cJSON *json, const char *
 		if (file == "") {
 			return jsonError(-32000, "Bad file value", id);
 		}
-		SpriteVizParams* p = getSpriteVizParams(file);
+		SpriteVizParams* p = readSpriteVizParams(file);
 		if (p) {
 			m_spriteparams = file;
 			m_params = p;

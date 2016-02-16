@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Space Puddle</title>
+
+	<link rel="stylesheet" href="../css/themes/default/jquery.mobile-1.4.5.min.css">
+	<script src="../js/jquery.js"></script>
+	<script src="../_assets/js/index.js"></script>
+	<script src="../js/jquery.mobile-1.4.5.min.js"></script>
+
+	<script src="../dojo/dojo.js"></script>
+	<script src="../viz/viz.js"></script>
+	<script src="../viz/ffff.js"></script>
+
+	<script type="text/javascript">
+
+		current_padname = "pad1";
+
+		function get_looping(padname) {
+			var getapi = "vizpuddle.get_"+padname+"_looping";
+			var val = vizapi(getapi).result;
+			return val;
+		}
+		function set_looping(padname,b) {
+			var setapi = "vizpuddle.set_"+padname+"_looping";
+			var r = vizapi(setapi,"{\"onoff\":\""+b+"\"}").result;
+			// Should check return for errors
+		}
+		function setchecked(padname,b) {
+			$("#"+padname).get(0).checked = (b?"checked":"");
+		}
+
+		function padclicked(padname) {
+
+			current_padname = padname;
+			setchecked(padname,true);
+
+			var b = get_looping(padname);
+			var looping = $("#looping").get(0);
+			if ( b ) {
+				looping.checked = "checked";
+			} else {
+				looping.checked = "";
+			}
+
+			// radio-button behaviour
+			if (padname != "pad1") { setchecked("pad1",false); }
+			if (padname != "pad2") { setchecked("pad2",false); }
+			if (padname != "pad3") { setchecked("pad3",false); }
+			if (padname != "pad4") { setchecked("pad4",false); }
+		}
+
+		$(document).ready(function() {
+
+			$("#looping").click(function() {
+				var b = get_looping(current_padname);
+				set_looping(current_padname, !b );
+			});
+
+			$("#pad1").click(function() { padclicked("pad1"); });
+			$("#pad2").click(function() { padclicked("pad2"); });
+			$("#pad3").click(function() { padclicked("pad3"); });
+			$("#pad4").click(function() { padclicked("pad4"); });
+
+		});
+
+		function load_values() {
+		}
+	</script>
+</head>
+<body>
+
+<div data-role="tabs">
+	<div data-role="navbar">
+		<ul>
+	      <li><a href="#global" data-theme="a" data-ajax="false">GLOBAL SETTINGS</a></li>
+	      <li><a href="#perpad" data-theme="a" data-ajax="false">PER-PAD SETTINGS</a></li>
+	      <li><a href="#util" data-theme="a" data-ajax="false">UTILITIES</a></li>
+	    </ul>
+	</div>
+
+	<div id="global" class="ui-content">
+		<input type="button" data-inline="true" value="Clear">
+		<input type="button" data-inline="true" value="Reset">
+	</div>
+
+	<div id="perpad"">
+
+		<table width=100%>
+		<tr>
+		<td width=25%>
+			Looping:
+		</td><td>
+			<input type="checkbox" id="looping"></input>
+		</td>
+		</tr>
+		<tr>
+		<td width=25%>
+			Octave:
+		</td><td>
+			<input type="number" id="octave"></input>
+		</td>
+		</tr>
+		</table>
+
+		<fieldset data-role="controlgroup" data-type="horizontal">
+		<form>
+		<table width=100%>
+
+		<tr>
+		<td width=10%></td>
+		<td valign=top>
+			<input type="checkbox" name="pad1" id="pad1">PAD1</input>
+		</td>
+		<td width=10%></td>
+		<td width=10%></td>
+		<td valign=bottom>
+			&nbsp;<br>
+			&nbsp;<br>
+			<input type="checkbox" name="pad2" id="pad2">PAD2</input>
+		</td>
+		<td width=10%></td>
+		<td width=10%></td>
+		<td valign=bottom>
+			&nbsp;<br>
+			&nbsp;<br>
+			<input type="checkbox" name="pad3" id="pad3">PAD3</input>
+		</td>
+		<td width=10%></td>
+		<td width=10%></td>
+		<td valign=top >
+			<input type="checkbox" name="pad4" id="pad4">PAD4</input>
+		</td>
+		<td width=10%></td>
+		</tr>
+
+		</table>
+		</fieldset>
+		<form>
+	</div>
+
+	<div id="util" class="ui-content">
+	</div>
+
+</div>
+
+</body>
+</html>

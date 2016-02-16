@@ -55,13 +55,13 @@ public:
 	void RemoveCallbacks();
 	void ChangeVizTag(const char* newtag);
 	void advanceCursorTo(VizCursor* c, double tm);
-	double GetTimeInSeconds();
+	double SchedulerCurrentTimeInSeconds();
 	click_t SchedulerCurrentClick();
 	void LockVizlet();
 	void UnlockVizlet();
 
-	void QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle);
-	void QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle);
+	void QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle, click_t loopleng);
+	void QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle, click_t loopleng);
 	void QueueClear();
 
 	DWORD SetVideoInfo(const VideoInfoStruct* pvi);
@@ -109,8 +109,6 @@ public:
 	// VizSprite* MakeVizSprite(SpriteVizParams* sp);
 
 	std::string VizPath2ConfigName(std::string path);
-	SpriteVizParams* getSpriteVizParams(std::string path);
-	SpriteVizParams* findSpriteVizParams(std::string cachename);
 	SpriteVizParams* checkSpriteVizParamsAndLoadIfModifiedSince(std::string fname, std::time_t& lastcheck, std::time_t& lastupdate);
 
 	// VizSprite* defaultMidiVizSprite(MidiMsg* m);
@@ -164,8 +162,8 @@ public:
 	virtual void processKeystroke(int key, int downup) { }
 	/////////////////////////////////////////////////////
 
-	virtual void processAdvanceClickTo(int click) { }
-	virtual void processAdvanceTimeTo(double tm) { }
+	// virtual void processAdvanceClickTo(int click) { }
+	// virtual void processAdvanceTimeTo(double tm) { }
 
 	virtual bool processFrame24Bit() {
 		return false;
@@ -246,8 +244,6 @@ private:
 
 	SpriteVizParams* m_defaultparams;
 	SpriteVizParams* m_defaultmidiparams;
-	bool m_useparamcache;
-	std::map<std::string, SpriteVizParams*> m_paramcache;
 
 #define DISPLEN 128
 	char m_disp[DISPLEN];

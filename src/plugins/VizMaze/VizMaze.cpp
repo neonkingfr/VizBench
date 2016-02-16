@@ -131,6 +131,7 @@ void VizMaze::processCursor(VizCursor* c, int downdragup) {
 	// NO OpenGL calls here
 }
 
+#if 0
 void VizMaze::processAdvanceClickTo(int click) {
 	setup();
 	static int lastclick = 0;
@@ -139,6 +140,7 @@ void VizMaze::processAdvanceClickTo(int click) {
 	m_maze->moveBalls(nclicks);
 	lastclick = click;
 }
+#endif
 
 std::string VizMaze::processJson(std::string meth, cJSON *json, const char *id) {
 	// NO OpenGL calls here
@@ -158,6 +160,14 @@ bool VizMaze::processDraw() {
 	// OpenGL calls here
 	DrawVizSprites();
 	m_maze->Draw();
+	{
+		static int lastclick = 0;
+		click_t now = SchedulerCurrentClick();
+		int nclicks = now - lastclick;
+		// DEBUGPRINT(("processAdvanceClickTo MAZE click=%d time=%ld nclicks=%d", click, timeGetTime(),nclicks));
+		m_maze->moveBalls(nclicks);
+		lastclick = now;
+	}
 	return true;
 }
 

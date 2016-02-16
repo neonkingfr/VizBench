@@ -1,23 +1,18 @@
 #include "NosuchUtil.h"
 #include "NosuchException.h"
 #include "NosuchScheduler.h"
-#include "NosuchLooper.h"
 #include "NosuchJson.h"
 
 #define TIME_PROC ((int32_t (*)(void *)) Pt_Time)
 #define TIME_INFO NULL
 #define TIME_START Pt_Start(1, 0, 0) /* timer started w/millisecond accuracy */
 
-#define QUIT_MSG 1000
-
 int SchedulerCount = 0;
 
 click_t GlobalClick = -1;
 int GlobalPitchOffset = 0;
 bool NoMultiNotes = true;
-bool LoopCursors = true;
 
-int NosuchScheduler::m_timestampInMilliseconds = 0;
 int NosuchScheduler::m_ClicksPerSecond = 0;
 double NosuchScheduler::m_ClicksPerMillisecond = 0;
 int NosuchScheduler::m_LastTimeStampInMilliseconds;
@@ -45,22 +40,6 @@ schedevent_compare (SchedEvent* first, SchedEvent* second)
 	else
 		return false;
 }
-
-SchedEvent::~SchedEvent() {
-	switch(m_eventtype) {
-	case MIDIPHRASE:
-		delete u.midiphrase;
-		u.midiphrase = NULL;
-		break;
-	case MIDIMSG:
-		// Should u.midimsg be deleted here?  I believe the answer is NO.
-		break;
-	case CURSORMOTION:
-		DEBUGPRINT(("Should u.cursormotion be deleted in SchedEvent destructor?"));
-		break;
-	}
-}
-
 
 void NosuchScheduler::_sortEvents(SchedEventList* sl) {
 	stable_sort (sl->begin(), sl->end(),schedevent_compare);
@@ -120,12 +99,22 @@ void NosuchScheduler::ScheduleMidiPhrase(MidiPhrase* ph, click_t clk, const char
 	}
 }
 
-void NosuchScheduler::ScheduleClear() {
+void NosuchScheduler::ScheduleClear(const char* handle) {
 	LockScheduled();
-	std::map<const char*,SchedEventList*>::iterator it = m_scheduled.begin();
-	for (; it != m_scheduled.end(); it++ ) {
-		SchedEventList* sl = it->second;
-		sl->clear();
+	if (handle == 0) {
+		// Clear all schedules
+		std::map<const char*, SchedEventList*>::iterator it = m_scheduled.begin();
+		for (; it != m_scheduled.end(); it++) {
+			SchedEventList* sl = it->second;
+			sl->clear();
+		}
+	}
+	else {
+		std::map<const char*,SchedEventList*>::iterator it = m_scheduled.find(handle);
+		if (it != m_scheduled.end()) {
+			SchedEventList* sl = it->second;
+			sl->clear();
+		}
 	}
 	UnlockScheduled();
 }
@@ -153,15 +142,15 @@ NosuchScheduler::ScheduleAddEvent(SchedEvent* e, bool lockit) {
 	return true;
 }
 
-void NosuchScheduler::QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle) {
-	SchedEvent* e = new SchedEvent(m,clk,handle);
+void NosuchScheduler::QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle, click_t loopclicks) {
+	SchedEvent* e = new SchedEvent(m,clk,handle,loopclicks);
 	if ( ! QueueAddEvent(e) ) {
 		delete e;
 	}
 }
 
-void NosuchScheduler::QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle) {
-	SchedEvent* e = new SchedEvent(ph,clk,handle);
+void NosuchScheduler::QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle, click_t loopclicks) {
+	SchedEvent* e = new SchedEvent(ph,clk,handle,loopclicks);
 	if ( ! QueueAddEvent(e) ) {
 		delete e;
 	}
@@ -509,7 +498,6 @@ void NosuchScheduler::Stop() {
 
 void NosuchScheduler::AdvanceTimeAndDoEvents(PtTimestamp timestamp) {
 
-	m_timestampInMilliseconds = timestamp;
 	m_LastTimeStampInMilliseconds = timestamp;
 	NosuchAssert(m_running==true);
 
@@ -691,19 +679,54 @@ void NosuchScheduler::SendMidiMsg(MidiMsg* msg, const char* handle) {
 
 }
 
+// We assume that the SchedEvent here has already been removed from the
+// Schedule list.  So, after processing it, we may (if looping is turned on) merely
+// re-queue the event (using QueueAddEvent) for being added back to the Scheduler list,
+// rather than deleting it.  From the caller's point of view, though, the SchedEvent
+// has been deleted.
 void NosuchScheduler::DoEventAndDelete(SchedEvent* e, const char* handle) {
 	bool deleteit = true;
 	if (e->eventtype() == SchedEvent::MIDIMSG ) {
 		MidiMsg* m = e->u.midimsg;
 		NosuchAssert(m);
-		DoMidiMsgEvent(m,handle);  // deletes m
+		DoMidiMsgEvent(m,handle);
+
+		// XXX - don't loop CONTROL for the moment
+
+		// if (e->m_loopclicks > 0 && m->MidiType() != MIDI_CONTROL ) {
+		if (e->m_loopclicks > 0) {
+			// DEBUGPRINT(("Should be adding m=%s to loop", m->DebugString().c_str()));
+			// Re-use the same SchedEvent and MidiMsg, and queue it up for
+			// eventually being added to the Scheduled list
+			deleteit = false;
+			e->click += e->m_loopclicks;
+			QueueAddEvent(e);
+			DEBUGPRINT(("   Looping, queing new event click=%ld",e->click));
+		}
+		else {
+			delete m;
+		}
 	} else if (e->eventtype() == SchedEvent::MIDIPHRASE ) {
 		MidiPhrase* ph = e->u.midiphrase;
 		MidiPhraseUnit* pu = ph->first;
 		if ( pu ) {
 			MidiPhraseUnit* nextpu = pu->next;
 			click_t prevclick = pu->click;
-			DoMidiMsgEvent(pu->msg,handle);  // deletes msg
+			MidiMsg* m = pu->msg;
+			DoMidiMsgEvent(m,handle);
+			// Looped MIDIPHRASE events are essentially converted to
+			// individual MIDIMSG events, here.  That may not be desirable, someday.
+			if (e->m_loopclicks > 0) {
+				// NOTE: This does NOT make a copy of e->m_handle,
+				// it refers to it directly.  The char* memory of m_handle
+				// is expected to be around pretty much forever.
+				click_t nextclick = e->click + e->m_loopclicks;
+				SchedEvent* e2 = new SchedEvent(m, nextclick, e->m_handle);
+				QueueAddEvent(e2);
+			}
+			else {
+				delete m;
+			}
 			// XXX - put this back!!   delete pu;
 			ph->first = nextpu;
 			if ( nextpu != NULL ) {
@@ -711,7 +734,7 @@ void NosuchScheduler::DoEventAndDelete(SchedEvent* e, const char* handle) {
 				deleteit = false;
 				click_t nextclick = nextpu->click;
 				e->click = e->click + (nextclick - prevclick);
-				ScheduleAddEvent(e,false);  // we're already locked, so lockit==false
+				QueueAddEvent(e);
 			}
 		}
 	} else {
@@ -729,7 +752,6 @@ NosuchScheduler::DoMidiMsgEvent(MidiMsg* m, const char* handle)
 {
 	NosuchAssert(m);
 	SendMidiMsg(m,handle);
-	delete m;
 	return;
 
 #ifdef NOWPLAYING
@@ -929,6 +951,12 @@ void NosuchScheduler::SetClicksPerSecond(int clkpersec) {
 
 click_t NosuchScheduler::ClicksPerSecond() {
 	return int(m_ClicksPerMillisecond * 1000.0 + 0.5);
+}
+
+// A "beat" is a quarter note, typically
+click_t NosuchScheduler::ClicksPerBeat() {
+	int bpm = 120;
+	return ClicksPerSecond() * 60 / bpm;
 }
 
 void NosuchScheduler::SetTempoFactor(float f) {

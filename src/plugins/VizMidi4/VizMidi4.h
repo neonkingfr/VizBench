@@ -20,7 +20,7 @@ public:
 	std::string processJson(std::string meth, cJSON *jsonparams, const char *id);
 	void processMidiInput(MidiMsg* m);
 	void processMidiOutput(MidiMsg* m);
-	void processAdvanceClickTo(int click);
+	// void processAdvanceClickTo(int click);
 	void processCursor(VizCursor* c, int downdragup);
 	bool processDraw();
 

@@ -21,7 +21,7 @@ public:
 	void processMidiInput(MidiMsg* m);
 	void processMidiOutput(MidiMsg* m);
 	void processCursor(VizCursor* c, int downdragup);
-	void processAdvanceClickTo(int click);
+	// void processAdvanceClickTo(int click);
 	bool processDraw();
 
 	void onCellHit(MazeCell& cell, MazeBall* b);

@@ -81,9 +81,6 @@
     <ClInclude Include="..\..\..\src\nosuch\NosuchHttpServer.h">
       <Filter>Header Files\nosuch</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchLooper.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\nosuch\NosuchOscInput.h">
       <Filter>Header Files\nosuch</Filter>
     </ClInclude>
@@ -123,6 +120,9 @@
     <ClInclude Include="..\..\..\src\nosuch\Scale.h">
       <Filter>Header Files\nosuch</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\nosuch\SchedEvent.h">
+      <Filter>Header Files\nosuch</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\nosuch\NosuchScheduler.cpp">
@@ -138,9 +138,6 @@
       <Filter>Source Files\nosuch</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\nosuch\NosuchHttpServer.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchLooper.cpp">
       <Filter>Source Files\nosuch</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\nosuch\NosuchOscInput.cpp">
@@ -243,6 +240,9 @@
       <Filter>Source Files\params</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\nosuch\Scale.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\SchedEvent.cpp">
       <Filter>Source Files\nosuch</Filter>
     </ClCompile>
   </ItemGroup>

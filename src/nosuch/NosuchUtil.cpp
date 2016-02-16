@@ -539,6 +539,6 @@ void NosuchTimeInit() {
 	NosuchMilli0 = timeGetTime();
 }
 
-double NosuchSecondsElapsed() {
+double NosuchTimeElapsedInSeconds() {
 	return ( (timeGetTime() - NosuchMilli0) / 1000.0 );
 }

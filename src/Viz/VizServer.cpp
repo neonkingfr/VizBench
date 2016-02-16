@@ -990,8 +990,8 @@ void VizServer::_checkCursorUp() {
 	for (std::list<VizCursor*>::iterator i = m_cursors->begin(); i != m_cursors->end();) {
 		VizCursor* c = *i;
 		NosuchAssert(c);
-		double now = GetTimeInSeconds();
-		double dt = GetTimeInSeconds() - c->m_lasttouchedInSeconds;
+		double now = SchedulerCurrentTimeInSeconds();
+		double dt = SchedulerCurrentTimeInSeconds() - c->m_lasttouchedInSeconds;
 		// This timeout used to be 4ms, but when camera input
 		// is being used, the frame rate can be slow, so 20ms
 		// is more appropriate.  With other stuff (e.g. HTTP processing, etc)
@@ -1034,7 +1034,7 @@ VizServer::_setCursor(int sidnum, std::string sidsource, NosuchPos pos, double a
 		m_cursors->push_back(c);
 		m_cursorprocessor->processCursor(c, CURSOR_DOWN);
 	}
-	double seconds = GetTimeInSeconds();
+	double seconds = SchedulerCurrentTimeInSeconds();
 	c->advanceTo(seconds);
 	c->touch(seconds);
 	UnlockCursors();
@@ -1061,14 +1061,8 @@ void VizServer::_errorPopup(const char* msg) {
 	MessageBoxA(NULL, msg, "Palette", MB_OK);
 }
 
-double VizServer::GetTimeInSeconds() {
-	return NosuchSecondsElapsed();
-}
-
-int VizServer::SchedulerTimestamp() {
-	if (m_scheduler == NULL)
-		return 0;
-	return m_scheduler->m_timestampInMilliseconds;
+double VizServer::SchedulerCurrentTimeInSeconds() {
+	return NosuchTimeElapsedInSeconds();
 }
 
 click_t VizServer::SchedulerCurrentClick() {
@@ -1083,6 +1077,10 @@ click_t VizServer::SchedulerCurrentClick() {
 
 click_t VizServer::SchedulerClicksPerSecond() {
 	return m_scheduler->ClicksPerSecond();
+}
+
+click_t VizServer::SchedulerClicksPerBeat() {
+	return m_scheduler->ClicksPerBeat();
 }
 
 const char*
@@ -1164,21 +1162,27 @@ VizServer::_scheduleClear() {
 }
 
 void
-VizServer::QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle) {
+VizServer::QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle, click_t loopclicks) {
 	NosuchAssert(m_scheduler);
-	m_scheduler->QueueMidiPhrase(ph, clk, handle);
+	m_scheduler->QueueMidiPhrase(ph, clk, handle, loopclicks);
 }
 
 void
-VizServer::QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle) {
+VizServer::QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle, click_t loopclicks) {
 	NosuchAssert(m_scheduler);
-	m_scheduler->QueueMidiMsg(m, clk, handle);
+	m_scheduler->QueueMidiMsg(m, clk, handle, loopclicks);
 }
 
 void
 VizServer::QueueClear() {
 	NosuchAssert(m_scheduler);
 	m_scheduler->QueueClear();
+}
+
+void
+VizServer::ScheduleClear(const char* handle) {
+	NosuchAssert(m_scheduler);
+	m_scheduler->ScheduleClear(handle);
 }
 
 void
@@ -1274,7 +1278,7 @@ void VizServer::_advanceClickTo(int current_click) {
 	for (std::list<VizCursor*>::iterator i = m_cursors->begin(); i != m_cursors->end(); i++) {
 		VizCursor* c = *i;
 		NosuchAssert(c);
-		c->advanceTo(GetTimeInSeconds());
+		c->advanceTo(SchedulerCurrentTimeInSeconds());
 	}
 
 	UnlockCursors();
@@ -1635,7 +1639,7 @@ void
 VizServer::_touchCursorSid(int sid, std::string source) {
 	VizCursor* c = _getCursor(sid, source, true);
 	if (c) {
-		c->touch(GetTimeInSeconds());
+		c->touch(SchedulerCurrentTimeInSeconds());
 	}
 }
 
@@ -1651,7 +1655,6 @@ VizCursor::VizCursor(VizServer* ss, int sid_, std::string source_,
 	area = area_;
 	outline = om_;
 	hdr = hdr_;
-	region = NULL;
 	curr_speed = 0;
 	curr_degrees = 0;
 
@@ -1663,10 +1666,14 @@ VizCursor::VizCursor(VizServer* ss, int sid_, std::string source_,
 	m_target_degrees = 0;
 	m_g_firstdir = true;
 	m_smooth_degrees_factor = 0.2;
-	m_pending_noteoff = NULL;
 	// m_controllerval = -1;
 
-	touch(ss->GetTimeInSeconds());
+	m_pending_noteoff = NULL;
+	m_noteon_click = 0;
+	m_noteon_loopclicks = 0;
+	m_noteon_depth = 0;
+
+	touch(ss->SchedulerCurrentTimeInSeconds());
 }
 
 double

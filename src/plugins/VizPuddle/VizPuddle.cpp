@@ -29,6 +29,7 @@ VizPuddle::VizPuddle() : Vizlet() {
 									};
 
 	const char* s;
+
 	for (int i = 0; (s=regionnames[i])!=NULL; i++ ) {
 		_region[s] = new Region(s);
 	}
@@ -132,6 +133,7 @@ std::string VizPuddle::processJson(std::string meth, cJSON *json, const char *id
 				apis += "set_" + nm + "_sidrange(sidrange);";
 				apis += "set_" + nm + "_sprite(paramfile);";
 				apis += "set_" + nm + "_midi(paramfile);";
+				apis += "set_" + nm + "_looping(onoff);";
 		}
 		for (const auto &pair : _button) {
 			std::string nm = pair.first;
@@ -156,6 +158,7 @@ std::string VizPuddle::processJson(std::string meth, cJSON *json, const char *id
 			sep = ",";
 			dump += sep + NosuchSnprintf("{\"method\":\"set_%s_sprite\",\"params\":{\"paramfile\":\"%s\"}}", pair.first.c_str(), pair.second->spriteparamfile.c_str());
 			dump += sep + NosuchSnprintf("{\"method\":\"set_%s_midi\",\"params\":{\"paramfile\":\"%s\"}}", pair.first.c_str(), pair.second->midiparamfile.c_str());
+			dump += sep + NosuchSnprintf("{\"method\":\"set_%s_looping\",\"params\":{\"onoff\":\"%d\"}}", pair.first.c_str(), pair.second->m_looping);
 		}
 		for (const auto &pair : _button) {
 			dump += sep + NosuchSnprintf("{\"method\":\"set_%s_sidrange\",\"params\":{\"sidrange\":\"%d-%d\"}}", pair.first.c_str(), pair.second->sid_min, pair.second->sid_max);
@@ -180,6 +183,9 @@ std::string VizPuddle::processJson(std::string meth, cJSON *json, const char *id
 
 		if (meth == "set_" + nm + "_midi") { result = _set_region_midiparams(r, json, id); }
 		if (meth == "get_" + nm + "_midi") { result = jsonStringResult(r->midiparamfile, id); }
+
+		if (meth == "set_" + nm + "_looping") { result = _set_looping(r, json, id); }
+		if (meth == "get_" + nm + "_looping") { result = jsonIntResult(r->m_looping, id); }
 
 		if (result != "") {
 			const char *p = result.c_str();
@@ -281,15 +287,8 @@ int VizPuddle::_velocityOf(VizCursor* c) {
 	return 100;
 }
 
-// A "beat" is a quarter note, typically
-click_t VizPuddle::_clicksPerBeat() {
-	// Might want to cache this?
-	int bpm = 120;
-	return SchedulerClicksPerSecond() * 60 / bpm;
-}
-
 click_t VizPuddle::_durationOf(VizCursor* c) {
-	return _clicksPerBeat()/2;
+	return SchedulerClicksPerBeat()/2;
 }
 
 click_t VizPuddle::_quantOf(VizCursor* c) {
@@ -321,7 +320,7 @@ click_t VizPuddle::_quantOf(VizCursor* c) {
 		f = 0.125;
 	}
 #endif
-	click_t q = (click_t)(f * _clicksPerBeat());  // round?
+	click_t q = (click_t)(f * SchedulerClicksPerBeat());  // round?
 	return q;
 }
 
@@ -329,28 +328,33 @@ click_t VizPuddle::_quantizeToNext(click_t tm, click_t q) {
 	return tm - (tm%q) + q;
 }
 
+click_t
+VizPuddle::_loopClicks(Region* r) {
+	return (r->m_looping) ? r->midiparams->loopclicks.get() : 0;
+}
+
 void VizPuddle::_cursorMidi(VizCursor* c, int downdragup, Region* r) {
 
-	MidiVizParams* mp = r->midiparams;
-	if (mp == NULL) {
+	if (r->midiparams == NULL) {
 		return;
 	}
 
-	if (mp->arpeggiate.get()) {
-		_genArpeggiatedMidi(c, downdragup, mp);
+	if (r->midiparams->arpeggiate.get()) {
+		_genArpeggiatedMidi(c, downdragup, r);
 	}
 	else {
-		_genNormalMidi(c, downdragup, mp);
+		_genNormalMidi(c, downdragup, r);
 	}
 
-	_genControlMidi(c, downdragup, mp);
+	_genControlMidi(c, downdragup, r);
 
 	// Go through cursors, compute average depth for controllervalue
 	return;
 }
 
-void VizPuddle::_genArpeggiatedMidi(VizCursor* c, int downdragup, MidiVizParams* mp) {
+void VizPuddle::_genArpeggiatedMidi(VizCursor* c, int downdragup, Region* r) {
 
+	MidiVizParams* mp = r->midiparams;
 	MidiPhrase *ph = new MidiPhrase();
 	int ch = _channelOf(c,mp);
 	int pitch = _pitchOf(c,mp);
@@ -372,20 +376,20 @@ void VizPuddle::_genArpeggiatedMidi(VizCursor* c, int downdragup, MidiVizParams*
 		throw NosuchException("port value (%d) is too large!?",outport);
 	}
 	// The handle is per-port
-	QueueMidiPhrase(ph, tm, m_porthandle[outport]);
+	QueueMidiPhrase(ph, tm, m_porthandle[outport],_loopClicks(r));
 }
 
-void VizPuddle::_genControlMidi(VizCursor* c, int downdragup, MidiVizParams* mp) {
+void VizPuddle::_genControlMidi(VizCursor* c, int downdragup, Region* r) {
+
+	MidiVizParams* mp = r->midiparams;
 
 	if (mp->depthctlnum == 0) {
 		DEBUGPRINT(("depthctlnum value is 0, no controller"));
 		return;
 	}
 
-	Region* r = _findRegion(c);
-
 	if (downdragup == CURSOR_UP && r->m_cursors.size() == 0) {
-		_genControllerReset(c, mp);
+		_genControllerReset(c, r);
 		return;
 	}
 
@@ -424,52 +428,30 @@ void VizPuddle::_genControlMidi(VizCursor* c, int downdragup, MidiVizParams* mp)
 	click_t now = SchedulerCurrentClick();
 
 	MidiController* ctl = MidiController::make(ch, mp->depthctlnum, newv);
+	ctl->SetOutputPort(outport);
+
 	r->m_controllerval = newv;
 
-	QueueMidiMsg(ctl, now, m_porthandle[outport]);
+	QueueMidiMsg(ctl, now, m_porthandle[outport], _loopClicks(r));
 	DEBUGPRINT1(("Queued sid=%d updated controllerval=%d",c->sid,c->m_controllerval));
 	return;
 }
 
 // Reset controller value back to the minimum of its desired range (depthctlmin)
 void
-VizPuddle::_genControllerReset(VizCursor* c, MidiVizParams* mp) {
+VizPuddle::_genControllerReset(VizCursor* c, Region* r) {
 
-	Region* r = _findRegion(c);
+	MidiVizParams* mp = r->midiparams;
+
 	int ch = _channelOf(c,mp);
 	int outport = mp->port.get();
 	click_t now = SchedulerCurrentClick();
 
 	r->m_controllerval = (int)(mp->depthctlmin);
 	MidiController* ctl = MidiController::make(ch, mp->depthctlnum, r->m_controllerval);
-	QueueMidiMsg(ctl, now, m_porthandle[outport]);
+	ctl->SetOutputPort(outport);
+	QueueMidiMsg(ctl, now, m_porthandle[outport], _loopClicks(r));
 }
-
-#if 0
-	MidiPhrase *ph = new MidiPhrase();
-	int ch = _channelOf(c,mp);
-	int pitch = _pitchOf(c,mp);
-	int vel = _velocityOf(c);
-	click_t dur = _durationOf(c);
-	click_t quant = _quantOf(c);
-	click_t now = SchedulerCurrentClick();
-	int outport = mp->port.get();
-
-	MidiNoteOn *noteon = MidiNoteOn::make(ch, pitch, vel);
-	MidiNoteOff *noteoff = MidiNoteOff::make(ch, pitch, 0);
-	ph->insert(noteon, 0);
-	ph->insert(noteoff, dur);
-	ph->SetInputPort(MIDI_PORT_OF_GENERATED_STUFF);
-	ph->SetOutputPort(outport);
-	click_t tm = _quantizeToNext(now, quant);
-
-	if (outport >= MAX_MIDI_PORTS) {
-		throw NosuchException("port value (%d) is too large!?",outport);
-	}
-	// The handle is per-port
-	QueueMidiPhrase(ph, tm, m_porthandle[outport]);
-}
-#endif
 
 int _outputPort(MidiVizParams* mp) {
 	int outport = mp->port.get();
@@ -479,41 +461,10 @@ int _outputPort(MidiVizParams* mp) {
 	return outport;
 }
 
-#if 0
-			// the only thing we want to do is
-			// (possibly) generated a controller message from the depth.
-				if (mp->depthctlnum.get() <= 0) {
-					DEBUGPRINT1(("depthctl <= 0, no controller msg sent"));
-					return;
-				}
-				int dv = mp->depthctlmax - mp->depthctlmin;
-				int newv = _interpolate(c->pos.z, mp->depthctlmin.get(), mp->depthctlmax.get());
-				newv = BoundValue(newv, 0, 127);
-				DEBUGPRINT1(("sid=%d raw newv=%d", c->sid, newv));
-				if (c->m_controllerval >= 0) {    // 
-					// on subsequent times, smooth the new value with the old one
-					int dv = (newv - c->m_controllerval);
-					int newdv = dv / (mp->depthsmooth + 1);
-					if (newdv == 0) {
-						newdv = (dv > 0 ? 1 : -1);
-					}
-					newv = c->m_controllerval + newdv;
-					DEBUGPRINT1(("sid=%d oldval=%d newdv=%d newv=%d",c->sid,c->m_controllerval,newdv,newv));
-				}
-				else {
-					DEBUGPRINT1(("sid=%d first val=%d", c->sid, newv));
-				}
-				MidiController* ctl = MidiController::make(ch, mp->depthctlnum, newv);
-				c->m_controllerval = newv;
-
-				QueueMidiMsg(ctl, now, m_porthandle[outport]);
-				DEBUGPRINT1(("Queued sid=%d updated controllerval=%d",c->sid,c->m_controllerval));
-				return;
-#endif
-
 void
-VizPuddle::_queueNoteonWithNoteoffPending(VizCursor* c, MidiVizParams* mp) {
+VizPuddle::_queueNoteonWithNoteoffPending(VizCursor* c, Region* r) {
 
+	MidiVizParams* mp = r->midiparams;
 	int ch = _channelOf(c,mp);
 	int pitch = _pitchOf(c, mp);
 	int vel = _velocityOf(c);
@@ -533,19 +484,30 @@ VizPuddle::_queueNoteonWithNoteoffPending(VizCursor* c, MidiVizParams* mp) {
 
 	// Send the noteon, but don't sent the noteoff until we get a CURSOR_UP
 
-	QueueMidiMsg(noteon, nowquant, m_porthandle[outport]);
+	click_t loopclicks = _loopClicks(r);
+	QueueMidiMsg(noteon, nowquant, m_porthandle[outport],loopclicks);
 	DEBUGPRINT1(("QueueMidi of noteon %d click=%ld(in down)",noteon->Pitch(),nowquant));
 	DEBUGPRINT1(("CURSOR_DOWN setting c=%ld noteoff to %ld", (long)c,(long)(noteoff)));
 	c->m_pending_noteoff = noteoff;
 	c->m_noteon_click = nowquant;
+	c->m_noteon_loopclicks = loopclicks;
 	c->m_noteon_depth = c->pos.z;
+
 }
 
-void VizPuddle::_genNormalMidi(VizCursor* c, int downdragup, MidiVizParams* mp) {
+void
+VizPuddle::_finishNote(VizCursor* c, click_t noteoff_click, int outport, Region* r) {
+	QueueMidiMsg(c->m_pending_noteoff, noteoff_click, m_porthandle[outport], _loopClicks(r));
+}
+
+void VizPuddle::_genNormalMidi(VizCursor* c, int downdragup, Region* r) {
 
 	// In "NormalMidi" mode, the noteon/noteoff's are generated separately, so that
 	// if you hold a cursor down, the note will stay on until you release the cursor
 	// or move to a cursor position assigned to a different pitch.
+
+	MidiVizParams* mp = r->midiparams;
+	bool looping = r->m_looping;
 
 	int pitch = _pitchOf(c, mp);
 	int outport = _outputPort(mp);
@@ -558,7 +520,7 @@ void VizPuddle::_genNormalMidi(VizCursor* c, int downdragup, MidiVizParams* mp) 
 		if (c->m_pending_noteoff) {
 			DEBUGPRINT(("Hey! m_pending_noteoff isn't NULL for CURSOR_DOWN? c=%ld noteoff=%ld",(long)c,(long)(c->m_pending_noteoff)));
 		}
-		_queueNoteonWithNoteoffPending(c, mp);
+		_queueNoteonWithNoteoffPending(c, r);
 	}
 
 	else if (downdragup == CURSOR_DRAG) {
@@ -576,11 +538,10 @@ void VizPuddle::_genNormalMidi(VizCursor* c, int downdragup, MidiVizParams* mp) 
 				// When the new pitch is different, terminate the current note.
 				// Schedule the noteoff to make sure it happens after the noteon,
 				// which might not have been sent yet.
-				click_t noteoff_click = c->m_noteon_click + 1;
-				QueueMidiMsg(c->m_pending_noteoff, noteoff_click, m_porthandle[outport]);
+				_finishNote(c, c->m_noteon_click + 1, outport, r);
 
 				// And then generate a new noteon with a pending noteoff
-				_queueNoteonWithNoteoffPending(c, mp);
+				_queueNoteonWithNoteoffPending(c, r);
 			}
 		}
 	}
@@ -592,7 +553,7 @@ void VizPuddle::_genNormalMidi(VizCursor* c, int downdragup, MidiVizParams* mp) 
 		}
 		else {
 			// If noteoff is not quantized, it may preceded noteon, resulting in stuck note
-			QueueMidiMsg(c->m_pending_noteoff, nowquant, m_porthandle[outport]);
+			_finishNote(c, nowquant, outport, r);
 			c->m_pending_noteoff = NULL;
 		}
 #if 0
@@ -600,7 +561,7 @@ void VizPuddle::_genNormalMidi(VizCursor* c, int downdragup, MidiVizParams* mp) 
 			c->m_controllerval = (int)(mp->depthctlmin);
 			MidiController* ctl = MidiController::make(ch, mp->depthctlnum, c->m_controllerval);
 			QueueMidiMsg(ctl, now, m_porthandle[outport]);
-			DEBUGPRINT1(("Queued ctl val=%d",c->m_controllerval));
+			DEBUGPRINT1(("Queued ctl val=%d", c->m_controllerval));
 			return;
 		}
 #endif
@@ -631,7 +592,7 @@ void VizPuddle::_cursorSprite(VizCursor* c, int downdragup, Region* r) {
 		movedir = sp->movedir.get();
 	}
 
-	DEBUGPRINT2(("_cursorSprite spriteparams=%ld shape=%s",(long)sp,sp->shape.get().c_str()));
+	DEBUGPRINT2(("_cursorSprite spriteparams=%ld shape=%s", (long)sp, sp->shape.get().c_str()));
 	makeAndAddVizSprite(sp, pos);
 }
 
@@ -651,6 +612,19 @@ VizPuddle::_set_region_spriteparams(Region* r, cJSON* json, const char* id)
 		// return jsonError(-32000, "Unable to load spriteparams file", id);
 		return jsonOK(id);
 	}
+}
+
+std::string
+VizPuddle::_set_looping(VizPuddle::Region* r, cJSON* json, const char* id)
+{
+	bool b = jsonNeedBool(json, "onoff", false);
+	r->m_looping = b;
+	if (!r->m_looping) {
+		// Clear everything scheduled for this region
+		ScheduleClear();
+	}
+	DEBUGPRINT(("Looping for pad %s is set to %d",r->name.c_str(),b));
+	return jsonOK(id);
 }
 
 std::string
@@ -691,7 +665,7 @@ VizPuddle::_set_button_pipeline(Button* b, cJSON* json, const char* id)
 bool VizPuddle::_loadSpriteVizParamsFile(std::string fname, VizPuddle::Region* r) {
 	r->lastspritefilecheck = time(0);
 	r->lastspritefileupdate = time(0);
-	SpriteVizParams* p = getSpriteVizParams(fname);
+	SpriteVizParams* p = readSpriteVizParams(fname);
 	if (!p) {
 		// A non-existent params file is now okay
 		// r->spriteparamfile = "";
@@ -721,7 +695,7 @@ VizPuddle::_set_region_midiparams(Region* r, cJSON* json, const char* id)
 bool VizPuddle::_loadMidiVizParamsFile(std::string fname, VizPuddle::Region* r) {
 	r->lastmidifilecheck = time(0);
 	r->lastmidifileupdate = time(0);
-	MidiVizParams* p = getMidiVizParams(fname);
+	MidiVizParams* p = readMidiVizParams(fname);
 	if (!p) {
 		r->midiparamfile = "";
 		r->midiparams = NULL;

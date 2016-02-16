@@ -121,7 +121,6 @@ Vizlet10::Vizlet10() {
 
 	VizParams::Initialize();
 	m_defaultparams = new SpriteVizParams();
-	m_useparamcache = false;
 	m_callbacksInitialized = false;
 	m_passthru = true;
 	m_defaultmidiparams = defaultParams();
@@ -326,8 +325,8 @@ void Vizlet10::_stopKeystrokeCallbacks() {
 	m_vizserver->RemoveKeystrokeCallback(Handle());
 }
 
-double Vizlet10::GetTimeInSeconds() {
-	return m_vizserver->GetTimeInSeconds();
+double Vizlet10::SchedulerCurrentTimeInSeconds() {
+	return m_vizserver->SchedulerCurrentTimeInSeconds();
 }
 
 int Vizlet10::SchedulerCurrentClick() {
@@ -368,13 +367,13 @@ void Vizlet10::_stopstuff() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-Vizlet10::QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle) {
-	m_vizserver->QueueMidiPhrase(ph,clk,handle);
+Vizlet10::QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle, click_t loopclicks) {
+	m_vizserver->QueueMidiPhrase(ph,clk,handle, loopclicks);
 }
 
 void
-Vizlet10::QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle) {
-	m_vizserver->QueueMidiMsg(m,clk,handle);
+Vizlet10::QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle, click_t loopclicks) {
+	m_vizserver->QueueMidiMsg(m,clk,handle, loopclicks);
 }
 
 void
@@ -386,7 +385,7 @@ void
 Vizlet10::StartVizServer() {
 	if ( ! m_vizserver->Started() ) {
 		m_vizserver->Start();
-		srand( (unsigned int)(m_vizserver->GetTimeInSeconds()) );
+		srand( (unsigned int)(m_vizserver->SchedulerCurrentTimeInSeconds()) );
 	}
 }
 
@@ -530,7 +529,7 @@ std::string Vizlet10::processJsonLockAndCatchExceptions(std::string meth, cJSON 
 			std::string val = jsonNeedString(params,"value");
 			r = jsonStringResult(val,id);
 		} else if ( meth == "time"  ) {
-			r = jsonDoubleResult(GetTimeInSeconds(),id);
+			r = jsonDoubleResult(SchedulerCurrentTimeInSeconds(),id);
 		} else if ( meth == "name"  ) {
 		    std::string nm = CopyFFString16((const char *)(vizlet10_plugininfo().GetPluginInfo()->PluginName));
 			r = jsonStringResult(nm,id);
@@ -550,15 +549,6 @@ std::string Vizlet10::processJsonLockAndCatchExceptions(std::string meth, cJSON 
 	}
 	UnlockVizlet();
 	return r;
-}
-
-SpriteVizParams*
-Vizlet10::findSpriteVizParams(std::string cachename) {
-	std::map<std::string,SpriteVizParams*>::iterator it = m_paramcache.find(cachename);
-	if ( it == m_paramcache.end() ) {
-		return NULL;
-	}
-	return it->second;
 }
 
 SpriteVizParams*
@@ -590,23 +580,6 @@ Vizlet10::VizPath2ConfigName(std::string path) {
 }
 
 SpriteVizParams*
-Vizlet10::getSpriteVizParams(std::string path) {
-	if (m_useparamcache) {
-		std::map<std::string, SpriteVizParams*>::iterator it = m_paramcache.find(path);
-		if (it == m_paramcache.end()) {
-			m_paramcache[path] = readSpriteVizParams(path);
-			return m_paramcache[path];
-		}
-		else {
-			return it->second;
-		}
-	}
-	else {
-		return readSpriteVizParams(path);
-	}
-}
-
-SpriteVizParams*
 Vizlet10::checkSpriteVizParamsAndLoadIfModifiedSince(std::string fname, std::time_t& lastcheck, std::time_t& lastupdate) {
 	std::string path = SpriteVizParamsPath(fname);
 	std::time_t throttle = 1;  // don't check more often than this number of seconds
@@ -623,7 +596,7 @@ Vizlet10::checkSpriteVizParamsAndLoadIfModifiedSince(std::string fname, std::tim
 	if (lastupdate == statbuff.st_mtime) {
 		return NULL;
 	}
-	SpriteVizParams* p = getSpriteVizParams(path);
+	SpriteVizParams* p = readSpriteVizParams(path);
 	if (!p) {
 		throw NosuchException("Bad params file? path=%s", path.c_str());
 	}

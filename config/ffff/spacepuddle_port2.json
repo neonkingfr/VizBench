@@ -21,6 +21,11 @@
 					"paramfile":	"port2_pad1"
 				}
 			}, {
+				"method":	"set_pad1_looping",
+				"params":	{
+					"onoff":	"1"
+				}
+			}, {
 				"method":	"set_pad2_sidrange",
 				"params":	{
 					"sidrange":	"12000-12999"
@@ -34,6 +39,11 @@
 				"method":	"set_pad2_midi",
 				"params":	{
 					"paramfile":	"port2_pad2"
+				}
+			}, {
+				"method":	"set_pad2_looping",
+				"params":	{
+					"onoff":	"0"
 				}
 			}, {
 				"method":	"set_pad3_sidrange",
@@ -51,6 +61,11 @@
 					"paramfile":	"port2_pad3"
 				}
 			}, {
+				"method":	"set_pad3_looping",
+				"params":	{
+					"onoff":	"0"
+				}
+			}, {
 				"method":	"set_pad4_sidrange",
 				"params":	{
 					"sidrange":	"14000-14999"
@@ -64,6 +79,11 @@
 				"method":	"set_pad4_midi",
 				"params":	{
 					"paramfile":	"port2_pad4"
+				}
+			}, {
+				"method":	"set_pad4_looping",
+				"params":	{
+					"onoff":	"0"
 				}
 			}, {
 				"method":	"set_LL1_sidrange",

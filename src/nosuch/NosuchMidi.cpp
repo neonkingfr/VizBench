@@ -210,3 +210,29 @@ void MidiPhrase::insert(MidiMsg* msg, click_t click) {  // takes ownership
 		}
 	}
 }
+
+const char* MidiType2Name(int x) {
+	if ( x == MIDI_CLOCK) { return "CLOCK"; }
+	if ( x == MIDI_ACTIVE) { return "ACTIVE"; }
+	if ( x == MIDI_SYSEX) { return "SYSEX"; }
+	if ( x == MIDI_EOX) { return "EOX"; }
+	if ( x == MIDI_START) { return "START"; }
+	if ( x == MIDI_STOP) { return "STOP"; }
+	if ( x == MIDI_CONTINUE) { return "CONTINUE"; }
+	if ( x == MIDI_F9) { return "F9"; }
+	if ( x == MIDI_FD) { return "FD"; }
+	if ( x == MIDI_RESET) { return "RESET"; }
+	if ( x == MIDI_NOTE_ON) { return "NOTE_ON"; }
+	if ( x == MIDI_NOTE_OFF) { return "NOTE_OFF"; }
+	if ( x == MIDI_CHANNEL_AT) { return "CHANNEL_AT"; }
+	if ( x == MIDI_POLY_AT) { return "POLY_AT"; }
+	if ( x == MIDI_PROGRAM) { return "PROGRAM"; }
+	if ( x == MIDI_CONTROL) { return "CONTROL"; }
+	if ( x == MIDI_PITCHBEND) { return "PITCHBEND"; }
+	if ( x == MIDI_MTC) { return "MTC"; }
+	if ( x == MIDI_SONGPOS) { return "SONGPOS"; }
+	if ( x == MIDI_SONGSEL) { return "SONGSEL"; }
+	if ( x == MIDI_TUNE) { return "TUNE"; }
+	return "UNKNOWN";
+}
+

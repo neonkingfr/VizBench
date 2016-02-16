@@ -123,7 +123,6 @@ Vizlet::Vizlet() {
 	VizParams::Initialize();
 
 	m_defaultparams = new SpriteVizParams();
-	m_useparamcache = false;
 
 	m_callbacksInitialized = false;
 	m_passthru = true;
@@ -321,11 +320,13 @@ void vizlet_keystroke(void* data,int key, int downup) {
 	v->processKeystroke(key,downup);
 }
 
+#if 0
 void vizlet_click(void* data,int click) {
 	Vizlet* v = (Vizlet*)data;
 	NosuchAssert(v);
 	v->processAdvanceClickTo(click);
 }
+#endif
 
 void Vizlet::advanceCursorTo(VizCursor* c, double tm) {
 	m_vizserver->AdvanceCursorTo(c,tm);
@@ -356,11 +357,6 @@ void Vizlet::_startKeystrokeCallbacks(void* data) {
 	m_vizserver->AddKeystrokeCallback(Handle(),vizlet_keystroke,data);
 }
 
-void Vizlet::_startClickCallbacks(void* data) {
-	NosuchAssert(m_vizserver);
-	m_vizserver->AddClickCallback(Handle(),vizlet_click,data);
-}
-
 void Vizlet::_stopApiCallbacks() {
 	NosuchAssert(m_vizserver);
 	m_vizserver->RemoveJsonCallback(Handle());
@@ -382,13 +378,20 @@ void Vizlet::_stopKeystrokeCallbacks() {
 	m_vizserver->RemoveKeystrokeCallback(Handle());
 }
 
+#if 0
+void Vizlet::_startClickCallbacks(void* data) {
+	NosuchAssert(m_vizserver);
+	m_vizserver->AddClickCallback(Handle(),vizlet_click,data);
+}
+
 void Vizlet::_stopClickCallbacks() {
 	NosuchAssert(m_vizserver);
 	m_vizserver->RemoveClickCallback(Handle());
 }
+#endif
 
-double Vizlet::GetTimeInSeconds() {
-	return m_vizserver->GetTimeInSeconds();
+double Vizlet::SchedulerCurrentTimeInSeconds() {
+	return m_vizserver->SchedulerCurrentTimeInSeconds();
 }
 
 click_t Vizlet::SchedulerCurrentClick() {
@@ -406,6 +409,15 @@ click_t Vizlet::SchedulerClicksPerSecond() {
 		return 0;
 	} else {
 		return m_vizserver->SchedulerClicksPerSecond();
+	}
+}
+
+click_t Vizlet::SchedulerClicksPerBeat() {
+	if ( m_vizserver == NULL ) {
+		DEBUGPRINT(("Vizlet::SchedulerClicksPerBeat() - _vizserver is NULL!"));
+		return 0;
+	} else {
+		return m_vizserver->SchedulerClicksPerBeat();
 	}
 }
 
@@ -486,13 +498,13 @@ void Vizlet::DrawVizSprites() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-Vizlet::QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle) {
-	m_vizserver->QueueMidiPhrase(ph,clk,handle);
+Vizlet::QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle, click_t loopclicks) {
+	m_vizserver->QueueMidiPhrase(ph,clk,handle,loopclicks);
 }
 
 void
-Vizlet::QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle) {
-	m_vizserver->QueueMidiMsg(m,clk,handle);
+Vizlet::QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle, click_t loopclicks) {
+	m_vizserver->QueueMidiMsg(m,clk,handle,loopclicks);
 }
 
 void
@@ -501,10 +513,15 @@ Vizlet::QueueClear() {
 }
 
 void
+Vizlet::ScheduleClear(const char* handle) {
+	m_vizserver->ScheduleClear(handle);
+}
+
+void
 Vizlet::StartVizServer() {
 	if ( ! m_vizserver->Started() ) {
 		m_vizserver->Start();
-		srand( (unsigned int)(m_vizserver->GetTimeInSeconds()) );
+		srand( (unsigned int)(m_vizserver->SchedulerCurrentTimeInSeconds()) );
 	}
 }
 
@@ -518,7 +535,7 @@ Vizlet::_startNonApiCallbacks() {
 		_startMidiCallbacks(m_mf, (void*)this);
 		_startCursorCallbacks(m_cf, (void*)this);
 		_startKeystrokeCallbacks((void*)this);
-		_startClickCallbacks((void*)this);
+		// _startClickCallbacks((void*)this);
 		m_connected = true;
 	}
 }
@@ -528,7 +545,7 @@ void Vizlet::_stopNonApiCallbacks() {
 		_stopMidiCallbacks();
 		_stopCursorCallbacks();
 		_stopKeystrokeCallbacks();
-		_stopClickCallbacks();
+		// _stopClickCallbacks();
 		m_connected = false;
 	}
 }
@@ -588,7 +605,7 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 		glScaled(2.0,2.0,1.0);
 		glTranslated(-0.5,-0.5,0.0);
 
-		double tm = GetTimeInSeconds();
+		double tm = SchedulerCurrentTimeInSeconds();
 		bool r;
 		if (m_call_RealProcessOpenGL) {
 			// This is used when adapting to existing FFGL plugin code
@@ -602,7 +619,7 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 		glColor4f(1.f,1.f,1.f,1.f); //restore default color
 
 		m_spritelist->advanceTo(tm);
-		processAdvanceTimeTo(tm);
+		// processAdvanceTimeTo(tm);
 
 		if ( ! r ) {
 			DEBUGPRINT(("Palette::draw returned failure? (r=%d)\n",r));
@@ -749,7 +766,7 @@ std::string Vizlet::processJsonLockAndCatchExceptions(std::string meth, cJSON *p
 			std::string val = jsonNeedString(params,"value");
 			r = jsonStringResult(val,id);
 		} else if ( meth == "time"  ) {
-			r = jsonDoubleResult(GetTimeInSeconds(),id);
+			r = jsonDoubleResult(SchedulerCurrentTimeInSeconds(),id);
 		} else if ( meth == "name"  ) {
 		    std::string nm = CopyFFString16((const char *)(vizlet_plugininfo().GetPluginInfo()->PluginName));
 			r = jsonStringResult(nm,id);
@@ -779,16 +796,7 @@ std::string Vizlet::processJsonLockAndCatchExceptions(std::string meth, cJSON *p
 }
 
 SpriteVizParams*
-Vizlet::findSpriteVizParams(std::string cachename) {
-	std::map<std::string,SpriteVizParams*>::iterator it = m_paramcache.find(cachename);
-	if ( it == m_paramcache.end() ) {
-		return NULL;
-	}
-	return it->second;
-}
-
-SpriteVizParams*
-readSpriteVizParams(std::string fname) {
+Vizlet::readSpriteVizParams(std::string fname) {
 	std::string err;
 	std::string path = SpriteVizParamsPath(fname);
 	SpriteVizParams* p = new SpriteVizParams();
@@ -822,26 +830,6 @@ Vizlet::VizPath2ConfigName(std::string path) {
 	return(path);
 }
 
-// XXX - These 2 functions are repeated for both SpriteVizParams and MidiVizParams
-// XXX - Probably should use a template
-
-SpriteVizParams*
-Vizlet::getSpriteVizParams(std::string fname) {
-	if (m_useparamcache) {
-		std::map<std::string, SpriteVizParams*>::iterator it = m_paramcache.find(fname);
-		if (it == m_paramcache.end()) {
-			m_paramcache[fname] = readSpriteVizParams(fname);
-			return m_paramcache[fname];
-		}
-		else {
-			return it->second;
-		}
-	}
-	else {
-		return readSpriteVizParams(fname);
-	}
-}
-
 SpriteVizParams*
 Vizlet::checkSpriteVizParamsAndLoadIfModifiedSince(std::string fname, std::time_t& lastcheck, std::time_t& lastupdate) {
 
@@ -861,8 +849,7 @@ Vizlet::checkSpriteVizParamsAndLoadIfModifiedSince(std::string fname, std::time_
 	if (lastupdate == statbuff.st_mtime) {
 		return NULL;
 	}
-	// DEBUGPRINT(("Check and Load this=%ld", (long)this));
-	SpriteVizParams* p = getSpriteVizParams(fname);
+	SpriteVizParams* p = readSpriteVizParams(fname);
 	if (!p) {
 		throw NosuchException("Bad params file? fname=%s", fname.c_str());
 	}
@@ -871,7 +858,7 @@ Vizlet::checkSpriteVizParamsAndLoadIfModifiedSince(std::string fname, std::time_
 }
 
 MidiVizParams*
-readMidiVizParams(std::string fname) {
+Vizlet::readMidiVizParams(std::string fname) {
 	std::string err;
 	std::string path = MidiVizParamsPath(fname);
 	cJSON* json = jsonReadFile(path, err);
@@ -883,24 +870,6 @@ readMidiVizParams(std::string fname) {
 	p->loadJson(json);
 	// XXX - should json be freed, here?
 	return p;
-}
-
-
-MidiVizParams*
-Vizlet::getMidiVizParams(std::string fname) {
-	if (m_useparamcache) {
-		std::map<std::string, MidiVizParams*>::iterator it = m_midiparamcache.find(fname);
-		if (it == m_midiparamcache.end()) {
-			m_midiparamcache[fname] = readMidiVizParams(fname);
-			return m_midiparamcache[fname];
-		}
-		else {
-			return it->second;
-		}
-	}
-	else {
-		return readMidiVizParams(fname);
-	}
 }
 
 MidiVizParams*
@@ -923,7 +892,7 @@ Vizlet::checkMidiVizParamsAndLoadIfModifiedSince(std::string fname, std::time_t&
 		return NULL;
 	}
 	// DEBUGPRINT(("Check and Load this=%ld", (long)this));
-	MidiVizParams* p = getMidiVizParams(fname);
+	MidiVizParams* p = readMidiVizParams(fname);
 	if (!p) {
 		throw NosuchException("Bad params file? fname=%s", fname.c_str());
 	}
@@ -943,7 +912,7 @@ VizSprite*
 Vizlet::makeAndInitVizSprite(SpriteVizParams* params, NosuchPos pos) {
 	VizSprite* s = VizSprite::makeVizSprite(params);
 	s->m_framenum = FrameNum();
-	s->initVizSpriteState(GetTimeInSeconds(),Handle(),pos,params);
+	s->initVizSpriteState(SchedulerCurrentTimeInSeconds(),Handle(),pos,params);
 	return s;
 }
 

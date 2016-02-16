@@ -45,7 +45,7 @@ void VizMidi4::processCursor(VizCursor* c, int downdragup) {
 bool VizMidi4::_loadSpriteVizParamsFile(std::string fname, VizMidi4::paramsfile_info& spriteinfo) {
 	spriteinfo.lastfilecheck = time(0);
 	spriteinfo.lastfileupdate = time(0);
-	SpriteVizParams* p = getSpriteVizParams(fname);
+	SpriteVizParams* p = readSpriteVizParams(fname);
 	if (!p) {
 		spriteinfo.paramsfname = "";
 		spriteinfo.params = NULL;
@@ -167,9 +167,11 @@ std::string VizMidi4::processJson(std::string meth, cJSON *json, const char *id)
 	throw NosuchException("VizMidi4 - Unrecognized method '%s'",meth.c_str());
 }
 
+#if 0
 void VizMidi4::processAdvanceClickTo(int click) {
 	// DEBUGPRINT(("processAdvanceClickTo click=%d time=%ld", click, timeGetTime()));
 }
+#endif
 
 void VizMidi4::processMidiInput(MidiMsg* m) {
 	VizSprite* s;
@@ -207,7 +209,7 @@ void VizMidi4::processMidiInput(MidiMsg* m) {
 				s->m_params->applyVizParamsFrom(p);
 
 				// Don't use the *initial parameter values when initializing the state
-				s->initVizSpriteState(GetTimeInSeconds(),Handle(),s->m_state.pos,s->m_params,false);
+				s->initVizSpriteState(SchedulerCurrentTimeInSeconds(),Handle(),s->m_state.pos,s->m_params,false);
 
 				// The initial alpha/size/hue/huefill values in the
 				// parameters should be the current state, so the

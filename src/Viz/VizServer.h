@@ -36,7 +36,6 @@ class UT_SharedMem;
 class MMTT_SharedMemHeader;
 class MidiMsg;
 class VizServer;
-class Region;
 class VizCursor;
 struct OutlineMem;
 
@@ -150,13 +149,13 @@ public:
 	double area;
 	OutlineMem* outline;
 	MMTT_SharedMemHeader* hdr;
-	Region* region;
 
 	double curr_speed;
 	double curr_degrees;
 
 	MidiNoteOff* m_pending_noteoff;
 	click_t m_noteon_click;
+	click_t m_noteon_loopclicks;		// value grabbed at CURSORDOWN
 	double m_noteon_depth;
 
 private:
@@ -182,7 +181,7 @@ public:
 	bool Start();
 	void Stop();
 
-	double GetTimeInSeconds();
+	double SchedulerCurrentTimeInSeconds();
 
 	bool SendOsc(const char* host, int serverport, const char *data, int leng);
 
@@ -208,13 +207,15 @@ public:
 	void RemoveKeystrokeCallback(void* handle);
 	void RemoveClickCallback(void* handle);
 
-	int SchedulerTimestamp();
+	double SchedulerCurrentTime();
 	click_t SchedulerCurrentClick();
 	click_t SchedulerClicksPerSecond();
+	click_t SchedulerClicksPerBeat();
 
-	void QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle);
-	void QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle);
+	void QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle, click_t loopclicks);
+	void QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle, click_t loopclicks);
 	void QueueClear();
+	void ScheduleClear(const char* handle);
 
 	const char* MidiInputName(size_t n) {
 		return m_scheduler->MidiInputName(n);

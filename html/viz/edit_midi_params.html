@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html dir="ltr">
+    
+<head>
+
+<meta name="viewport"
+  content="width=device-width,
+  minimum-scale=1.0, maximum-scale=1.0" />
+
+<link rel="stylesheet" type="text/css" href="viz.css"/>
+
+<script src="../dojo/dojo.js" djConfig="parseOnLoad: true"> </script>
+<script src="viz.js" djConfig="parseOnLoad: true"> </script>
+<script src="params.js" djConfig="parseOnLoad: true"> </script>
+
+<script type="text/javascript">
+	function setupmidiparams() {
+		make_edit_page("midi");
+	}
+	dojo.addOnLoad(setupmidiparams);
+</script>
+
+</head>
+    
+<body>
+
+<center>
+<div id="title">&nbsp;</div>
+<br>
+</center>
+<p>
+<table><tr><td>Status:</td><td><div id="status"></div></td></tr></table>
+<p>
+<div id="params"></div>
+<p>
+	
+</body>
+
+</html>
+

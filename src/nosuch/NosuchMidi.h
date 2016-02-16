@@ -48,6 +48,7 @@ typedef long MidiTimestamp;
 
 extern char* ReadableMidiPitch(int pitch);
 extern int BoundValue(int v, int minval, int maxval);
+extern const char* MidiType2Name(int x);
 
 class MidiFilter {
 public:
@@ -85,6 +86,7 @@ public:
 	int OutputPort() { return m_outport; }
 	MidiMsg* SetInputPort(int n) { m_inport = n; return this; }
 	MidiMsg* SetOutputPort(int n) { m_outport = n; return this; }
+	const char* MidiTypeName() { return MidiType2Name(MidiType()); }
 	bool isSameAs(MidiMsg* m) {
 		NosuchAssert(m);
 		switch (MidiType()) {
@@ -126,6 +128,8 @@ protected:
 		m->m_outport = m_outport;
 		return m;
 	}
+	friend class NosuchScheduler;
+	friend class MidiPhrase;
 	virtual std::string DebugString() = 0;
 	int m_inport;   // MIDI input port
 	int m_outport;  // MIDI output port
@@ -153,6 +157,8 @@ public:
 	int Channel() { return m_chan; }
 protected:
 	int m_chan;   // 1-based
+	friend class NosuchScheduler;
+	friend class MidiPhrase;
 	virtual std::string DebugString() = 0;
 };
 
@@ -176,6 +182,8 @@ public:
 		return newm;
 	};
 protected:
+	friend class NosuchScheduler;
+	friend class MidiPhrase;
 	std::string DebugString() {
 		return NoteString();
 	}
@@ -220,6 +228,8 @@ public:
 	int Velocity(int v) { m_velocity = v; return m_velocity; }
 
 protected:
+	friend class NosuchScheduler;
+	friend class MidiPhrase;
 	std::string DebugString() {
 		return NoteString();
 	}
@@ -261,6 +271,8 @@ public:
 		return newm;
 	};
 protected:
+	friend class NosuchScheduler;
+	friend class MidiPhrase;
 	std::string DebugString() {
 		return NosuchSnprintf("Controller ch=%d ct=%d v=%d",m_chan,m_controller,m_value);
 	}
@@ -295,10 +307,14 @@ public:
 		finishclone(newm);
 		return newm;
 	};
+
 protected:
+	friend class NosuchScheduler;
+	friend class MidiPhrase;
 	std::string DebugString() {
 		return NosuchSnprintf("ChanPressure ch=%d v=%d",m_chan,m_value);
 	}
+
 private:
 	MidiChanPressure(int ch, int v) : ChanMsg(ch) {
 		m_value = v;
@@ -331,6 +347,8 @@ public:
 		return newm;
 	};
 protected:
+	friend class NosuchScheduler;
+	friend class MidiPhrase;
 	std::string DebugString() {
 		return NosuchSnprintf("Pressure ch=%d pitch=%d v=%d",m_chan,m_pitch,m_value);
 	}
@@ -368,6 +386,8 @@ public:
 		return newm;
 	};
 protected:
+	friend class NosuchScheduler;
+	friend class MidiPhrase;
 	std::string DebugString() {
 		return NosuchSnprintf("ProgramChange ch=%d v=%d",m_chan,m_value);
 	}
@@ -410,6 +430,8 @@ public:
 		return newm;
 	};
 protected:
+	friend class NosuchScheduler;
+	friend class MidiPhrase;
 	std::string DebugString() {
 		return NosuchSnprintf("PitchBend ch=%d v=%d",m_chan,m_value);
 	}
@@ -463,7 +485,7 @@ public:
 	}
 	void insert(MidiMsg* msg, click_t click);  // takes ownership
 
-#ifdef TOO_EXPENSIVE
+	friend class NosuchScheduler;
 	std::string DebugString() {
 		std::string s = NosuchSnprintf("MidiPhrase(");
 		std::string sep = "";
@@ -474,6 +496,8 @@ public:
 		s += ")";
 		return s;
 	}
+
+#ifdef TOO_EXPENSIVE
 	std::string SummaryString() {
 		int tot[17] = {0};
 		for ( MidiPhraseUnit* pu=first; pu!=NULL; pu=pu->next ) {

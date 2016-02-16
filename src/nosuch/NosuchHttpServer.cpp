@@ -409,9 +409,14 @@ NosuchHttpServer::RespondToGetOrPost(NosuchSocketConnection *conn) {
 		// c->_content_type = ctype;
 		std::string fn = m_htmldir + urlstr;
 
+		char lastchar = fn.at(fn.size() - 1);
+		if (lastchar == '/' || lastchar == '\\' ) {
+			fn = fn + "index.html";
+		}
+
 		DEBUGPRINT(("GET request for %s, reading %s\n", urlstr.c_str(), fn.c_str()));
 
-		// Note that it is opened at the end (ate), which we use to get the size
+		// Note that it is opened at the end (std::ios::ate), which we use to get the size
 		std::ifstream f(fn.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
 		if (!f.is_open()) {
 			httperror("Unable to open: " + fn + "\n", memblock, memsize);

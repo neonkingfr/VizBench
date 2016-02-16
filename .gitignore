@@ -41,6 +41,7 @@ src/bonjour
 src/freeglut-2.6.0
 src/opencv
 other/oscpack_1_1_0
+other/jquery.mobile-1.4.5
 html/polymer-tutorial
 html/palette
 patches

@@ -1,17 +1,18 @@
 {
 	"arpeggiate":	"0",
-	"channel":	"2",
+	"channel":	"10",
 	"depthctlmax":	"127",
-	"depthctlmin":	"18",
+	"depthctlmin":	"60",
 	"depthctlnum":	"1",
-	"depthretrigger_on":	"0",
-	"depthretrigger_thresh":	"0.32",
+	"depthretrigger_on":	"1",
+	"depthretrigger_thresh":	"0",
 	"depthsmooth":	"32",
 	"duration":	"hold",
+	"loopclicks":	"768",
 	"notelimit":	"4",
-	"pitchmax":	"88",
-	"pitchmin":	"41",
-	"port":	"0",
+	"pitchmax":	"70",
+	"pitchmin":	"36",
+	"port":	"1",
 	"scale":	"newage",
-	"scale_on":	"1"
+	"scale_on":	"0"
 }

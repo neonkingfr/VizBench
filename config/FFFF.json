@@ -7,17 +7,20 @@
   # "window_x": 2000,
   # "window_y": 20,
 
-  # "window_width": 640,
-  # "window_height": 480,
+  "window_x": 10,
+  "window_y": 10,
+  "window_width": 640,
+  "window_height": 480,
+
   # "window_width": 1280,
   # "window_height": 720,
   # "window_width": 1920,
   # "window_height": 1080,
 
-  "window_x": -2050,
-  "window_y": 0,
-  "window_width": 2050,
-  "window_height": 1152,
+  # "window_x": -2050,
+  # "window_y": 0,
+  # "window_width": 2050,
+  # "window_height": 1152,
 
   #   # The only audio host currently supported is Plogue Bidule, which
   #   # has excellent OSC support

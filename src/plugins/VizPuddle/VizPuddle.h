@@ -16,7 +16,9 @@ public:
 	std::string processJson(std::string meth, cJSON *jsonparams, const char *id);
 	void processCursor(VizCursor* c, int downdragup);
 	bool processDraw();
-	void processAdvanceTimeTo(int milli);
+
+	// void processAdvanceClickTo(int click);
+	// void processAdvanceTimeTo(double tm);
 
 private:
 
@@ -38,6 +40,7 @@ private:
 			spriteparams = NULL;
 			midiparams = NULL;
 			m_controllerval = 0;
+			m_looping = false;
 		}
 		std::string name;
 		SpriteVizParams* spriteparams;
@@ -48,6 +51,7 @@ private:
 		std::string midiparamfile;
 		std::time_t lastmidifileupdate;
 		std::time_t lastmidifilecheck;
+		bool m_looping;
 
 		std::set<VizCursor*> m_cursors;
 		int m_controllerval;
@@ -72,6 +76,8 @@ private:
 
 	std::string _set_button_pipeline(Button* r, cJSON* json, const char* id);
 
+	std::string _set_looping(Region* r, cJSON* json, const char* id);
+
 	bool _loadSpriteVizParamsFile(std::string fname, Region* r);
 	bool _loadMidiVizParamsFile(std::string fname, Region* r);
 
@@ -82,12 +88,13 @@ private:
 	void _cursorSprite(VizCursor* c, int downdragup, Region* r);
 	void _cursorMidi(VizCursor* c, int downdragup, Region* r);
 
-	void _queueNoteonWithNoteoffPending(VizCursor* c, MidiVizParams* mp);
+	void _queueNoteonWithNoteoffPending(VizCursor* c, Region* r);
 
-	void _genArpeggiatedMidi(VizCursor* c, int downdragup, MidiVizParams* mp);
-	void _genNormalMidi(VizCursor* c, int downdragup, MidiVizParams* mp);
-	void _genControlMidi(VizCursor* c, int downdragup, MidiVizParams* mp);
-	void _genControllerReset(VizCursor* c, MidiVizParams* mp);
+	void _genArpeggiatedMidi(VizCursor* c, int downdragup, Region* r);
+	void _genNormalMidi(VizCursor* c, int downdragup, Region* r);
+	void _genControlMidi(VizCursor* c, int downdragup, Region* r);
+	void _genControllerReset(VizCursor* c, Region* r);
+	void _finishNote(VizCursor* c, click_t click, int port, Region* r);
 
 	int _pitchOf(VizCursor* c, MidiVizParams* mp);
 	int _velocityOf(VizCursor* c);
@@ -96,6 +103,7 @@ private:
 	click_t _quantOf(VizCursor* c);
 	click_t _clicksPerBeat();
 	click_t _quantizeToNext(click_t tm, click_t q);
+	click_t _loopClicks(Region* r);
 
 	std::map<std::string,Region*> _region;
 	std::map<std::string,Button*> _button;

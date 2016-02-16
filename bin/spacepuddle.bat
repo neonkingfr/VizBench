@@ -1,9 +1,8 @@
 @echo off
 
-if x%1 == x echo "you need to provide an argument!"
+if x%1 == x echo "you need to provide an argument!  e.g. port1, port2, ..."
 if x%1 == x goto getout:
 
-set VIZCONFIG=config_puddle_%1
 set FFFFPIPELINE=spacepuddle_%1
 
 taskkill /f /im igesture.exe

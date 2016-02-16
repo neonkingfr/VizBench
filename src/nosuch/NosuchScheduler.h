@@ -8,6 +8,7 @@ typedef int click_t;
 #include "NosuchJSON.h"
 #include "porttime.h"
 #include "NosuchGraphics.h"
+#include "SchedEvent.h"
 #include <pthread.h>
 #include <list>
 #include <map>
@@ -30,7 +31,6 @@ extern int SchedulerCount;
 extern click_t GlobalClick;
 extern int GlobalPitchOffset;
 extern bool NoMultiNotes;
-extern bool LoopCursors;
 
 class NosuchScheduler;
 class MidiMsg;
@@ -56,82 +56,12 @@ public:
 	virtual void processMidiOutput(MidiMsg* mm) = 0;
 };
 
-class NosuchCursorMotion {
-public:
-	NosuchCursorMotion(int downdragup, NosuchVector pos, float depth) {
-		m_downdragup = downdragup;
-		m_pos = pos;
-		m_depth = depth;
-	}
-	int m_downdragup;
-	NosuchVector m_pos;
-	float m_depth;
-};
-
-typedef long eventid_t;
-
-class SchedEvent {
-public:
-	enum Type {
-		MIDIMSG,
-		CURSORMOTION,
-		MIDIPHRASE
-	};
-	SchedEvent(MidiMsg* m, click_t c, const char* h) {
-		m_eventtype = SchedEvent::MIDIMSG;
-		u.midimsg = m;
-		click = c;
-		m_handle = h;
-		m_created = GlobalClick;
-	}
-	SchedEvent(MidiPhrase* ph, click_t c, const char* h) {
-		m_eventtype = SchedEvent::MIDIPHRASE;
-		u.midiphrase = ph;
-		click = c;
-		m_handle = h;
-		m_created = GlobalClick;
-	}
-	SchedEvent(NosuchCursorMotion* cm,click_t c, const char* h) {
-		m_eventtype = SchedEvent::CURSORMOTION;
-		u.midimsg = NULL;
-		u.cursormotion = cm;
-		click = c;
-		m_handle = h;
-		m_created = GlobalClick;
-	}
-	virtual ~SchedEvent();
-	std::string DebugString();
-
-	click_t click;	// relative when in loops, absolute elsewhere
-	union {
-		MidiMsg* midimsg;
-		MidiPhrase* midiphrase;
-		NosuchCursorMotion* cursormotion;
-	} u;
-
-	int eventtype() { return m_eventtype; }
-	click_t created() { return m_created; }
-
-protected:
-	const char* m_handle;	// handle to thing that created it
-	friend class NosuchScheduler;
-
-private:
-
-	int m_eventtype;
-	click_t m_created;	// absolute
-};
-
-typedef std::list<SchedEvent*> SchedEventList;
-typedef std::list<SchedEvent*>::iterator SchedEventIterator;
-
 class NosuchScheduler {
 public:
 	NosuchScheduler() {
 		DEBUGPRINT1(("NosuchScheduler CONSTRUCTED!!, count=%d",SchedulerCount++));
 		m_running = false;
 		m_currentclick = 0;
-		m_timestampInMilliseconds = 0;
 
 #ifdef NOWPLAYING
 		m_nowplaying_note.clear();
@@ -140,7 +70,6 @@ public:
 
 		SetClicksPerSecond(192);
 
-		m_clicks_per_clock = 4;
 		NosuchLockInit(&m_scheduled_mutex,"scheduled");
 		NosuchLockInit(&m_notesdown_mutex,"notesdown");
 		NosuchLockInit(&m_queue_mutex,"queue");
@@ -187,6 +116,7 @@ public:
 		return m_midi_merge_name[n].c_str();
 	}
 
+	static click_t ClicksPerBeat();
 	static click_t ClicksPerSecond();
 	static void SetClicksPerSecond(click_t clkpersec);
 	static void SetTempoFactor(float f);
@@ -213,11 +143,11 @@ public:
 	SchedEventList* ScheduleOf(const char* handle);
 	void ScheduleMidiMsg(MidiMsg* m, click_t clk, const char* handle);
 	void ScheduleMidiPhrase(MidiPhrase* m, click_t clk, const char* handle);
-	void ScheduleClear();
+	void ScheduleClear(const char* handle = 0);
 	bool ScheduleAddEvent(SchedEvent* e, bool lockit=true);  // returns false if not added, i.e. means caller should free it
 
-	void QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle);
-	void QueueMidiPhrase(MidiPhrase* m, click_t clk, const char* handle);
+	void QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle, click_t loopclicks = 0);
+	void QueueMidiPhrase(MidiPhrase* m, click_t clk, const char* handle, click_t loopclicks = 0);
 	void QueueClear();
 	bool QueueAddEvent(SchedEvent* e);  // returns false if not added, i.e. means caller should free it
 
@@ -230,7 +160,6 @@ public:
 	// void SendControllerMsg(MidiMsg* m, const char* handle, bool smooth);  // gives ownership of m away
 	// void SendPitchBendMsg(MidiMsg* m, const char* handle, bool smooth);  // gives ownership of m away
 
-	static int m_timestampInMilliseconds;
 	static int m_ClicksPerSecond;
 	static double m_ClicksPerMillisecond;
 	static int m_LastTimeStampInMilliseconds;
@@ -273,7 +202,6 @@ private:
 	void DoEventAndDelete(SchedEvent* e, const char* handle);
 	void DoMidiMsgEvent(MidiMsg* m, const char* handle);
 	bool m_running;
-	int m_clicks_per_clock;
 
 	// Per-handle scheduled events
 	std::map<const char*,SchedEventList*> m_scheduled;

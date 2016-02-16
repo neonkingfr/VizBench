@@ -11,7 +11,7 @@
 	"notelimit":	"4",
 	"pitchmax":	"88",
 	"pitchmin":	"41",
-	"port":	"0",
+	"port":	"1",
 	"scale":	"newage",
 	"scale_on":	"1"
 }

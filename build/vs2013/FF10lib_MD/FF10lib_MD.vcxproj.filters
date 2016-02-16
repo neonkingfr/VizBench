@@ -196,9 +196,6 @@
     <ClInclude Include="..\..\..\src\nosuch\NosuchDaemon.h">
       <Filter>Header Files\nosuch</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchLooper.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\nosuch\NosuchOscInput.h">
       <Filter>Header Files\nosuch</Filter>
     </ClInclude>
@@ -211,9 +208,6 @@
     <ClInclude Include="..\..\..\src\nosuch\NosuchOscUdpInput.h">
       <Filter>Header Files\nosuch</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchScheduler.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\nosuch\midifile.h">
       <Filter>Header Files\nosuch</Filter>
     </ClInclude>
@@ -221,9 +215,6 @@
       <Filter>Header Files\nosuch</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\nosuch\NosuchDebug.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchEvent.h">
       <Filter>Header Files\nosuch</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\nosuch\NosuchException.h">

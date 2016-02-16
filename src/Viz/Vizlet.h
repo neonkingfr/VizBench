@@ -37,7 +37,7 @@ class Vizlet : public NosuchOscListener,
 					public NosuchJsonListener,
 					public NosuchMidiInputListener,
 					public NosuchMidiOutputListener,
-					public ClickListener,
+					// public ClickListener,
 					public CursorListener,
 					public KeystrokeListener,
 					public CFreeFrameGLPlugin
@@ -60,9 +60,10 @@ public:
 	void InitCallbacks();
 	void ChangeVizTag(const char* newtag);
 	void advanceCursorTo(VizCursor* c, double tm);
-	double GetTimeInSeconds();
+	double SchedulerCurrentTimeInSeconds();
 	click_t SchedulerCurrentClick();
 	click_t SchedulerClicksPerSecond();
+	click_t SchedulerClicksPerBeat();
 	void LockVizlet();
 	void UnlockVizlet();
 
@@ -72,9 +73,10 @@ public:
 
 	void LoadPipeline(std::string pipeline);
 
-	void QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle);
-	void QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle);
+	void QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle, click_t loopclicks = 0);
+	void QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle, click_t loopclicks = 0);
 	void QueueClear();
+	void ScheduleClear(const char* handle = 0);
 
 	bool SendOsc(std::string host, int port, const char* data, size_t size);
 
@@ -113,13 +115,12 @@ public:
 	VizSprite* MakeVizSprite(SpriteVizParams* sp);
 	std::string VizPath2ConfigName(std::string path);
 
-	SpriteVizParams* getSpriteVizParams(std::string path);
-	SpriteVizParams* findSpriteVizParams(std::string cachename);
+	// If there are more types of *VizParams, should probably use templates...
+	SpriteVizParams* readSpriteVizParams(std::string fname);
 	SpriteVizParams* checkSpriteVizParamsAndLoadIfModifiedSince(std::string fname, std::time_t& lastcheck, std::time_t& lastupdate);
 
-	MidiVizParams* getMidiVizParams(std::string path);
-	MidiVizParams* findMidiVizParams(std::string cachename);
 	MidiVizParams* checkMidiVizParamsAndLoadIfModifiedSince(std::string fname, std::time_t& lastcheck, std::time_t& lastupdate);
+	MidiVizParams* readMidiVizParams(std::string fname);
 
 	VizSprite* defaultMidiVizSprite(MidiMsg* m);
 
@@ -175,8 +176,9 @@ public:
 	virtual DWORD RealProcessOpenGL(ProcessOpenGLStruct* pGL) { return FF_FAIL; }
 	virtual bool processDraw() { return false;  }
 	virtual void processDrawNote(MidiMsg* m) { }
-	virtual void processAdvanceClickTo(int click) { }
-	virtual void processAdvanceTimeTo(double tm) { }
+	
+	// virtual void processAdvanceClickTo(int click) { }
+	// virtual void processAdvanceTimeTo(double tm) { }
 
 	NosuchGraphics graphics;
 
@@ -243,8 +245,8 @@ private:
 	void _stopCursorCallbacks();
 	void _startKeystrokeCallbacks(void* data);
 	void _stopKeystrokeCallbacks();
-	void _startClickCallbacks(void* data);
-	void _stopClickCallbacks();
+	// void _startClickCallbacks(void* data);
+	// void _stopClickCallbacks();
 
 	void _drawnotes(std::list<MidiMsg*>& notes);
 
@@ -260,9 +262,6 @@ private:
 	VizSpriteList* m_spritelist;
 	SpriteVizParams* m_defaultparams;
 	SpriteVizParams* m_defaultmidiparams;
-	bool m_useparamcache;
-	std::map<std::string, SpriteVizParams*> m_paramcache;
-	std::map<std::string, MidiVizParams*> m_midiparamcache;
 
 #define DISPLEN 128
 	char m_disp[DISPLEN];

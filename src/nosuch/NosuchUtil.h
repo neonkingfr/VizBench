@@ -134,7 +134,7 @@ std::wstring s2ws(const std::string& s);
 std::string ws2s(const std::wstring& s);
 
 void NosuchTimeInit();
-double NosuchSecondsElapsed();
+double NosuchTimeElapsedInSeconds();
 
 void NosuchLockInit(pthread_mutex_t* mutex, char *tag);
 void NosuchLock(pthread_mutex_t* mutex, char *tag);
