@@ -90,6 +90,9 @@ private:
 
 	void _queueNoteonWithNoteoffPending(VizCursor* c, Region* r);
 
+	void _queueRegionMidiPhrase(MidiPhrase* ph, click_t tm, int cursorid, Region* r);
+	void _queueRegionMidiMsg(MidiMsg* m, click_t tm, int cursorid, Region* r);
+
 	void _genArpeggiatedMidi(VizCursor* c, int downdragup, Region* r);
 	void _genNormalMidi(VizCursor* c, int downdragup, Region* r);
 	void _genControlMidi(VizCursor* c, int downdragup, Region* r);
@@ -111,7 +114,7 @@ private:
 	bool _autoloadparams;
 
 #define MAX_MIDI_PORTS 64
-	const char* m_porthandle[MAX_MIDI_PORTS];
+
 };
 
 #endif

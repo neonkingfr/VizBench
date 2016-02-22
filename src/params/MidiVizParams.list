@@ -15,3 +15,4 @@ scale_on	int		0	1	1		# turn scaling on/off
 depthretrigger_on	int	0	1	1		# whether changes in depth retrigger
 depthretrigger_thresh	double	0	1	0		# amount of depth change that will retrigger
 loopclicks	int		1	3072	768	#	length of loop in clicks
+loopfade	double		0	1.0	0.5	#	fade factor per loop (1.0 = no fade)

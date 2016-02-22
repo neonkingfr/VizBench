@@ -16,21 +16,12 @@ typedef int click_t;
 
 #define OUT_QUEUE_SIZE 1024
 
-#define HANDLE_DEFAULT ((const char*)0)
-
 // Session IDs (TUIO cursor sessions) and Loop IDs need to be distinct,
 // since these IDs are attached to scheduled events so we can know
 // who was responsible for creating the events.
 
-// Loop IDs are session IDs that are >= LOOPID_BASE.
-// Each region has one loop.
-#define LOOPID_BASE 1000000
-#define LOOPID_OF_REGION(id) (LOOPID_BASE+id)
-
 extern int SchedulerCount;
-extern click_t GlobalClick;
 extern int GlobalPitchOffset;
-extern bool NoMultiNotes;
 
 class NosuchScheduler;
 class MidiMsg;
@@ -55,6 +46,8 @@ class NosuchMidiOutputListener {
 public:
 	virtual void processMidiOutput(MidiMsg* mm) = 0;
 };
+
+#define SCHEDID_ALL 0
 
 class NosuchScheduler {
 public:
@@ -90,6 +83,7 @@ public:
 		m_click_client = NULL;
 		m_periodic_ANO = false;
 		m_queue = new SchedEventList();
+		m_scheduled = new SchedEventList();
 	}
 	virtual ~NosuchScheduler() {
 		Stop();
@@ -136,23 +130,19 @@ public:
 	void Callback(PtTimestamp timestamp);
 	std::string DebugString();
 
-	// int NumberScheduled(click_t minclicks, click_t maxclicks, std::string sid);
-	// void IncomingNoteOff(click_t clk, int ch, int pitch, int vel, void* handle);
-	// void IncomingMidiMsg(MidiMsg* m, click_t clk, void* handle);
-
-	SchedEventList* ScheduleOf(const char* handle);
-	void ScheduleMidiMsg(MidiMsg* m, click_t clk, const char* handle);
-	void ScheduleMidiPhrase(MidiPhrase* m, click_t clk, const char* handle);
-	void ScheduleClear(const char* handle = 0);
+	// SchedEventList* ScheduleOf(const char* handle);
+	void ScheduleMidiMsg(MidiMsg* m, click_t clk, int cursorid, bool looping, MidiVizParams* mp);
+	void ScheduleMidiPhrase(MidiPhrase* m, click_t clk, int cursorid, bool looping, MidiVizParams* mp);
+	void ScheduleClear(int cursorid, bool lockit=true);
 	bool ScheduleAddEvent(SchedEvent* e, bool lockit=true);  // returns false if not added, i.e. means caller should free it
 
-	void QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle, click_t loopclicks = 0);
-	void QueueMidiPhrase(MidiPhrase* m, click_t clk, const char* handle, click_t loopclicks = 0);
+	void QueueMidiMsg(MidiMsg* m, click_t clk, int cursorid, bool looping=false, MidiVizParams* mp = 0);
+	void QueueMidiPhrase(MidiPhrase* m, click_t clk, int cursorid, bool looping=false, MidiVizParams* mp = 0);
 	void QueueClear();
 	bool QueueAddEvent(SchedEvent* e);  // returns false if not added, i.e. means caller should free it
 
-	void SendPmMessage(PmMessage pm, PmStream* ps, const char* handle);
-	void SendMidiMsg(MidiMsg* mm, const char* handle);
+	void SendPmMessage(PmMessage pm, PmStream* ps);
+	void SendMidiMsg(MidiMsg* mm, int cursorid);
 	void ANO(int psi = -1, int ch = -1);
 	void ANO(PmStream* ps, int ch = -1);
 	void setPeriodicANO(bool b) { m_periodic_ANO = b; }
@@ -197,14 +187,15 @@ private:
 	void UnlockScheduled() { NosuchUnlock(&m_scheduled_mutex,"sched"); }
 
 	void _addQueueToScheduled();
+	bool _handleLoopEvent(SchedEvent* e);
 
 	void _sortEvents(SchedEventList* sl);
-	void DoEventAndDelete(SchedEvent* e, const char* handle);
-	void DoMidiMsgEvent(MidiMsg* m, const char* handle);
+	void DoEventAndDelete(SchedEvent* e);
+	void DoMidiMsgEvent(MidiMsg* m, int cursorid);
 	bool m_running;
 
 	// Per-handle scheduled events
-	std::map<const char*,SchedEventList*> m_scheduled;
+	SchedEventList* m_scheduled;
 	SchedEventList* m_queue;  // Things to be added to _scheduled
 
 #ifdef NOWPLAYING

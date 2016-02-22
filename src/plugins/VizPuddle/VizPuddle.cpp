@@ -36,9 +36,6 @@ VizPuddle::VizPuddle() : Vizlet() {
 	for (int i = 0; (s = buttonnames[i]) != NULL; i++) {
 		_button[s] = new Button(s);
 	}
-	for (int i = 0; i < MAX_MIDI_PORTS; i++) {
-		m_porthandle[i] = _strdup(NosuchSnprintf("port%d", i).c_str());
-	}
 	_autoloadparams = true;
 }
 
@@ -352,6 +349,18 @@ void VizPuddle::_cursorMidi(VizCursor* c, int downdragup, Region* r) {
 	return;
 }
 
+void
+VizPuddle::_queueRegionMidiPhrase(MidiPhrase* ph, click_t tm, int cursorid, Region* r) {
+	NosuchAssert(r);
+	QueueMidiPhrase(ph, tm, cursorid, r->m_looping, r->midiparams);
+}
+
+void
+VizPuddle::_queueRegionMidiMsg(MidiMsg* m, click_t tm, int cursorid, Region* r) {
+	NosuchAssert(r);
+	QueueMidiMsg(m, tm, cursorid, r->m_looping, r->midiparams);
+}
+
 void VizPuddle::_genArpeggiatedMidi(VizCursor* c, int downdragup, Region* r) {
 
 	MidiVizParams* mp = r->midiparams;
@@ -372,11 +381,7 @@ void VizPuddle::_genArpeggiatedMidi(VizCursor* c, int downdragup, Region* r) {
 	ph->SetOutputPort(outport);
 	click_t tm = _quantizeToNext(now, quant);
 
-	if (outport >= MAX_MIDI_PORTS) {
-		throw NosuchException("port value (%d) is too large!?",outport);
-	}
-	// The handle is per-port
-	QueueMidiPhrase(ph, tm, m_porthandle[outport],_loopClicks(r));
+	_queueRegionMidiPhrase(ph, tm, c->cursorid, r);
 }
 
 void VizPuddle::_genControlMidi(VizCursor* c, int downdragup, Region* r) {
@@ -432,7 +437,8 @@ void VizPuddle::_genControlMidi(VizCursor* c, int downdragup, Region* r) {
 
 	r->m_controllerval = newv;
 
-	QueueMidiMsg(ctl, now, m_porthandle[outport], _loopClicks(r));
+	_queueRegionMidiMsg(ctl, now, c->cursorid, r);
+
 	DEBUGPRINT1(("Queued sid=%d updated controllerval=%d",c->sid,c->m_controllerval));
 	return;
 }
@@ -450,7 +456,8 @@ VizPuddle::_genControllerReset(VizCursor* c, Region* r) {
 	r->m_controllerval = (int)(mp->depthctlmin);
 	MidiController* ctl = MidiController::make(ch, mp->depthctlnum, r->m_controllerval);
 	ctl->SetOutputPort(outport);
-	QueueMidiMsg(ctl, now, m_porthandle[outport], _loopClicks(r));
+
+	_queueRegionMidiMsg(ctl, now, c->cursorid, r);
 }
 
 int _outputPort(MidiVizParams* mp) {
@@ -485,8 +492,7 @@ VizPuddle::_queueNoteonWithNoteoffPending(VizCursor* c, Region* r) {
 	// Send the noteon, but don't sent the noteoff until we get a CURSOR_UP
 
 	click_t loopclicks = _loopClicks(r);
-	QueueMidiMsg(noteon, nowquant, m_porthandle[outport],loopclicks);
-	DEBUGPRINT1(("QueueMidi of noteon %d click=%ld(in down)",noteon->Pitch(),nowquant));
+	_queueRegionMidiMsg(noteon, nowquant, c->cursorid, r);
 	DEBUGPRINT1(("CURSOR_DOWN setting c=%ld noteoff to %ld", (long)c,(long)(noteoff)));
 	c->m_pending_noteoff = noteoff;
 	c->m_noteon_click = nowquant;
@@ -497,7 +503,7 @@ VizPuddle::_queueNoteonWithNoteoffPending(VizCursor* c, Region* r) {
 
 void
 VizPuddle::_finishNote(VizCursor* c, click_t noteoff_click, int outport, Region* r) {
-	QueueMidiMsg(c->m_pending_noteoff, noteoff_click, m_porthandle[outport], _loopClicks(r));
+	_queueRegionMidiMsg(c->m_pending_noteoff, noteoff_click, c->cursorid, r);
 }
 
 void VizPuddle::_genNormalMidi(VizCursor* c, int downdragup, Region* r) {
@@ -560,7 +566,7 @@ void VizPuddle::_genNormalMidi(VizCursor* c, int downdragup, Region* r) {
 		if (mp->depthctlnum.get() > 0) {
 			c->m_controllerval = (int)(mp->depthctlmin);
 			MidiController* ctl = MidiController::make(ch, mp->depthctlnum, c->m_controllerval);
-			QueueMidiMsg(ctl, now, m_porthandle[outport]);
+			_queueRegionMidiMsg(ctl, now, c->cursorid, r);
 			DEBUGPRINT1(("Queued ctl val=%d", c->m_controllerval));
 			return;
 		}

@@ -1,21 +1,27 @@
 #ifndef _SCHEDEVENT_H
 #define _SCHEDEVENT_H
 
+#include <list>
+
+class MidiVizParams;
+class SchedEvent;
+
+typedef std::list<SchedEvent*> SchedEventList;
+typedef std::list<SchedEvent*>::iterator SchedEventIterator;
+
 typedef int click_t;
 
 #include "NosuchUtil.h"
 #include "NosuchMidi.h"
 #include "NosuchJSON.h"
 #include "porttime.h"
+#if 0
 #include "NosuchGraphics.h"
+#include "MidiVizParams.h"
 #include <pthread.h>
-#include <list>
 #include <map>
 #include <algorithm>
-
-#define OUT_QUEUE_SIZE 1024
-
-#define HANDLE_DEFAULT ((const char*)0)
+#endif
 
 class MidiMsg;
 class MidiPhrase;
@@ -40,9 +46,9 @@ public:
 		MIDIPHRASE
 	};
 
-	SchedEvent(MidiMsg* m, click_t c, const char* h, click_t loopclicks = 0);
-	SchedEvent(MidiPhrase* ph, click_t c, const char* h, click_t loopclicks = 0);
-	SchedEvent(NosuchCursorMotion* cm, click_t c, const char* h, click_t loopclicks = 0);
+	SchedEvent(MidiMsg* m, click_t c, int cursorid, bool looping=false, MidiVizParams* mp=0);
+	SchedEvent(MidiPhrase* ph, click_t c, int cursorid, bool loopingfalse, MidiVizParams* mp=0);
+	SchedEvent(NosuchCursorMotion* cm, click_t c, int cursorid, bool looping = false, MidiVizParams* mp = 0);
 
 	virtual ~SchedEvent();
 	std::string DebugString();
@@ -57,18 +63,18 @@ public:
 	int eventtype() { return m_eventtype; }
 
 protected:
-	const char* m_handle;	// handle to thing that created it
+	int m_cursorid;	// Id of cursor that created it, if positive.
+					// Negative values may have a different meaning someday,
+					// when things other than cursors can originate events
 	friend class NosuchScheduler;
 
 private:
 
 	int m_eventtype;
 	int m_loopclicks;	// if 0, it's not looping
+	double m_loopfade;	// looping fade factor, 0.0 to 1.0, where 1.0 is no fading
 
-	void init(click_t click, const char* h, click_t loopclicks);
+	void init(click_t click, int cursorid, bool looping, MidiVizParams* mp);
 };
-
-typedef std::list<SchedEvent*> SchedEventList;
-typedef std::list<SchedEvent*>::iterator SchedEventIterator;
 
 #endif

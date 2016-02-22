@@ -73,10 +73,10 @@ public:
 
 	void LoadPipeline(std::string pipeline);
 
-	void QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle, click_t loopclicks = 0);
-	void QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle, click_t loopclicks = 0);
+	void QueueMidiMsg(MidiMsg* m, click_t clk, int cursorid, bool looping=false, MidiVizParams* mp = 0);
+	void QueueMidiPhrase(MidiPhrase* ph, click_t clk, int cursorid, bool looping=false, MidiVizParams* mp = 0);
 	void QueueClear();
-	void ScheduleClear(const char* handle = 0);
+	void ScheduleClear();
 
 	bool SendOsc(std::string host, int port, const char* data, size_t size);
 

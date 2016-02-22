@@ -1,32 +1,38 @@
 #include "NosuchUtil.h"
-#include "NosuchException.h"
-#include "NosuchScheduler.h"
-#include "NosuchJson.h"
+#include "SchedEvent.h"
+#include "MidiVizParams.h"
 
-SchedEvent::SchedEvent(MidiMsg* m, click_t c, const char* h, click_t loopclicks) {
+SchedEvent::SchedEvent(MidiMsg* m, click_t click, int cursorid, bool looping, MidiVizParams* mp) {
 	m_eventtype = SchedEvent::MIDIMSG;
 	u.midimsg = m;
-	init(c, h, loopclicks);
+	init(click, cursorid, looping, mp);
 }
 
-SchedEvent::SchedEvent(MidiPhrase* ph, click_t c, const char* h, click_t loopclicks) {
+SchedEvent::SchedEvent(MidiPhrase* ph, click_t click, int cursorid, bool looping, MidiVizParams* mp) {
 	m_eventtype = SchedEvent::MIDIPHRASE;
 	u.midiphrase = ph;
-	init(c, h, loopclicks);
+	init(click, cursorid, looping, mp);
 }
 
-SchedEvent::SchedEvent(NosuchCursorMotion* cm,click_t c, const char* h, click_t loopclicks) {
+SchedEvent::SchedEvent(NosuchCursorMotion* cm, click_t click, int cursorid, bool looping, MidiVizParams* mp) {
 	m_eventtype = SchedEvent::CURSORMOTION;
 	u.midimsg = NULL;
 	u.cursormotion = cm;
-	init(c, h, loopclicks);
+	init(click, cursorid, looping, mp);
 }
 
 void
-SchedEvent::init(click_t c, const char* h, click_t loopclicks) {
-	click = c;
-	m_handle = h;
-	m_loopclicks = loopclicks;
+SchedEvent::init(click_t click_, int cursorid, bool looping, MidiVizParams* mp) {
+	click = click_;
+	m_cursorid = cursorid;
+	if (mp == NULL) {
+		DEBUGPRINT(("Hey, mp==NULL in SchedEvent::init!?"));
+		m_loopclicks = 0;
+		m_loopfade = 0.0;
+	} else {
+		m_loopclicks = looping ? mp->loopclicks : 0;
+		m_loopfade = mp->loopfade;
+	}
 }
 
 SchedEvent::~SchedEvent() {

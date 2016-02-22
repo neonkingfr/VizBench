@@ -60,8 +60,8 @@ public:
 	void LockVizlet();
 	void UnlockVizlet();
 
-	void QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle, click_t loopleng);
-	void QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle, click_t loopleng);
+	void QueueMidiMsg(MidiMsg* m, click_t clk, int cursorid, bool looping, MidiVizParams* mp);
+	void QueueMidiPhrase(MidiPhrase* ph, click_t clk, int cursorid, bool looping, MidiVizParams* mp);
 	void QueueClear();
 
 	DWORD SetVideoInfo(const VideoInfoStruct* pvi);

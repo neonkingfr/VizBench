@@ -367,13 +367,13 @@ void Vizlet10::_stopstuff() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-Vizlet10::QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle, click_t loopclicks) {
-	m_vizserver->QueueMidiPhrase(ph,clk,handle, loopclicks);
+Vizlet10::QueueMidiPhrase(MidiPhrase* ph, click_t clk, int cursorid, bool looping, MidiVizParams* mp) {
+	m_vizserver->QueueMidiPhrase(ph,clk,cursorid, looping, mp);
 }
 
 void
-Vizlet10::QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle, click_t loopclicks) {
-	m_vizserver->QueueMidiMsg(m,clk,handle, loopclicks);
+Vizlet10::QueueMidiMsg(MidiMsg* m, click_t clk, int cursorid, bool looping, MidiVizParams* mp) {
+	m_vizserver->QueueMidiMsg(m,clk,cursorid, looping, mp);
 }
 
 void

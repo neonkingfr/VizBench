@@ -23,6 +23,7 @@ extern char* MidiVizParamsNames[];
 	"depthsmooth",\
 	"duration",\
 	"loopclicks",\
+	"loopfade",\
 	"notelimit",\
 	"pitchmax",\
 	"pitchmin",\
@@ -62,6 +63,8 @@ public:
 		if (j) { duration.set(j); }
 		j = cJSON_GetObjectItem(json,"loopclicks");
 		if (j) { loopclicks.set(j); }
+		j = cJSON_GetObjectItem(json,"loopfade");
+		if (j) { loopfade.set(j); }
 		j = cJSON_GetObjectItem(json,"notelimit");
 		if (j) { notelimit.set(j); }
 		j = cJSON_GetObjectItem(json,"pitchmax");
@@ -86,6 +89,7 @@ public:
 		depthsmooth.set(2);
 		duration.set("hold");
 		loopclicks.set(768);
+		loopfade.set(0.500000);
 		notelimit.set(4);
 		pitchmax.set(100);
 		pitchmin.set(60);
@@ -105,6 +109,7 @@ public:
 		if ( p->depthsmooth.isset() ) { this->depthsmooth.set(p->depthsmooth.get()); }
 		if ( p->duration.isset() ) { this->duration.set(p->duration.get()); }
 		if ( p->loopclicks.isset() ) { this->loopclicks.set(p->loopclicks.get()); }
+		if ( p->loopfade.isset() ) { this->loopfade.set(p->loopfade.get()); }
 		if ( p->notelimit.isset() ) { this->notelimit.set(p->notelimit.get()); }
 		if ( p->pitchmax.isset() ) { this->pitchmax.set(p->pitchmax.get()); }
 		if ( p->pitchmin.isset() ) { this->pitchmin.set(p->pitchmin.get()); }
@@ -135,6 +140,8 @@ public:
 			stringval = true;
 		} else if ( nm == "loopclicks" ) {
 			loopclicks.set(string2int(val));
+		} else if ( nm == "loopfade" ) {
+			loopfade.set(string2double(val));
 		} else if ( nm == "notelimit" ) {
 			notelimit.set(string2int(val));
 		} else if ( nm == "pitchmax" ) {
@@ -175,6 +182,8 @@ public:
 			duration.set(adjust(duration.get(),amount,VizParams::StringVals["durationTypes"]));
 		} else if ( nm == "loopclicks" ) {
 			loopclicks.set(adjust(loopclicks.get(),amount,1,3072));
+		} else if ( nm == "loopfade" ) {
+			loopfade.set(adjust(loopfade.get(),amount,0.000000,1.000000));
 		} else if ( nm == "notelimit" ) {
 			notelimit.set(adjust(notelimit.get(),amount,1,16));
 		} else if ( nm == "pitchmax" ) {
@@ -201,6 +210,7 @@ public:
 		if ( nm == "depthsmooth" ) { return "2"; }
 		if ( nm == "duration" ) { return "hold"; }
 		if ( nm == "loopclicks" ) { return "768"; }
+		if ( nm == "loopfade" ) { return "0.5"; }
 		if ( nm == "notelimit" ) { return "4"; }
 		if ( nm == "pitchmax" ) { return "100"; }
 		if ( nm == "pitchmin" ) { return "60"; }
@@ -220,6 +230,7 @@ public:
 		if ( nm == "depthsmooth" ) { return "0"; }
 		if ( nm == "duration" ) { return "durationTypes"; }
 		if ( nm == "loopclicks" ) { return "1"; }
+		if ( nm == "loopfade" ) { return "0"; }
 		if ( nm == "notelimit" ) { return "1"; }
 		if ( nm == "pitchmax" ) { return "1"; }
 		if ( nm == "pitchmin" ) { return "1"; }
@@ -239,6 +250,7 @@ public:
 		if ( nm == "depthsmooth" ) { return "128"; }
 		if ( nm == "duration" ) { return "durationTypes"; }
 		if ( nm == "loopclicks" ) { return "3072"; }
+		if ( nm == "loopfade" ) { return "1.0"; }
 		if ( nm == "notelimit" ) { return "16"; }
 		if ( nm == "pitchmax" ) { return "127"; }
 		if ( nm == "pitchmin" ) { return "127"; }
@@ -271,6 +283,8 @@ public:
 			return duration.get();
 		} else if ( nm == "loopclicks" ) {
 			return IntString(loopclicks.get());
+		} else if ( nm == "loopfade" ) {
+			return DoubleString(loopfade.get());
 		} else if ( nm == "notelimit" ) {
 			return IntString(notelimit.get());
 		} else if ( nm == "pitchmax" ) {
@@ -297,6 +311,7 @@ public:
 		if ( nm == "depthsmooth" ) { return "int"; }
 		if ( nm == "duration" ) { return "string"; }
 		if ( nm == "loopclicks" ) { return "int"; }
+		if ( nm == "loopfade" ) { return "double"; }
 		if ( nm == "notelimit" ) { return "int"; }
 		if ( nm == "pitchmax" ) { return "int"; }
 		if ( nm == "pitchmin" ) { return "int"; }
@@ -316,6 +331,7 @@ public:
 	IntParam depthsmooth;
 	StringParam duration;
 	IntParam loopclicks;
+	DoubleParam loopfade;
 	IntParam notelimit;
 	IntParam pitchmax;
 	IntParam pitchmin;

@@ -87,7 +87,7 @@ public:
 class VizCursor {
 public:
 	// methods
-	VizCursor(VizServer* ss, int sid_, std::string source_,
+	VizCursor(VizServer* ss, int sid_, std::string source_, int cursorid_,
 		NosuchPos pos_, double area_, OutlineMem* om_, MMTT_SharedMemHeader* hdr_);
 
 	void touch(double tm) {
@@ -149,6 +149,7 @@ public:
 	double area;
 	OutlineMem* outline;
 	MMTT_SharedMemHeader* hdr;
+	int cursorid;				// permanently unique (not reused like session id)
 
 	double curr_speed;
 	double curr_degrees;
@@ -212,10 +213,10 @@ public:
 	click_t SchedulerClicksPerSecond();
 	click_t SchedulerClicksPerBeat();
 
-	void QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle, click_t loopclicks);
-	void QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle, click_t loopclicks);
+	void QueueMidiMsg(MidiMsg* m, click_t clk, int cursorid, bool looping, MidiVizParams* mp);
+	void QueueMidiPhrase(MidiPhrase* ph, click_t clk, int cursorid, bool looping, MidiVizParams* mp);
 	void QueueClear();
-	void ScheduleClear(const char* handle);
+	void ScheduleClear(int cursorid = SCHEDID_ALL);
 
 	const char* MidiInputName(size_t n) {
 		return m_scheduler->MidiInputName(n);
@@ -232,8 +233,6 @@ public:
 		GlobalPitchOffset = offset;
 	}
 
-	// void IncomingNoteOff(click_t clk, int ch, int pitch, int vel, void* handle);
-	// void IncomingMidiMsg(MidiMsg* m, click_t clk, void* handle);
 	void InsertKeystroke(int key, int downup);
 
 	bool Started() { return m_started; }
@@ -253,17 +252,12 @@ public:
 		m_scheduler->UnlockNotesDown();
 	}
 
-	// int MmttSeqNum() { return m_mmtt_seqnum; }
-
 	const char* ProcessJson(const char* fullmethod,cJSON* params,const char* id);
 
 private:
 
 	ErrorCallbackFuncType m_errorCallback;
 	void* m_errorCallbackData;
-
-	// void SendControllerMsg(MidiMsg* m, const char* handle, bool smooth);
-	// void SendPitchBendMsg(MidiMsg* m, const char* handle, bool smooth);
 
 	void LockCursors() {
 		NosuchLock(&_cursors_mutex,"cursors");
@@ -314,9 +308,9 @@ private:
 	void _setCursorSid(int sidnum, const char* source, double x, double y, double z, double tuio_f, OutlineMem* om, MMTT_SharedMemHeader* hdr );
 	void _processCursorsFromBuff(MMTT_SharedMemHeader* hdr);
 
-	void _scheduleMidiMsg(MidiMsg* m, click_t clk, const char* handle);
-	void _scheduleMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle);
-	void _scheduleClear();
+	void _scheduleMidiMsg(MidiMsg* m, click_t clk, int cursorid, bool looping, MidiVizParams* mp);
+	void _scheduleMidiPhrase(MidiPhrase* ph, click_t clk, int cursorid, bool looping, MidiVizParams* mp);
+	void _scheduleClearAll();
 
 	static void _errorPopup(const char* msg);
 
@@ -348,6 +342,8 @@ private:
 
 	pthread_mutex_t _cursors_mutex;
 	std::list<VizCursor*>* m_cursors;
+	int m_next_cursorid;	// sequence number to provide permanently-unique cursor ID,
+							// unlike the session ID which is re-used.
 
 	int m_httpport;
 	const char* m_htmlpath;

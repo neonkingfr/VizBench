@@ -440,7 +440,7 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 		}
 		if (api == "clearmidi") {
 			ss->ANO();
-			ss->_scheduleClear();
+			ss->_scheduleClearAll();
 			ss->ClearNotesDown();
 			return jsonOK(id);
 		}
@@ -525,7 +525,7 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 				std::string err = NosuchSnprintf("Error reading phrase from file: %s", fpath.c_str());
 				return jsonError(-32000, err, id);
 			}
-			ss->_scheduleMidiPhrase(ph, ss->SchedulerCurrentClick(), 0);
+			ss->_scheduleMidiPhrase(ph, ss->SchedulerCurrentClick(), 0, false, NULL);
 			// DO NOT free ph - scheduleMidiPhrase takes it over.
 			return jsonOK(id);
 		}
@@ -910,6 +910,7 @@ VizServer::VizServer() {
 	m_htmlpath = _strdup(VizPath("html").c_str());
 	m_midifile = "jsbach.mid";
 	m_midioutput = -1;
+	m_next_cursorid = 1;
 
 	// m_jsonprocessor = NULL;
 	// m_oscprocessor = NULL;
@@ -1029,7 +1030,8 @@ VizServer::_setCursor(int sidnum, std::string sidsource, NosuchPos pos, double a
 		m_cursorprocessor->processCursor(c, CURSOR_DRAG);
 	}
 	else {
-		c = new VizCursor(this, sidnum, sidsource, pos, area, om, hdr);
+		int cursorid = m_next_cursorid++;
+		c = new VizCursor(this, sidnum, sidsource, cursorid, pos, area, om, hdr);
 		DEBUGPRINT1(("_setCursor NEW c=%ld pos= %.3f %.3f", (long)c, pos.x, pos.y));
 		m_cursors->push_back(c);
 		m_cursorprocessor->processCursor(c, CURSOR_DOWN);
@@ -1144,33 +1146,33 @@ VizServer::IncomingMidiMsg(MidiMsg* m, click_t clk, const char* handle) {
 #endif
 
 void
-VizServer::_scheduleMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle) {
+VizServer::_scheduleMidiPhrase(MidiPhrase* ph, click_t clk, int cursorid, bool looping, MidiVizParams* mp) {
 	NosuchAssert(m_scheduler);
-	m_scheduler->ScheduleMidiPhrase(ph, clk, handle);
+	m_scheduler->ScheduleMidiPhrase(ph, clk, cursorid, looping, mp);
 }
 
 void
-VizServer::_scheduleMidiMsg(MidiMsg* m, click_t clk, const char* handle) {
+VizServer::_scheduleMidiMsg(MidiMsg* m, click_t clk, int cursorid, bool looping, MidiVizParams* mp) {
 	NosuchAssert(m_scheduler);
-	m_scheduler->ScheduleMidiMsg(m, clk, handle);
+	m_scheduler->ScheduleMidiMsg(m, clk, cursorid, looping, mp);
 }
 
 void
-VizServer::_scheduleClear() {
+VizServer::_scheduleClearAll() {
 	NosuchAssert(m_scheduler);
-	m_scheduler->ScheduleClear();
+	m_scheduler->ScheduleClear(SCHEDID_ALL);
 }
 
 void
-VizServer::QueueMidiPhrase(MidiPhrase* ph, click_t clk, const char* handle, click_t loopclicks) {
+VizServer::QueueMidiPhrase(MidiPhrase* ph, click_t clk, int cursorid, bool looping, MidiVizParams* mp) {
 	NosuchAssert(m_scheduler);
-	m_scheduler->QueueMidiPhrase(ph, clk, handle, loopclicks);
+	m_scheduler->QueueMidiPhrase(ph, clk, cursorid, looping, mp);
 }
 
 void
-VizServer::QueueMidiMsg(MidiMsg* m, click_t clk, const char* handle, click_t loopclicks) {
+VizServer::QueueMidiMsg(MidiMsg* m, click_t clk, int cursorid, bool looping, MidiVizParams* mp) {
 	NosuchAssert(m_scheduler);
-	m_scheduler->QueueMidiMsg(m, clk, handle, loopclicks);
+	m_scheduler->QueueMidiMsg(m, clk, cursorid, looping, mp);
 }
 
 void
@@ -1180,9 +1182,9 @@ VizServer::QueueClear() {
 }
 
 void
-VizServer::ScheduleClear(const char* handle) {
+VizServer::ScheduleClear(int cursorid) {
 	NosuchAssert(m_scheduler);
-	m_scheduler->ScheduleClear(handle);
+	m_scheduler->ScheduleClear(cursorid);
 }
 
 void
@@ -1379,7 +1381,7 @@ VizServer::Stop() {
 	DEBUGPRINT(("VizServer::Stop is shutting things down"));
 	if (m_scheduler) {
 		ANO();
-		_scheduleClear();
+		_scheduleClearAll();
 		ClearNotesDown();
 		m_scheduler->Stop();
 		delete m_scheduler;
@@ -1643,21 +1645,22 @@ VizServer::_touchCursorSid(int sid, std::string source) {
 	}
 }
 
-VizCursor::VizCursor(VizServer* ss, int sid_, std::string source_,
+VizCursor::VizCursor(VizServer* ss, int sid_, std::string source_, int cursorid_,
 	NosuchPos pos_, double area_, OutlineMem* om_, MMTT_SharedMemHeader* hdr_) {
 
-	pos = pos_;
-	target_pos = pos_;
-	m_vizserver = ss;
-	m_lasttouchedInSeconds = 0;
 	sid = sid_;
 	source = source_;
+	cursorid = cursorid_;
+	pos = pos_;
+	target_pos = pos_;
 	area = area_;
 	outline = om_;
 	hdr = hdr_;
+
+	m_vizserver = ss;
+	m_lasttouchedInSeconds = 0;
 	curr_speed = 0;
 	curr_degrees = 0;
-
 	m_target_depth = 0;
 	m_last_depth = 0;
 	m_last_channel = 0;
@@ -1666,8 +1669,6 @@ VizCursor::VizCursor(VizServer* ss, int sid_, std::string source_,
 	m_target_degrees = 0;
 	m_g_firstdir = true;
 	m_smooth_degrees_factor = 0.2;
-	// m_controllerval = -1;
-
 	m_pending_noteoff = NULL;
 	m_noteon_click = 0;
 	m_noteon_loopclicks = 0;
