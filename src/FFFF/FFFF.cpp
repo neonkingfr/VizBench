@@ -135,23 +135,6 @@ FFFF::InsertKeystroke(int key,int updown) {
 	m_vizserver->InsertKeystroke(key,updown);
 }
 
-void *imagewriter_threadfunc(void *arg)
-{
-	FFFF* b = (FFFF*)arg;
-	return b->imagewriter_thread(arg);
-}
-
-void FFFF::imagewriter_addimage(IplImage* img) {
-}
-
-void *FFFF::imagewriter_thread(void *arg)
-{
-	int textcount = 0;
-	DEBUGPRINT(("FFFF:imagewriter_threadfunc start"));
-	DEBUGPRINT(("FFFF:imagewriter_threadfunc end"));
-	return NULL;
-}
-
 bool
 FFFF::StartStuff() {
 
@@ -165,13 +148,6 @@ FFFF::StartStuff() {
 	}
 
 	m_vizserver->AddJsonCallback((void*)this,"ffff",FFFF_json,(void*)this);
-
-	// Might not actually be used if we're not recording.
-	DEBUGPRINT(("About to create ImageWriter thread"));
-	int err = pthread_create(&m_imagewriter_thread, NULL, imagewriter_threadfunc, this);
-	if (err) {
-		NosuchErrorOutput("pthread_create failed!? err=%d",err);
-	}
 
 	if (m_audiohost) {
 	 	m_audiohost->Start();

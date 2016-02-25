@@ -109,9 +109,6 @@ public:
 
 	bool do_ffgl_plugin(FFGLPluginInstance* plugin, int which); // which: 0 = first one, 1 = middle, 2 = last, 3 = one and only one, 4 none
 
-	void *imagewriter_thread(void *arg);
-	void imagewriter_addimage(IplImage* img);
-
 	void InsertKeystroke(int key, int downup);
 
 	GLFWwindow* window;
@@ -131,7 +128,6 @@ private:
 	IplImage* m_img_into_pipeline;
 	VizServer* m_vizserver;
 	CvCapture* m_capture;
-	pthread_t m_imagewriter_thread;
 	bool m_showfps;
 	bool m_record;
 	AudioHost* m_audiohost;

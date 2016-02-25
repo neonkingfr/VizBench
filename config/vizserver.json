@@ -49,6 +49,7 @@
   "sharedmem": 1,
 
   "debugmidinotes": 0,
+  "debugmidiall": 0,
 
   # This next line is just at the end as a dummy value so you don't have to
   # remember to always remove the comma on the last entry.

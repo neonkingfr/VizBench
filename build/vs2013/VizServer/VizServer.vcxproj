@@ -193,6 +193,7 @@
     <ClInclude Include="..\..\..\src\nosuch\NosuchUtil.h" />
     <ClInclude Include="..\..\..\src\nosuch\Scale.h" />
     <ClInclude Include="..\..\..\src\nosuch\SchedEvent.h" />
+    <ClInclude Include="..\..\..\src\nosuch\SchedEventList.h" />
     <ClInclude Include="..\..\..\src\params\SpriteVizParams.h" />
     <ClInclude Include="..\..\..\src\params\VizParams.h" />
     <ClInclude Include="..\..\..\src\Viz\VizServer.h" />
@@ -234,6 +235,7 @@
     <ClCompile Include="..\..\..\src\nosuch\NosuchUtil.cpp" />
     <ClCompile Include="..\..\..\src\nosuch\Scale.cpp" />
     <ClCompile Include="..\..\..\src\nosuch\SchedEvent.cpp" />
+    <ClCompile Include="..\..\..\src\nosuch\SchedEventList.cpp" />
     <ClCompile Include="..\..\..\src\params\MidiVizParams.cpp" />
     <ClCompile Include="..\..\..\src\params\SpriteVizParams.cpp" />
     <ClCompile Include="..\..\..\src\params\VizParams.cpp" />

@@ -343,6 +343,7 @@ void VizPuddle::_cursorMidi(VizCursor* c, int downdragup, Region* r) {
 		_genNormalMidi(c, downdragup, r);
 	}
 
+	//  DEBUGPRINT(("Controllers are forcibly ignored"));
 	_genControlMidi(c, downdragup, r);
 
 	// Go through cursors, compute average depth for controllervalue
@@ -489,20 +490,24 @@ VizPuddle::_queueNoteonWithNoteoffPending(VizCursor* c, Region* r) {
 	noteoff->SetInputPort(MIDI_PORT_OF_GENERATED_STUFF);
 	noteoff->SetOutputPort(outport);
 
+	DEBUGPRINT1(("QUEUE noteon/noteoff cursor=%ld noteon=%ld noteoff=%ld", (long)c,(long)(noteon),(long)(noteoff)));
+
 	// Send the noteon, but don't sent the noteoff until we get a CURSOR_UP
 
 	click_t loopclicks = _loopClicks(r);
 	_queueRegionMidiMsg(noteon, nowquant, c->cursorid, r);
-	DEBUGPRINT1(("CURSOR_DOWN setting c=%ld noteoff to %ld", (long)c,(long)(noteoff)));
 	c->m_pending_noteoff = noteoff;
 	c->m_noteon_click = nowquant;
 	c->m_noteon_loopclicks = loopclicks;
 	c->m_noteon_depth = c->pos.z;
 
+	DEBUGPRINT1(("     QUEUE noteon at click=%d", nowquant));
+
 }
 
 void
 VizPuddle::_finishNote(VizCursor* c, click_t noteoff_click, int outport, Region* r) {
+	DEBUGPRINT1(("FINISHNOTE, using pending noteoff type=%s",c->m_pending_noteoff->MidiTypeName()));
 	_queueRegionMidiMsg(c->m_pending_noteoff, noteoff_click, c->cursorid, r);
 }
 
@@ -559,6 +564,7 @@ void VizPuddle::_genNormalMidi(VizCursor* c, int downdragup, Region* r) {
 		}
 		else {
 			// If noteoff is not quantized, it may preceded noteon, resulting in stuck note
+			DEBUGPRINT1(("CURSOR_UP is calling finishNote !!"));
 			_finishNote(c, nowquant, outport, r);
 			c->m_pending_noteoff = NULL;
 		}

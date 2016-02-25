@@ -9,6 +9,7 @@ typedef int click_t;
 #include "porttime.h"
 #include "NosuchGraphics.h"
 #include "SchedEvent.h"
+#include "SchedEventList.h"
 #include <pthread.h>
 #include <list>
 #include <map>
@@ -51,43 +52,8 @@ public:
 
 class NosuchScheduler {
 public:
-	NosuchScheduler() {
-		DEBUGPRINT1(("NosuchScheduler CONSTRUCTED!!, count=%d",SchedulerCount++));
-		m_running = false;
-		m_currentclick = 0;
-
-#ifdef NOWPLAYING
-		m_nowplaying_note.clear();
-		// m_nowplaying_controller.clear();
-#endif
-
-		SetClicksPerSecond(192);
-
-		NosuchLockInit(&m_scheduled_mutex,"scheduled");
-		NosuchLockInit(&m_notesdown_mutex,"notesdown");
-		NosuchLockInit(&m_queue_mutex,"queue");
-		m_midioutput_client = NULL;
-
-		m_midi_input_stream = std::vector<PmStream*>();
-		m_midi_input_name = std::vector<std::string>();
-
-		m_midi_output_stream = std::vector<PmStream*>();
-		m_midi_output_name = std::vector<std::string>();
-
-		m_midi_merge_outport = std::vector<int>();
-		m_midi_merge_name = std::vector<std::string>();
-
-		m_midiinput_client = NULL;
-		m_midioutput_client = NULL;
-
-		m_click_client = NULL;
-		m_periodic_ANO = false;
-		m_queue = new SchedEventList();
-		m_scheduled = new SchedEventList();
-	}
-	virtual ~NosuchScheduler() {
-		Stop();
-	}
+	NosuchScheduler();
+	virtual ~NosuchScheduler();
 
 	const char* MidiInputName(size_t n)  {
 		if (n>=m_midi_input_name.size()) {
@@ -171,8 +137,19 @@ public:
 	void LockNotesDown() { NosuchLock(&m_notesdown_mutex,"notesdown"); }
 	void UnlockNotesDown() { NosuchUnlock(&m_notesdown_mutex,"notesdown"); }
 
-	void LockQueue() { NosuchLock(&m_queue_mutex,"queue"); }
-	void UnlockQueue() { NosuchUnlock(&m_queue_mutex,"queue"); }
+	bool m_queue_locked;
+	bool m_scheduled_locked;
+
+	void LockQueue() {
+		// DEBUGPRINT(("LockQueue pthread=%ld", (long)pthread_self().p));
+		NosuchLock(&m_queue_mutex,"queue");
+		m_queue_locked = true;
+	}
+	void UnlockQueue() {
+		// DEBUGPRINT(("UnLockQueue pthread=%ld", (long)pthread_self().p));
+		NosuchUnlock(&m_queue_mutex,"queue");
+		m_queue_locked = false;
+	}
 
 private:
 
@@ -182,9 +159,24 @@ private:
 	void _maintainNotesDown(MidiMsg* m);
 	std::list<MidiMsg*> m_notesdown;
 
-	int TryLockScheduled() { return NosuchTryLock(&m_scheduled_mutex,"sched"); }
-	void LockScheduled() { NosuchLock(&m_scheduled_mutex,"sched"); }
-	void UnlockScheduled() { NosuchUnlock(&m_scheduled_mutex,"sched"); }
+	int TryLockScheduled() {
+		DEBUGPRINT1(("TryLockScheduled"));
+		int i = NosuchTryLock(&m_scheduled_mutex,"sched");
+		if (i == 0) {
+			m_scheduled_locked = true;
+		}
+		return i;
+	}
+	void LockScheduled() {
+		DEBUGPRINT1(("LockScheduled"));
+		NosuchLock(&m_scheduled_mutex,"sched");
+		m_scheduled_locked = true;
+	}
+	void UnlockScheduled() {
+		DEBUGPRINT1(("UnLockScheduled"));
+		NosuchUnlock(&m_scheduled_mutex,"sched");
+		m_scheduled_locked = false;
+	}
 
 	void _addQueueToScheduled();
 	bool _handleLoopEvent(SchedEvent* e);

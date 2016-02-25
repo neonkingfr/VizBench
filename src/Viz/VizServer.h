@@ -89,6 +89,7 @@ public:
 	// methods
 	VizCursor(VizServer* ss, int sid_, std::string source_, int cursorid_,
 		NosuchPos pos_, double area_, OutlineMem* om_, MMTT_SharedMemHeader* hdr_);
+	virtual ~VizCursor();
 
 	void touch(double tm) {
 		m_lasttouchedInSeconds = tm;

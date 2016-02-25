@@ -788,15 +788,19 @@ public:
 	}
 	void processCursor(VizCursor* c, int downdragup) {
 		try {
+			DEBUGPRINT1(("processCursor A"));
 			std::map<void*, VizServerCursorCallback*>::iterator it;
 			for (it = m_callbacks.begin(); it != m_callbacks.end(); it++) {
 				VizServerCursorCallback* sscb = it->second;
 				if (c->matches(sscb->m_cf)) {
 					// XXX - need to check if plugin is enabled
 					cursorcallback_t cb = (cursorcallback_t)(sscb->m_cb);
+					DEBUGPRINT1(("processCursor B"));
 					cb(sscb->m_data, c, downdragup);
+					DEBUGPRINT1(("processCursor C"));
 				}
 			}
+			DEBUGPRINT1(("processCursor D"));
 		}
 		catch (NosuchException& e) {
 			DEBUGPRINT(("NosuchException in processCursor: %s", e.message()));
@@ -862,7 +866,7 @@ public:
 		static int lastclick = -1;
 		// Print warning if we get too much behind
 		if (click > (lastclick + 4)) {
-			DEBUGPRINT(("warning: advanced click by %d", click - lastclick));
+			DEBUGPRINT(("warning: advanced click by %d,  click is now %d", click - lastclick,  click));
 		}
 		lastclick = click;
 		m_server->_advanceClickTo(click);
@@ -1032,7 +1036,7 @@ VizServer::_setCursor(int sidnum, std::string sidsource, NosuchPos pos, double a
 	else {
 		int cursorid = m_next_cursorid++;
 		c = new VizCursor(this, sidnum, sidsource, cursorid, pos, area, om, hdr);
-		DEBUGPRINT1(("_setCursor NEW c=%ld pos= %.3f %.3f", (long)c, pos.x, pos.y));
+		DEBUGPRINT1(("_setCursor NEW id=%d c=%ld pos= %.3f %.3f", cursorid, (long)c, pos.x, pos.y));
 		m_cursors->push_back(c);
 		m_cursorprocessor->processCursor(c, CURSOR_DOWN);
 	}
@@ -1173,6 +1177,7 @@ void
 VizServer::QueueMidiMsg(MidiMsg* m, click_t clk, int cursorid, bool looping, MidiVizParams* mp) {
 	NosuchAssert(m_scheduler);
 	m_scheduler->QueueMidiMsg(m, clk, cursorid, looping, mp);
+	DEBUGPRINT1(("After VizServer::QueueMidiMsg clk=%d type=%s",clk,m->MidiTypeName()));
 }
 
 void
@@ -1675,6 +1680,9 @@ VizCursor::VizCursor(VizServer* ss, int sid_, std::string source_, int cursorid_
 	m_noteon_depth = 0;
 
 	touch(ss->SchedulerCurrentTimeInSeconds());
+}
+
+VizCursor::~VizCursor() {
 }
 
 double

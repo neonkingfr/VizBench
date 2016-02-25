@@ -5,9 +5,10 @@
 
 class MidiVizParams;
 class SchedEvent;
+class SchedEventList;
 
-typedef std::list<SchedEvent*> SchedEventList;
-typedef std::list<SchedEvent*>::iterator SchedEventIterator;
+// typedef std::list<SchedEvent*> SchedEventList;
+// typedef std::list<SchedEvent*>::iterator SchedEventIterator;
 
 typedef int click_t;
 
@@ -15,13 +16,6 @@ typedef int click_t;
 #include "NosuchMidi.h"
 #include "NosuchJSON.h"
 #include "porttime.h"
-#if 0
-#include "NosuchGraphics.h"
-#include "MidiVizParams.h"
-#include <pthread.h>
-#include <map>
-#include <algorithm>
-#endif
 
 class MidiMsg;
 class MidiPhrase;
@@ -53,7 +47,7 @@ public:
 	virtual ~SchedEvent();
 	std::string DebugString();
 
-	click_t click;	// relative when in loops, absolute elsewhere
+	click_t click;	// absolute, not relative
 	union {
 		MidiMsg* midimsg;
 		MidiPhrase* midiphrase;
@@ -75,6 +69,10 @@ private:
 	double m_loopfade;	// looping fade factor, 0.0 to 1.0, where 1.0 is no fading
 
 	void init(click_t click, int cursorid, bool looping, MidiVizParams* mp);
+
+	SchedEvent* m_next;
+	SchedEvent* m_prev;
+	friend class SchedEventList;
 };
 
 #endif

@@ -34,6 +34,7 @@
 #include "porttime.h"
 #include "pthread.h"
 #include "NosuchJSON.h"
+#include "VizServer.h"
 
 #include <list>
 
@@ -164,14 +165,29 @@ RealNosuchDebug(int level, char const *fmt, va_list args)
 	}
 	if ( NosuchDebugTimeTag ) {
 		int nchars;
-		double secs = (timeGetTime()-NosuchTime0) / 1000.0f;
+		VizServer* vserver = VizServer::GetServer();
+		double secs = vserver ? vserver->SchedulerCurrentTimeInSeconds() : 0.0;
 		if ( NosuchDebugThread ) {
-			nchars = _snprintf_s(pmsg,msgsize,_TRUNCATE,"[%.3f,T%ld] ",secs,(int)pthread_self().p);
+			nchars = _snprintf_s(pmsg,msgsize,_TRUNCATE,"[%.3f,T%ld,C%d] ",secs,(int)pthread_self().p,vserver->SchedulerCurrentClick());
 		} else {
 			nchars = _snprintf_s(msg,msgsize,_TRUNCATE,"[%.3f] ",secs);
 		}
 		pmsg += nchars;
 		msgsize -= nchars;
+
+#if 0
+		{
+			static double lastsecs = 0.0;
+			char ttt[1024];
+			nchars = _snprintf_s(ttt, 1024, _TRUNCATE, "secs=%.3f  lastsecs=%.3f  time0=%ld\n", secs, lastsecs, NosuchTime0);
+			OutputDebugStringA(ttt);
+			if (secs < lastsecs) {
+				OutputDebugStringA("TIME HAS GONE BACKWARDS!");
+			}
+			lastsecs = secs;
+		}
+#endif
+
 	}
 
     // va_start(args, fmt);

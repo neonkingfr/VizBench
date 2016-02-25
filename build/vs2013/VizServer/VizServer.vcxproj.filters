@@ -123,6 +123,9 @@
     <ClInclude Include="..\..\..\src\nosuch\SchedEvent.h">
       <Filter>Header Files\nosuch</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\nosuch\SchedEventList.h">
+      <Filter>Header Files\nosuch</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\nosuch\NosuchScheduler.cpp">
@@ -243,6 +246,9 @@
       <Filter>Source Files\nosuch</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\nosuch\SchedEvent.cpp">
+      <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\nosuch\SchedEventList.cpp">
       <Filter>Source Files\nosuch</Filter>
     </ClCompile>
   </ItemGroup>

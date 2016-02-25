@@ -70,8 +70,10 @@ public:
 	MidiMsg() {
 		m_inport = -1;
 		m_outport = -1;
+		DEBUGPRINT1(("MidiMsg constructor!  this=%ld",(long)this));
 	}
 	virtual ~MidiMsg() {
+		DEBUGPRINT1(("MidiMsg destructor!  this=%ld",(long)this));
 	}
 	virtual PmMessage PortMidiMessage() = 0;
 	virtual PmMessage PortMidiMessageOff() { return 0; }

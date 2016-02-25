@@ -27,6 +27,45 @@ void midi_callback( PtTimestamp timestamp, void *userData ) {
 	}
 }
 
+NosuchScheduler::NosuchScheduler() {
+	DEBUGPRINT1(("NosuchScheduler CONSTRUCTED!!, count=%d", SchedulerCount++));
+	m_running = false;
+	m_currentclick = 0;
+
+#ifdef NOWPLAYING
+	m_nowplaying_note.clear();
+	// m_nowplaying_controller.clear();
+#endif
+
+	SetClicksPerSecond(192);
+
+	NosuchLockInit(&m_scheduled_mutex, "scheduled");
+	NosuchLockInit(&m_notesdown_mutex, "notesdown");
+	NosuchLockInit(&m_queue_mutex, "queue");
+	m_midioutput_client = NULL;
+
+	m_midi_input_stream = std::vector<PmStream*>();
+	m_midi_input_name = std::vector<std::string>();
+
+	m_midi_output_stream = std::vector<PmStream*>();
+	m_midi_output_name = std::vector<std::string>();
+
+	m_midi_merge_outport = std::vector<int>();
+	m_midi_merge_name = std::vector<std::string>();
+
+	m_midiinput_client = NULL;
+	m_midioutput_client = NULL;
+
+	m_click_client = NULL;
+	m_periodic_ANO = false;
+	m_queue = new SchedEventList();
+	m_scheduled = new SchedEventList();
+}
+
+NosuchScheduler::~NosuchScheduler() {
+	Stop();
+}
+
 static bool
 schedevent_compare (SchedEvent* first, SchedEvent* second)
 {
@@ -36,9 +75,11 @@ schedevent_compare (SchedEvent* first, SchedEvent* second)
 		return false;
 }
 
+#ifdef OLDSCHEDULER
 void NosuchScheduler::_sortEvents(SchedEventList* sl) {
 	stable_sort (sl->begin(), sl->end(),schedevent_compare);
 }
+#endif
 
 void NosuchScheduler::ANO(int psi,int ch) {
 	NosuchAssert(ch!=0);
@@ -69,6 +110,7 @@ void NosuchScheduler::ANO(PmStream* ps,int ch) {
 void NosuchScheduler::ScheduleMidiMsg(MidiMsg* m, click_t clk, int cursorid, bool looping, MidiVizParams* mp) {
 	SchedEvent* e = new SchedEvent(m,clk,cursorid, looping, mp);
 	if ( ! ScheduleAddEvent(e) ) {
+		DEBUGPRINT(("ScheduleMidiMsg is DELETING SchedEvent! e=%ld",(long)e));
 		delete e;
 	}
 }
@@ -76,6 +118,7 @@ void NosuchScheduler::ScheduleMidiMsg(MidiMsg* m, click_t clk, int cursorid, boo
 void NosuchScheduler::ScheduleMidiPhrase(MidiPhrase* ph, click_t clk, int cursorid, bool looping, MidiVizParams* mp) {
 	SchedEvent* e = new SchedEvent(ph,clk,cursorid, looping, mp);
 	if ( ! ScheduleAddEvent(e) ) {
+		DEBUGPRINT(("ScheduleMidiPhrase is DELETING SchedEvent! e=%ld",(long)e));
 		delete e;
 	}
 }
@@ -85,21 +128,10 @@ void NosuchScheduler::ScheduleClear(int cursorid, bool lockit) {
 		LockScheduled();
 	}
 	if (cursorid == SCHEDID_ALL) {
-		m_scheduled->clear();
+		m_scheduled->DeleteAll();
 	}
 	else {
-		SchedEventIterator it = m_scheduled->begin();
-		for (; it != m_scheduled->end(); ) {
-			SchedEvent* ep = *it;
-			NosuchAssert(ep);
-			if (ep->m_cursorid == cursorid) {
-				delete ep;
-				it = m_scheduled->erase(it);
-			}
-			else {
-				it++;
-			}
-		}
+		m_scheduled->DeleteAllId(cursorid);
 	}
 	if (lockit) {
 		UnlockScheduled();
@@ -114,6 +146,9 @@ NosuchScheduler::ScheduleAddEvent(SchedEvent* e, bool lockit) {
 		LockScheduled();
 	}
 
+	m_scheduled->InsertEvent(e);
+
+#ifdef OLDSCHEDULER
 	// XXX - profiling shows this to be a hotspot
 	SchedEventList* sl = m_scheduled;
 	sl->push_back(e);
@@ -122,6 +157,7 @@ NosuchScheduler::ScheduleAddEvent(SchedEvent* e, bool lockit) {
 	// XXX - adds it there quickly if it can, rather than blindly
 	// XXX - adding it and sorting.
 	_sortEvents(sl);
+#endif
 
 	if ( lockit ) {
 		UnlockScheduled();
@@ -132,6 +168,7 @@ NosuchScheduler::ScheduleAddEvent(SchedEvent* e, bool lockit) {
 void NosuchScheduler::QueueMidiMsg(MidiMsg* m, click_t clk, int cursorid, bool looping, MidiVizParams* mp) {
 	SchedEvent* e = new SchedEvent(m,clk,cursorid,looping,mp);
 	if ( ! QueueAddEvent(e) ) {
+		DEBUGPRINT(("QueueMidiMsg is DELETING SchedEvent! e=%ld",(long)e));
 		delete e;
 	}
 }
@@ -139,25 +176,38 @@ void NosuchScheduler::QueueMidiMsg(MidiMsg* m, click_t clk, int cursorid, bool l
 void NosuchScheduler::QueueMidiPhrase(MidiPhrase* ph, click_t clk, int cursorid, bool looping, MidiVizParams* mp) {
 	SchedEvent* e = new SchedEvent(ph,clk,cursorid,looping,mp);
 	if ( ! QueueAddEvent(e) ) {
+		DEBUGPRINT(("QueueMidiPhrase is DELETING SchedEvent! e=%ld",(long)e));
 		delete e;
 	}
 }
 
 void NosuchScheduler::QueueClear() {
 	LockQueue();
-	m_queue->clear();
+	m_queue->DeleteAll();
 	UnlockQueue();
 }
 
 bool
 NosuchScheduler::QueueAddEvent(SchedEvent* e) {
+	static int count = 0;
 	LockQueue();
+
+	m_queue->InsertEvent(e);
+	count++;
+	DEBUGPRINT1(("QueueAddEvent, count=%d queue is now: %s ", count, m_queue->DebugString().c_str()));
+	if (count == 3) {
+		DEBUGPRINT1(("CHECK HERE"));
+	}
+
+#ifdef OLDSCHEDULER
 	// XXX - profiling shows this to be a hotspot
 	// XXX - need to rework m_queue - most additions will be
 	// XXX - at the end of the list, which can be done quickly
 	// XXX - without sorting.
 	m_queue->push_back(e);
 	_sortEvents(m_queue);
+#endif
+
 	UnlockQueue();
 	return true;
 }
@@ -512,23 +562,37 @@ void NosuchScheduler::AdvanceTimeAndDoEvents(PtTimestamp timestamp) {
 
 	int nevents = 0;
 
-	while ( m_scheduled->size() > 0 ) {
-		SchedEvent* ev = m_scheduled->front();
-		nevents++;
-		int clk = ev->click;
-		if ( clk > m_currentclick ) {
+	while ( ! m_scheduled->IsEmpty() ) {
+
+		click_t firstclick = m_scheduled->FirstClick();
+		if ( firstclick > m_currentclick ) {
 			break;		// SchedEventList is sorted by time
 		}
+
+		nevents++;
+
 		// This happens occasionally, at least 1 click diff
-		click_t delta = m_currentclick - ev->click;
+		click_t delta = m_currentclick - firstclick;
 		if ( delta > 4 ) {
-			DEBUGPRINT1(("Hmmm, clicknow (%d) is a lot more than ev->click (%d) !?",m_currentclick,ev->click));
+			DEBUGPRINT1(("Hmmm, clicknow (%d) is a lot more than ev->click (%d) !?",m_currentclick,firstclick));
 		}
-		m_scheduled->pop_front();
+
 		// We assume ev is still valid, right?  (since the SchedEventList is
 		// a list of pointers)
+		SchedEvent* e = m_scheduled->PopFirst();
 
-		DoEventAndDelete(ev);
+		static int count = 0;
+		count++;
+		DEBUGPRINT1(("POPPED EVENT FROM SCHEDULED count=%d, ABOUT TO DO IT e=%s",count,e->DebugString().c_str()));
+		m_scheduled->CheckSanity("AdvanceTime A");
+		NosuchAssert(e != NULL);
+		if (count == 3) {
+			DEBUGPRINT1(("TRACE NOW"));
+		}
+		DoEventAndDelete(e);
+		m_scheduled->CheckSanity("AdvanceTime B");
+		DEBUGPRINT1(("AFTER POPPED EVENT IS DONE count=%d, queue: %s",count,m_queue->DebugString().c_str()));
+		DEBUGPRINT1(("AFTER POPPED EVENT IS DONE count=%d, scheduled: %s",count,m_scheduled->DebugString().c_str()));
 	}
 	
 	_addQueueToScheduled();
@@ -554,17 +618,28 @@ void
 NosuchScheduler::_addQueueToScheduled() {
 	// Add _queue things to _scheduled
 	int nqueue = 0;
+	static int count = 0;
 
 	LockQueue();
-	// XXX - profiling shows this to be a hotspot
-	SchedEventList* sl = m_queue;
-	while (sl->size() > 0) {
-		SchedEvent* ev = sl->front();
+	m_scheduled->CheckSanity("addQueueToScheduled A");
+	while ( ! m_queue->IsEmpty() ) {
+		SchedEvent* ev = m_queue->PopFirst();
 		nqueue++;
-		sl->pop_front();
 		// We assume ev is still valid, right?  (since the SchedEventList is
 		// a list of pointers)
+		count++;
+		DEBUGPRINT1(("ADDING QUEUE to SCHEDULED ev=%s count=%d",ev->DebugString().c_str(),count));
+		if (ev->m_eventtype == SchedEvent::MIDIMSG && ev->u.midimsg->MidiType() == MIDI_NOTE_OFF ) {
+			DEBUGPRINT1(("TRACE FROM HERE"));
+		}
 		ScheduleAddEvent(ev, false);  // we're already locked, so lockit==false
+		DEBUGPRINT1(("====== AFTER ADDING QUEUE TO SCHEDULED: m_scheduled = %s", m_scheduled->DebugString().c_str()));
+		DEBUGPRINT1(("====== AFTER ADDING QUEUE TO SCHEDULED: m-queue = %s", m_queue->DebugString().c_str()));
+	}
+	m_scheduled->CheckSanity("addQueueTo B");
+	if (!m_scheduled->IsEmpty()){
+		DEBUGPRINT1(("====== after addqueuetoscheduled, scheduled is: %s", m_scheduled->DebugString().c_str()));
+		DEBUGPRINT1(("====== after addqueuetoscheduled, queue is: %s", m_queue->DebugString().c_str()));
 	}
 	UnlockQueue();
 }
@@ -676,7 +751,7 @@ NosuchScheduler::_handleLoopEvent(SchedEvent* e)
 		if (newv < MIN_VELOCITY) {
 			addit = false;
 			ScheduleClear(e->m_cursorid, false);  // we assume it's already locked
-			DEBUGPRINT(("Loop finished for cursorid=%d  sched.size=%d",e->m_cursorid,m_scheduled->size()));
+			DEBUGPRINT1(("Loop finished for cursorid=%d  numevents is now %d",e->m_cursorid,m_scheduled->NumEvents()));
 			delete m;
 		}
 		else {
@@ -696,9 +771,11 @@ NosuchScheduler::_handleLoopEvent(SchedEvent* e)
 // has been deleted.
 void NosuchScheduler::DoEventAndDelete(SchedEvent* e) {
 
+	MidiMsg* delete_midimsg = NULL;
+	SchedEvent* delete_event = e;
+
 	// We assume the schedule is locked
 
-	bool deleteit = true;
 	if (e->eventtype() == SchedEvent::MIDIMSG ) {
 		MidiMsg* m = e->u.midimsg;
 		NosuchAssert(m);
@@ -706,7 +783,7 @@ void NosuchScheduler::DoEventAndDelete(SchedEvent* e) {
 		if (e->m_loopclicks > 0) {
 			// Re-use the same SchedEvent and MidiMsg, and queue it up for
 			// eventually being added to the Scheduled list
-			deleteit = false;
+			delete_event = NULL;
 			e->click += e->m_loopclicks;
 			bool continueloop = _handleLoopEvent(e);
 			if (continueloop) {
@@ -715,7 +792,7 @@ void NosuchScheduler::DoEventAndDelete(SchedEvent* e) {
 		}
 		else {
 			DoMidiMsgEvent(m,e->m_cursorid);
-			delete m;
+			delete_midimsg = m;
 		}
 	} else if (e->eventtype() == SchedEvent::MIDIPHRASE ) {
 		MidiPhrase* ph = e->u.midiphrase;
@@ -736,13 +813,13 @@ void NosuchScheduler::DoEventAndDelete(SchedEvent* e) {
 			}
 			else {
 				DoMidiMsgEvent(m, e->m_cursorid);
-				delete m;
+				delete_midimsg = m;
 			}
 			// XXX - put this back!!   delete pu;
 			ph->first = nextpu;
 			if ( nextpu != NULL ) {
 				// Reschedule the event, using the same MidiPhrase
-				deleteit = false;
+				delete_event = NULL;
 				click_t nextclick = nextpu->click;
 				e->click = e->click + (nextclick - prevclick);
 				QueueAddEvent(e);
@@ -751,8 +828,11 @@ void NosuchScheduler::DoEventAndDelete(SchedEvent* e) {
 	} else {
 		DEBUGPRINT(("Hey, DoEvent can't handle event type %d!?",e->eventtype()));
 	}
-	if ( deleteit ) {
-		delete e;
+	if ( delete_event ) {
+		delete delete_event;
+	}
+	if ( delete_midimsg ) {
+		delete delete_midimsg;
 	}
 }
 
@@ -818,22 +898,6 @@ NosuchScheduler::DoMidiMsgEvent(MidiMsg* m, int cursorid)
 }
 
 std::string
-NosuchScheduler::DebugString() {
-
-	std::string s;
-	s = "NosuchScheduler (\n";
-
-	SchedEventIterator it = m_scheduled->begin();
-	for ( ; it != m_scheduled->end(); it++ ) {
-		SchedEvent* ep = *it;
-		NosuchAssert(ep);
-		s += NosuchSnprintf("      Event %s\n",ep->DebugString().c_str());
-	}
-	s += "   }";
-	return s;
-}
-
-std::string
 SchedEvent::DebugString() {
 	std::string s;
 	switch (m_eventtype) {
@@ -843,14 +907,14 @@ SchedEvent::DebugString() {
 		break;
 	case SchedEvent::MIDIMSG:
 		NosuchAssert(u.midimsg != NULL);
-		DEBUGPRINT(("DebugString u.midimsg=%ld", (long)u.midimsg));
-		s = NosuchSnprintf("SchedEvent MidiMsg type=%d",u.midimsg->MidiType());
+		// DEBUGPRINT(("DebugString u.midimsg=%ld", (long)u.midimsg));
+		s = NosuchSnprintf("SchedEvent MidiMsg midimsg=%ld  type=%s",(long)u.midimsg, u.midimsg->MidiTypeName());
 		break;
 	case SchedEvent::MIDIPHRASE:
 		NosuchAssert(u.midiphrase != NULL);
 		NosuchAssert(u.midiphrase->first);
 		NosuchAssert(u.midiphrase->first->msg);
-		s = NosuchSnprintf("SchedEvent MidiPhrase (first msgtype=%d",u.midiphrase->first->msg->MidiType());
+		s = NosuchSnprintf("SchedEvent MidiPhrase (first msgtype=%s",u.midiphrase->first->msg->MidiTypeName());
 		break;
 	default:
 		s = "Unknown eventtype !?";
