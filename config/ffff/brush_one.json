@@ -1,0 +1,43 @@
+{
+"pipeline": [
+	{
+		"ffglplugin": "VizBrush",
+		"enabled": 1,
+		"moveable": 0,
+		"vizlet": 1,
+		"vizletdump": [{
+				"method":	"set_sidrange",
+				"params":	{
+					"sidrange":	"11000-11999"
+				}
+			}, {
+				"method":	"set_sprite",
+				"params":	{
+					"paramfile":	"red_triangle"
+				}
+			}, {
+				"method":	"set_midi",
+				"params":	{
+					"paramfile":	"port1_pad1"
+				}
+			}, {
+				"method":	"set_looping",
+				"params":	{
+					"onoff":	"0"
+				}
+			}],
+		"params": [
+			{"name":"viztag", "value":"vizbrush" }
+			]
+	},
+	{
+		"ffglplugin": "Trails",
+		"enabled": 1,
+		"moveable": 0,
+		"params": [
+			{"name":"Feedback", "value":0.180000 }, 
+			{"name":"Mode", "value":0.000000 }
+			]
+	}
+	]
+}

@@ -865,7 +865,7 @@ public:
 
 		static int lastclick = -1;
 		// Print warning if we get too much behind
-		if (click > (lastclick + 4)) {
+		if (click > (lastclick + 10)) {
 			DEBUGPRINT(("warning: advanced click by %d,  click is now %d", click - lastclick,  click));
 		}
 		lastclick = click;

@@ -96,7 +96,7 @@ FILE* FfffOutputFile = NULL;
 std::string FfffOutputPrefix;
 int FfffOutputFPS;
 
-int ffffMain(std::string pipelinename, bool fullscreen)
+int ffffMain(std::string pipelinename[4], bool fullscreen)
 {
 	NosuchDebugInit();
 	NosuchDebugSetLogDirFile(VizPath("log"), "ffff.debug");
@@ -194,7 +194,11 @@ int ffffMain(std::string pipelinename, bool fullscreen)
 
 	try {
 		CATCH_NULL_POINTERS;
-		F->loadPipeline(pipelinename,true);
+		for (int pipenum = 0; pipenum < 4; pipenum++) {
+			if (pipelinename[pipenum] != "") {
+				F->loadPipeline(pipenum, pipelinename[pipenum], true);
+			}
+		}
 	}
 	catch (NosuchException& e) {
 		NosuchErrorOutput("NosuchException while loading Pipeline!! - %s", e.message());
@@ -245,7 +249,9 @@ int ffffMain(std::string pipelinename, bool fullscreen)
 		F->CheckFPS();
 	}
 
-	F->clearPipeline();
+	for (int pipenum = 0; pipenum < 4; pipenum++) {
+		F->clearPipeline(pipenum);
+	}
 
 	F->StopStuff();
 
@@ -293,10 +299,12 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLin
 	}
 
 	bool fullscreen = false;
-	std::string config = "";
+	std::string pipeline[4];
 
 	std::string cmdline = std::string(szCmdLine);
 	std::vector<std::string> args = NosuchSplitOnAnyChar(cmdline, " \t\n");
+
+	int pipenum = 0;
 
 	for (unsigned int n = 0; n < args.size(); n++) {
 		std::string arg = args[n];
@@ -307,7 +315,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLin
 				break;
 			case 'c':
 				if ((n + 1) < args.size()) {
-					config = args[n + 1];
+					pipeline[pipenum] = args[n + 1];
 					n++;
 				}
 				break;
@@ -315,14 +323,14 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLin
 		}
 	}
 
-	if (config == "" ) {
-		std::string msg = NosuchSnprintf("Usage: %s [-f] -c {configname}\n",__argv[0]);
+	if (pipeline[0] == "" ) {
+		std::string msg = NosuchSnprintf("Usage: %s [-f] -c {pipeline}\n",__argv[0]);
 		MessageBoxA(NULL,msg.c_str(),"FFFF",MB_OK);
 		return r;
 	}
 	try {
 		CATCH_NULL_POINTERS;
-		r = ffffMain(config,fullscreen);
+		r = ffffMain(pipeline,fullscreen);
 	} catch (NosuchException& e) {
 		NosuchErrorOutput("NosuchException in ffffMain!! - %s",e.message());
 	} catch (...) {

@@ -103,6 +103,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VizPuddle", "VizPuddle\VizP
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Spout", "..\..\other\Spout\Source\vs2013\Spout.vcxproj", "{A621CCC8-67A6-4B0F-BDEE-56291B7283C0}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VizBrush", "VizBrush\VizBrush.vcxproj", "{7A6B74D4-0593-46C0-BA9C-56F5E2556615}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A0901BA3-9B41-40B9-BE2E-1C62F48B3E14} = {A0901BA3-9B41-40B9-BE2E-1C62F48B3E14}
+		{1A5433B8-B646-404F-8B96-DB5E5A0C29BC} = {1A5433B8-B646-404F-8B96-DB5E5A0C29BC}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -701,6 +707,33 @@ Global
 		{A621CCC8-67A6-4B0F-BDEE-56291B7283C0}.WithOpenPGM|Win32.Build.0 = Release|Win32
 		{A621CCC8-67A6-4B0F-BDEE-56291B7283C0}.WithOpenPGM|x64.ActiveCfg = Release|x64
 		{A621CCC8-67A6-4B0F-BDEE-56291B7283C0}.WithOpenPGM|x64.Build.0 = Release|x64
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.Debug|Win32.Build.0 = Debug|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.Debug|x64.ActiveCfg = Debug|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.DebugDLL|Win32.ActiveCfg = Debug|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.DebugDLL|Win32.Build.0 = Debug|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.DebugDLL|x64.ActiveCfg = Debug|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.Release Trace|Win32.ActiveCfg = Release|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.Release Trace|Win32.Build.0 = Release|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.Release Trace|x64.ActiveCfg = Release|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.Release|Win32.ActiveCfg = Release|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.Release|Win32.Build.0 = Release|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.Release|x64.ActiveCfg = Release|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.ReleaseDLL|Win32.ActiveCfg = Release|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.ReleaseDLL|Win32.Build.0 = Release|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.ReleaseDLL|x64.ActiveCfg = Release|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.ReleaseMinDependency|Win32.ActiveCfg = Release|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.ReleaseMinDependency|Win32.Build.0 = Release|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.ReleaseMinDependency|x64.ActiveCfg = Release|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.StaticDebug|Win32.ActiveCfg = Debug|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.StaticDebug|Win32.Build.0 = Debug|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.StaticDebug|x64.ActiveCfg = Debug|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.StaticRelease|Win32.ActiveCfg = Release|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.StaticRelease|Win32.Build.0 = Release|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.StaticRelease|x64.ActiveCfg = Release|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.WithOpenPGM|Win32.ActiveCfg = Release|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.WithOpenPGM|Win32.Build.0 = Release|Win32
+		{7A6B74D4-0593-46C0-BA9C-56F5E2556615}.WithOpenPGM|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

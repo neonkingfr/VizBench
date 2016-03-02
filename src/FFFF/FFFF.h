@@ -45,6 +45,9 @@ class FFFFHttp;
 struct CvCapture;
 class Timer;
 
+typedef std::vector < FFGLPluginInstance* > FFGLPipeline;
+typedef std::vector < FF10PluginInstance* > FF10Pipeline;
+
 class FFFF : public NosuchJsonListener, NosuchOscListener {
 
 public:
@@ -65,45 +68,46 @@ public:
 	///////////////////////// FFGL stuff
 
 	std::string FFGLList();
-	std::string FFGLPipelineList(bool only_enabled);
+	std::string FFGLPipelineList(int pipenum, bool only_enabled);
 	std::string FFGLParamVals(FFGLPluginInstance* pi, std::string linebreak);
 	std::string FFGLParamInfo(std::string plugin, std::string param, const char* id);
 
 	FFGLPluginInstance* FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string viztag);
-	FFGLPluginInstance* FFGLFindPluginInstance(std::string viztag);
-	FFGLPluginInstance* FFGLNeedPluginInstance(std::string viztag);
+	FFGLPluginInstance* FFGLFindPluginInstance(int pipenum, std::string viztag);
+	FFGLPluginInstance* FFGLNeedPluginInstance(int pipenum, std::string viztag);
 	std::string			FFGLParamList(std::string nm, const char* id);
-	FFGLPluginInstance* FFGLAddToPipeline(std::string nm, std::string viztag, bool autoenable, cJSON* params);
-	void				FFGLDeleteFromPipeline(std::string viztag);
-	void				FFGLMoveUpInPipeline(std::string viztag);
-	void				FFGLMoveDownInPipeline(std::string viztag);
+	FFGLPluginInstance* FFGLAddToPipeline(int pipenum, std::string nm, std::string viztag, bool autoenable, cJSON* params);
+	void				FFGLDeleteFromPipeline(int pipenum, std::string viztag);
+	void				FFGLMoveUpInPipeline(int pipenum, std::string viztag);
+	void				FFGLMoveDownInPipeline(int pipenum, std::string viztag);
 
 	///////////////////////// FF10 stuff
 
 	std::string FF10List();
-	std::string FF10PipelineList(bool only_enabled);
+	std::string FF10PipelineList(int pipenum, bool only_enabled);
 	std::string FF10ParamVals(FF10PluginInstance* pi, std::string linebreak);
 	std::string FF10ParamInfo(std::string plugin, std::string param, const char* id);
 
 	FF10PluginInstance* FF10NewPluginInstance(FF10PluginDef* plugin, std::string viztag);
-	FF10PluginInstance* FF10FindPluginInstance(std::string viztag);
-	FF10PluginInstance* FF10NeedPluginInstance(std::string viztag);
+	FF10PluginInstance* FF10FindPluginInstance(int pipenum, std::string viztag);
+	FF10PluginInstance* FF10NeedPluginInstance(int pipenum, std::string viztag);
 	std::string			FF10ParamList(std::string nm, const char* id);
-	FF10PluginInstance* FF10AddToPipeline(std::string pluginName, std::string viztag, bool autoenable, cJSON* params);
-	void				FF10DeleteFromPipeline(std::string viztag);
+	FF10PluginInstance* FF10AddToPipeline(int pipenum, std::string pluginName, std::string viztag, bool autoenable, cJSON* params);
+	void				FF10DeleteFromPipeline(int pipenum, std::string viztag);
 
 	void loadAllPluginDefs(std::string ffdir, std::string ffgldir, int w, int h);
 
-	std::string savePipeline(std::string nm, const char* id);
+	std::string savePipeline(int pipenum, std::string nm, const char* id);
 
-	void loadPipeline(std::string configname, bool synthesize);
-	void loadPipelineJson(cJSON* json);
-	void clearPipeline();
-	void shufflePipeline();
-	void randomizePipeline();
+	void loadPipeline(int pipenum, std::string configname, bool synthesize);
+	void loadPipelineJson(int pipenum, cJSON* json);
+	void clearPipeline(int pipenum);
+	void shufflePipeline(int pipenum);
+	void randomizePipeline(int pipenum);
 	bool initCamera(int camindex);
 	// void setWidthHeight(int w, int h) { _width = w; _height = h; }
 	IplImage* getCameraFrame();
+	bool doCameraAndFF10Pipeline(int pipenum, bool use_camera, GLuint texturehandle);
 	bool doOneFrame(bool use_camera,int window_width, int window_height);
 	void CheckFPS();
 
@@ -122,7 +126,6 @@ public:
 	char m_sendername[256];
 
 private:
-	std::string m_pipelinename;
 	IplImage* m_img1;
 	IplImage* m_img2;
 	IplImage* m_img_into_pipeline;
@@ -157,9 +160,10 @@ private:
 	// FFGLPluginInstance* m_ffglpipeline;
 	// FF10PluginInstance* m_ff10pipeline;
 
-	std::vector < FFGLPluginInstance* > m_ffglpipeline;
-	std::vector < FF10PluginInstance* > m_ff10pipeline;
+	std::string m_pipelinename[4];
 
+	FFGLPipeline m_ffglpipeline[4];
+	FF10Pipeline m_ff10pipeline[4];
 };
 
 void loadff10path(std::string ffpath);

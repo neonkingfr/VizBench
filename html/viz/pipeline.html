@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html dir="ltr">
+    
+<head>
+<meta name="viewport"
+  content="width=device-width,
+  minimum-scale=1.0, maximum-scale=1.0" />
+
+<link rel="stylesheet" type="text/css" href="viz.css"/>
+
+<script src="../dojo/dojo.js" djConfig="parseOnLoad: true"> </script>
+<script src="viz.js" djConfig="parseOnLoad: true"> </script>
+<script src="pipeline.js" djConfig="parseOnLoad: true"> </script>
+<script type="text/javascript">
+
+function setup() {
+
+	titlegen("Pipeline Editor");
+
+	pipeline_pagegen();
+	var vals = queryvalues();
+	var pipelinefilename;
+	if ( vals["pipeline"] ) {
+		pipelinefilename = vals["pipeline"];
+		loadpipeline();
+	}
+	refreshpipelinefilename();
+}
+
+dojo.addOnLoad(setup);
+</script>
+</head>
+    
+<body>
+
+<div id="title">&nbsp;</div>
+<br>
+<div id="ffglpipeline"></div>
+<p>
+	
+</body>
+
+</html>
+

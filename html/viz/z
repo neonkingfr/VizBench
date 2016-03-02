@@ -1,0 +1,12 @@
+function refreshpipelinefilename() {
+	var api = vizapi("ffff.pipelinefilename");
+	if ( api.error != "" ) {
+		status.innerHTML = api.error;
+		pipelinefilename = "";
+	} else {
+		pipelinefilename = api.result;
+	}
+	if ( pipelinefilename != "" ) {
+		document.getElementById("pipelinefilename").value = pipelinefilename;
+	}
+}

@@ -1,0 +1,11 @@
+function checkapi(api) {
+	if ( api.error != "" ) {
+		alert("error="+api.error);
+		status.innerHTML = api.error;
+		return false;
+	} else {
+		status.innerHTML = "OK!";
+		return true;
+	}
+}
+

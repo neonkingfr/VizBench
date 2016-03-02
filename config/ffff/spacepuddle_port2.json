@@ -23,7 +23,7 @@
 			}, {
 				"method":	"set_pad1_looping",
 				"params":	{
-					"onoff":	"1"
+					"onoff":	"0"
 				}
 			}, {
 				"method":	"set_pad2_sidrange",
@@ -43,7 +43,7 @@
 			}, {
 				"method":	"set_pad2_looping",
 				"params":	{
-					"onoff":	"1"
+					"onoff":	"0"
 				}
 			}, {
 				"method":	"set_pad3_sidrange",
@@ -63,7 +63,7 @@
 			}, {
 				"method":	"set_pad3_looping",
 				"params":	{
-					"onoff":	"1"
+					"onoff":	"0"
 				}
 			}, {
 				"method":	"set_pad4_sidrange",
@@ -83,7 +83,7 @@
 			}, {
 				"method":	"set_pad4_looping",
 				"params":	{
-					"onoff":	"1"
+					"onoff":	"0"
 				}
 			}, {
 				"method":	"set_LL1_sidrange",

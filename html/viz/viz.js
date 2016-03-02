@@ -58,6 +58,17 @@ function vizapi(meth,params) {
 	return {result: retval, error: errval};
 }
 
+function checkapi(api) {
+	if ( api.error != "" ) {
+		alert("error="+api.error);
+		status.innerHTML = api.error;
+		return false;
+	} else {
+		status.innerHTML = "OK!";
+		return true;
+	}
+}
+
 function titlegen(title,otherlink) {
 	var html = "";
 	html += "<table width=100%><tr>";
