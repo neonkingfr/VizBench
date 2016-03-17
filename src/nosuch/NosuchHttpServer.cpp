@@ -46,11 +46,13 @@ NosuchHttpServer::NosuchHttpServer(NosuchJsonListener* jproc, int port, std::str
 	m_json_processor = jproc;
 	m_htmldir = htmldir;
 	m_port = port;
+	m_debugrequests = false;
+	m_shouldbeshutdown = false;
+
 	// Someday we'll probably need the ability to specify a host,
 	// but it's more foolproof to listen on all IP addresses
 	// of the local host, so we set h=0
 	DWORD h = 0;
-	m_shouldbeshutdown = false;
 	DWORD err = m_listening_socket->Listen(h, port, timeout, idletime);
 	if (err != 0) {
 		std::string msg;
@@ -414,7 +416,9 @@ NosuchHttpServer::RespondToGetOrPost(NosuchSocketConnection *conn) {
 			fn = fn + "index.html";
 		}
 
-		DEBUGPRINT(("GET request for %s, reading %s\n", urlstr.c_str(), fn.c_str()));
+		if (m_debugrequests) {
+			DEBUGPRINT(("HTTP GET request: %s, reading %s\n", urlstr.c_str(), fn.c_str()));
+		}
 
 		// Note that it is opened at the end (std::ios::ate), which we use to get the size
 		std::ifstream f(fn.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
@@ -438,6 +442,7 @@ NosuchHttpServer::RespondToGetOrPost(NosuchSocketConnection *conn) {
 	}
 
 	if (request_type == REQUEST_POST) {
+
 		// data is the input to the POST
 		std::string dd = conn->m_data;   // Hmm, when I combine this with the next statement, it doesn't work?  Odd.
 		const char *pp = dd.c_str();
@@ -447,6 +452,11 @@ NosuchHttpServer::RespondToGetOrPost(NosuchSocketConnection *conn) {
 			DEBUGPRINT(("HEY!!! No curly!?\n"));
 		}
 		const char *datastr = conn->m_data.c_str();
+
+		if (m_debugrequests) {
+			DEBUGPRINT(("HTTP POST request: %s", datastr));
+		}
+
 		cJSON *request = cJSON_Parse(datastr);
 		std::string ret;
 		if (request) {
@@ -504,7 +514,9 @@ NosuchHttpServer::RespondToGetOrPost(NosuchSocketConnection *conn) {
 			std::string s = NosuchSnprintf("Unable to parse JSON data in POST!");
 			ret = jsonError(-32000, s, "12345");
 		}
-		DEBUGPRINT1(("POST response: %s\n", ret.c_str()));
+		if (m_debugrequests) {
+			DEBUGPRINT(("HTTP POST response: %s", ret.c_str()));
+		}
 		makeresult("application/json", ret, memblock, memsize);
 	}
 	else {

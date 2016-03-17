@@ -1,5 +1,3 @@
-status = null;
-
 function changeval(name) {
 	var valueid = document.getElementById("value_"+name);
 	var rangeid = document.getElementById("range_"+name);
@@ -12,8 +10,7 @@ function sendparamchange(name) {
 	var viztag = a[0];
 	var paramname = a[1];
 	var paramval = valueid.value;
-	var api = vizapi("ffff.ffglparamset","{\"viztag\":\""+viztag+"\", \"param\":\""+paramname+"\", \"val\":\""+paramval+"\" }");
-	checkapi(api);
+	checkapi(vizapi("ffff.ffglparamset","{\"viztag\":\""+viztag+"\", \"param\":\""+paramname+"\", \"val\":\""+paramval+"\" }"));
 }
 
 function updateval(name) {
@@ -24,15 +21,13 @@ function updateval(name) {
 function changeenable(viztag) {
 	var enabledid = document.getElementById("enabled_"+viztag);
 	var onoff = enabledid.checked ? "1" : "0";
-	var a = vizapi("ffff.ffglenable","{\"viztag\":\""+viztag+"\", \"onoff\": "+onoff+" }");
-	checkapi(api);
+	checkapi(vizapi("ffff.ffglenable","{\"viztag\":\""+viztag+"\", \"onoff\": "+onoff+" }"));
 }
 
 function changemoveable(viztag) {
 	var moveableid = document.getElementById("moveable_"+viztag);
 	var onoff = moveableid.checked ? "1" : "0";
-	var a = vizapi("ffff.ffglmoveable","{\"viztag\":\""+viztag+"\", \"onoff\": "+onoff+" }");
-	checkapi(api);
+	checkapi(vizapi("ffff.ffglmoveable","{\"viztag\":\""+viztag+"\", \"onoff\": "+onoff+" }"));
 }
 
 // updateval2 propagate changes from value_ to range_ rather
@@ -44,26 +39,13 @@ function updateval2(name) {
 	sendparamchange(name);
 }
 
-function checkapi(api) {
-	if ( api.error != "" ) {
-		alert("error="+api.error);
-		status.innerHTML = api.error;
-		return false;
-	} else {
-		status.innerHTML = "OK!";
-		return true;
-	}
-}
-
 function moveup(viztag) {
-	var api = vizapi("ffff.moveup","{\"viztag\":\""+viztag+"\"}");
-	checkapi(api);
+	checkapi(vizapi("ffff.moveup","{\"viztag\":\""+viztag+"\"}"));
 	ffffpagegen();
 }
 
 function movedown(viztag) {
-	var api = vizapi("ffff.movedown","{\"viztag\":\""+viztag+"\"}");
-	checkapi(api);
+	checkapi(vizapi("ffff.movedown","{\"viztag\":\""+viztag+"\"}"));
 	ffffpagegen();
 }
 
@@ -86,10 +68,8 @@ function changepipelinefile() {
 
 function refreshpipelinefilename() {
 	var api = vizapi("ffff.pipelinefilename");
-	if ( api.error != "" ) {
-		status.innerHTML = api.error;
-		pipelinefilename = "";
-	} else {
+	var pipelinefilename = "";
+	if ( checkapi(api) ) {
 		pipelinefilename = api.result;
 	}
 	if ( pipelinefilename != "" ) {
@@ -99,9 +79,7 @@ function refreshpipelinefilename() {
 
 function loadpipeline() {
 	var fname = document.getElementById("pipelinefilename").value;
-	var api = vizapi("ffff.loadpipeline","{\"filename\":\""+fname+"\"}");
-	status = document.getElementById("status");
-	checkapi(api);
+	checkapi(vizapi("ffff.loadpipeline","{\"filename\":\""+fname+"\"}"));
 	ffffpagegen();
 	// refreshpipelinefilename();
 }
@@ -109,41 +87,35 @@ function loadpipeline() {
 function savepipeline() {
 	var fname = document.getElementById("pipelinefilename").value;
 	var api = vizapi("ffff.savepipeline","{\"filename\":\""+fname+"\"}");
-	if ( checkapi(api) ) {
-		status.innerHTML = "OK - pipeline saved";
-	}
+	checkapi(api,"Pipeline saved!");
 }
 
 function shufflepipeline() {
-	var api = vizapi("ffff.shufflepipeline");
-	if ( checkapi(api) ) {
+	if ( checkapi(vizapi("ffff.shufflepipeline")) ) {
 		ffffpagegen();
 	}
 }
 
 function randomizepipeline() {
-	var api = vizapi("ffff.randomizepipeline");
-	if ( checkapi(api) ) {
+	if ( checkapi(vizapi("ffff.randomizepipeline")) ) {
 		ffffpagegen();
 	}
 }
 
 function ffffrecord(onoff) {
-	var api = vizapi("ffff.record","{\"onoff\": "+onoff+" }");
-	checkapi(api);
+	checkapi(vizapi("ffff.record","{\"onoff\": "+onoff+" }"));
 }
 
 function enableall(onoff) {
 	var api = vizapi("ffff.ffglpipeline");
 	if ( ! checkapi(api) ) {
-		status.innerHTML = api.error;
 		return;
 	}
 	var ffglpipeline = api.result;
 	for ( var i=0; i<ffglpipeline.length; i++ ) {
 
 		var f = ffglpipeline[i];
-		var a = vizapi("ffff.ffglenable","{\"viztag\":\""+f.viztag+"\", \"onoff\": "+onoff+" }");
+		checkapi(vizapi("ffff.ffglenable","{\"viztag\":\""+f.viztag+"\", \"onoff\": "+onoff+" }"));
 	}
 	ffffpagegen();
 }
@@ -152,7 +124,6 @@ function changeTextVal(tag,api,argname) {
 	var inputid = document.getElementById(tag+"_"+api);
 	var api = vizapi(tag+"."+api,"{\""+argname+"\":\""+inputid.value+"\"}");
 	if ( ! checkapi(api) ) {
-		status.innerHTML = api.error;
 		inputid.value = "";
 		return;
 	}
@@ -174,7 +145,6 @@ function pipeline_pagegen() {
 
 	var api = vizapi("ffff.ffglpipeline");
 	if ( ! checkapi(api) ) {
-		status.innerHTML = api.error;
 		return;
 	}
 	var ffglpipeline = api.result;
@@ -287,7 +257,7 @@ function pipeline_pagegen() {
 					var api = w[0];
 					var fullapiname = tag + "." + api;
 					if ( w.length <= 1 ) {
-						html += "<td><input type=\"button\" style=\"width:100px\" value=\""+a[n]+"\" onClick=\"vizapi('"+fullapiname+"');\"></td>";
+						html += "<td><input type=\"button\" style=\"width:100px\" value=\""+a[n]+"\" onClick=\"checkapi(vizapi('"+fullapiname+"'));\"></td>";
 					} else if ( w.length != 3 ) {
 						alert("Hey, too many arguments on api="+w[0]+" length="+w.length+" an="+a[n]);
 					} else {
@@ -302,7 +272,7 @@ function pipeline_pagegen() {
 							// 	+ "&quot;'+document.getElementById(&quot;" + inputid + "&quot;).value+'&quot;";
 							//
 							// html += "<td><input type=\"button\" style=\"width:150px\" value=\""
-							// 	+api+"\" onClick=\"vizapi('"+fullapiname+"','{"+argstr+"}');\"></td>";
+							// 	+api+"\" onClick=\"checkapi(vizapi('"+fullapiname+"','{"+argstr+"}'));\"></td>";
 
 							var api_sans_set = api.substr(4);
 							var getapi = "get_"+api_sans_set;
@@ -318,7 +288,7 @@ function pipeline_pagegen() {
 
 						} else {
 							html += "<td><input type=\"button\" style=\"width:150px\" value=\""
-								+api+"\" onClick=\"vizapi('"+fullapiname+"','{}');\"></td>";
+								+api+"\" onClick=\"checkapi(vizapi('"+fullapiname+"','{}'));\"></td>";
 
 							// a non-set_* api
 							// html += "<td width=10></td><td align=right>"

@@ -54,6 +54,7 @@ NosuchDaemon::NosuchDaemon(
 	m_oscinput = NULL;
 	m_listening = false;
 	m_network_thread_created = false;
+	m_debugrequests = false;
 
 	if ( NosuchNetworkInit() ) {
 		DEBUGPRINT(("Unable to initialize networking in NosuchDaemon constructor, there will be no listeners"));
@@ -109,6 +110,18 @@ NosuchDaemon::~NosuchDaemon()
 		pthread_join(_network_thread,NULL);
 	}
 
+}
+
+bool
+NosuchDaemon::DebugRequests(bool onoff) {
+	m_debugrequests = onoff;
+	m_httpserver->DebugRequests(onoff);
+	return m_debugrequests;
+}
+
+bool
+NosuchDaemon::DebugRequests() {
+	return m_debugrequests;
 }
 
 void

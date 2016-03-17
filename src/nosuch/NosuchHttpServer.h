@@ -52,6 +52,9 @@ public:
 	void SetShouldBeShutdown(bool);
 	bool ShouldBeShutdown();
 
+	bool DebugRequests(bool onoff) { m_debugrequests = onoff; return m_debugrequests; }
+	bool DebugRequests() { return m_debugrequests; }
+
 private:
 
 	void _init(std::string host, int port, int timeout);
@@ -63,6 +66,7 @@ private:
 	std::string m_htmldir;
 	bool m_shouldbeshutdown;
 	int m_port;
+	bool m_debugrequests;
 };
 
 #endif

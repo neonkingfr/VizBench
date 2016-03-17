@@ -58,13 +58,22 @@ function vizapi(meth,params) {
 	return {result: retval, error: errval};
 }
 
-function checkapi(api) {
+function set_status(msg) {
+	document.getElementById("status").innerHTML = msg;
+}
+
+function checkapi(api,success_message,error_message) {
+	if ( ! success_message ) {
+		success_message = "OK."
+	}
+	if ( ! error_message ) {
+		error_message = api.error;
+	}
 	if ( api.error != "" ) {
-		alert("error="+api.error);
-		status.innerHTML = api.error;
+		set_status(error_message);
 		return false;
 	} else {
-		status.innerHTML = "OK!";
+		set_status(success_message);
 		return true;
 	}
 }
@@ -139,7 +148,7 @@ function vizpagegen(taginclude,tagexclude) {
 				var api = w[0];
 				var fullapiname = tag + "." + api;
 				if ( w.length <= 1 ) {
-					html += "<td><input type=\"button\" style=\"width:100px\" value=\""+a[n]+"\" onClick=\"vizapi('"+fullapiname+"');\"></td>";
+					html += "<td><input type=\"button\" style=\"width:100px\" value=\""+a[n]+"\" onClick=\"checkapi(vizapi('"+fullapiname+"'));\"></td>";
 				} else if ( w.length != 3 ) {
 					alert("Hey, too many arguments on api="+w[0]+" length="+w.length+" an="+a[n]);
 				} else {
@@ -151,7 +160,7 @@ function vizpagegen(taginclude,tagexclude) {
 						+ "&quot;'+document.getElementById(&quot;" + inputid + "&quot;).value+'&quot;";
 
 					html += "<td><input type=\"button\" style=\"width:100px\" value=\""
-						+api+"\" onClick=\"vizapi('"+fullapiname+"','{"+argstr+"}');\"></td>";
+						+api+"\" onClick=\"checkapi(vizapi('"+fullapiname+"','{"+argstr+"}'));\"></td>";
 
 					html += "<td width=10></td><td align=right>"
 						+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" id=\""+inputid+"\" size=8></td>";

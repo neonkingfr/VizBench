@@ -34,7 +34,7 @@
 #include <NosuchJSON.h>
 #include <NosuchException.h>
 #include <NosuchOscManager.h>
-#include <NosuchHttpServer.h>
+#include <NosuchDaemon.h>
 #include <NosuchScheduler.h>
 #include "UT_SharedMem.h"
 
@@ -376,12 +376,6 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 	std::string api;
 	VizServer* ss = VizServer::GetServer();
 
-	if (ss->m_debugApi) {
-		char *p = cJSON_PrintUnformatted(params);
-		DEBUGPRINT(("VizServer API meth=%s params=%s", fullmethod.c_str(),p));
-		cJSON_free(p);
-	}
-
 	// XXX - the server has only a single static instance of the various params,
 	//       so multiple clients working simultaneously will probably get very confused
 	static SpriteVizParams* spriteparams = NULL;
@@ -430,6 +424,7 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 				"set_clickspersecond(clicks);"
 				"set_midioutput(index);"
 				"set_debugapi(onoff);"
+				"set_debughttp(onoff);"
 				"toggledebug", id);
 		}
 		if (api == "description") {
@@ -578,6 +573,15 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 		if (api == "get_debugapi" ) {
 			return jsonIntResult(ss->m_debugApi,id);
 		}
+
+		if (api == "set_debughttp" ) {
+			ss->m_daemon->DebugRequests(jsonNeedBool(params, "onoff", true));
+			return jsonOK(id);
+		}
+		if (api == "get_debughttp" ) {
+			return jsonIntResult(ss->m_daemon->DebugRequests(),id);
+		}
+
 		if (api == "toggledebug" ) {
 			ss->m_debugApi = !ss->m_debugApi;
 			return jsonOK(id);
@@ -1092,7 +1096,15 @@ click_t VizServer::SchedulerClicksPerBeat() {
 const char*
 VizServer::ProcessJson(const char* fullmethod, cJSON* params, const char* id) {
 	static std::string s;  // because we're returning its c_str()
+	if (m_debugApi) {
+		char *p = cJSON_PrintUnformatted(params);
+		DEBUGPRINT(("VizServer API request: %s %s", fullmethod,p));
+		cJSON_free(p);
+	}
 	s = m_jsonprocessor->processJson(fullmethod, params, id);
+	if (m_debugApi) {
+		DEBUGPRINT(("VizServer API response: %s", s.c_str()));
+	}
 	return s.c_str();
 }
 

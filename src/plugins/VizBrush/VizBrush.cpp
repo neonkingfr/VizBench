@@ -79,7 +79,8 @@ void VizBrush::processCursor(VizCursor* c, int downdragup) {
 std::string VizBrush::processJson(std::string meth, cJSON *json, const char *id) {
 	// NO OpenGL calls here
 
-	DEBUGPRINT(("VizBrush::processJson brush=%ld meth=%s",(long)this,meth.c_str()));
+	DEBUGPRINT1(("VizBrush::processJson brush=%ld meth=%s",(long)this,meth.c_str()));
+
 	if (meth == "apis") {
 		std::string apis = "";
 		apis += "set_sidrange(range);";

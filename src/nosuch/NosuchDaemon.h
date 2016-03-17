@@ -23,6 +23,9 @@ public:
 
 	void SendAllWebSocketClients(std::string msg);
 
+	bool DebugRequests(bool onoff);
+	bool DebugRequests();
+
 private:
 	bool m_network_thread_created;
 	bool daemon_shutting_down;
@@ -32,6 +35,7 @@ private:
 	// std::list<VizletHttpClient*> _httpclients;
 
 	bool m_listening;
+	bool m_debugrequests;
 };
 
 #endif

@@ -22,15 +22,12 @@ function updateonevalue(name,value) {
 function readfile() {
 	var paramfilename = document.getElementById("paramfilename");
 	var filename = paramfilename.value;
-	var status = document.getElementById("status");
 	if ( filename == "" ) {
-		status.innerHTML = "No Filename set, can't Load!"
+		set_status(No Filename set, can't Load!");
 		return;
 	}
 	var api = vizapi('VizServer.'+ParamsClass+'param_readfile','{ "paramfile":"'+filename+'" }');
-	if ( api.result == "" ) {
-		status.innerHTML = "error="+api.error;
-	} else {
+	if ( checkapi(api) ) {
 		var j = JSON.parse(api.result);
 		if ( j ) {
 			for ( var name in j ) {
@@ -57,9 +54,9 @@ function readfile() {
 					updateonevalue(name,obj["default"]);
 				}
 			}
-			status.innerHTML = "OK";
+			set_status("OK");
 		} else {
-			status.innerHTML = "Unable to interpret JSON from VizServer";
+			set_status("Unable to interpret JSON from VizServer");
 		}
 	}
 }
@@ -154,15 +151,14 @@ function randdefaults() {
 function loaddefaults() {
 	var paramfilename = document.getElementById("paramfilename");
 	var filename = paramfilename.value;
-	var status = document.getElementById("status");
 	if ( ParamList == null ) {
-		status.innerHTML = "No ParamList value!?";
+		set_status("No ParamList value!?");
 		return;
 	}
 	for ( var name in ParamList ) {
 		updateonevalue(name,ParamList[name]["default"]);
 	}
-	status.innerHTML = "OK";
+	set_status("OK");
 	autowritefile();
 }
 
@@ -177,13 +173,12 @@ function writefile() {
 	}
 	contents += " }";
 	var api = vizapi('VizServer.'+ParamsClass+'param_writefile','{ "paramfile":"'+paramfilename.value+'", "contents":'+contents+' }');
-	var status = document.getElementById("status");
 	if ( paramfilename.value == "" ) {
-		status.innerHTML = "No Filename set, can't Save!"
+		set_status("No Filename set, can't Save!");
 	} else if ( api.result == "" ) {
-		status.innerHTML = "File "+paramfilename.value+" has been updated";
+		set_status("File "+paramfilename.value+" has been updated");
 	} else {
-		status.innerHTML = api.error;
+		set_status(api.error);
 	}
 }
 
@@ -276,7 +271,6 @@ function make_edit_page(paramsclass) {
 
 	ParamsClass = paramsclass
 
-	var status = document.getElementById("status");
 	var params = document.getElementById("params");
 
 	var host = document.location.host;
@@ -317,15 +311,12 @@ function make_edit_page(paramsclass) {
 	html += "<p>";
 
 	var api = vizapi('VizServer.'+ParamsClass+'param_list');    // e.g. it calls VizServer.spriteparam_list
-	if ( api.result == "" ) {
-		status.innerHTML = api.error;
-	} else {
-		status.innerHTML = "OK";
+	if ( checkapi(api) {
 		html += "<table width=100% border=0>";
 		html += "<tr><td>Param</td><td colspan=2 align=center>Value</td><td>Rand?</td><td align=center>Rand Min</td><td align=center>Rand Max</td></tr>";
 		var j = JSON.parse(api.result);
 		if ( ! j ) {
-			status.innerHTML = "Unable to parse VizServer.param_list result as JSON?";
+			set_status("Unable to parse VizServer.param_list result as JSON?");
 			ParamList = null;
 		} else {
 		    ParamList = j;
@@ -375,7 +366,7 @@ function make_edit_page(paramsclass) {
 					html += "&nbsp;";
 					html += "<button style=\"width:45%\" onclick=\"nextvalue('"+name+"',1);\" >Next</button>";
 				} else {
-					status.innerHTML = a.error;
+					set_status(a.error);
 					html += "<b>Error in param_stringvals</b>";
 				}
 			}

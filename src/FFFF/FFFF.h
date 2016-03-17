@@ -45,7 +45,104 @@ class FFFFHttp;
 struct CvCapture;
 class Timer;
 
-typedef std::vector < FFGLPluginInstance* > FFGLPipeline;
+typedef std::vector < FFGLPluginInstance* > FFGLPluginList;
+
+class FFGLPipeline {
+public:
+	FFGLPipeline() {
+		m_enabled = false;
+	};
+	void clear() {
+		for (FFGLPluginList::iterator it = m_pluginlist.begin(); it != m_pluginlist.end(); it++) {
+			DEBUGPRINT1(("--- deleteing FFGLPluginInstance *it=%ld", (long)(*it)));
+			delete *it;
+		}
+		m_pluginlist.clear();
+	}
+	FFGLPluginInstance* find_plugin(std::string viztag) {
+		for (FFGLPluginList::iterator it = m_pluginlist.begin(); it != m_pluginlist.end(); it++) {
+			if (viztag == (*it)->viztag()) {
+				return *it;
+			}
+		}
+		return NULL;
+	}
+	void delete_plugin(std::string viztag) {
+		for (FFGLPluginList::iterator it = m_pluginlist.begin(); it != m_pluginlist.end();) {
+			if (viztag == (*it)->viztag()) {
+				// DEBUGPRINT1(("--- deleteing BB FFGLPluginInstance *it=%ld", (long)(*it)));
+				delete *it;
+				it = m_pluginlist.erase(it);
+			}
+			else {
+				it++;
+			}
+		}
+	}
+	void append_plugin(FFGLPluginInstance* p) {
+		m_pluginlist.insert(m_pluginlist.end(), p);
+	}
+	void shuffle() {
+		size_t sz = m_pluginlist.size();
+		// Just swap things randomly
+		for (size_t n = 1; n < sz; n++) {
+			if ((rand() % 2) == 0) {
+				if (m_pluginlist[n - 1]->isMoveable() && m_pluginlist[n]->isMoveable()) {
+					FFGLPluginInstance* t = m_pluginlist[n - 1];
+					m_pluginlist[n - 1] = m_pluginlist[n];
+					m_pluginlist[n] = t;
+				}
+			}
+		}
+	}
+	void randomize() {
+		size_t sz = m_pluginlist.size();
+		// Just swap things randomly
+		for (size_t n = 1; n<sz; n++ ) {
+			int n1 = rand() % sz;
+			int n2 = rand() % sz;
+			if ( n1 != n2 ) {
+				if (m_pluginlist[n1]->isMoveable() && m_pluginlist[n2]->isMoveable()) {
+					FFGLPluginInstance* t = m_pluginlist[n1];
+					m_pluginlist[n1] = m_pluginlist[n2];
+					m_pluginlist[n2] = t;
+				}
+			}
+		}
+	}
+	void swap(int n1, int n2) {
+		FFGLPluginInstance* t = m_pluginlist[n1];
+		m_pluginlist[n1] = m_pluginlist[n2];
+		m_pluginlist[n2] = t;
+	}
+	void moveup(std::string viztag) {
+		size_t sz = m_pluginlist.size();
+		for (size_t n = 0; n < sz; n++) {
+			if (viztag == m_pluginlist[n]->viztag()) {
+				if (n > 0) {
+					swap(n - 1, n);
+				}
+				return;
+			}
+		}
+	}
+	void movedown(std::string viztag) {
+		size_t sz = m_pluginlist.size();
+		for (size_t n = 0; n<sz; n++ ) {
+			if (viztag == m_pluginlist[n]->viztag()) {
+				if (n < (sz - 1)) {
+					swap(n + 1, n);
+				}
+				return;
+			}
+		}
+	}
+
+	FFGLPluginList m_pluginlist;
+	bool m_enabled;
+};
+
+// typedef std::vector < FFGLPluginInstance* > FFGLPipeline;
 typedef std::vector < FF10PluginInstance* > FF10Pipeline;
 
 class FFFF : public NosuchJsonListener, NosuchOscListener {

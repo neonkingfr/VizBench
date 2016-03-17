@@ -30,6 +30,12 @@ function onepipeline(pipenum) {
 	html += "&nbsp;&nbsp;";
 	html += "<input type=\"button\" style=\"width:100px\" value=\"Edit\" onClick=\"edit_pipeline("+pipenum+");\">";
 	html += "&nbsp;&nbsp;";
+
+	var enabledid = "enabled_"+pipenum;
+	var enabledchecked = "checked=\"checked\"";
+	
+	html += " Enabled:<input type=\"checkbox\"" + enabledchecked + " id=\""+enabledid+"\" onChange=\"enable_pipeline("+pipenum+");\">";
+
 	html += "</td></tr>";
 
 	return html;
@@ -39,7 +45,6 @@ function ffffpagegen() {
 
 	var api = vizapi("ffff.ffglpipeline");
 	if ( ! checkapi(api) ) {
-		status.innerHTML = api.error;
 		return;
 	}
 	var ffglpipeline = api.result;
@@ -58,11 +63,17 @@ function ffffpagegen() {
 
 	html += "<br><hr>\n";
 
-	html += "<div id=\"status\"></div>";
-
 	document.getElementById("ffglpipeline").innerHTML = html;
 
 	refreshpipelinefilename();
+}
+
+function enable_pipeline(pipenum) {
+	var enabledid = document.getElementById("enabled_"+pipenum);
+	var onoff = enabledid.checked ? "1" : "0";
+	var api = vizapi("ffff.enablepipeline","{\"pipenum\":\""+pipenum+"\", \"onoff\":"+onoff+" }");
+
+	checkapi(api,"OK",api.error);
 }
 
 function edit_pipeline(pipenum) {
@@ -71,10 +82,8 @@ function edit_pipeline(pipenum) {
 
 function refreshpipelinefilename() {
 	var api = vizapi("ffff.pipelinefilename");
-	if ( api.error != "" ) {
-		status.innerHTML = api.error;
-		pipelinefilename = "";
-	} else {
+	var pipelinefilename = "";
+	if ( checkapi(api) ) {
 		pipelinefilename = api.result;
 	}
 	if ( pipelinefilename != "" ) {
@@ -90,6 +99,8 @@ dojo.addOnLoad(setup);
 <div id="title">&nbsp;</div>
 <br>
 <div id="ffglpipeline"></div>
+<p>
+<div id="status"></div>
 <p>
 	
 </body>

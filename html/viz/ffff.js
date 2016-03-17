@@ -75,10 +75,8 @@ function changepipelinefile() {
 
 function refreshpipelinefilename() {
 	var api = vizapi("ffff.pipelinefilename");
-	if ( api.error != "" ) {
-		status.innerHTML = api.error;
-		pipelinefilename = "";
-	} else {
+	var pipelinefilename = "";
+	if ( checkapi(api) ) {
 		pipelinefilename = api.result;
 	}
 	if ( pipelinefilename != "" ) {
@@ -98,9 +96,7 @@ function loadpipeline() {
 function savepipeline() {
 	var fname = document.getElementById("pipelinefilename").value;
 	var api = vizapi("ffff.savepipeline","{\"filename\":\""+fname+"\"}");
-	if ( checkapi(api) ) {
-		status.innerHTML = "OK - pipeline saved";
-	}
+	checkapi(api,"Pipeline saved!");
 }
 
 function shufflepipeline() {
@@ -125,7 +121,6 @@ function ffffrecord(onoff) {
 function enableall(onoff) {
 	var api = vizapi("ffff.ffglpipeline");
 	if ( ! checkapi(api) ) {
-		status.innerHTML = api.error;
 		return;
 	}
 	var ffglpipeline = api.result;
@@ -141,7 +136,6 @@ function changeTextVal(tag,api,argname) {
 	var inputid = document.getElementById(tag+"_"+api);
 	var api = vizapi(tag+"."+api,"{\""+argname+"\":\""+inputid.value+"\"}");
 	if ( ! checkapi(api) ) {
-		status.innerHTML = api.error;
 		inputid.value = "";
 		return;
 	}

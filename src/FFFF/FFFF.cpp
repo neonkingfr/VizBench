@@ -369,35 +369,13 @@ FFFF::FF10NewPluginInstance(FF10PluginDef* plugdef, std::string viztag)
 void
 FFFF::shufflePipeline(int pipenum)
 {
-	size_t sz = m_ffglpipeline[pipenum].size();
-	// Just swap things randomly
-	for (size_t n = 1; n<sz; n++ ) {
-		if ((rand() % 2) == 0) {
-			if (m_ffglpipeline[pipenum][n-1]->isMoveable() && m_ffglpipeline[pipenum][n]->isMoveable()) {
-				FFGLPluginInstance* t = m_ffglpipeline[pipenum][n - 1];
-				m_ffglpipeline[pipenum][n - 1] = m_ffglpipeline[pipenum][n];
-				m_ffglpipeline[pipenum][n] = t;
-			}
-		}
-	}
+	m_ffglpipeline[pipenum].shuffle();
 }
 
 void
 FFFF::randomizePipeline(int pipenum)
 {
-	size_t sz = m_ffglpipeline[pipenum].size();
-	// Just swap things randomly
-	for (size_t n = 1; n<sz; n++ ) {
-		int n1 = rand() % sz;
-		int n2 = rand() % sz;
-		if ( n1 != n2 ) {
-			if (m_ffglpipeline[pipenum][n1]->isMoveable() && m_ffglpipeline[pipenum][n2]->isMoveable()) {
-				FFGLPluginInstance* t = m_ffglpipeline[pipenum][n1];
-				m_ffglpipeline[pipenum][n1] = m_ffglpipeline[pipenum][n2];
-				m_ffglpipeline[pipenum][n2] = t;
-			}
-		}
-	}
+	m_ffglpipeline[pipenum].randomize();
 }
 
 void
@@ -410,11 +388,6 @@ FFFF::clearPipeline(int pipenum)
 		delete *it;
 	}
 	m_ff10pipeline[pipenum].clear();
-
-	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline[pipenum].begin(); it != m_ffglpipeline[pipenum].end(); it++) {
-		DEBUGPRINT1(("--- deleteing FFGLPluginInstance *it=%ld", (long)(*it)));
-		delete *it;
-	}
 	m_ffglpipeline[pipenum].clear();
 
 	// Forget all the callbacks
@@ -441,12 +414,7 @@ FFFF::loadAllPluginDefs(std::string ff10path, std::string ffglpath, int ffgl_wid
 
 FFGLPluginInstance*
 FFFF::FFGLFindPluginInstance(int pipenum, std::string viztag) {
-	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline[pipenum].begin(); it != m_ffglpipeline[pipenum].end(); it++) {
-		if ( viztag == (*it)->viztag() ) {
-			return *it;
-		}
-	}
-	return NULL;
+	return m_ffglpipeline[pipenum].find_plugin(viztag);
 }
 
 FF10PluginInstance*
@@ -482,13 +450,10 @@ FFFF::newInstanceName() {
 FFGLPluginInstance*
 FFFF::FFGLAddToPipeline(int pipenum, std::string pluginName, std::string viztag, bool autoenable, cJSON* params) {
 
-	// First scan existing pipeline to see if this viztag is already used
-	FFGLPluginInstance* last = NULL;
-	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline[pipenum].begin(); it != m_ffglpipeline[pipenum].end(); it++) {
-		if ( viztag == (*it)->viztag() ) {
-			DEBUGPRINT(("Plugin with viztag '%s' already exists",viztag.c_str()));
-			return NULL;
-		}
+	// See if this viztag is already used
+	if (FFGLFindPluginInstance(pipenum,viztag) != NULL) {
+		DEBUGPRINT(("Plugin with viztag '%s' already exists",viztag.c_str()));
+		return NULL;
 	}
 
     FFGLPluginDef* plugindef = findffglplugindef(pluginName);
@@ -506,7 +471,7 @@ FFFF::FFGLAddToPipeline(int pipenum, std::string pluginName, std::string viztag,
 	}
 
 	// Add it to the end of the pipeline
-	m_ffglpipeline[pipenum].insert(m_ffglpipeline[pipenum].end(),np);
+	m_ffglpipeline[pipenum].append_plugin(np);
 
 	if (params) {
 		for (cJSON* pn = params->child; pn != NULL; pn = pn->next) {
@@ -542,7 +507,6 @@ FF10PluginInstance*
 FFFF::FF10AddToPipeline(int pipenum, std::string pluginName, std::string viztag, bool autoenable, cJSON* params) {
 
 	// First scan existing pipeline to see if this viztag is already used
-	FF10PluginInstance* last = NULL;
 	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline[pipenum].begin(); it != m_ff10pipeline[pipenum].end(); it++) {
 		if ( viztag == (*it)->viztag() ) {
 			DEBUGPRINT(("Plugin with viztag '%s' already exists",viztag.c_str()));
@@ -591,47 +555,17 @@ FFFF::FF10AddToPipeline(int pipenum, std::string pluginName, std::string viztag,
 
 void
 FFFF::FFGLMoveUpInPipeline(int pipenum, std::string viztag) {
-	size_t sz = m_ffglpipeline[pipenum].size();
-	for (size_t n = 0; n<sz; n++ ) {
-		if (viztag == m_ffglpipeline[pipenum][n]->viztag()) {
-			if (n > 0) {
-				FFGLPluginInstance* t = m_ffglpipeline[pipenum][n - 1];
-				m_ffglpipeline[pipenum][n - 1] = m_ffglpipeline[pipenum][n];
-				m_ffglpipeline[pipenum][n] = t;
-			}
-			return;
-		}
-	}
+	m_ffglpipeline[pipenum].moveup(viztag);
 }
 
 void
 FFFF::FFGLMoveDownInPipeline(int pipenum, std::string viztag) {
-	size_t sz = m_ffglpipeline[pipenum].size();
-	for (size_t n = 0; n<sz; n++ ) {
-		if (viztag == m_ffglpipeline[pipenum][n]->viztag()) {
-			if (n < (sz-1)) {
-				FFGLPluginInstance* t = m_ffglpipeline[pipenum][n + 1];
-				m_ffglpipeline[pipenum][n + 1] = m_ffglpipeline[pipenum][n];
-				m_ffglpipeline[pipenum][n] = t;
-			}
-			return;
-		}
-	}
+	m_ffglpipeline[pipenum].movedown(viztag);
 }
 
 void
 FFFF::FFGLDeleteFromPipeline(int pipenum, std::string viztag) {
-
-	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline[pipenum].begin(); it != m_ffglpipeline[pipenum].end(); ) {
-		if (viztag == (*it)->viztag()) {
-			// DEBUGPRINT1(("--- deleteing BB FFGLPluginInstance *it=%ld", (long)(*it)));
-			delete *it;
-			it = m_ffglpipeline[pipenum].erase(it);
-		}
-		else {
-			it++;
-		}
-	}
+	m_ffglpipeline[pipenum].delete_plugin(viztag);
 }
 
 void
@@ -924,7 +858,9 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 	FFGLPluginInstance* firstplugin = NULL;
 	int num_ffgl_active = 0;
 
-	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline[pipenum].begin(); it != m_ffglpipeline[pipenum].end(); it++) {
+	FFGLPluginList& ffglplugins = m_ffglpipeline[pipenum].m_pluginlist;
+
+	for (FFGLPluginList::iterator it = ffglplugins.begin(); it != ffglplugins.end(); it++) {
 		FFGLPluginInstance* p = *it;
 		if (p->isEnabled()) {
 			num_ffgl_active++;
@@ -942,7 +878,7 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 		}
 	}
 
-	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline[pipenum].begin(); it != m_ffglpipeline[pipenum].end(); it++) {
+	for (FFGLPluginList::iterator it = ffglplugins.begin(); it != ffglplugins.end(); it++) {
 		FFGLPluginInstance* pi = *it;
 		if (!pi->isEnabled()) {
 			continue;
@@ -1092,7 +1028,10 @@ std::string FFFF::FFGLList() {
 std::string FFFF::FFGLPipelineList(int pipenum, bool only_enabled) {
 	std::string r = "[";
 	std::string sep = "";
-	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline[pipenum].begin(); it != m_ffglpipeline[pipenum].end(); it++) {
+
+	FFGLPluginList& ffglplugins = m_ffglpipeline[pipenum].m_pluginlist;
+
+	for (FFGLPluginList::iterator it = ffglplugins.begin(); it != ffglplugins.end(); it++) {
 		FFGLPluginInstance* p = *it;
 		bool isvizlet = m_vizserver->IsVizlet(p->viztag().c_str());
 		std::string isviz;
@@ -1311,7 +1250,8 @@ std::string FFFF::savePipeline(int pipenum, std::string fname, const char* id)
 		f << "\t}";
 		sep = ",\n";
 	}
-	for (std::vector<FFGLPluginInstance*>::iterator it = m_ffglpipeline[pipenum].begin(); it != m_ffglpipeline[pipenum].end(); it++) {
+	FFGLPluginList& ffglplugins = m_ffglpipeline[pipenum].m_pluginlist;
+	for (FFGLPluginList::iterator it = ffglplugins.begin(); it != ffglplugins.end(); it++) {
 		FFGLPluginInstance* p = *it;
 		f << sep;
 		f << "\t{\n";
@@ -1733,6 +1673,12 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	if ( meth == "savepipeline" ) {
 		std::string fname =  jsonNeedString(params,"filename");
 		return savePipeline(pipenum,fname,id);
+	}
+	if ( meth == "enablepipeline" ) {
+		if (pipenum > 2) {
+			throw NosuchException("Bogus error!");
+		}
+		return jsonOK(id);
 	}
 	if (meth == "pipelinefilename") {
 		std::string s = m_pipelinename[pipenum];

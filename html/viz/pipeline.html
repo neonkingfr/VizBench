@@ -20,6 +20,7 @@ function setup() {
 	pipeline_pagegen();
 	var vals = queryvalues();
 	var pipelinefilename;
+
 	if ( vals["pipeline"] ) {
 		pipelinefilename = vals["pipeline"];
 		loadpipeline();
@@ -36,6 +37,8 @@ dojo.addOnLoad(setup);
 <div id="title">&nbsp;</div>
 <br>
 <div id="ffglpipeline"></div>
+<p>
+<div id="status"></div>
 <p>
 	
 </body>
