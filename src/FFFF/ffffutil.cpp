@@ -51,18 +51,14 @@ FFGLPluginDef *ffglplugindefs[MAXPLUGINS];
 int	ffWidth;
 int	ffHeight;
 
-FFGLViewportStruct fboViewport;
-FFGLViewportStruct windowViewport;
+// FFGLViewportStruct fboViewport;
+// FFGLViewportStruct windowViewport;
 FFGLTextureStruct mapTexture;
 FFGLTextureStruct spoutTexture;
 int fboWidth;
 int fboHeight;
 FFGLExtensions glExtensions;
-FFGLFBO fbo1;
-FFGLFBO fbo2;
 FFGLFBO fbospout;
-FFGLFBO* fbo_input;
-FFGLFBO* fbo_output;
 
 std::string
 CopyFFString16(const char *src)
@@ -205,7 +201,8 @@ FFGLTextureStruct CreateOpenGLTexture(int textureWidth, int textureHeight)
     return t;
 }
 
-int FFGLinit2(int ffgl_width, int ffgl_height)
+int
+FFFF::FFGLinit2(int ffgl_width, int ffgl_height)
 {
     glExtensions.Initialize();
     if (glExtensions.EXT_framebuffer_object==0)
@@ -222,37 +219,24 @@ int FFGLinit2(int ffgl_width, int ffgl_height)
     fboWidth = ffgl_width;
     fboHeight = ffgl_height;
 
-    if (!fbo1.Create(fboWidth, fboHeight, glExtensions))
-    {
-        DEBUGPRINT(("Framebuffer Object Init Failed"));
-        return 0;
-    }
-    if (!fbo2.Create(fboWidth, fboHeight, glExtensions))
-    {
-        DEBUGPRINT(("Framebuffer Object Init Failed"));
-        return 0;
-    }
     if (!fbospout.Create(fboWidth, fboHeight, glExtensions))
     {
         DEBUGPRINT(("Framebuffer Object Init Failed"));
         return 0;
     }
+
     //instantiate the first plugin with the FBO viewport
-    fboViewport.x = 0;
-    fboViewport.y = 0;
-    fboViewport.width = fboWidth;
-    fboViewport.height = fboHeight;
+    // fboViewport.x = 0;
+    // fboViewport.y = 0;
+    // fboViewport.width = fboWidth;
+    // fboViewport.height = fboHeight;
 
-	fbo_input = NULL;
-	fbo_output = NULL;
-
-    //instantiate the second plugin with the output window
-    //viewport
-    // FFGLViewportStruct windowViewport;
-    windowViewport.x = 0;
-    windowViewport.y = 0;
-    windowViewport.width = ffgl_width;
-    windowViewport.height = ffgl_height;
+    // //instantiate the second plugin with the output window
+    // //viewport
+    // windowViewport.x = 0;
+    // windowViewport.y = 0;
+    // windowViewport.width = ffgl_width;
+    // windowViewport.height = ffgl_height;
 
     //allocate a texture for the map
     mapTexture = CreateOpenGLTexture(fboWidth,fboHeight);
@@ -267,6 +251,27 @@ int FFGLinit2(int ffgl_width, int ffgl_height)
         DEBUGPRINT(("Spout Texture allocation failed"));
         return 0;
     }
+
+	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
+		FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
+
+		pipeline.fboViewport.x = 0;
+		pipeline.fboViewport.y = 0;
+		pipeline.fboViewport.width = fboWidth;
+		pipeline.fboViewport.height = fboHeight;
+
+		pipeline.m_texture = CreateOpenGLTexture(fboWidth,fboHeight);
+		if (!pipeline.fbo1.Create(fboWidth, fboHeight, glExtensions))
+		{
+			DEBUGPRINT(("Framebuffer init of fbo1 failed"));
+			return 0;
+		}
+		if (!pipeline.fbo2.Create(fboWidth, fboHeight, glExtensions))
+		{
+			DEBUGPRINT(("Framebuffer init of fbo2 failed"));
+			return 0;
+		}
+	}
 
     return 1;
 }
@@ -324,14 +329,8 @@ void ResetIdentity()
 }
 
 bool
-FFFF::do_ffgl_plugin(FFGLPluginInstance* plugin, int which ) // which: 0 = first one, 1 = middle, 2 = last, 3 = one and only one, 4 none
+FFGLPipeline::do_ffgl_plugin(FFGLPluginInstance* plugin, int which ) // which: 0 = first one, 1 = middle, 2 = last, 3 = one and only one, 4 none
 {
-#if 0
-	GLuint testhandle = 0;
-#endif
-
-	//prepare the structure used to call
-	//the plugin's ProcessOpenGL method
 	ProcessOpenGLStructTag processStruct;
 
 	FFGLTextureStruct *inputTextures[1];
@@ -373,8 +372,6 @@ FFFF::do_ffgl_plugin(FFGLPluginInstance* plugin, int which ) // which: 0 = first
 			return false;
 		}
 
-		//create the array of OpenGLTextureStruct * to be passed
-		//to the plugin
 		FFGLTextureStruct fboTexture = fbo_input->GetTextureInfo();
 		inputTextures[0] = &fboTexture;
 		processStruct.numInputTextures = 1;
@@ -393,7 +390,6 @@ FFFF::do_ffgl_plugin(FFGLPluginInstance* plugin, int which ) // which: 0 = first
 			DEBUGPRINT(("HEY!!!!! fbo_input is NULL?"));
 		}
 		else {
-			//now pass the contents of the FBO as a texture to the plugin
 			FFGLTextureStruct fboTexture = fbo_input->GetTextureInfo();
 			inputTextures[0] = &fboTexture;
 			processStruct.numInputTextures = 1;

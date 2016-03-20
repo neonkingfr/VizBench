@@ -38,8 +38,6 @@ FFGLParameterDef* findffglparam(FFGLPluginDef* ff, std::string nm);
 
 void non_of_init(int x, int y, int w, int h);
 
-// bool do_ffgl_plugin(FFGLPluginInstance* plugin1,int which, GLuint* output_texturehandle = NULL);
-
 class FFFF;
 class FFFFHttp;
 struct CvCapture;
@@ -54,6 +52,11 @@ public:
 		m_sidmin = 0;
 		m_sidmax = 99999;
 	};
+
+	bool do_ffgl_plugin(FFGLPluginInstance* plugin, int which); // which: 0 = first one, 1 = middle, 2 = last, 3 = one and only one, 4 none
+	bool doPipeline(int window_width, int window_height);
+	FFGLPluginInstance* FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string viztag);
+
 	void clear() {
 		for (FFGLPluginList::iterator it = m_pluginlist.begin(); it != m_pluginlist.end(); it++) {
 			DEBUGPRINT1(("--- deleteing FFGLPluginInstance *it=%ld", (long)(*it)));
@@ -145,6 +148,13 @@ public:
 	std::string m_name;
 	int m_sidmin;
 	int m_sidmax;
+
+	FFGLViewportStruct fboViewport;
+	FFGLTextureStruct m_texture;
+	FFGLFBO fbo1;
+	FFGLFBO fbo2;
+	FFGLFBO* fbo_input;
+	FFGLFBO* fbo_output;
 };
 
 // typedef std::vector < FFGLPluginInstance* > FFGLPipeline;
@@ -154,6 +164,9 @@ class FFFF : public NosuchJsonListener, NosuchOscListener {
 
 public:
 	FFFF(cJSON* config);
+
+	int FFGLinit2(int width, int height);
+
 	void ErrorPopup(const char* msg);
 	bool StartStuff();
 	void StopStuff();
@@ -174,7 +187,9 @@ public:
 	std::string FFGLParamVals(FFGLPluginInstance* pi, std::string linebreak);
 	std::string FFGLParamInfo(std::string plugin, std::string param, const char* id);
 
-	FFGLPluginInstance* FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string viztag);
+	// FFGLPluginInstance* FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string viztag);
+
+	// XXX - all the methods here should eventually go into FFGLPipeline
 	FFGLPluginInstance* FFGLFindPluginInstance(int pipenum, std::string viztag);
 	FFGLPluginInstance* FFGLNeedPluginInstance(int pipenum, std::string viztag);
 	std::string			FFGLParamList(std::string nm, const char* id);
@@ -214,10 +229,9 @@ public:
 	// void setWidthHeight(int w, int h) { _width = w; _height = h; }
 	IplImage* getCameraFrame();
 	bool doCameraAndFF10Pipeline(int pipenum, bool use_camera, GLuint texturehandle);
-	bool doOneFrame(bool use_camera,int window_width, int window_height);
+	bool doPipeline(int pipenum, int width, int height);
+	void sendSpout(int width, int height);
 	void CheckFPS();
-
-	bool do_ffgl_plugin(FFGLPluginInstance* plugin, int which); // which: 0 = first one, 1 = middle, 2 = last, 3 = one and only one, 4 none
 
 	void InsertKeystroke(int key, int downup);
 

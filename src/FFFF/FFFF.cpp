@@ -337,7 +337,7 @@ FFFF::initCamera(int camindex) {
 }
 
 FFGLPluginInstance*
-FFFF::FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string viztag)
+FFGLPipeline::FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string viztag)
 {
 	FFGLPluginInstance* np = new FFGLPluginInstance(plugin,viztag);
 	// DEBUGPRINT(("----- MALLOC new FFGLPluginInstance"));
@@ -466,7 +466,9 @@ FFFF::FFGLAddToPipeline(int pipenum, std::string pluginName, std::string viztag,
 		// return NULL;
 	}
 
-	FFGLPluginInstance* np = FFGLNewPluginInstance(plugindef,viztag);
+	FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
+
+	FFGLPluginInstance* np = pipeline.FFGLNewPluginInstance(plugindef,viztag);
 
 	// If the plugin's first parameter is "viztag", set it
 	int pnum = np->plugindef()->getParamNum("viztag");
@@ -475,7 +477,7 @@ FFFF::FFGLAddToPipeline(int pipenum, std::string pluginName, std::string viztag,
 	}
 
 	// Add it to the end of the pipeline
-	m_ffglpipeline[pipenum].append_plugin(np);
+	pipeline.append_plugin(np);
 
 	if (params) {
 		for (cJSON* pn = params->child; pn != NULL; pn = pn->next) {
@@ -855,19 +857,40 @@ FFFF::doCameraAndFF10Pipeline(int pipenum, bool use_camera, GLuint texturehandle
 }
 
 bool
-FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
+FFFF::doPipeline(int pipenum, int width, int height)
 {
-	int pipenum = 0;
+	return m_ffglpipeline[pipenum].doPipeline(width, height);
+}
 
-	doCameraAndFF10Pipeline(pipenum, use_camera,mapTexture.Handle);
+void
+FFFF::sendSpout(int width, int height) {
+
+	if (m_spoutsender != NULL && spoutTexture.Handle != 0) {
+
+		// Copy screen into spoutTexture
+		glBindTexture(GL_TEXTURE_2D, spoutTexture.Handle);
+		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, width, height);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		// Send it.
+		bool b = m_spoutsender->SendTexture(spoutTexture.Handle, GL_TEXTURE_2D, width, height);
+		if (!b) {
+			DEBUGPRINT(("Error in spout SendTexture!?"));
+		}
+	}
+}
+
+bool
+FFGLPipeline::doPipeline(int window_width, int window_height)
+{
+	// FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
+	// FFGLPluginList& ffglplugins = pipeline.m_pluginlist;
 
 	FFGLPluginInstance* lastplugin = NULL;
 	FFGLPluginInstance* firstplugin = NULL;
 	int num_ffgl_active = 0;
 
-	FFGLPluginList& ffglplugins = m_ffglpipeline[pipenum].m_pluginlist;
-
-	for (FFGLPluginList::iterator it = ffglplugins.begin(); it != ffglplugins.end(); it++) {
+	for (FFGLPluginList::iterator it = m_pluginlist.begin(); it != m_pluginlist.end(); it++) {
 		FFGLPluginInstance* p = *it;
 		if (p->isEnabled()) {
 			num_ffgl_active++;
@@ -885,7 +908,7 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 		}
 	}
 
-	for (FFGLPluginList::iterator it = ffglplugins.begin(); it != ffglplugins.end(); it++) {
+	for (FFGLPluginList::iterator it = m_pluginlist.begin(); it != m_pluginlist.end(); it++) {
 		FFGLPluginInstance* pi = *it;
 		if (!pi->isEnabled()) {
 			continue;
@@ -920,7 +943,7 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 		}
 	}
 
-#if 0
+#ifdef SAVE_THIS_MIGHT_BE_NEEDED_SOMEDAY
 	// This old stuff that writes out individual frames is no longer needed,
 	// but it might come in handy for something someday, so I'm not deleting it completely yet
 	// Now read the pixels back and save them
@@ -949,6 +972,7 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 	}
 #endif
 
+#ifdef SAVE_THIS_FOR_RECORDING_MIGHT_BE_NEEDED_SOMEDAY
 	if (m_record && FfffOutputFile) {
 
 		if (m_output_framedata == NULL) {
@@ -982,20 +1006,12 @@ FFFF::doOneFrame(bool use_camera, int window_width, int window_height)
 			}
 		}
 	}
+#endif
 
-	if (m_spoutsender != NULL && spoutTexture.Handle != 0) {
-
-		// Copy screen into spoutTexture
-		glBindTexture(GL_TEXTURE_2D, spoutTexture.Handle);
-		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, window_width, window_height);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		// Send it.
-		bool b = m_spoutsender->SendTexture(spoutTexture.Handle, GL_TEXTURE_2D, window_width, window_height);
-		if (!b) {
-			DEBUGPRINT(("Error in spout SendTexture!?"));
-		}
-	}
+	// // Copy screen into m_texture
+	// glBindTexture(GL_TEXTURE_2D, pipeline.m_texture.Handle);
+	// glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, window_width, window_height);
+	// glBindTexture(GL_TEXTURE_2D, 0);
 
 #ifdef NOMORERELEASE
 	if ( camframe != NULL ) {

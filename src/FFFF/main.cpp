@@ -239,7 +239,13 @@ int ffffMain(std::string pipelinename[4], bool fullscreen)
 			int width, height;
 			glfwGetFramebufferSize(F->window, &width, &height);
 
-			F->doOneFrame(use_camera, width, height);
+			int pipenum = 0;
+
+			F->doCameraAndFF10Pipeline(pipenum, use_camera, mapTexture.Handle);
+
+			F->doPipeline(pipenum, width, height);
+
+			F->sendSpout(width, height);
 
 			glfwSwapBuffers(F->window);
 		}

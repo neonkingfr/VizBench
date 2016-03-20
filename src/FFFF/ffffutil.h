@@ -49,13 +49,8 @@ extern FF10PluginDef *ff10plugindefs[MAXPLUGINS];
 extern int nffglplugindefs;
 extern FFGLPluginDef *ffglplugindefs[MAXPLUGINS];
 
-extern FFGLViewportStruct fboViewport;
-extern FFGLViewportStruct windowViewport;
-extern FFGLFBO fbo1;
-extern FFGLFBO fbo2;
-extern FFGLFBO fbospout;
-extern FFGLFBO* fbo_input;
-extern FFGLFBO* fbo_output;
+// extern FFGLViewportStruct fboViewport;
+// extern FFGLViewportStruct windowViewport;
 
 extern double curFrameTime;
 
