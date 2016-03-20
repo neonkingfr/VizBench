@@ -81,7 +81,8 @@ FFFF::FFFF(cJSON* config) {
 	m_img_into_pipeline = NULL;
 	m_record = false;
 	m_capture = NULL;
-	for (int pipenum = 0; pipenum < 4; pipenum++) {
+	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
+		m_ffglpipeline[pipenum].m_name = "";
 		m_ffglpipeline[pipenum].clear();
 		m_ff10pipeline[pipenum].clear();
 	}
@@ -383,6 +384,8 @@ FFFF::clearPipeline(int pipenum)
 {
 	// Are we locked, here?
 
+	m_ffglpipeline[pipenum].m_name = "";
+
 	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline[pipenum].begin(); it != m_ff10pipeline[pipenum].end(); it++) {
 		 DEBUGPRINT1(("--- deleting FF10PluginInstance *it=%ld", (long)(*it)));
 		delete *it;
@@ -458,8 +461,9 @@ FFFF::FFGLAddToPipeline(int pipenum, std::string pluginName, std::string viztag,
 
     FFGLPluginDef* plugindef = findffglplugindef(pluginName);
 	if ( plugindef == NULL ) {
-		DEBUGPRINT(("There is no plugin named '%s'",pluginName.c_str()));
-		return NULL;
+		throw NosuchException("There is no plugin named '%s'", pluginName.c_str());
+		// DEBUGPRINT(("There is no plugin named '%s'",pluginName.c_str()));
+		// return NULL;
 	}
 
 	FFGLPluginInstance* np = FFGLNewPluginInstance(plugindef,viztag);
@@ -589,10 +593,13 @@ void FFFF::ErrorPopup(const char* msg) {
 void
 FFFF::loadPipeline(int pipenum, std::string configname, bool synthesize)
 {
+	if (configname == "") {
+		throw NosuchException("configname is blank!?");
+	}
 	if (!NosuchEndsWith(configname, ".json")) {
 		configname += ".json";
 	}
-	std::string fname = VizConfigPath("ffff",configname);
+	std::string fname = VizConfigPath("pipelines",configname);
 	std::string err;
 
 	DEBUGPRINT(("loadPipeline configname=%s fname=%s", configname.c_str(), fname.c_str()));
@@ -620,19 +627,19 @@ FFFF::loadPipeline(int pipenum, std::string configname, bool synthesize)
 		json = jsonReadFile(fname,err);
 		if (!json) {
 			std::string err = NosuchSnprintf("Unable to parse file!? fname=%s", fname.c_str());
-			ErrorPopup(err.c_str());
 			throw NosuchException(err.c_str());
 		}
 	}
-	loadPipelineJson(pipenum,json);
+	loadPipelineJson(pipenum,configname,json);
 	jsonFree(json);
-	m_pipelinename[pipenum] = configname;
 }
 
 void
-FFFF::loadPipelineJson(int pipenum, cJSON* json)
-{
+FFFF::loadPipelineJson(int pipenum, std::string name, cJSON* json) {
+
 	clearPipeline(pipenum);
+
+	m_ffglpipeline[pipenum].m_name = name;
 
 	cJSON* plugins = jsonGetArray(json,"pipeline");
 	if ( !plugins ) {
@@ -1227,7 +1234,7 @@ std::string FFFF::savePipeline(int pipenum, std::string fname, const char* id)
 	if ( ! NosuchEndsWith(fname, ".json") ) {
 		fname += ".json";
 	}
-	std::string fpath = VizConfigPath("ffff",fname);
+	std::string fpath = VizConfigPath("pipelines",fname);
 
 	DEBUGPRINT(("savePipeline fpath=%s",fpath.c_str()));
 	std::string err;
@@ -1283,6 +1290,116 @@ std::string FFFF::savePipeline(int pipenum, std::string fname, const char* id)
 	f << "\n\t]\n}\n";
 	f.close();
 	return jsonOK(id);
+}
+
+void FFFF::savePipeset(std::string fname)
+{
+	if (fname == "") {
+		throw NosuchException("Pipeset name is blank!?");
+	}
+	if ( ! NosuchEndsWith(fname, ".json") ) {
+		fname += ".json";
+	}
+	std::string fpath = VizConfigPath("pipesets",fname);
+
+	DEBUGPRINT(("savePipeset fpath=%s",fpath.c_str()));
+	std::string err;
+
+	std::ofstream f;
+	f.open(fpath.c_str(),std::ios::trunc);
+	if ( ! f.is_open() ) {
+		throw NosuchException("Unable to open file - %s",fpath.c_str());
+	}
+	f << "{\n\"pipeset\": [\n";
+	std::string sep = "";
+	for (int n = 0; n < NPIPELINES; n++) {
+		FFGLPipeline& pipeline = m_ffglpipeline[n];
+		f << sep;
+		f << "\t{\n";
+		f << "\t\t\"pipeline\": \"" << pipeline.m_name << "\",\n";
+		f << "\t\t\"enabled\": " << pipeline.m_enabled << ",\n";
+		f << "\t\t\"sidrange\": \"" << pipeline.m_sidmin << "-" << pipeline.m_sidmax << "\"\n";
+		f << "\t}";
+		sep = ",\n";
+	}
+	f << "\n\t]\n}\n";
+	f.close();
+}
+
+void
+FFFF::loadPipeset(std::string configname)
+{
+	if (configname == "") {
+		throw NosuchException("Pipeset name is blank!?");
+	}
+	if (!NosuchEndsWith(configname, ".json")) {
+		configname += ".json";
+	}
+	std::string fname = VizConfigPath("pipesets",configname);
+	std::string err;
+
+	DEBUGPRINT(("loadPipeset configname=%s fname=%s", configname.c_str(), fname.c_str()));
+
+	bool exists = NosuchFileExists(fname);
+	cJSON* json;
+	if (!exists) {
+		throw NosuchException("No such file: fname=%s", fname.c_str());
+	}
+
+	json = jsonReadFile(fname,err);
+	if (!json) {
+		std::string err = NosuchSnprintf("Unable to parse file!? fname=%s", fname.c_str());
+		throw NosuchException(err.c_str());
+	}
+	loadPipesetJson(json);
+	jsonFree(json);
+}
+
+void
+FFFF::loadPipesetJson(cJSON* json)
+{
+
+	// XXX - should perhaps really surround this with a try/except
+	// and make sure the pipeset gets completely cleared if there's any problem loading it.
+
+	cJSON* pipeset = jsonGetArray(json,"pipeset");
+	if ( !pipeset ) {
+		throw NosuchException("No 'pipeset' value in config");
+	}
+
+	int npipelines = cJSON_GetArraySize(pipeset);
+	if (npipelines != NPIPELINES) {
+		throw NosuchException("Number of pipelines in pipeset is %d - expected %d", npipelines, NPIPELINES);
+	}
+
+	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
+
+		FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
+
+		clearPipeline(pipenum);
+
+		cJSON *p = cJSON_GetArrayItem(pipeset, pipenum);
+		NosuchAssert(p);
+		if (p->type != cJSON_Object) {
+			throw NosuchException("Hey! Item #%d in pipeset isn't an object?", pipenum);
+		}
+
+		std::string name = jsonNeedString(p, "pipeline");
+		bool enabled = jsonNeedBool(p, "enabled");
+		std::string sidrange = jsonNeedString(p, "sidrange");
+		int sidmin, sidmax;
+		if (sscanf(sidrange.c_str(), "%d-%d", &sidmin, &sidmax) != 2) {
+			throw NosuchException("Invalid format of sidrange: %s", sidrange.c_str());
+		}
+		pipeline.m_sidmin = sidmin;
+		pipeline.m_sidmax = sidmax;
+		pipeline.m_name = name;
+		pipeline.m_enabled = enabled;
+		DEBUGPRINT(("Set pipenum=%d enabled to %d",pipenum,m_ffglpipeline[pipenum].m_enabled));
+		if (name != "") {
+			loadPipeline(pipenum, name, true);
+		}
+	}
 }
 
 std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
@@ -1674,14 +1791,17 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		std::string fname =  jsonNeedString(params,"filename");
 		return savePipeline(pipenum,fname,id);
 	}
-	if ( meth == "enablepipeline" ) {
-		if (pipenum > 2) {
-			throw NosuchException("Bogus error!");
-		}
+	if ( meth == "set_enablepipeline" ) {
+		m_ffglpipeline[pipenum].m_enabled = jsonNeedBool(params, "onoff", true);
+		DEBUGPRINT(("set_enabledpipeline pipenum=%d enabled to %d",pipenum,m_ffglpipeline[pipenum].m_enabled));
 		return jsonOK(id);
 	}
-	if (meth == "pipelinefilename") {
-		std::string s = m_pipelinename[pipenum];
+	if ( meth == "get_enablepipeline" ) {
+		DEBUGPRINT(("get_enabledpipeline pipenum=%d enabled = %d",pipenum,m_ffglpipeline[pipenum].m_enabled));
+		return jsonIntResult(m_ffglpipeline[pipenum].m_enabled, id);
+	}
+	if (meth == "get_pipeset") {
+		std::string s = m_pipeset_filename;
 		// Take off any trailing .json
 		int pos = s.find(".json");
 		if (pos != s.npos) {
@@ -1689,9 +1809,45 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		}
 		return jsonStringResult(s, id);
 	}
-	if ( meth == "loadpipeline" ) {
+	if ( meth == "load_pipeset" ) {
+		std::string fname =  jsonNeedString(params,"filename");
+		loadPipeset(fname);
+		m_pipeset_filename = fname;
+		return jsonOK(id);
+	}
+	if ( meth == "save_pipeset" ) {
+		std::string fname =  jsonNeedString(params,"filename");
+		savePipeset(fname);
+		return jsonOK(id);
+	}
+	if (meth == "pipelinefilename") {
+		std::string s = m_ffglpipeline[pipenum].m_name;
+		// Take off any trailing .json
+		int pos = s.find(".json");
+		if (pos != s.npos) {
+			s = s.substr(0, pos);
+		}
+		return jsonStringResult(s, id);
+	}
+	if ( meth == "load_pipeline" ) {
 		std::string fname =  jsonNeedString(params,"filename");
 		loadPipeline(pipenum, fname, true);  // this will throw exceptions on failure
+		return jsonOK(id);
+	}
+	if (meth == "get_sidrange") {
+		FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
+		std::string s = NosuchSnprintf("%d-%d", pipeline.m_sidmin, pipeline.m_sidmax);
+		return jsonStringResult(s, id);
+	}
+	if (meth == "set_sidrange") {
+		int sidmin, sidmax;
+		std::string range =  jsonNeedString(params,"sidrange");
+		if (sscanf(range.c_str(), "%d-%d", &sidmin, &sidmax) != 2) {
+			return jsonError(-32000,"Bad format of sidrange value",id);
+		}
+		FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
+		pipeline.m_sidmin = sidmin;
+		pipeline.m_sidmax = sidmax;
 		return jsonOK(id);
 	}
 

@@ -63,41 +63,41 @@ function changepipelinefile() {
 		val = words[words.length-1];
 	}
 	pipelinefilename.value = val;
-	loadpipeline();
+	load_pipeline();
 }
 
-function refreshpipelinefilename() {
-	var api = vizapi("ffff.pipelinefilename");
-	var pipelinefilename = "";
+function refreshpipelinefilename(pipenum) {
+	var api = vizapi("ffff.pipelinefilename","{\"pipenum\":\""+pipenum+"\"}");
+	var name = "";
 	if ( checkapi(api) ) {
-		pipelinefilename = api.result;
+		name = api.result;
 	}
-	if ( pipelinefilename != "" ) {
-		document.getElementById("pipelinefilename").value = pipelinefilename;
+	if ( name != "" ) {
+		document.getElementById("pipelinefilename").value = name;
 	}
 }
 
-function loadpipeline() {
+function load_pipeline(pipenum) {
 	var fname = document.getElementById("pipelinefilename").value;
-	checkapi(vizapi("ffff.loadpipeline","{\"filename\":\""+fname+"\"}"));
-	ffffpagegen();
-	// refreshpipelinefilename();
+	if ( fname != "" ) {
+		checkapi(vizapi("ffff.load_pipeline","{\"filename\":\""+fname+"\", \"pipenum\":\""+pipenum+"\" }"));
+	}
 }
 
-function savepipeline() {
+function savepipeline(pipenum) {
 	var fname = document.getElementById("pipelinefilename").value;
-	var api = vizapi("ffff.savepipeline","{\"filename\":\""+fname+"\"}");
+	var api = vizapi("ffff.savepipeline","{\"filename\":\""+fname+"\", \"pipenum\":\""+pipenum+"\" }");
 	checkapi(api,"Pipeline saved!");
 }
 
-function shufflepipeline() {
-	if ( checkapi(vizapi("ffff.shufflepipeline")) ) {
+function shufflepipeline(pipenum) {
+	if ( checkapi(vizapi("ffff.shufflepipeline","{\"pipenum\":\""+pipenum+"\" }")) ) {
 		ffffpagegen();
 	}
 }
 
 function randomizepipeline() {
-	if ( checkapi(vizapi("ffff.randomizepipeline")) ) {
+	if ( checkapi(vizapi("ffff.randomizepipeline","{\"pipenum\":\""+pipenum+"\" }")) ) {
 		ffffpagegen();
 	}
 }
@@ -152,7 +152,6 @@ function pipeline_pagegen() {
 	var html = "";
 
 	html += "<table>";
-	html += "<tr><td>Status:</td><td><div id=\"status\">OK</div></td></tr>";
 	html += "<tr><td>";
 	html += "<input type=\"file\" style=\"display: none\" id=\"pipelinefile\" onChange=\"changepipelinefile();\" >";
 
@@ -162,10 +161,10 @@ function pipeline_pagegen() {
 	html += "&nbsp;&nbsp;";
 	html += "<input type=\"button\" style=\"width:100px\" value=\"Browse\" onClick=\"browsepipelinefile();\">";
 	html += "&nbsp;&nbsp;";
-	html += "<input type=\"button\" style=\"width:100px\" value=\"Load\" onClick=\"loadpipeline();\">";
+	html += "<input type=\"button\" style=\"width:100px\" value=\"Load\" onClick=\"load_pipeline();\">";
 	html += "&nbsp;&nbsp;";
 	html += "<input type=\"button\" style=\"width:100px\" value=\"Save\" onClick=\"savepipeline();\">";
-	html += "</td>";
+	html += "</td></tr>";
 	html += "</table>";
 
 	html += "<p>";
@@ -345,5 +344,4 @@ function pipeline_pagegen() {
 	html += "<br><hr>\n";
 
 	document.getElementById("ffglpipeline").innerHTML = html;
-	refreshpipelinefilename();
 }

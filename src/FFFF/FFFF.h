@@ -51,6 +51,8 @@ class FFGLPipeline {
 public:
 	FFGLPipeline() {
 		m_enabled = false;
+		m_sidmin = 0;
+		m_sidmax = 99999;
 	};
 	void clear() {
 		for (FFGLPluginList::iterator it = m_pluginlist.begin(); it != m_pluginlist.end(); it++) {
@@ -140,6 +142,9 @@ public:
 
 	FFGLPluginList m_pluginlist;
 	bool m_enabled;
+	std::string m_name;
+	int m_sidmin;
+	int m_sidmax;
 };
 
 // typedef std::vector < FFGLPluginInstance* > FFGLPipeline;
@@ -195,11 +200,15 @@ public:
 	void loadAllPluginDefs(std::string ffdir, std::string ffgldir, int w, int h);
 
 	std::string savePipeline(int pipenum, std::string nm, const char* id);
-
 	void loadPipeline(int pipenum, std::string configname, bool synthesize);
-	void loadPipelineJson(int pipenum, cJSON* json);
+	void loadPipelineJson(int pipenum, std::string configname, cJSON* json);
 	void clearPipeline(int pipenum);
 	void shufflePipeline(int pipenum);
+
+	void savePipeset(std::string nm);
+	void loadPipeset(std::string nm);
+	void loadPipesetJson(cJSON* json);
+
 	void randomizePipeline(int pipenum);
 	bool initCamera(int camindex);
 	// void setWidthHeight(int w, int h) { _width = w; _height = h; }
@@ -254,13 +263,12 @@ private:
 	int m_window_width;
 	int m_window_height;
 
-	// FFGLPluginInstance* m_ffglpipeline;
-	// FF10PluginInstance* m_ff10pipeline;
+	std::string m_pipeset_filename;
 
-	std::string m_pipelinename[4];
+#define NPIPELINES 4
 
-	FFGLPipeline m_ffglpipeline[4];
-	FF10Pipeline m_ff10pipeline[4];
+	FFGLPipeline m_ffglpipeline[NPIPELINES];
+	FF10Pipeline m_ff10pipeline[NPIPELINES];
 };
 
 void loadff10path(std::string ffpath);

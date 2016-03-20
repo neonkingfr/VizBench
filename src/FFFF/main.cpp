@@ -194,7 +194,7 @@ int ffffMain(std::string pipelinename[4], bool fullscreen)
 
 	try {
 		CATCH_NULL_POINTERS;
-		for (int pipenum = 0; pipenum < 4; pipenum++) {
+		for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
 			if (pipelinename[pipenum] != "") {
 				F->loadPipeline(pipenum, pipelinename[pipenum], true);
 			}
@@ -249,7 +249,7 @@ int ffffMain(std::string pipelinename[4], bool fullscreen)
 		F->CheckFPS();
 	}
 
-	for (int pipenum = 0; pipenum < 4; pipenum++) {
+	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
 		F->clearPipeline(pipenum);
 	}
 

@@ -1,10 +1,8 @@
 {
-  "ffglpath": "ffglplugins;ffglplugins_resolume;ffglplugins_loopycam",
-  "ff10path": "ff10plugins;ff10plugins_pete;ff10plugins_loopycam",
 
-  # "window_x": 10,
-  # "window_y": 10,
-  # "window_x": 2000,
+  "ffglpath": "ffglplugins;ffglplugins_resolume;ffglplugins_loopycam",
+"ff10path": "ff10plugins;ff10plugins_pete;ff10plugins_loopycam",
+
   # "window_y": 20,
 
   "window_x": 10,

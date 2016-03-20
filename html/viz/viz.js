@@ -59,12 +59,15 @@ function vizapi(meth,params) {
 }
 
 function set_status(msg) {
+	if ( msg == "" ) {
+		msg = "&nbsp;"
+	}
 	document.getElementById("status").innerHTML = msg;
 }
 
 function checkapi(api,success_message,error_message) {
 	if ( ! success_message ) {
-		success_message = "OK."
+		success_message = "";
 	}
 	if ( ! error_message ) {
 		error_message = api.error;

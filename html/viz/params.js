@@ -23,7 +23,7 @@ function readfile() {
 	var paramfilename = document.getElementById("paramfilename");
 	var filename = paramfilename.value;
 	if ( filename == "" ) {
-		set_status(No Filename set, can't Load!");
+		set_status("No Filename set, can't Load!");
 		return;
 	}
 	var api = vizapi('VizServer.'+ParamsClass+'param_readfile','{ "paramfile":"'+filename+'" }');
@@ -54,7 +54,7 @@ function readfile() {
 					updateonevalue(name,obj["default"]);
 				}
 			}
-			set_status("OK");
+			set_status("");
 		} else {
 			set_status("Unable to interpret JSON from VizServer");
 		}
@@ -158,7 +158,7 @@ function loaddefaults() {
 	for ( var name in ParamList ) {
 		updateonevalue(name,ParamList[name]["default"]);
 	}
-	set_status("OK");
+	set_status("");
 	autowritefile();
 }
 
@@ -311,7 +311,7 @@ function make_edit_page(paramsclass) {
 	html += "<p>";
 
 	var api = vizapi('VizServer.'+ParamsClass+'param_list');    // e.g. it calls VizServer.spriteparam_list
-	if ( checkapi(api) {
+	if ( checkapi(api) ) {
 		html += "<table width=100% border=0>";
 		html += "<tr><td>Param</td><td colspan=2 align=center>Value</td><td>Rand?</td><td align=center>Rand Min</td><td align=center>Rand Max</td></tr>";
 		var j = JSON.parse(api.result);

@@ -13,6 +13,8 @@
 <script src="pipeline.js" djConfig="parseOnLoad: true"> </script>
 <script type="text/javascript">
 
+var pipenum;
+
 function setup() {
 
 	titlegen("Pipeline Editor");
@@ -21,11 +23,14 @@ function setup() {
 	var vals = queryvalues();
 	var pipelinefilename;
 
-	if ( vals["pipeline"] ) {
-		pipelinefilename = vals["pipeline"];
-		loadpipeline();
+	if ( vals["pipenum"] ) {
+		pipenum = vals["pipenum"];
+	} else {
+		pipenum = 0;
+
 	}
-	refreshpipelinefilename();
+	load_pipeline(pipenum);
+	refreshpipelinefilename(pipenum);
 }
 
 dojo.addOnLoad(setup);
@@ -36,9 +41,9 @@ dojo.addOnLoad(setup);
 
 <div id="title">&nbsp;</div>
 <br>
+<div id="status">&nbsp;</div>
+<br>
 <div id="ffglpipeline"></div>
-<p>
-<div id="status"></div>
 <p>
 	
 </body>

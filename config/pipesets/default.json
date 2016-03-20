@@ -1,0 +1,24 @@
+{
+"pipeset": [
+	{
+		"pipeline": "brush_one.json",
+		"enabled": 1,
+		"sidrange": "11000-11999"
+	},
+	{
+		"pipeline": "brush_two.json",
+		"enabled": 0,
+		"sidrange": "12000-12999"
+	},
+	{
+		"pipeline": "brush_three",
+		"enabled": 0,
+		"sidrange": "13000-13999"
+	},
+	{
+		"pipeline": "brush_four",
+		"enabled": 0,
+		"sidrange": "14000-14999"
+	}
+	]
+}

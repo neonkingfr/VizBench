@@ -20,13 +20,52 @@ function setup() {
 
 	ffffpagegen();
 
-	refreshpipelinefilename();
+	refresh_all();
+}
+
+function refresh_all() {
+	var api = vizapi("ffff.get_pipeset");
+	if ( checkapi(api) ) {
+		document.getElementById("pipeset").value = api.result;
+	}
+	refresh_pipeline(0);
+	refresh_pipeline(1);
+	refresh_pipeline(2);
+	refresh_pipeline(3);
+}
+
+function ffff_loadsave() {
+	var html = "";
+	html += "<table>";
+	html += "<tr><td>";
+	html += "<input type=\"file\" style=\"display: none\" id=\"pipesetfile\" onChange=\"change_pipeset();\" >";
+
+	html += "PipeSet: ";
+	html += "</td><td>";
+	html += "<input type=\"text\" style=\"width:200px\" id=\"pipeset\">";
+	html += "&nbsp;&nbsp;";
+	html += "<input type=\"button\" style=\"width:100px\" value=\"Browse\" onClick=\"browse_pipeset();\">";
+	html += "&nbsp;&nbsp;";
+	html += "<input type=\"button\" style=\"width:100px\" value=\"Load\" onClick=\"load_pipeset();\">";
+	html += "&nbsp;&nbsp;";
+	html += "<input type=\"button\" style=\"width:100px\" value=\"Save\" onClick=\"save_pipeset();\">";
+	html += "</td></tr>";
+	html += "</table>";
+	return html;
 }
 
 function onepipeline(pipenum) {
+
+	var pipelineid = "pipeline_"+pipenum;
+	var sidrangeid = "sidrange_"+pipenum;
+
 	html = "";
-	html += "<tr><td>Pipeline "+pipenum+": </td><td>";
-	html += "<input type=\"text\" style=\"width:300px\" id=\"pipelinefilename\">";
+	html += "<tr><td>";
+	html += "Pipeline "+pipenum+": </td><td>";
+	html += "<input type=\"text\" style=\"width:150px\" id=\""+pipelineid+"\" onChange=\"change_pipeline("+pipenum+");\" >";
+	html += "&nbsp;&nbsp;";
+	html += "SidRange: ";
+	html += "<input type=\"text\" style=\"width:90px\" id=\""+sidrangeid+"\" onChange=\"change_sidrange("+pipenum+");\" >";
 	html += "&nbsp;&nbsp;";
 	html += "<input type=\"button\" style=\"width:100px\" value=\"Edit\" onClick=\"edit_pipeline("+pipenum+");\">";
 	html += "&nbsp;&nbsp;";
@@ -51,43 +90,112 @@ function ffffpagegen() {
 
 	var html = "";
 
+	html += ffff_loadsave();
+
 	html += "<hr>\n";
 	html += "<table>";
-
 	html += onepipeline(0);
 	html += onepipeline(1);
 	html += onepipeline(2);
 	html += onepipeline(3);
-
 	html += "</table>";
 
 	html += "<br><hr>\n";
 
-	document.getElementById("ffglpipeline").innerHTML = html;
-
-	refreshpipelinefilename();
+	document.getElementById("pipeline_list").innerHTML = html;
 }
+
+function change_pipeset() {
+	var api = vizapi("ffff.get_pipeset");
+	if ( ! checkapi(api) ) {
+		return;
+	}
+	var current_pipeset = api.result;
+	var fname = document.getElementById("pipeset").value;
+	if ( fname != current_pipeset ) {
+		checkapi(vizapi("ffff.load_pipeset","{\"filename\":\""+fname+"\" }"));
+	}
+}
+
+function browse_pipeset() {
+	var id = document.getElementById("pipesetfile");
+	id.click();
+}
+function load_pipeset() {
+	var fname = document.getElementById("pipeset").value;
+	checkapi(vizapi("ffff.load_pipeset","{\"filename\":\""+fname+"\" }"));
+	refresh_all();
+}
+
+function save_pipeset() {
+	var fname = document.getElementById("pipeset").value;
+	checkapi(vizapi("ffff.save_pipeset","{\"filename\":\""+fname+"\" }"));
+}
+
+function change_pipeline(pipenum) {
+	var api = vizapi("ffff.ffglpipeline","{\"pipenum\":\""+pipenum+"\" }");
+	if ( ! checkapi(api) ) {
+		return;
+	}
+	var current_pipeline = api.result;
+	var pipelineid = "pipeline_"+pipenum;
+	var new_pipeline = document.getElementById(pipelineid).value;
+	if ( new_pipeline != current_pipeline ) {
+		checkapi(vizapi("ffff.load_pipeline","{\"pipenum\":\""+pipenum+"\", \"filename\":\""+new_pipeline+"\" }"));
+	}
+}
+
+function change_sidrange(pipenum) {
+	var api = vizapi("ffff.get_sidrange","{\"pipenum\":\""+pipenum+"\" }");
+	if ( ! checkapi(api) ) {
+		return;
+	}
+	var current_sidrange = api.result;
+	var sidrangeid = "sidrange_"+pipenum;
+	var new_sidrange = document.getElementById(sidrangeid).value;
+	if ( new_sidrange != current_sidrange ) {
+		checkapi(vizapi("ffff.set_sidrange","{\"pipenum\":\""+pipenum+"\", \"sidrange\":\""+new_sidrange+"\" }"));
+	}
+}
+
 
 function enable_pipeline(pipenum) {
 	var enabledid = document.getElementById("enabled_"+pipenum);
 	var onoff = enabledid.checked ? "1" : "0";
-	var api = vizapi("ffff.enablepipeline","{\"pipenum\":\""+pipenum+"\", \"onoff\":"+onoff+" }");
-
-	checkapi(api,"OK",api.error);
+	checkapi(vizapi("ffff.set_enablepipeline","{\"pipenum\":\""+pipenum+"\", \"onoff\":"+onoff+" }"));
 }
 
 function edit_pipeline(pipenum) {
-	window.location.href = ("pipeline.html?pipeline="+pipenum);
+	window.location.href = ("pipeline.html?pipenum="+pipenum);
 }
 
-function refreshpipelinefilename() {
-	var api = vizapi("ffff.pipelinefilename");
-	var pipelinefilename = "";
+function refresh_pipeline(pipenum) {
+
+	// Refresh the pipeline filename value
+
+	var api = vizapi("ffff.pipelinefilename","{\"pipenum\":\""+pipenum+"\"}");
 	if ( checkapi(api) ) {
-		pipelinefilename = api.result;
+		var pipeline = api.result;
+		var id = "pipeline_"+pipenum;
+		document.getElementById(id).value = pipeline;
 	}
-	if ( pipelinefilename != "" ) {
-		document.getElementById("pipelinefilename").value = pipelinefilename;
+
+	// Refresh the sidrange value
+
+	api = vizapi("ffff.get_sidrange","{\"pipenum\":\""+pipenum+"\"}");
+	if ( checkapi(api) ) {
+		var sidrange = api.result;
+		var id = "sidrange_"+pipenum;
+		document.getElementById(id).value = sidrange;
+	}
+
+	// Refresh the enabled value
+
+	api = vizapi("ffff.get_enablepipeline","{\"pipenum\":\""+pipenum+"\"}");
+	if ( checkapi(api) ) {
+		enabled = api.result;
+		var id = "enabled_"+pipenum;
+		document.getElementById(id).checked = enabled;
 	}
 }
 dojo.addOnLoad(setup);
@@ -98,9 +206,9 @@ dojo.addOnLoad(setup);
 
 <div id="title">&nbsp;</div>
 <br>
-<div id="ffglpipeline"></div>
-<p>
 <div id="status"></div>
+<br>
+<div id="pipeline_list"></div>
 <p>
 	
 </body>
