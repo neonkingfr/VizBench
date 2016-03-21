@@ -6,11 +6,6 @@
 		"moveable": 0,
 		"vizlet": 1,
 		"vizletdump": [{
-				"method":	"set_sidrange",
-				"params":	{
-					"sidrange":	"11000-11999"
-				}
-			}, {
 				"method":	"set_sprite",
 				"params":	{
 					"paramfile":	"red_triangle"
@@ -27,7 +22,19 @@
 				}
 			}],
 		"params": [
-			{"name":"viztag", "value":"vizbrush" }
+			{"name":"viztag", "value":"0:vizbrush" }
+			]
+	},
+	{
+		"ffglplugin": "Kaleidoscope",
+		"enabled": 1,
+		"moveable": 1,
+		"params": [
+			{"name":"Angles", "value":0.350000 }, 
+			{"name":"Rotation", "value":0.000000 }, 
+			{"name":"Zoom", "value":1.000000 }, 
+			{"name":"Input Rotation", "value":0.000000 }, 
+			{"name":"Black BG", "value":0.000000 }
 			]
 	},
 	{

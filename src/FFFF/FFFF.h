@@ -36,8 +36,6 @@ FF10ParameterDef* findff10param(FF10PluginDef* ff, std::string nm);
 FFGLPluginDef * findffglplugindef(std::string nm);
 FFGLParameterDef* findffglparam(FFGLPluginDef* ff, std::string nm);
 
-void non_of_init(int x, int y, int w, int h);
-
 class FFFF;
 class FFFFHttp;
 struct CvCapture;
@@ -48,16 +46,19 @@ typedef std::vector < FFGLPluginInstance* > FFGLPluginList;
 class FFGLPipeline {
 public:
 	FFGLPipeline() {
-		m_enabled = false;
+		m_pipeline_enabled = false;
 		m_sidmin = 0;
-		m_sidmax = 99999;
+		m_sidmax = MAX_SESSIONID;
 	};
 
 	bool do_ffgl_plugin(FFGLPluginInstance* plugin, int which); // which: 0 = first one, 1 = middle, 2 = last, 3 = one and only one, 4 none
-	bool doPipeline(int window_width, int window_height);
+	void doPipeline(int window_width, int window_height);
 	FFGLPluginInstance* FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string viztag);
+	void paintTexture();
+	void setSidrange(std::string range);
 
 	void clear() {
+		DEBUGPRINT(("FFGLPipeline.clear is called"));
 		for (FFGLPluginList::iterator it = m_pluginlist.begin(); it != m_pluginlist.end(); it++) {
 			DEBUGPRINT1(("--- deleteing FFGLPluginInstance *it=%ld", (long)(*it)));
 			delete *it;
@@ -144,7 +145,7 @@ public:
 	}
 
 	FFGLPluginList m_pluginlist;
-	bool m_enabled;
+	bool m_pipeline_enabled;
 	std::string m_name;
 	int m_sidmin;
 	int m_sidmax;
@@ -183,20 +184,31 @@ public:
 	///////////////////////// FFGL stuff
 
 	std::string FFGLList();
-	std::string FFGLPipelineList(int pipenum, bool only_enabled);
 	std::string FFGLParamVals(FFGLPluginInstance* pi, std::string linebreak);
 	std::string FFGLParamInfo(std::string plugin, std::string param, const char* id);
 
 	// FFGLPluginInstance* FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string viztag);
 
+	FFGLPipeline& Pipeline(int pipenum) {
+		return m_ffglpipeline[pipenum];
+	}
 	// XXX - all the methods here should eventually go into FFGLPipeline
+	std::string FFGLPipelineList(int pipenum, bool only_enabled);
 	FFGLPluginInstance* FFGLFindPluginInstance(int pipenum, std::string viztag);
 	FFGLPluginInstance* FFGLNeedPluginInstance(int pipenum, std::string viztag);
 	std::string			FFGLParamList(std::string nm, const char* id);
 	FFGLPluginInstance* FFGLAddToPipeline(int pipenum, std::string nm, std::string viztag, bool autoenable, cJSON* params);
-	void				FFGLDeleteFromPipeline(int pipenum, std::string viztag);
-	void				FFGLMoveUpInPipeline(int pipenum, std::string viztag);
-	void				FFGLMoveDownInPipeline(int pipenum, std::string viztag);
+
+	// void				FFGLDeleteFromPipeline(int pipenum, std::string viztag);
+	// void				FFGLMoveUpInPipeline(int pipenum, std::string viztag);
+	// void				FFGLMoveDownInPipeline(int pipenum, std::string viztag);
+
+	std::string savePipeline(int pipenum, std::string nm, const char* id);
+	void loadPipeline(int pipenum, std::string configname, bool synthesize);
+	void loadPipelineJson(int pipenum, std::string configname, cJSON* json);
+	void clearPipeline(int pipenum);
+	void doPipeline(int pipenum, int width, int height);
+	bool isPipelineEnabled(int pipenum) { return m_ffglpipeline[pipenum].m_pipeline_enabled; }
 
 	///////////////////////// FF10 stuff
 
@@ -204,6 +216,8 @@ public:
 	std::string FF10PipelineList(int pipenum, bool only_enabled);
 	std::string FF10ParamVals(FF10PluginInstance* pi, std::string linebreak);
 	std::string FF10ParamInfo(std::string plugin, std::string param, const char* id);
+
+	bool doCameraAndFF10Pipeline(int pipenum, bool use_camera, GLuint texturehandle);
 
 	FF10PluginInstance* FF10NewPluginInstance(FF10PluginDef* plugin, std::string viztag);
 	FF10PluginInstance* FF10FindPluginInstance(int pipenum, std::string viztag);
@@ -214,22 +228,13 @@ public:
 
 	void loadAllPluginDefs(std::string ffdir, std::string ffgldir, int w, int h);
 
-	std::string savePipeline(int pipenum, std::string nm, const char* id);
-	void loadPipeline(int pipenum, std::string configname, bool synthesize);
-	void loadPipelineJson(int pipenum, std::string configname, cJSON* json);
-	void clearPipeline(int pipenum);
-	void shufflePipeline(int pipenum);
-
 	void savePipeset(std::string nm);
 	void loadPipeset(std::string nm);
 	void loadPipesetJson(cJSON* json);
 
-	void randomizePipeline(int pipenum);
 	bool initCamera(int camindex);
 	// void setWidthHeight(int w, int h) { _width = w; _height = h; }
 	IplImage* getCameraFrame();
-	bool doCameraAndFF10Pipeline(int pipenum, bool use_camera, GLuint texturehandle);
-	bool doPipeline(int pipenum, int width, int height);
 	void sendSpout(int width, int height);
 	void CheckFPS();
 

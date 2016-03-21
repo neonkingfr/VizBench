@@ -28,6 +28,10 @@ function refresh_all() {
 	if ( checkapi(api) ) {
 		document.getElementById("pipeset").value = api.result;
 	}
+	var api = vizapi("ffff.get_showfps");
+	if ( checkapi(api) ) {
+		document.getElementById("showfps").checked = api.result;
+	}
 	refresh_pipeline(0);
 	refresh_pipeline(1);
 	refresh_pipeline(2);
@@ -51,6 +55,8 @@ function ffff_loadsave() {
 	html += "<input type=\"button\" style=\"width:100px\" value=\"Save\" onClick=\"save_pipeset();\">";
 	html += "</td></tr>";
 	html += "</table>";
+
+	html += "Show FPS: <input type=\"checkbox\" id=\"showfps\" onChange=\"change_showfps();\">";
 	return html;
 }
 
@@ -158,11 +164,16 @@ function change_sidrange(pipenum) {
 	}
 }
 
-
 function enable_pipeline(pipenum) {
 	var enabledid = document.getElementById("enabled_"+pipenum);
 	var onoff = enabledid.checked ? "1" : "0";
 	checkapi(vizapi("ffff.set_enablepipeline","{\"pipenum\":\""+pipenum+"\", \"onoff\":"+onoff+" }"));
+}
+
+function change_showfps() {
+	var id = document.getElementById("showfps");
+	var onoff = id.checked ? "1" : "0";
+	checkapi(vizapi("ffff.set_showfps","{\"onoff\":"+onoff+" }"));
 }
 
 function edit_pipeline(pipenum) {
@@ -193,9 +204,8 @@ function refresh_pipeline(pipenum) {
 
 	api = vizapi("ffff.get_enablepipeline","{\"pipenum\":\""+pipenum+"\"}");
 	if ( checkapi(api) ) {
-		enabled = api.result;
 		var id = "enabled_"+pipenum;
-		document.getElementById(id).checked = enabled;
+		document.getElementById(id).checked = api.result;
 	}
 }
 dojo.addOnLoad(setup);

@@ -368,20 +368,10 @@ FFFF::FF10NewPluginInstance(FF10PluginDef* plugdef, std::string viztag)
 }
 
 void
-FFFF::shufflePipeline(int pipenum)
-{
-	m_ffglpipeline[pipenum].shuffle();
-}
-
-void
-FFFF::randomizePipeline(int pipenum)
-{
-	m_ffglpipeline[pipenum].randomize();
-}
-
-void
 FFFF::clearPipeline(int pipenum)
 {
+	DEBUGPRINT(("CLEARPIPELINE pipenum = %d   viztags=%s",pipenum,m_vizserver->VizTags()));
+
 	// Are we locked, here?
 
 	m_ffglpipeline[pipenum].m_name = "";
@@ -390,11 +380,19 @@ FFFF::clearPipeline(int pipenum)
 		 DEBUGPRINT1(("--- deleting FF10PluginInstance *it=%ld", (long)(*it)));
 		delete *it;
 	}
+
 	m_ff10pipeline[pipenum].clear();
+	DEBUGPRINT(("BEFORE pipeline.clear pipenum = %d   viztags=%s",pipenum,m_vizserver->VizTags()));
 	m_ffglpipeline[pipenum].clear();
+	DEBUGPRINT(("AFTER pipeline.clear pipenum = %d   viztags=%s",pipenum,m_vizserver->VizTags()));
 
 	// Forget all the callbacks
-	m_vizserver->ClearJsonCallbacks();
+
+	DEBUGPRINT(("NOT CLEARING ALL JSON CALLBACKS pipenum = %d   viztags=%s",pipenum,m_vizserver->VizTags()));
+	// m_vizserver->ClearJsonCallbacks();
+	m_vizserver->ClearJsonCallbacksOfPipeline(pipenum);
+	DEBUGPRINT(("AFTER CLEARING pipeline CALLBACKS pipenum = %d   viztags=%s",pipenum,m_vizserver->VizTags()));
+
 	m_vizserver->AddJsonCallback((void*)this,"ffff",FFFF_json,(void*)this);
 }
 
@@ -453,6 +451,10 @@ FFFF::newInstanceName() {
 FFGLPluginInstance*
 FFFF::FFGLAddToPipeline(int pipenum, std::string pluginName, std::string viztag, bool autoenable, cJSON* params) {
 
+	// Prepend pipeline number to viztag
+	viztag = NosuchSnprintf("%d:", pipenum) + viztag;
+	viztag = NosuchToLower(viztag);
+
 	// See if this viztag is already used
 	if (FFGLFindPluginInstance(pipenum,viztag) != NULL) {
 		DEBUGPRINT(("Plugin with viztag '%s' already exists",viztag.c_str()));
@@ -470,6 +472,7 @@ FFFF::FFGLAddToPipeline(int pipenum, std::string pluginName, std::string viztag,
 
 	FFGLPluginInstance* np = pipeline.FFGLNewPluginInstance(plugindef,viztag);
 
+	DEBUGPRINT(("Before changing viztag, viztags=%s",m_vizserver->VizTags()));
 	// If the plugin's first parameter is "viztag", set it
 	int pnum = np->plugindef()->getParamNum("viztag");
 	if ( pnum >= 0 ) {
@@ -478,6 +481,8 @@ FFFF::FFGLAddToPipeline(int pipenum, std::string pluginName, std::string viztag,
 
 	// Add it to the end of the pipeline
 	pipeline.append_plugin(np);
+
+	DEBUGPRINT(("After changing viztag, viztags=%s",m_vizserver->VizTags()));
 
 	if (params) {
 		for (cJSON* pn = params->child; pn != NULL; pn = pn->next) {
@@ -491,7 +496,12 @@ FFFF::FFGLAddToPipeline(int pipenum, std::string pluginName, std::string viztag,
 				throw NosuchException("Missing parameter value");
 			}
 			if (t->type == cJSON_String ) {
-				np->setparam(nm, t->valuestring);
+				if (nm == "viztag") {
+					np->setparam(nm, viztag);
+				}
+				else {
+					np->setparam(nm, t->valuestring);
+				}
 			}
 			else if (t->type == cJSON_Number) {
 				np->setparam(nm, (float)(t->valuedouble));
@@ -557,21 +567,6 @@ FFFF::FF10AddToPipeline(int pipenum, std::string pluginName, std::string viztag,
 	}
 
 	return np;
-}
-
-void
-FFFF::FFGLMoveUpInPipeline(int pipenum, std::string viztag) {
-	m_ffglpipeline[pipenum].moveup(viztag);
-}
-
-void
-FFFF::FFGLMoveDownInPipeline(int pipenum, std::string viztag) {
-	m_ffglpipeline[pipenum].movedown(viztag);
-}
-
-void
-FFFF::FFGLDeleteFromPipeline(int pipenum, std::string viztag) {
-	m_ffglpipeline[pipenum].delete_plugin(viztag);
 }
 
 void
@@ -678,6 +673,7 @@ FFFF::loadPipelineJson(int pipenum, std::string name, cJSON* json) {
 		// If an explicit viztag isn't given, use plugin name
 		const char* name = plugin->valuestring;
 		std::string viztag = jsonNeedString(p, "viztag", name);
+
 		bool enabled = jsonNeedBool(p, "enabled", true);  // optional, default is 1 (true)
 		bool moveable = jsonNeedBool(p, "moveable", true);  // optional, default is 1 (true)
 		cJSON* params = jsonGetArray(p, "params");  // optional, params can be NULL
@@ -688,7 +684,9 @@ FFFF::loadPipelineJson(int pipenum, std::string name, cJSON* json) {
 		// XXX - someday there should be a base class for both
 		// FFGL and FF10 plugins
 		if (plugintype == "ffgl") {
+			DEBUGPRINT(("Before FFGLAddToPipeline VizTags=%s",m_vizserver->VizTags()));
 			FFGLPluginInstance* pi = FFGLAddToPipeline(pipenum, name, viztag, enabled, params);
+			DEBUGPRINT(("After FFGLAddToPipeline VizTags=%s",m_vizserver->VizTags()));
 			if (!pi) {
 				DEBUGPRINT(("Unable to add plugin=%s", name));
 				continue;
@@ -721,7 +719,7 @@ FFFF::loadPipelineJson(int pipenum, std::string name, cJSON* json) {
 					throw NosuchException("No params value in vizletdump?");
 				}
 				DEBUGPRINT1(("Pipeline load meth=%s params=%s", meth.c_str(),cJSON_PrintUnformatted(params)));
-				std::string fullmethod = std::string(name) + "." + meth;
+				std::string fullmethod = NosuchSnprintf("%d:%s.%s",pipenum,name,meth.c_str());
 				const char* s = m_vizserver->ProcessJson(fullmethod.c_str(), params, "12345");
 			}
 		}
@@ -856,10 +854,80 @@ FFFF::doCameraAndFF10Pipeline(int pipenum, bool use_camera, GLuint texturehandle
 	return true;
 }
 
-bool
+void
 FFFF::doPipeline(int pipenum, int width, int height)
 {
-	return m_ffglpipeline[pipenum].doPipeline(width, height);
+	m_ffglpipeline[pipenum].doPipeline(width, height);
+}
+
+void
+FFGLPipeline::setSidrange(std::string sidrange) {
+	int sidmin, sidmax;
+	if (sscanf(sidrange.c_str(), "%d-%d", &sidmin, &sidmax) != 2) {
+		throw NosuchException("Invalid format of sidrange: %s", sidrange.c_str());
+	}
+	m_sidmin = sidmin;
+	m_sidmax = sidmax;
+
+	// Now go through all the vizlets in the pipeline, and set the sidrange within them
+
+	VizServer* viz = VizServer::GetServer();
+	FFGLPluginList& ffglplugins = m_pluginlist;
+	for (FFGLPluginList::iterator it = ffglplugins.begin(); it != ffglplugins.end(); it++) {
+		FFGLPluginInstance* p = *it;
+		bool isvizlet = viz->IsVizlet(p->viztag().c_str());
+		if (!isvizlet) {
+			continue;
+		}
+
+		// This code just blindly calls a set_sidrange method on every vizlet.
+
+		std::string fullmethod = NosuchSnprintf("%s.set_sidrange",p->viztag().c_str());
+		std::string jsonstr = NosuchSnprintf("{ \"sidrange\": \"%d-%d\" }", m_sidmin, m_sidmax);
+		cJSON* params = cJSON_Parse(jsonstr.c_str());
+		if (!params) {
+			throw NosuchException("Internal error in parsing sidrange json!?");
+		}
+		std::string s = viz->ProcessJson(fullmethod.c_str(), params, "12345");
+		DEBUGPRINT1(("result of set_sidrange=%s",s.c_str()));
+		// XXX - should really check the result for success (or missing api), here.
+		cJSON_free(params);
+	}
+}
+
+void
+FFGLPipeline::paintTexture() {
+
+	FFGLTexCoords maxCoords = GetMaxGLTexCoords(m_texture);
+
+	//bind the texture handle
+	glBindTexture(GL_TEXTURE_2D, m_texture.Handle);
+	
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	glEnable(GL_TEXTURE_2D);
+	
+	// glColor4f(0.0,0.0,1.0,0.5);
+	glColor4f(1.0, 1.0, 1.0, 0.5);
+	glLineWidth((GLfloat)10.0f);
+	
+	glBegin(GL_QUADS);
+	glTexCoord2d(0.0, maxCoords.t);
+	glVertex3f(-1.0f, 1.0f, 0.0f);	// Top Left
+	
+	glTexCoord2d(maxCoords.s, maxCoords.t);
+	glVertex3f(1.0f, 1.0f, 0.0f);	// Top Right
+	
+	glTexCoord2d(maxCoords.s, 0.0);
+	glVertex3f(1.0f, -1.0f, 0.0f);	// Bottom Right
+	
+	glTexCoord2d(0.0, 0.0);
+	glVertex3f(-1.0f, -1.0f, 0.0f);	// Bottom Left
+	
+	glEnd();
+	
+	glDisable(GL_TEXTURE_2D);
 }
 
 void
@@ -880,12 +948,12 @@ FFFF::sendSpout(int width, int height) {
 	}
 }
 
-bool
+void
 FFGLPipeline::doPipeline(int window_width, int window_height)
 {
-	// FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
-	// FFGLPluginList& ffglplugins = pipeline.m_pluginlist;
-
+	if ( ! m_pipeline_enabled ) {
+		return;
+	}
 	FFGLPluginInstance* lastplugin = NULL;
 	FFGLPluginInstance* firstplugin = NULL;
 	int num_ffgl_active = 0;
@@ -1008,22 +1076,12 @@ FFGLPipeline::doPipeline(int window_width, int window_height)
 	}
 #endif
 
-	// // Copy screen into m_texture
-	// glBindTexture(GL_TEXTURE_2D, pipeline.m_texture.Handle);
-	// glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, window_width, window_height);
-	// glBindTexture(GL_TEXTURE_2D, 0);
+	// Copy screen into m_texture
+	glBindTexture(GL_TEXTURE_2D, m_texture.Handle);
+	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, window_width, window_height);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
-#ifdef NOMORERELEASE
-	if ( camframe != NULL ) {
-		DEBUGPRINT(("---- RELEASE m_img_into_pipeline %d", (long)m_img_into_pipeline));
-		cvReleaseImage(&m_img_into_pipeline);
-	} else {
-		DEBUGPRINT(("---- RELEASE m_img_into_pipeline %d", (long)m_img_into_pipeline));
-		cvReleaseImage(&m_img_into_pipeline);
-	}
-#endif
-
-	return true;
+	return;
 }
 
 std::string FFFF::FF10List() {
@@ -1278,11 +1336,12 @@ std::string FFFF::savePipeline(int pipenum, std::string fname, const char* id)
 		FFGLPluginInstance* p = *it;
 		f << sep;
 		f << "\t{\n";
-		f << "\t\t\"ffglplugin\": \"" + (*it)->viztag() + "\",\n";
-		f << "\t\t\"enabled\": " + std::string((*it)->isEnabled()?"1":"0") + ",\n";
-		f << "\t\t\"moveable\": " + std::string((*it)->isMoveable()?"1":"0") + ",\n";
-		if (m_vizserver->IsVizlet((*it)->viztag().c_str())) {
-			std::string name = (*it)->viztag();
+		// f << "\t\t\"ffglplugin\": \"" + p->viztag() + "\",\n";
+		f << "\t\t\"ffglplugin\": \"" + p->plugindef()->GetPluginName() + "\",\n";
+		f << "\t\t\"enabled\": " + std::string(p->isEnabled()?"1":"0") + ",\n";
+		f << "\t\t\"moveable\": " + std::string(p->isMoveable()?"1":"0") + ",\n";
+		if (m_vizserver->IsVizlet(p->viztag().c_str())) {
+			std::string name = p->viztag();
 			f << "\t\t\"vizlet\": " + std::string(m_vizserver->IsVizlet(name.c_str()) ? "1" : "0") + ",\n";
 
 			std::string fullmethod = name + "." + "dump";
@@ -1294,12 +1353,15 @@ std::string FFFF::savePipeline(int pipenum, std::string fname, const char* id)
 			std::string result = jsonNeedString(json, "result","");
 			// The result should be a big long json value.  We want to pretty-print it.
 			cJSON* prettyj = cJSON_Parse(result.c_str());
+			if (prettyj == NULL) {
+				throw NosuchException("Bad format of json result!? result = %s", result.c_str());
+			}
 			const char* prettys = cJSON_Print(prettyj);
 			f << "\t\t\"vizletdump\": " + NosuchReplaceAll(prettys,"\n","\n\t\t") + ",\n";
 			cJSON_free((void*)prettys);
 			jsonFree(json);
 		}
-		f << "\t\t\"params\": " + FFGLParamVals(*it,"\n\t\t\t") + "\n";
+		f << "\t\t\"params\": " + FFGLParamVals(p,"\n\t\t\t") + "\n";
 		f << "\t}";
 		sep = ",\n";
 	}
@@ -1333,7 +1395,7 @@ void FFFF::savePipeset(std::string fname)
 		f << sep;
 		f << "\t{\n";
 		f << "\t\t\"pipeline\": \"" << pipeline.m_name << "\",\n";
-		f << "\t\t\"enabled\": " << pipeline.m_enabled << ",\n";
+		f << "\t\t\"enabled\": " << pipeline.m_pipeline_enabled << ",\n";
 		f << "\t\t\"sidrange\": \"" << pipeline.m_sidmin << "-" << pipeline.m_sidmax << "\"\n";
 		f << "\t}";
 		sep = ",\n";
@@ -1388,11 +1450,14 @@ FFFF::loadPipesetJson(cJSON* json)
 		throw NosuchException("Number of pipelines in pipeset is %d - expected %d", npipelines, NPIPELINES);
 	}
 
+	DEBUGPRINT(("BEFORE LOADING ANY PIPELINES, VizTags=%s",m_vizserver->VizTags()));
 	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
 
+		DEBUGPRINT(("AAA PIPELINE %d, VizTags=%s",pipenum,m_vizserver->VizTags()));
 		FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
 
 		clearPipeline(pipenum);
+		DEBUGPRINT(("BBB PIPELINE %d, VizTags=%s",pipenum,m_vizserver->VizTags()));
 
 		cJSON *p = cJSON_GetArrayItem(pipeset, pipenum);
 		NosuchAssert(p);
@@ -1403,18 +1468,17 @@ FFFF::loadPipesetJson(cJSON* json)
 		std::string name = jsonNeedString(p, "pipeline");
 		bool enabled = jsonNeedBool(p, "enabled");
 		std::string sidrange = jsonNeedString(p, "sidrange");
-		int sidmin, sidmax;
-		if (sscanf(sidrange.c_str(), "%d-%d", &sidmin, &sidmax) != 2) {
-			throw NosuchException("Invalid format of sidrange: %s", sidrange.c_str());
-		}
-		pipeline.m_sidmin = sidmin;
-		pipeline.m_sidmax = sidmax;
+
 		pipeline.m_name = name;
-		pipeline.m_enabled = enabled;
-		DEBUGPRINT(("Set pipenum=%d enabled to %d",pipenum,m_ffglpipeline[pipenum].m_enabled));
+		pipeline.m_pipeline_enabled = enabled;
+		DEBUGPRINT(("Set pipenum=%d enabled to %d",pipenum,m_ffglpipeline[pipenum].m_pipeline_enabled));
+		DEBUGPRINT(("BEFORE LOADING PIPELINE %d, VizTags=%s",pipenum,m_vizserver->VizTags()));
 		if (name != "") {
 			loadPipeline(pipenum, name, true);
+			pipeline.setSidrange(sidrange);
 		}
+		DEBUGPRINT(("AFTER LOADING PIPELINE %d, VizTags=%s",pipenum,m_vizserver->VizTags()));
+
 	}
 }
 
@@ -1441,20 +1505,22 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 			"ff10pipeline;"
 			"ffglplugins;"
 			"ff10plugins;"
-			"fps(onoff);"
 			"record(onoff);"
 			"audio(onoff);"
 			"moveup(viztag);"
 			"movedown(viztag);"
 			"shufflepipeline;"
 			"randomizepipeline;"
+			"set_fps(onoff);"
 			, id);
 	}
 	// DEBUGPRINT(("FFFF api = %s", meth.c_str()));
+#if 0
 	if (meth == "fps") {
 		m_showfps = jsonNeedBool(params, "onoff");
 		return jsonOK(id);
 	}
+#endif
 	if (meth == "audio") {
 		bool onoff = jsonNeedBool(params, "onoff",true);
 		if (m_audiohost == NULL) {
@@ -1590,6 +1656,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 
 	// Many of the methods below take pipenum, so grab it up front
 	int pipenum = jsonNeedInt(params, "pipenum", 0);
+	FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
 
 	if (meth == "add" || meth == "ffgladd") {
 		std::string plugin = jsonNeedString(params, "plugin");
@@ -1664,27 +1731,26 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		throw NosuchException("No such viztag: %s",viztag.c_str());
 	}
 	if ( meth == "delete" ) {
-		// It's okay if viztag doesn't exist, so don't use needFFGLPluginInstance
-		std::string viztag = jsonNeedString(params,"viztag");
-		FFGLDeleteFromPipeline(pipenum,viztag);
+		// It's okay if viztag doesn't exist
+		pipeline.delete_plugin(jsonNeedString(params,"viztag"));
 		return jsonOK(id);
 	}
 	if ( meth == "moveup" ) {
-		// It's okay if viztag doesn't exist, so don't use needFFGLPluginInstance
-		FFGLMoveUpInPipeline(pipenum,jsonNeedString(params,"viztag"));
+		// It's okay if viztag doesn't exist
+		pipeline.moveup(jsonNeedString(params,"viztag"));
 		return jsonOK(id);
 	}
 	if ( meth == "movedown" ) {
-		// It's okay if viztag doesn't exist, so don't use needFFGLPluginInstance
-		FFGLMoveDownInPipeline(pipenum,jsonNeedString(params,"viztag"));
+		// It's okay if viztag doesn't exist
+		pipeline.movedown(jsonNeedString(params,"viztag"));
 		return jsonOK(id);
 	}
 	if (meth == "shufflepipeline") {
-		shufflePipeline(pipenum);
+		pipeline.shuffle();
 		return jsonOK(id);
 	}
 	if (meth == "randomizepipeline") {
-		randomizePipeline(pipenum);
+		pipeline.randomize();
 		return jsonOK(id);
 	}
 	if ( meth == "clearpipeline" ) {
@@ -1808,13 +1874,11 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		return savePipeline(pipenum,fname,id);
 	}
 	if ( meth == "set_enablepipeline" ) {
-		m_ffglpipeline[pipenum].m_enabled = jsonNeedBool(params, "onoff", true);
-		DEBUGPRINT(("set_enabledpipeline pipenum=%d enabled to %d",pipenum,m_ffglpipeline[pipenum].m_enabled));
+		m_ffglpipeline[pipenum].m_pipeline_enabled = jsonNeedBool(params, "onoff", true);
 		return jsonOK(id);
 	}
 	if ( meth == "get_enablepipeline" ) {
-		DEBUGPRINT(("get_enabledpipeline pipenum=%d enabled = %d",pipenum,m_ffglpipeline[pipenum].m_enabled));
-		return jsonIntResult(m_ffglpipeline[pipenum].m_enabled, id);
+		return jsonIntResult(m_ffglpipeline[pipenum].m_pipeline_enabled, id);
 	}
 	if (meth == "get_pipeset") {
 		std::string s = m_pipeset_filename;
@@ -1835,6 +1899,13 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		std::string fname =  jsonNeedString(params,"filename");
 		savePipeset(fname);
 		return jsonOK(id);
+	}
+	if ( meth == "set_showfps" ) {
+		m_showfps = jsonNeedBool(params, "onoff", true);
+		return jsonOK(id);
+	}
+	if ( meth == "get_showfps" ) {
+		return jsonIntResult(m_showfps,id);
 	}
 	if (meth == "pipelinefilename") {
 		std::string s = m_ffglpipeline[pipenum].m_name;

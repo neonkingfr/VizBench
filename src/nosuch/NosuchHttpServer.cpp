@@ -145,7 +145,7 @@ NosuchSocketConnection::CollectPostData(std::string data) {
 	m_data += data;
 	DEBUGPRINT1(("Collected data source=%s, _data (_content_leng=%d dataleng=%d) is now=((%s))\n", _source.c_str(), m_content_length, m_data.length(), m_data.c_str()));
 	const char *dd = m_data.c_str();
-	if (*dd != '{') {
+	if (*dd != '\0' && *dd != '{') {
 		DEBUGPRINT(("Hey, Data doesn't being with curly! source=%s\n", _source.c_str()));
 	}
 	if (m_data.length() >= m_content_length) {

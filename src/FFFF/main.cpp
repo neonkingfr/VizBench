@@ -239,11 +239,22 @@ int ffffMain(std::string pipelinename[4], bool fullscreen)
 			int width, height;
 			glfwGetFramebufferSize(F->window, &width, &height);
 
-			int pipenum = 0;
+			for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
+				if (F->isPipelineEnabled(pipenum)) {
+					F->doCameraAndFF10Pipeline(pipenum, use_camera, mapTexture.Handle);
+					F->doPipeline(pipenum, width, height);
+				}
+			}
 
-			F->doCameraAndFF10Pipeline(pipenum, use_camera, mapTexture.Handle);
+			for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
+				if (!F->isPipelineEnabled(pipenum)) {
+					continue;
+				}
+				FFGLPipeline& pipeline = F->Pipeline(pipenum);
 
-			F->doPipeline(pipenum, width, height);
+				pipeline.paintTexture();
+			}
+
 
 			F->sendSpout(width, height);
 

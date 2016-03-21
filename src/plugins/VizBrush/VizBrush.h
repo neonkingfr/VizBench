@@ -33,7 +33,7 @@ private:
 	public:
 		Region() {
 			sid_min = 0;
-			sid_max = 99999;
+			sid_max = MAX_SESSIONID;
 			spriteparamfile = "default";
 			midiparamfile = "default";
 			spriteparams = NULL;

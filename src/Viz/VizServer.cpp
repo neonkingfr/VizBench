@@ -90,8 +90,10 @@ public:
 		for (char* s = m_apiprefix; *s; s++) {
 			*s = tolower(*s);
 		}
+		DEBUGPRINT(("NEW VIZSERVER API CALLBACK"));
 	}
 	virtual ~VizServerApiCallback() {
+		DEBUGPRINT(("DELETING VIZSERVER API CALLBACK"));
 		free((void*)m_apiprefix);
 	}
 	void* m_cb;
@@ -148,7 +150,16 @@ public:
 	VizServerApiCallbackMap() {
 	}
 	void ClearCallbacks() {
+		DEBUGPRINT(("VIZSERVER API CALLBACK IS BEING CLEARED!"));
 		this->clear();
+	}
+	void ClearCallbacksWithPrefix(std::string prefix) {
+		DEBUGPRINT(("ClearCallbacksWithPrefix prefix=%s", prefix.c_str()));
+		VizServerApiCallback* cb;
+		while ((cb = findprefix(prefix)) != NULL) {
+			removecallback(cb->m_cb);
+		}
+		// this->clear();
 	}
 	void addcallback(void* handle, const char* apiprefix, void* cb, void* data) {
 		DEBUGPRINT(("VizServerApiCallbackMap addcallback handle=%ld prefix=%s", (long)handle, apiprefix));
@@ -165,6 +176,7 @@ public:
 		DEBUGPRINT1(("VizServerApiCallbackMap inserted handle=%ld size=%d", (long)handle, size()));
 	}
 	void removecallback(void* handle) {
+		DEBUGPRINT(("API CALLBACKMAP removecallback handle=%ld",(long)handle));
 		if (count(handle) == 0) {
 			DEBUGPRINT(("Hey! VizServercallbackMap::removecallback didn't find existing callback for handle=%ld", (long)handle));
 			return;
@@ -204,6 +216,7 @@ public:
 			DEBUGPRINT(("Hey! VizServercallbackMap::ChangeVizTag didn't find existing callback for handle=%ld", (long)handle));
 			return;
 		}
+		DEBUGPRINT(("ChangeVizTag handle=%ld  viztag=%s",(long)handle,viztag));
 		VizServerApiCallback* sscb = (*this)[handle];
 		// Should we free prefix?  I tried freeing it in the destructor
 		// of ApiFilter, and it corrupted the heap, so I'm leary.
@@ -312,7 +325,11 @@ public:
 	void ClearCallbacks() {
 		m_callbacks.ClearCallbacks();
 	}
+	void ClearCallbacksWithPrefix(std::string prefix) {
+		m_callbacks.ClearCallbacksWithPrefix(prefix);
+	}
 	void AddJsonCallback(void* handle, const char* apiprefix, jsoncallback_t cb, void* data) {
+		DEBUGPRINT(("AddJsonCallback apiprefix=%s",apiprefix));
 		const char* existing = m_callbacks.VizTags();
 		m_callbacks.addcallback(handle, apiprefix, (void*)cb, data);
 	}
@@ -425,6 +442,7 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 				"set_midioutput(index);"
 				"set_debugapi(onoff);"
 				"set_debughttp(onoff);"
+				"set_showfps(onoff);"
 				"toggledebug", id);
 		}
 		if (api == "description") {
@@ -910,6 +928,9 @@ VizServer::VizServer() {
 	m_errorCallback = NULL;
 	m_errorCallbackData = NULL;
 
+	m_sidmin = 0;
+	m_sidmax = MAX_SESSIONID;
+
 	VizParams::Initialize();
 
 	m_started = false;
@@ -1016,6 +1037,12 @@ void VizServer::_checkCursorUp() {
 			i++;
 		}
 	}
+}
+
+void
+VizServer::SetSidrange(int sidmin, int sidmax) {
+	m_sidmin = sidmin;
+	m_sidmax = sidmax;
 }
 
 void
@@ -1573,6 +1600,13 @@ VizServer::ChangeVizTag(void* handle, const char* p) {
 void
 VizServer::ClearJsonCallbacks() {
 	m_jsonprocessor->ClearCallbacks();
+	_setMaxCallbacks();
+}
+
+void
+VizServer::ClearJsonCallbacksOfPipeline(int pipenum) {
+	std::string prefix = NosuchSnprintf("%d:", pipenum);
+	m_jsonprocessor->ClearCallbacksWithPrefix(prefix);
 	_setMaxCallbacks();
 }
 

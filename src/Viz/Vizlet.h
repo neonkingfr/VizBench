@@ -46,9 +46,15 @@ public:
 	Vizlet();
 	virtual ~Vizlet();
 
-	std::string VizTag() { return m_viztag; }
-	void SetVizTag(std::string s) {
-		m_viztag = NosuchToLower(s);
+	char* VizTag() { return m_viztag; }
+	void SetVizTag(const char* s) {
+		m_viztag = _strdup(s);
+		for (char* p = m_viztag; *p; p++) {
+			if (*p >= 'A' && *p <= 'Z') {
+				*p = _tolower(*p);
+			}
+		}
+		DEBUGPRINT(("Vizlet::SetVizTag m_viztag is now %s",m_viztag));
 	}
 	VizSprite* makeAndInitVizSprite(SpriteVizParams* sp, NosuchPos pos);
 	VizSprite* makeAndAddVizSprite(SpriteVizParams* sp, NosuchPos pos);
@@ -258,7 +264,7 @@ private:
 	bool m_connected;
 	VizServer* m_vizserver;
 	bool m_callbacksInitialized;
-	std::string m_viztag;
+	char* m_viztag;
 	VizSpriteList* m_spritelist;
 	SpriteVizParams* m_defaultparams;
 	SpriteVizParams* m_defaultmidiparams;

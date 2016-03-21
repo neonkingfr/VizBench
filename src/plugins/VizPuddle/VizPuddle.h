@@ -34,7 +34,7 @@ private:
 		Region(std::string nm) {
 			name = nm;
 			sid_min = 0;
-			sid_max = 99999;
+			sid_max = MAX_SESSIONID;
 			spriteparamfile = "default_" + nm;
 			midiparamfile = "default_" + nm;
 			spriteparams = NULL;

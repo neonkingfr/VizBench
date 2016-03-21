@@ -225,19 +225,6 @@ FFFF::FFGLinit2(int ffgl_width, int ffgl_height)
         return 0;
     }
 
-    //instantiate the first plugin with the FBO viewport
-    // fboViewport.x = 0;
-    // fboViewport.y = 0;
-    // fboViewport.width = fboWidth;
-    // fboViewport.height = fboHeight;
-
-    // //instantiate the second plugin with the output window
-    // //viewport
-    // windowViewport.x = 0;
-    // windowViewport.y = 0;
-    // windowViewport.width = ffgl_width;
-    // windowViewport.height = ffgl_height;
-
     //allocate a texture for the map
     mapTexture = CreateOpenGLTexture(fboWidth,fboHeight);
     if (mapTexture.Handle==0)

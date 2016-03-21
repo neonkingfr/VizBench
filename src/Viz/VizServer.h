@@ -56,6 +56,8 @@ typedef void (*clickcallback_t)(void* data,int clicks);
 #define CURSOR_Z_UNSET (-1.0f)
 #define CURSOR_AREA_UNSET (-1.0f)
 
+#define MAX_SESSIONID 99999
+
 class KeystrokeListener {
 public:
 	virtual void processKeystroke(int key, int downup) {
@@ -191,10 +193,12 @@ public:
 	const char *VizTags();
 	void ChangeVizTag(void* handle, const char* newtag);
 	void AdvanceCursorTo(VizCursor* c, double tm);
+	void SetSidrange(int sidmin, int sidmax);
 
 	void SetErrorCallback(ErrorCallbackFuncType cb, void* data);
 
 	void ClearJsonCallbacks();
+	void ClearJsonCallbacksOfPipeline(int pipenum);
 	void AddJsonCallback(void* handle, const char* apiprefix, jsoncallback_t cb, void* data);
 	void AddMidiInputCallback(void* handle, MidiFilter mf, midicallback_t cb, void* data);
 	void AddMidiOutputCallback(void* handle, MidiFilter mf, midicallback_t cb, void* data);
@@ -338,6 +342,9 @@ private:
 	int m_maxcallbacks;
 	int m_mmtt_seqnum;
 	double m_time;
+
+	int m_sidmin;	// These values specify the current
+	int m_sidmax;	// cursor session ID range to pay attention to
 
 	pthread_mutex_t _vizserver_mutex;
 

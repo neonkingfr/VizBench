@@ -171,7 +171,7 @@ Vizlet::Vizlet() {
 	// The most common reason for being disabled at this point
 	// is when the config JSON file can't be parsed.
 	if (m_disabled) {
-		DEBUGPRINT(("WARNING! Vizlet (viztag=%s) has been disabled!", VizTag().c_str()));
+		DEBUGPRINT(("WARNING! Vizlet (viztag=%s) has been disabled!", VizTag()));
 	}
 
 	SetTimeSupported(false);
@@ -180,22 +180,21 @@ Vizlet::Vizlet() {
 	SetMaxInputs(1);
 
 	// const char* defviztag = vizlet_name().c_str();
-	const char* defviztag = "";
+	m_viztag = _strdup("");
 
 	extern bool g_constructingPrototype;
 	if ( ! g_constructingPrototype ) {
 		// init API callback, so things like
 		// restoring a dump can occur early on
-		defviztag = vizlet_name().c_str();
-		_startApiCallbacks(defviztag, (void*)this);
+		_startApiCallbacks(m_viztag, (void*)this);
 	}
 
-	SetParamInfo(0, "viztag", FF_TYPE_TEXT, defviztag);
+	SetParamInfo(0, "viztag", FF_TYPE_TEXT, m_viztag);
 }
 
 Vizlet::~Vizlet()
 {
-	DEBUGPRINT1(("=== Vizlet destructor is called viztag=%s", m_viztag.c_str()));
+	DEBUGPRINT1(("=== Vizlet destructor is called viztag=%s", m_viztag));
 	_stopstuff();
 }
 
@@ -239,7 +238,7 @@ DWORD Vizlet::SetParameter(const SetParameterStruct* pParam) {
 DWORD Vizlet::GetParameter(DWORD n) {
 	switch ( n ) {
 	case 0:		// shape
-		return (DWORD)(VizTag().c_str());
+		return (DWORD)(VizTag());
 	}
 	return FF_FAIL;
 }
@@ -248,9 +247,12 @@ char* Vizlet::GetParameterDisplay(DWORD n)
 {
 	switch ( n ) {
 	case 0:
-	    strncpy_s(m_disp,DISPLEN,VizTag().c_str(),VizTag().size());
-	    m_disp[DISPLEN-1] = 0;
-		return m_disp;
+		{
+			char* p = VizTag();
+			strncpy_s(m_disp, DISPLEN, p, strlen(p));
+			m_disp[DISPLEN - 1] = 0;
+			return m_disp;
+		}
 	}
 	return "";
 }

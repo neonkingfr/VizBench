@@ -83,7 +83,7 @@ std::string VizBrush::processJson(std::string meth, cJSON *json, const char *id)
 
 	if (meth == "apis") {
 		std::string apis = "";
-		apis += "set_sidrange(range);";
+		// We don't show set_sidrange, because we don't want it to show up in any auto-generated UIs
 		apis += "set_sprite(paramfile);";
 		apis += "set_midi(paramfile);";
 		apis += "set_looping(onoff);";
@@ -99,10 +99,14 @@ std::string VizBrush::processJson(std::string meth, cJSON *json, const char *id)
 
 	if (meth == "dump") {
 		std::string dump = "[";
-		dump += NosuchSnprintf("{\"method\":\"set_sidrange\",\"params\":{\"sidrange\":\"%d-%d\"}}", _region->sid_min, _region->sid_max);
-		dump += NosuchSnprintf(",{\"method\":\"set_sprite\",\"params\":{\"paramfile\":\"%s\"}}", _region->spriteparamfile.c_str());
+
+		dump += NosuchSnprintf("{\"method\":\"set_sprite\",\"params\":{\"paramfile\":\"%s\"}}", _region->spriteparamfile.c_str());
 		dump += NosuchSnprintf(",{\"method\":\"set_midi\",\"params\":{\"paramfile\":\"%s\"}}", _region->midiparamfile.c_str());
 		dump += NosuchSnprintf(",{\"method\":\"set_looping\",\"params\":{\"onoff\":\"%d\"}}", _region->m_looping);
+
+		// Don't dump the sidrange value - it's set from FFF via API
+		// dump += NosuchSnprintf(",{\"method\":\"set_sidrange\",\"params\":{\"sidrange\":\"%d-%d\"}}", _region->sid_min, _region->sid_max);
+
 		dump += "]";
 		return jsonStringResult(dump, id);
 	}
@@ -113,10 +117,16 @@ std::string VizBrush::processJson(std::string meth, cJSON *json, const char *id)
 	if (meth == "set_sidrange") {
 		result = _set_sidrange(_region, json, id);
 	}
-	if (meth == "get_sidrange") { result = jsonStringResult(NosuchSnprintf("%d-%d", _region->sid_min, _region->sid_max), id); }
+	if (meth == "get_sidrange") {
+		result = jsonStringResult(NosuchSnprintf("%d-%d", _region->sid_min, _region->sid_max), id);
+	}
 
-	if (meth == "set_sprite") { result = _set_region_spriteparams(_region, json, id); }
-	if (meth == "get_sprite") { result = jsonStringResult(_region->spriteparamfile, id); }
+	if (meth == "set_sprite") {
+		result = _set_region_spriteparams(_region, json, id);
+	}
+	if (meth == "get_sprite") {
+		result = jsonStringResult(_region->spriteparamfile, id);
+	}
 
 	if (meth == "set_midi") { result = _set_region_midiparams(_region, json, id); }
 	if (meth == "get_midi") { result = jsonStringResult(_region->midiparamfile, id); }
@@ -549,7 +559,7 @@ VizBrush::_set_looping(VizBrush::Region* r, cJSON* json, const char* id)
 		// Clear everything scheduled for this region
 		ScheduleClear();
 	}
-	DEBUGPRINT(("Looping is set to %d",b));
+	DEBUGPRINT1(("Looping is set to %d",b));
 	return jsonOK(id);
 }
 
