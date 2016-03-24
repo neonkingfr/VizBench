@@ -7,16 +7,16 @@
 	},
 	{
 		"pipeline": "brush_two.json",
-		"enabled": 0,
+		"enabled": 1,
 		"sidrange": "12000-12999"
 	},
 	{
-		"pipeline": "brush_three",
+		"pipeline": "brush_three.json",
 		"enabled": 0,
 		"sidrange": "13000-13999"
 	},
 	{
-		"pipeline": "brush_four",
+		"pipeline": "brush_four.json",
 		"enabled": 0,
 		"sidrange": "14000-14999"
 	}

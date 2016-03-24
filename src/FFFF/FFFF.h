@@ -67,7 +67,8 @@ public:
 	}
 	FFGLPluginInstance* find_plugin(std::string viztag) {
 		for (FFGLPluginList::iterator it = m_pluginlist.begin(); it != m_pluginlist.end(); it++) {
-			if (viztag == (*it)->viztag()) {
+			FFGLPluginInstance* p = *it;
+			if (viztag == p->viztag()) {
 				return *it;
 			}
 		}
@@ -181,13 +182,13 @@ public:
 	std::string executeJsonAndCatchExceptions(const std::string meth, cJSON *params, const char* id);
 	std::string executeJson(const std::string meth, cJSON *params, const char* id);
 
+	void parseVizTag(std::string viztag, int& pipenum, std::string& vtag);
+
 	///////////////////////// FFGL stuff
 
 	std::string FFGLList();
 	std::string FFGLParamVals(FFGLPluginInstance* pi, std::string linebreak);
 	std::string FFGLParamInfo(std::string plugin, std::string param, const char* id);
-
-	// FFGLPluginInstance* FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string viztag);
 
 	FFGLPipeline& Pipeline(int pipenum) {
 		return m_ffglpipeline[pipenum];
@@ -199,12 +200,8 @@ public:
 	std::string			FFGLParamList(std::string nm, const char* id);
 	FFGLPluginInstance* FFGLAddToPipeline(int pipenum, std::string nm, std::string viztag, bool autoenable, cJSON* params);
 
-	// void				FFGLDeleteFromPipeline(int pipenum, std::string viztag);
-	// void				FFGLMoveUpInPipeline(int pipenum, std::string viztag);
-	// void				FFGLMoveDownInPipeline(int pipenum, std::string viztag);
-
 	std::string savePipeline(int pipenum, std::string nm, const char* id);
-	void loadPipeline(int pipenum, std::string configname, bool synthesize);
+	void loadPipeline(int pipenum, std::string configname, bool synthesize, std::string sidrange);
 	void loadPipelineJson(int pipenum, std::string configname, cJSON* json);
 	void clearPipeline(int pipenum);
 	void doPipeline(int pipenum, int width, int height);

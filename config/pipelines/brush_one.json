@@ -22,12 +22,12 @@
 				}
 			}],
 		"params": [
-			{"name":"viztag", "value":"0:vizbrush" }
+			{"name":"vtag", "value":"vizbrushxxx" }
 			]
 	},
 	{
 		"ffglplugin": "Kaleidoscope",
-		"enabled": 1,
+		"enabled": 0,
 		"moveable": 1,
 		"params": [
 			{"name":"Angles", "value":0.350000 }, 

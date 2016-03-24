@@ -83,22 +83,25 @@ using namespace std;
 
 class VizServerApiCallback {
 public:
-	VizServerApiCallback(const char* apiprefix, void* cb, void* data) {
+	VizServerApiCallback(const char* viztag, void* cb, void* data) {
 		m_cb = cb;
 		m_data = data;
-		m_apiprefix = _strdup(apiprefix);
-		for (char* s = m_apiprefix; *s; s++) {
-			*s = tolower(*s);
-		}
-		DEBUGPRINT(("NEW VIZSERVER API CALLBACK"));
+		setViztag(viztag);
+		DEBUGPRINT1(("NEW VIZSERVER API CALLBACK"));
 	}
 	virtual ~VizServerApiCallback() {
-		DEBUGPRINT(("DELETING VIZSERVER API CALLBACK"));
-		free((void*)m_apiprefix);
+		DEBUGPRINT1(("DELETING VIZSERVER API CALLBACK"));
+		free((void*)m_viztag);
+	}
+	void setViztag(const char* viztag) {
+		m_viztag = _strdup(viztag);
+		for (char* s = m_viztag; *s; s++) {
+			*s = tolower(*s);
+		}
 	}
 	void* m_cb;
 	void* m_data;
-	char* m_apiprefix;
+	char* m_viztag;
 };
 
 class VizServerCursorCallback {
@@ -154,7 +157,7 @@ public:
 		this->clear();
 	}
 	void ClearCallbacksWithPrefix(std::string prefix) {
-		DEBUGPRINT(("ClearCallbacksWithPrefix prefix=%s", prefix.c_str()));
+		DEBUGPRINT1(("ClearCallbacksWithPrefix prefix=%s", prefix.c_str()));
 		VizServerApiCallback* cb;
 		while ((cb = findprefix(prefix)) != NULL) {
 			removecallback(cb->m_cb);
@@ -189,7 +192,7 @@ public:
 		prefix = NosuchToLower(prefix);
 		for (it = this->begin(); it != this->end(); it++) {
 			VizServerApiCallback* sscb = it->second;
-			if (NosuchToLower(std::string(sscb->m_apiprefix)) == prefix) {
+			if (NosuchToLower(std::string(sscb->m_viztag)) == prefix) {
 				return sscb;
 			}
 		}
@@ -202,7 +205,7 @@ public:
 		std::map<void*, VizServerApiCallback*>::iterator it;
 		for (it = this->begin(); it != this->end(); it++) {
 			VizServerApiCallback* sscb = it->second;
-			std::string tag = std::string(sscb->m_apiprefix);
+			std::string tag = std::string(sscb->m_viztag);
 			// if (tag != "UNTAGGED" && tag != "ffff") {
 			if (tag != "UNTAGGED" ) {
 				s += ("," + tag);
@@ -220,7 +223,7 @@ public:
 		VizServerApiCallback* sscb = (*this)[handle];
 		// Should we free prefix?  I tried freeing it in the destructor
 		// of ApiFilter, and it corrupted the heap, so I'm leary.
-		sscb->m_apiprefix = _strdup(viztag);
+		sscb->setViztag(viztag);
 	}
 };
 
@@ -314,7 +317,7 @@ class VizServerJsonProcessor : public NosuchJsonListener {
 
 public:
 	VizServerJsonProcessor() {
-		NosuchLockInit(&_mutex, "vizserver");
+		NosuchLockInit(&_mutex, "vizserverjsonprocessor");
 	}
 	void LockJsonProcessor() {
 		NosuchLock(&_mutex,"jsonprocessor");
@@ -329,8 +332,7 @@ public:
 		m_callbacks.ClearCallbacksWithPrefix(prefix);
 	}
 	void AddJsonCallback(void* handle, const char* apiprefix, jsoncallback_t cb, void* data) {
-		DEBUGPRINT(("AddJsonCallback apiprefix=%s",apiprefix));
-		const char* existing = m_callbacks.VizTags();
+		DEBUGPRINT1(("AddJsonCallback apiprefix=%s",apiprefix));
 		m_callbacks.addcallback(handle, apiprefix, (void*)cb, data);
 	}
 	void ChangeVizTag(void* handle, const char* p) {
@@ -381,7 +383,16 @@ ApiSpecificVizParamsPath(std::string api, std::string file) {
 std::string
 VizServerJsonProcessor::processJson(std::string fullmethod, cJSON *params, const char* id) {
 	// LockJsonProcessor();
+	VizServer* ss = VizServer::GetServer();
+	if (ss->m_debugApi) {
+		char *p = cJSON_PrintUnformatted(params);
+		DEBUGPRINT(("VizServerJsonProcessor API request: %s %s", fullmethod.c_str(),p));
+		cJSON_free(p);
+	}
 	std::string r = processJsonReal(fullmethod, params, id);
+	if (ss->m_debugApi) {
+		DEBUGPRINT(("VizServerJsonProcessor API response: %s", r.c_str()));
+	}
 	// UnlockJsonProcessor();
 	return r;
 }
@@ -928,8 +939,10 @@ VizServer::VizServer() {
 	m_errorCallback = NULL;
 	m_errorCallbackData = NULL;
 
+#if 0
 	m_sidmin = 0;
 	m_sidmax = MAX_SESSIONID;
+#endif
 
 	VizParams::Initialize();
 
@@ -1039,11 +1052,13 @@ void VizServer::_checkCursorUp() {
 	}
 }
 
+#if 0
 void
 VizServer::SetSidrange(int sidmin, int sidmax) {
 	m_sidmin = sidmin;
 	m_sidmax = sidmax;
 }
+#endif
 
 void
 VizServer::AdvanceCursorTo(VizCursor* c, double tm) {

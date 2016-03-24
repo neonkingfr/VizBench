@@ -32,7 +32,7 @@ function setup() {
 
 	fname = api.result;
 
-	titlegen("Pipeline Editor");
+	// titlegen("Pipeline Editor");
 
 	pipeline_pagegen(pipenum,fname);
 
@@ -45,10 +45,12 @@ dojo.addOnLoad(setup);
     
 <body>
 
-<div id="title">&nbsp;</div>
-<br>
-<div id="status">&nbsp;</div>
-<br>
+<table width=100%>
+<tr>
+<td><div id="status">&nbsp;</div></td>
+<td align=right><a href=/viz/ffff.html>FFFF</a>&nbsp&nbsp<a href=/viz/vizserver.html>VizServer</a></td>
+</tr>
+</table>
 <div id="pipeline"></div>
 <p>
 	

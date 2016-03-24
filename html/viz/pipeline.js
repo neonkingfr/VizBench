@@ -10,7 +10,7 @@ function changeval(name) {
 function sendparamchange(name) {
 	var valueid = document.getElementById("value_"+name);
 	var a = name.split(".");
-	var viztag = a[0];
+	var viztag = pipenum + ":" + a[0];
 	var paramname = a[1];
 	var paramval = valueid.value;
 	checkapi(vizapi("ffff.ffglparamset","{\"viztag\":\""+viztag+"\", \"param\":\""+paramname+"\", \"val\":\""+paramval+"\" }"));
@@ -21,16 +21,18 @@ function updateval(name) {
 	sendparamchange(name);
 }
 
-function changeenable(viztag) {
-	var enabledid = document.getElementById("enabled_"+viztag);
+function changeenable(vtag) {
+	var enabledid = document.getElementById("enabled_"+vtag);
 	var onoff = enabledid.checked ? "1" : "0";
-	checkapi(vizapi("ffff.ffglenable","{\"viztag\":\""+viztag+"\", \"onoff\": "+onoff+" }"));
+	var fullviztag = "" + pipenum + ":" + vtag;
+	checkapi(vizapi("ffff.ffglenable","{\"viztag\":\""+fullviztag+"\", \"onoff\": "+onoff+" }"));
 }
 
-function changemoveable(viztag) {
-	var moveableid = document.getElementById("moveable_"+viztag);
+function changemoveable(vtag) {
+	var moveableid = document.getElementById("moveable_"+vtag);
 	var onoff = moveableid.checked ? "1" : "0";
-	checkapi(vizapi("ffff.ffglmoveable","{\"viztag\":\""+viztag+"\", \"onoff\": "+onoff+" }"));
+	var fullviztag = "" + pipenum + ":" + vtag;
+	checkapi(vizapi("ffff.ffglmoveable","{\"viztag\":\""+fullviztag+"\", \"onoff\": "+onoff+" }"));
 }
 
 // updateval2 propagate changes from value_ to range_ rather
@@ -42,13 +44,13 @@ function updateval2(name) {
 	sendparamchange(name);
 }
 
-function moveup(viztag) {
-	checkapi(vizapi("ffff.moveup","{\"viztag\":\""+viztag+"\"}"));
+function moveup(fullviztag) {
+	checkapi(vizapi("ffff.moveup","{\"viztag\":\""+fullviztag+"\"}"));
 	ffffpagegen();
 }
 
-function movedown(viztag) {
-	checkapi(vizapi("ffff.movedown","{\"viztag\":\""+viztag+"\"}"));
+function movedown(fullviztag) {
+	checkapi(vizapi("ffff.movedown","{\"viztag\":\""+fullviztag+"\"}"));
 	ffffpagegen();
 }
 
@@ -83,7 +85,7 @@ function ffffrecord(onoff) {
 }
 
 function enableall(onoff) {
-	var api = vizapi("ffff.ffglpipeline");
+	var api = vizapi("ffff.ffglpipeline","{\"pipenum\":\""+pipenum+"\" }");
 	if ( ! checkapi(api) ) {
 		return;
 	}
@@ -91,7 +93,9 @@ function enableall(onoff) {
 	for ( var i=0; i<ffglpipeline.length; i++ ) {
 
 		var f = ffglpipeline[i];
-		checkapi(vizapi("ffff.ffglenable","{\"viztag\":\""+f.viztag+"\", \"onoff\": "+onoff+" }"));
+		// var fullviztag = "" + pipenum + ":" + f.viztag;
+		var fullviztag = f.viztag;
+		checkapi(vizapi("ffff.ffglenable","{\"viztag\":\""+fullviztag+"\", \"onoff\": "+onoff+" }"));
 	}
 	ffffpagegen();
 }
@@ -131,12 +135,10 @@ function pipeline_pagegen(pn,fname) {
 	var html = "";
 
 	html += "<table>";
-	html += "<tr><td>";
-	html += "File: ";
-	html += "</td><td>";
-	html += "<div id=\"pipelinefilename\">"+pipelinefilename+"</div>";
-	html += "</td><td>";
-	html += "&nbsp;&nbsp;";
+	html += "<tr>";
+	html += "<td><font style=\"font-size: 200%\">Pipeline "+pipenum+"&nbsp;-&nbsp;"+pipelinefilename+"</font></td>";
+	html += "<td width=50px></td>";
+	html += "<td>";
 	html += "<input type=\"button\" style=\"width:100px\" value=\"Load\" onClick=\"load_pipeline();\">";
 	html += "&nbsp;&nbsp;";
 	html += "<input type=\"button\" style=\"width:100px\" value=\"Save\" onClick=\"savepipeline();\">";
@@ -153,10 +155,6 @@ function pipeline_pagegen(pn,fname) {
 	html += "&nbsp;&nbsp;";
 	html += "<input type=\"button\" value=\"Randomize Pipeline\" onClick=\"randomizepipeline();\">";
 
-	// html += "&nbsp;&nbsp;";
-	// html += "<input type=\"button\" value=\"Randomize FFGL Params\" onClick=\"randomizeffglparams();\">";
-
-
 	var r;
 	html += "<table>";	// two columns, left column for plugin name
 				// and misc. buttons, and the right column
@@ -166,16 +164,23 @@ function pipeline_pagegen(pn,fname) {
 
 		var f = ffglpipeline[i];
 
+		// Remove the pipenum value from the viztag.
+		// By convention, vtag is the viztag without the pipenum
+		var vtag = f.viztag.substr(2);
+
+		// var fullviztag = "" + pipenum + ":" + vtag;
+		var fullviztag = f.viztag;
+
 		html += "<tr><td colspan=10><hr></td></tr>\n";
 		html += "<tr><td valign=top>";	// first column of outer table
 
-		var enabledid = "enabled_"+f.viztag;
+		var enabledid = "enabled_"+vtag;
 		var enabledchecked = "";
 		if ( f.enabled ) {
 			enabledchecked = "checked=\"checked\"";
 		}
 
-		var moveableid = "moveable_"+f.viztag;
+		var moveableid = "moveable_"+vtag;
 		var moveablechecked = "";
 		if ( f.moveable ) {
 			moveablechecked = "checked=\"checked\"";
@@ -183,23 +188,23 @@ function pipeline_pagegen(pn,fname) {
 
 		html += "<table>";
 		var parenstuff = "";
-		if ( f.viztag != f.plugin ) {
+		if ( vtag != f.plugin ) {
 			parenstuff = "("+f.plugin+")";
 		}
-		html += "<tr><td colspan=10><b><font style=\"font-size: 200%\">"+f.viztag+"</font>&nbsp;&nbsp;"+parenstuff+"</b></td></tr>";
+		html += "<tr><td colspan=10><b><font style=\"font-size: 200%\">"+vtag+"</font>&nbsp;&nbsp;"+parenstuff+"</b></td></tr>";
 		html += "<tr>";
-		html += "<td width=60px>Enabled</td><td><input type=\"checkbox\" "+enabledchecked+" id=\""+enabledid+"\" onchange=\"changeenable('"+f.viztag+"')\")></td><td></td><td width=100px></td>";
+		html += "<td width=60px>Enabled</td><td><input type=\"checkbox\" "+enabledchecked+" id=\""+enabledid+"\" onchange=\"changeenable('"+vtag+"')\")></td><td></td><td width=100px></td>";
 		html += "</tr>";
 		html += "<tr>";
-		html += "<td width=60px>Moveable</td><td><input type=\"checkbox\" "+moveablechecked+" id=\""+moveableid+"\" onchange=\"changemoveable('"+f.viztag+"')\")></td>";
+		html += "<td width=60px>Moveable</td><td><input type=\"checkbox\" "+moveablechecked+" id=\""+moveableid+"\" onchange=\"changemoveable('"+vtag+"')\")></td>";
 		html += "<td>&nbsp;Move";
-		html += "&nbsp;<input type=\"button\" value=\"up\" onClick=\"moveup('"+f.viztag+"')\")>";
-		html += "&nbsp;<input type=\"button\" value=\"down\" onClick=\"movedown('"+f.viztag+"')\")>";
+		html += "&nbsp;<input type=\"button\" value=\"up\" onClick=\"moveup('"+fullviztag+"')\")>";
+		html += "&nbsp;<input type=\"button\" value=\"down\" onClick=\"movedown('"+fullviztag+"')\")>";
 		html += "</td></tr>";
 
-		var api = vizapi("ffff.about","{\"viztag\":\""+f.viztag+"\"}");
+		var api = vizapi("ffff.about","{\"viztag\":\""+fullviztag+"\"}");
 		var about = api.result;
-		var api = vizapi("ffff.description","{\"viztag\":\""+f.viztag+"\"}");
+		var api = vizapi("ffff.description","{\"viztag\":\""+fullviztag+"\"}");
 		var desc = api.result;
 
 		html += "<tr height=10px></tr>";
@@ -211,8 +216,7 @@ function pipeline_pagegen(pn,fname) {
 		html += "</td><td>";
 
 		if ( f.vizlet ) {
-			var tag = f.viztag;
-			var apis = vizapi(tag+'.apis').result;
+			var apis = vizapi(fullviztag+'.apis').result;
 			if ( apis == "" ) {
 				html += "<p>No APIs";
 			} else {
@@ -230,7 +234,7 @@ function pipeline_pagegen(pn,fname) {
 					// We expect the length of w to be either 1 (just an api name) or
 					// 3 (api name + argument)
 					var api = w[0];
-					var fullapiname = tag + "." + api;
+					var fullapiname = fullviztag + "." + api;
 					if ( w.length <= 1 ) {
 						html += "<td><input type=\"button\" style=\"width:100px\" value=\""+a[n]+"\" onClick=\"checkapi(vizapi('"+fullapiname+"'));\"></td>";
 					} else if ( w.length != 3 ) {
@@ -239,7 +243,7 @@ function pipeline_pagegen(pn,fname) {
 						var args = w[1].split(",");
 
 						var argname = args[0];
-						var inputid = tag+"_"+api;
+						var inputid = fullviztag+"_"+api;
 						var val = "";
 						if ( /^set_/.test(api) ) {
 
@@ -251,11 +255,11 @@ function pipeline_pagegen(pn,fname) {
 
 							var api_sans_set = api.substr(4);
 							var getapi = "get_"+api_sans_set;
-							var aaa = vizapi(tag+"."+getapi,"{\"viztag\":\""+f.viztag+"\"}");
+							var aaa = vizapi(fullviztag+"."+getapi,"{\"viztag\":\""+fullviztag+"\"}");
 							val = aaa.result;
 							// html += "<td width=10></td><td align=right>"
 							html += "<td align=right>"
-								+api_sans_set+"&nbsp;"+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" onChange=\"changeTextVal('"+tag+"','"+api+"','"+argname+"')\" value=\""+val+"\" id=\""+inputid+"\" size=20></td>";
+								+api_sans_set+"&nbsp;"+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" onChange=\"changeTextVal('"+fullviztag+"','"+api+"','"+argname+"')\" value=\""+val+"\" id=\""+inputid+"\" size=20></td>";
 							if ( argname == "paramfile" ) {
 								var paramsclass = params_class_of_api(api)
 								html += "<td><button onclick=\"edit_"+paramsclass+"_params('"+inputid+"');\" >Edit</button>";
@@ -280,24 +284,37 @@ function pipeline_pagegen(pn,fname) {
 
 		html += "<tr><td></td><td>"
 
-		var api = vizapi("ffff.ffglparamvals","{\"viztag\":\""+f.viztag+"\"}");
+		// var fullviztag = "" + pipenum + ":" + f.viztag;
+		var fullviztag = f.viztag;
+		var api = vizapi("ffff.ffglparamvals","{\"viztag\":\""+fullviztag+"\"}");
 		if ( ! checkapi(api) ) {
 			continue;
 		}
 		var vals = api.result;
 
 		html += "<table>";   // for all the parameters
-		if ( vals.length > 0 ) {
-			html += "<tr><td colspan=10>FFGL Parameters:</td></tr>";
-		}
+		var did_header = false;
 		for ( var n=0; n<vals.length; n++ ) {
 			var v = vals[n];
-			// html += "<p>"+v.name+" "+v.value+"\n";
-			html += "<tr><td width=15%></td>";
 
-			var name = f.viztag+"."+v.name;
+			var name = vtag+"."+v.name;
 			var valueid = "value_"+name;
 			var rangeid = "range_"+name;
+
+			if ( v.name == "viztag" ) {
+				// silently ignore the viztag parameter
+				continue;
+			}
+			if ( v.type == "text" ) {
+				alert("Unable to handle text parameter - "+v.name);
+				continue;
+			}
+
+			if ( ! did_header ) {
+				html += "<tr><td colspan=10>FFGL Parameters:</td></tr>";
+				did_header = true;
+			}
+			html += "<tr><td width=15%></td>";
 
 			var argstr = "&quot;viztag&quot; : "
 				+ "&quot;'+document.getElementById(&quot;" + valueid + "&quot;).value+'&quot;"

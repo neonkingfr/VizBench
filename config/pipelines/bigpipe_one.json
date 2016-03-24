@@ -1,193 +1,28 @@
 {
 "pipeline": [
 	{
-		"ffglplugin": "VizPuddle",
+		"ffglplugin": "VizBrush",
 		"enabled": 1,
 		"moveable": 0,
 		"vizlet": 1,
 		"vizletdump": [{
-				"method":	"set_pad1_sidrange",
+				"method":	"set_sprite",
 				"params":	{
-					"sidrange":	"11000-11999"
+					"paramfile":	"red_triangle"
 				}
 			}, {
-				"method":	"set_pad1_sprite",
+				"method":	"set_midi",
 				"params":	{
 					"paramfile":	"port1_pad1"
 				}
 			}, {
-				"method":	"set_pad1_midi",
+				"method":	"set_looping",
 				"params":	{
-					"paramfile":	"port1_pad1"
-				}
-			}, {
-				"method":	"set_pad2_sidrange",
-				"params":	{
-					"sidrange":	"12000-12999"
-				}
-			}, {
-				"method":	"set_pad2_sprite",
-				"params":	{
-					"paramfile":	"port1_pad2"
-				}
-			}, {
-				"method":	"set_pad2_midi",
-				"params":	{
-					"paramfile":	"port1_pad2"
-				}
-			}, {
-				"method":	"set_pad3_sidrange",
-				"params":	{
-					"sidrange":	"13000-13999"
-				}
-			}, {
-				"method":	"set_pad3_sprite",
-				"params":	{
-					"paramfile":	"port1_pad3"
-				}
-			}, {
-				"method":	"set_pad3_midi",
-				"params":	{
-					"paramfile":	"port1_pad3"
-				}
-			}, {
-				"method":	"set_pad4_sidrange",
-				"params":	{
-					"sidrange":	"14000-14999"
-				}
-			}, {
-				"method":	"set_pad4_sprite",
-				"params":	{
-					"paramfile":	"port1_pad4"
-				}
-			}, {
-				"method":	"set_pad4_midi",
-				"params":	{
-					"paramfile":	"port1_pad4"
-				}
-			}, {
-				"method":	"set_LL1_sidrange",
-				"params":	{
-					"sidrange":	"41000-41999"
-				}
-			}, {
-				"method":	"set_LL1_pipeline",
-				"params":	{
-					"pipeline":	"puddle_default"
-				}
-			}, {
-				"method":	"set_LL2_sidrange",
-				"params":	{
-					"sidrange":	"0-0"
-				}
-			}, {
-				"method":	"set_LL2_pipeline",
-				"params":	{
-					"pipeline":	"puddle_default"
-				}
-			}, {
-				"method":	"set_LL3_sidrange",
-				"params":	{
-					"sidrange":	"0-0"
-				}
-			}, {
-				"method":	"set_LL3_pipeline",
-				"params":	{
-					"pipeline":	"puddle_default"
-				}
-			}, {
-				"method":	"set_LR1_sidrange",
-				"params":	{
-					"sidrange":	"0-0"
-				}
-			}, {
-				"method":	"set_LR1_pipeline",
-				"params":	{
-					"pipeline":	"puddle_default"
-				}
-			}, {
-				"method":	"set_LR2_sidrange",
-				"params":	{
-					"sidrange":	"0-0"
-				}
-			}, {
-				"method":	"set_LR2_pipeline",
-				"params":	{
-					"pipeline":	"puddle_default"
-				}
-			}, {
-				"method":	"set_LR3_sidrange",
-				"params":	{
-					"sidrange":	"0-0"
-				}
-			}, {
-				"method":	"set_LR3_pipeline",
-				"params":	{
-					"pipeline":	"puddle_default"
-				}
-			}, {
-				"method":	"set_UL1_sidrange",
-				"params":	{
-					"sidrange":	"0-0"
-				}
-			}, {
-				"method":	"set_UL1_pipeline",
-				"params":	{
-					"pipeline":	"puddle_default"
-				}
-			}, {
-				"method":	"set_UL2_sidrange",
-				"params":	{
-					"sidrange":	"0-0"
-				}
-			}, {
-				"method":	"set_UL2_pipeline",
-				"params":	{
-					"pipeline":	"puddle_default"
-				}
-			}, {
-				"method":	"set_UL3_sidrange",
-				"params":	{
-					"sidrange":	"0-0"
-				}
-			}, {
-				"method":	"set_UL3_pipeline",
-				"params":	{
-					"pipeline":	"puddle_default"
-				}
-			}, {
-				"method":	"set_UR1_sidrange",
-				"params":	{
-					"sidrange":	"0-0"
-				}
-			}, {
-				"method":	"set_UR1_pipeline",
-				"params":	{
-					"pipeline":	"puddle_default"
-				}
-			}, {
-				"method":	"set_UR2_sidrange",
-				"params":	{
-					"sidrange":	"0-0"
-				}
-			}, {
-				"method":	"set_UR2_pipeline",
-				"params":	{
-					"pipeline":	"puddle_default"
-				}
-			}, {
-				"method":	"set_UR3_sidrange",
-				"params":	{
-					"sidrange":	"0-0"
-				}
-			}, {
-				"method":	"set_UR3_pipeline",
-				"params":	{
-					"pipeline":	"puddle_default"
+					"onoff":	"0"
 				}
 			}],
 		"params": [
-			{"name":"vtag", "value":"vizpuddle" }
+			{"name":"vtag", "value":"vizbrushxxx" }
 			]
 	},
 	{

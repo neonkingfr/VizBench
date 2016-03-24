@@ -203,7 +203,6 @@ protected:
 
 	bool m_call_RealProcessOpenGL;
 
-	// const char* m_apiprefix;
 	MidiFilter m_mf;
 	CursorFilter m_cf;
 	

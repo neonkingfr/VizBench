@@ -343,8 +343,10 @@ private:
 	int m_mmtt_seqnum;
 	double m_time;
 
+#if 0
 	int m_sidmin;	// These values specify the current
 	int m_sidmax;	// cursor session ID range to pay attention to
+#endif
 
 	pthread_mutex_t _vizserver_mutex;
 

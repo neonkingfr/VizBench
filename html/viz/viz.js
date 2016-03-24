@@ -99,16 +99,9 @@ function titlegen(title,otherlink) {
 	document.getElementById("title").innerHTML = html;
 }
 
-function vizpagegen(taginclude,tagexclude) {
+function vizpagegen(viztags) {
 
 	var plugins = document.getElementById("vizplugins");
-
-	var viztags = vizapi('viztags').result;
-
-	if ( viztags == "" ) {
-		plugins.innerHTML = "No viz plugins are present.";
-		return;
-	}
 
 	var html = "";
 
@@ -118,12 +111,6 @@ function vizpagegen(taginclude,tagexclude) {
 	for ( var i=0; i<tags.length; i++ ) {
 		tag = tags[i];
 
-		if ( ! taginclude.exec(tag) ) {
-			continue;
-		}
-		if ( tagexclude.exec(tag) ) {
-			continue;
-		}
 		html += "<p><hr>"+tag+"\n";
 
 		var desc = vizapi(tag+'.description').result;
@@ -187,13 +174,6 @@ function vizpagegen(taginclude,tagexclude) {
 	// After the HTML is all done and enabled, set the values using any apis that start with "set_"
 	for ( var i=0; i<tags.length; i++ ) {
 		tag = tags[i];
-
-		if ( ! taginclude.exec(tag) ) {
-			continue;
-		}
-		if ( tagexclude.exec(tag) ) {
-			continue;
-		}
 
 		var apis = vizapi(tag+'.apis').result;
 		if ( apis != "" ) {

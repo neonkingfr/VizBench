@@ -207,7 +207,7 @@
 				}
 			}],
 		"params": [
-			{"name":"viztag", "value":"vizpuddle" }
+			{"name":"vtag", "value":"vizpuddle" }
 			]
 	},
 	{

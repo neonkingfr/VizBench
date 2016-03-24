@@ -96,7 +96,7 @@ FILE* FfffOutputFile = NULL;
 std::string FfffOutputPrefix;
 int FfffOutputFPS;
 
-int ffffMain(std::string pipelinename[4], bool fullscreen)
+int ffffMain(std::string pipeset, bool fullscreen)
 {
 	NosuchDebugInit();
 	NosuchDebugSetLogDirFile(VizPath("log"), "ffff.debug");
@@ -194,14 +194,10 @@ int ffffMain(std::string pipelinename[4], bool fullscreen)
 
 	try {
 		CATCH_NULL_POINTERS;
-		for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
-			if (pipelinename[pipenum] != "") {
-				F->loadPipeline(pipenum, pipelinename[pipenum], true);
-			}
-		}
+		F->loadPipeset(pipeset);
 	}
 	catch (NosuchException& e) {
-		NosuchErrorOutput("NosuchException while loading Pipeline!! - %s", e.message());
+		NosuchErrorOutput("NosuchException while loading Pipeset!! - %s", e.message());
 	}
 	catch (...) {
 		// This doesn't seem to work - it doesn't seem to catch other exceptions...
@@ -246,6 +242,12 @@ int ffffMain(std::string pipelinename[4], bool fullscreen)
 				}
 			}
 
+			// TRY CLEARING
+			glClearColor(0, 0, 0, 0);
+			glClearDepth(1.0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			// END OF TRY CLEARING
+
 			for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
 				if (!F->isPipelineEnabled(pipenum)) {
 					continue;
@@ -254,7 +256,6 @@ int ffffMain(std::string pipelinename[4], bool fullscreen)
 
 				pipeline.paintTexture();
 			}
-
 
 			F->sendSpout(width, height);
 
@@ -321,7 +322,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLin
 	std::string cmdline = std::string(szCmdLine);
 	std::vector<std::string> args = NosuchSplitOnAnyChar(cmdline, " \t\n");
 
-	int pipenum = 0;
+	std::string pipeset = "default";
 
 	for (unsigned int n = 0; n < args.size(); n++) {
 		std::string arg = args[n];
@@ -330,9 +331,9 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLin
 			case 'f':
 				fullscreen = true;
 				break;
-			case 'c':
+			case 'p':
 				if ((n + 1) < args.size()) {
-					pipeline[pipenum] = args[n + 1];
+					pipeset = args[n + 1];
 					n++;
 				}
 				break;
@@ -340,14 +341,9 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLin
 		}
 	}
 
-	if (pipeline[0] == "" ) {
-		std::string msg = NosuchSnprintf("Usage: %s [-f] -c {pipeline}\n",__argv[0]);
-		MessageBoxA(NULL,msg.c_str(),"FFFF",MB_OK);
-		return r;
-	}
 	try {
 		CATCH_NULL_POINTERS;
-		r = ffffMain(pipeline,fullscreen);
+		r = ffffMain(pipeset,fullscreen);
 	} catch (NosuchException& e) {
 		NosuchErrorOutput("NosuchException in ffffMain!! - %s",e.message());
 	} catch (...) {

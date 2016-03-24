@@ -306,7 +306,7 @@ NosuchReadFile(std::string fname, std::string& err, std::string commentstart, bo
 		err = NosuchSnprintf("No such file: %s\n",fname.c_str());
 		return "";
 	}
-	DEBUGPRINT(("NosuchReadFile fname=%s\n",fname.c_str()));
+	DEBUGPRINT1(("NosuchReadFile fname=%s\n",fname.c_str()));
 	std::string line;
 	std::string jstr;
 	while ( getline(f,line) ) {

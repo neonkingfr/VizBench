@@ -27,7 +27,7 @@
 				}
 			}],
 		"params": [
-			{"name":"viztag", "value":"vizbrush" }
+			{"name":"vtag", "value":"vizbrush" }
 			]
 	},
 	{
