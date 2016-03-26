@@ -1,7 +1,6 @@
 {
 "pipeline": [
 	{
-		"vtag": "vizbrush",
 		"ffglplugin": "VizBrush",
 		"enabled": 1,
 		"moveable": 0,
@@ -9,7 +8,7 @@
 		"vizletdump": [{
 				"method":	"set_sprite",
 				"params":	{
-					"paramfile":	"red_square-1"
+					"paramfile":	"red_triangle"
 				}
 			}, {
 				"method":	"set_midi",
@@ -23,11 +22,10 @@
 				}
 			}],
 		"params": [
-			{"name":"viztag", "value":"0:vizbrush", "type":"text" }
+			{"name":"vtag", "value":"vizbrushxxx" }
 			]
 	},
 	{
-		"vtag": "twisted",
 		"ffglplugin": "Twisted",
 		"enabled": 0,
 		"moveable": 1,
@@ -38,7 +36,6 @@
 			]
 	},
 	{
-		"vtag": "wave warp",
 		"ffglplugin": "Wave Warp",
 		"enabled": 0,
 		"moveable": 1,
@@ -53,7 +50,6 @@
 			]
 	},
 	{
-		"vtag": "kaleidoscope",
 		"ffglplugin": "Kaleidoscope",
 		"enabled": 0,
 		"moveable": 1,
@@ -66,7 +62,6 @@
 			]
 	},
 	{
-		"vtag": "blur",
 		"ffglplugin": "Blur",
 		"enabled": 1,
 		"moveable": 1,
@@ -78,7 +73,6 @@
 			]
 	},
 	{
-		"vtag": "goo",
 		"ffglplugin": "Goo",
 		"enabled": 0,
 		"moveable": 1,
@@ -91,9 +85,8 @@
 			]
 	},
 	{
-		"vtag": "fragment",
 		"ffglplugin": "Fragment",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"Fragments", "value":0.300000 }, 
@@ -107,7 +100,6 @@
 			]
 	},
 	{
-		"vtag": "posterize",
 		"ffglplugin": "Posterize",
 		"enabled": 0,
 		"moveable": 1,
@@ -116,9 +108,8 @@
 			]
 	},
 	{
-		"vtag": "displace",
 		"ffglplugin": "Displace",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"X factor", "value":0.760000 }, 
@@ -127,7 +118,6 @@
 			]
 	},
 	{
-		"vtag": "iterate",
 		"ffglplugin": "Iterate",
 		"enabled": 0,
 		"moveable": 1,
@@ -159,17 +149,15 @@
 			]
 	},
 	{
-		"vtag": "edge detection",
 		"ffglplugin": "Edge Detection",
-		"enabled": 1,
+		"enabled": 0,
 		"moveable": 1,
 		"params": [
-			{"name":"Mode", "value":1.000000 }, 
-			{"name":"Multiplier", "value":1.000000 }
+			{"name":"Mode", "value":0.920000 }, 
+			{"name":"Multiplier", "value":0.240000 }
 			]
 	},
 	{
-		"vtag": "bendoscope",
 		"ffglplugin": "Bendoscope",
 		"enabled": 0,
 		"moveable": 1,
@@ -179,7 +167,6 @@
 			]
 	},
 	{
-		"vtag": "mirror",
 		"ffglplugin": "Mirror",
 		"enabled": 0,
 		"moveable": 1,
@@ -193,7 +180,6 @@
 			]
 	},
 	{
-		"vtag": "trails",
 		"ffglplugin": "Trails",
 		"enabled": 1,
 		"moveable": 0,

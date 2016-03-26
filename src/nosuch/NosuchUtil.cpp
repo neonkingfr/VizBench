@@ -69,6 +69,26 @@ bool NosuchFileExists(const std::string fname)
 	}
 }
 
+bool NosuchFileCopy(std::string frompath, std::string topath)
+{
+	FILE* ffrom = fopen(frompath.c_str(), "rb");
+	FILE* fto = fopen(topath.c_str(), "wb");
+	if (ffrom == NULL || fto == NULL) {
+		return false;
+	}
+	int c;
+	while ((c = fgetc(ffrom)) >= 0) {
+		fputc(c, fto);
+	}
+	fclose(ffrom);
+	fclose(fto);
+	return true;
+}
+
+// loadPipeline(pipenum, fname, fpath, ppipeline->m_sidmin, ppipeline->m_sidmax);
+
+
+
 std::string NosuchReplaceAll(std::string str, const std::string from, const std::string to) {
 	size_t start_pos = 0;
 	while ((start_pos = str.find(from, start_pos)) != std::string::npos) {

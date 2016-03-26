@@ -2,6 +2,8 @@ ParamList = null;
 StringVals = {};
 ParamsClass = "undefined"
 
+var paramfilename;
+
 function updateonevalue(name,value) {
 	var obj = ParamList[name];
 	var type = obj["type"];
@@ -20,8 +22,7 @@ function updateonevalue(name,value) {
 }
 
 function readfile() {
-	var paramfilename = document.getElementById("paramfilename");
-	var filename = paramfilename.value;
+	var filename = paramfilename;
 	if ( filename == "" ) {
 		set_status("No Filename set, can't Load!");
 		return;
@@ -149,8 +150,6 @@ function randdefaults() {
 }
 
 function loaddefaults() {
-	var paramfilename = document.getElementById("paramfilename");
-	var filename = paramfilename.value;
 	if ( ParamList == null ) {
 		set_status("No ParamList value!?");
 		return;
@@ -163,7 +162,6 @@ function loaddefaults() {
 }
 
 function writefile() {
-	var paramfilename = document.getElementById("paramfilename");
 	var contents = "";
 	var sep = "{ ";
 	for ( name in ParamList ) {
@@ -172,27 +170,17 @@ function writefile() {
 		sep = ",";
 	}
 	contents += " }";
-	var api = vizapi('VizServer.'+ParamsClass+'param_writefile','{ "paramfile":"'+paramfilename.value+'", "contents":'+contents+' }');
-	if ( paramfilename.value == "" ) {
+	var api = vizapi('VizServer.'+ParamsClass+'param_writefile','{ "paramfile":"'+paramfilename+'", "contents":'+contents+' }');
+	if ( paramfilename == "" ) {
 		set_status("No Filename set, can't Save!");
 	} else if ( api.result == "" ) {
-		set_status("File "+paramfilename.value+" has been updated");
+		// set_status("File "+paramfilename+" has been updated");
+		set_status("");
 	} else {
 		set_status(api.error);
 	}
 }
 
-function changeparamfile() {
-	var paramfilename = document.getElementById("paramfilename");
-	var paramfile = document.getElementById("paramfile");
-	var val = paramfile.value;
-	var words = val.split(/[\\\/]/);
-	if ( words.length > 1 ) {
-		val = words[words.length-1];
-	}
-	paramfilename.value = val;
-	readfile();
-}
 function browsefile() {
 	var paramfile = document.getElementById("paramfile");
 	paramfile.click();
@@ -221,7 +209,7 @@ function stringvalindex(name,val) {
 function autowritefile() {
 	var autosave = document.getElementById("autosave");
 	var paramfilename = document.getElementById("paramfilename");
-	if ( autosave.checked && paramfilename.value != "" ) {
+	if ( autosave.checked && paramfilename != "" ) {
 		writefile()
 	}
 }
@@ -269,6 +257,12 @@ function updateval2(name) {
 
 function make_edit_page(paramsclass) {
 
+	// Fill in the Filename with the paramfile query value
+	var vals = queryvalues();
+	if ( vals["paramfile"] ) {
+		paramfilename = vals["paramfile"];
+	}
+
 	ParamsClass = paramsclass
 
 	var params = document.getElementById("params");
@@ -286,13 +280,12 @@ function make_edit_page(paramsclass) {
 
 	var html = "";
 
-	html += "<input type=\"file\" style=\"display: none\" id=\"paramfile\" onChange=\"changeparamfile();\" >";
 	html += "Filename: ";
-	html += "<input type=\"text\" style=\"width: 50%\" id=\"paramfilename\">";
+	// html += "<input type=\"text\" style=\"width: 50%\" id=\"paramfilename\">";
+	html += "<b>"+paramfilename+"</b>";
 	html += "&nbsp;&nbsp;";
 	html += "<p>";
-	html += "<input type=\"button\" style=\"width:100px\" value=\"Browse\" onClick=\"browsefile();\">";
-	html += "&nbsp;&nbsp;";
+
 	html += "<input type=\"button\" style=\"width:100px\" value=\"Load\" onClick=\"readfile();\">";
 	html += "&nbsp;&nbsp;";
 	html += "<input type=\"button\" style=\"width:100px\" value=\"Defaults\" onClick=\"loaddefaults();\">";
@@ -391,11 +384,5 @@ function make_edit_page(paramsclass) {
 
 	params.innerHTML = html;
 
-	// Fill in the Filename with the paramfile query value
-	var vals = queryvalues();
-	if ( vals["paramfile"] ) {
-		var paramfilename = document.getElementById("paramfilename");
-		paramfilename.value = vals["paramfile"];
-		readfile();
-	}
+	readfile();
 }

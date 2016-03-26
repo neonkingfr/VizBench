@@ -54,7 +54,7 @@ public:
 				*p = _tolower(*p);
 			}
 		}
-		DEBUGPRINT(("Vizlet::SetVizTag m_viztag is now %s",m_viztag));
+		DEBUGPRINT1(("Vizlet::SetVizTag m_viztag is now %s",m_viztag));
 	}
 	VizSprite* makeAndInitVizSprite(SpriteVizParams* sp, NosuchPos pos);
 	VizSprite* makeAndAddVizSprite(SpriteVizParams* sp, NosuchPos pos);

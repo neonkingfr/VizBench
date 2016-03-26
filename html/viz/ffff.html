@@ -23,15 +23,24 @@ function setup() {
 	refresh_all();
 }
 
+function refresh_checkbox(name) {
+	var api = vizapi("ffff.get_"+name);
+	if ( checkapi(api) ) {
+		document.getElementById(name).checked = api.result;
+	}
+}
+
 function refresh_all() {
+
 	var api = vizapi("ffff.get_pipeset");
 	if ( checkapi(api) ) {
 		document.getElementById("pipeset").value = api.result;
 	}
-	var api = vizapi("ffff.get_showfps");
-	if ( checkapi(api) ) {
-		document.getElementById("showfps").checked = api.result;
-	}
+
+	refresh_checkbox("showfps");
+	refresh_checkbox("autoload");
+	refresh_checkbox("autosave");
+
 	refresh_pipeline(0);
 	refresh_pipeline(1);
 	refresh_pipeline(2);
@@ -57,6 +66,8 @@ function ffff_loadsave() {
 	html += "</table>";
 
 	html += "Show FPS: <input type=\"checkbox\" id=\"showfps\" onChange=\"change_showfps();\">";
+	html += "Autoload pipelines: <input type=\"checkbox\" id=\"autoload\" onChange=\"change_autoload();\">";
+	html += "Autosave pipeset: <input type=\"checkbox\" id=\"autosave\" onChange=\"change_autosave();\">";
 	return html;
 }
 
@@ -121,6 +132,7 @@ function browse_pipeset() {
 	var id = document.getElementById("pipesetfile");
 	id.click();
 }
+
 function load_pipeset() {
 	var fname = document.getElementById("pipeset").value;
 	checkapi(vizapi("ffff.load_pipeset","{\"filename\":\""+fname+"\" }"));
@@ -128,8 +140,8 @@ function load_pipeset() {
 }
 
 function save_pipeset() {
-	var fname = document.getElementById("pipeset").value;
-	checkapi(vizapi("ffff.save_pipeset","{\"filename\":\""+fname+"\" }"));
+	var pipeset = document.getElementById("pipeset").value;
+	checkapi(vizapi("ffff.save_pipeset","{\"filename\":\""+pipeset+"\" }"));
 }
 
 function change_pipeline(pipenum) {
@@ -143,6 +155,8 @@ function change_pipeline(pipenum) {
 	if ( new_pipeline != current_pipeline ) {
 		checkapi(vizapi("ffff.load_pipeline","{\"pipenum\":\""+pipenum+"\", \"filename\":\""+new_pipeline+"\" }"));
 	}
+
+	autosave_pipeset();
 }
 
 function change_sidrange(pipenum) {
@@ -156,18 +170,33 @@ function change_sidrange(pipenum) {
 	if ( new_sidrange != current_sidrange ) {
 		checkapi(vizapi("ffff.set_sidrange","{\"pipenum\":\""+pipenum+"\", \"sidrange\":\""+new_sidrange+"\" }"));
 	}
+
+	autosave_pipeset();
 }
 
 function enable_pipeline(pipenum) {
 	var enabledid = document.getElementById("enabled_"+pipenum);
 	var onoff = enabledid.checked ? "1" : "0";
 	checkapi(vizapi("ffff.set_enablepipeline","{\"pipenum\":\""+pipenum+"\", \"onoff\":"+onoff+" }"));
+	autosave_pipeset();
 }
 
 function change_showfps() {
 	var id = document.getElementById("showfps");
 	var onoff = id.checked ? "1" : "0";
 	checkapi(vizapi("ffff.set_showfps","{\"onoff\":"+onoff+" }"));
+}
+
+function change_autoload() {
+	var id = document.getElementById("autoload");
+	var onoff = id.checked ? "1" : "0";
+	checkapi(vizapi("ffff.set_autoload","{\"onoff\":"+onoff+" }"));
+}
+
+function change_autosave() {
+	var id = document.getElementById("autosave");
+	var onoff = id.checked ? "1" : "0";
+	checkapi(vizapi("ffff.set_autosave","{\"onoff\":"+onoff+" }"));
 }
 
 function edit_pipeline(pipenum) {
@@ -202,6 +231,16 @@ function refresh_pipeline(pipenum) {
 		document.getElementById(id).checked = api.result;
 	}
 }
+
+function autosave_pipeset() {
+	var autosave = document.getElementById("autosave");
+	var pipeset = document.getElementById("pipeset").value;
+	if ( autosave.checked && pipeset != "" ) {
+		save_pipeset()
+		refresh_all();
+	}
+}
+
 dojo.addOnLoad(setup);
 </script>
 </head>

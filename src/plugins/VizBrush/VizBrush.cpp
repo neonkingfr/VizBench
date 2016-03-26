@@ -19,7 +19,7 @@ CFFGLPluginInfo& vizlet_plugininfo() { return PluginInfo; }
 void vizlet_setdll(std::string dll) { }
 
 VizBrush::VizBrush() : Vizlet() {
-	DEBUGPRINT(("VizBrush is being created and initialized! this=%ld",(long)this));
+	DEBUGPRINT1(("VizBrush is being created and initialized! this=%ld",(long)this));
 	_region = new Region();
 	_autoloadparams = true;
 }

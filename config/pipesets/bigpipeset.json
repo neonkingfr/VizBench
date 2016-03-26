@@ -1,0 +1,24 @@
+{
+"pipeset": [
+	{
+		"pipeline": "bigpipe_one",
+		"enabled": 1,
+		"sidrange": "11000-11999"
+	},
+	{
+		"pipeline": "bigpipe_two",
+		"enabled": 1,
+		"sidrange": "12000-12999"
+	},
+	{
+		"pipeline": "bigpipe_three.json",
+		"enabled": 1,
+		"sidrange": "13000-13999"
+	},
+	{
+		"pipeline": "bigpipe_four.json",
+		"enabled": 1,
+		"sidrange": "14000-14999"
+	}
+	]
+}

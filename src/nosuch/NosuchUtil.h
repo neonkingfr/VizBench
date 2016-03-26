@@ -123,6 +123,7 @@ std::string NosuchToUpper(std::string s);
 bool NosuchEndsWith(std::string s, std::string suff);
 
 bool NosuchFileExists(std::string name);
+bool NosuchFileCopy(std::string frompath, std::string topath);
 
 char *base64_encode(const uint8_t *data, size_t input_length);
 

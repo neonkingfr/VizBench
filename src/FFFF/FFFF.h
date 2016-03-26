@@ -55,10 +55,10 @@ public:
 	void doPipeline(int window_width, int window_height);
 	FFGLPluginInstance* FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string viztag);
 	void paintTexture();
-	void setSidrange(std::string range);
+	void setSidrange(int sidmin, int sidmax);
 
 	void clear() {
-		DEBUGPRINT(("FFGLPipeline.clear is called"));
+		DEBUGPRINT1(("FFGLPipeline.clear is called"));
 		for (FFGLPluginList::iterator it = m_pluginlist.begin(); it != m_pluginlist.end(); it++) {
 			DEBUGPRINT1(("--- deleteing FFGLPluginInstance *it=%ld", (long)(*it)));
 			delete *it;
@@ -151,6 +151,10 @@ public:
 	int m_sidmin;
 	int m_sidmax;
 
+	std::string m_filepath;
+	std::time_t m_file_lastupdate;		// last mod time of filepath
+	std::time_t m_file_lastcheck;		// last time it was checked
+
 	FFGLViewportStruct fboViewport;
 	FFGLTextureStruct m_texture;
 	FFGLFBO fbo1;
@@ -201,8 +205,8 @@ public:
 	FFGLPluginInstance* FFGLAddToPipeline(int pipenum, std::string nm, std::string viztag, bool autoenable, cJSON* params);
 
 	std::string savePipeline(int pipenum, std::string nm, const char* id);
-	void loadPipeline(int pipenum, std::string configname, bool synthesize, std::string sidrange);
-	void loadPipelineJson(int pipenum, std::string configname, cJSON* json);
+	void loadPipeline(int pipenum, std::string name, std::string fpath, int sidmin, int sidmax);
+	void loadPipelineJson(int pipenum, std::string name, cJSON* json);
 	void clearPipeline(int pipenum);
 	void doPipeline(int pipenum, int width, int height);
 	bool isPipelineEnabled(int pipenum) { return m_ffglpipeline[pipenum].m_pipeline_enabled; }
@@ -229,11 +233,14 @@ public:
 	void loadPipeset(std::string nm);
 	void loadPipesetJson(cJSON* json);
 
+	std::string pipelinePath(std::string configname);
+
 	bool initCamera(int camindex);
 	// void setWidthHeight(int w, int h) { _width = w; _height = h; }
 	IplImage* getCameraFrame();
 	void sendSpout(int width, int height);
 	void CheckFPS();
+	void CheckAutoload();
 
 	void InsertKeystroke(int key, int downup);
 
@@ -285,6 +292,8 @@ private:
 
 	FFGLPipeline m_ffglpipeline[NPIPELINES];
 	FF10Pipeline m_ff10pipeline[NPIPELINES];
+	bool m_autoload;
+	bool m_autosave;
 };
 
 void loadff10path(std::string ffpath);

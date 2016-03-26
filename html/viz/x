@@ -1,0 +1,7 @@
+function autowritefile() {
+	var autosave = document.getElementById("autosave");
+	var paramfilename = document.getElementById("paramfilename");
+	if ( autosave.checked && paramfilename.value != "" ) {
+		writefile()
+	}
+}

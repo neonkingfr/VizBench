@@ -165,13 +165,26 @@ public:
 		// this->clear();
 	}
 	void addcallback(void* handle, const char* apiprefix, void* cb, void* data) {
-		DEBUGPRINT(("VizServerApiCallbackMap addcallback handle=%ld prefix=%s", (long)handle, apiprefix));
+		DEBUGPRINT1(("VizServerApiCallbackMap addcallback handle=%ld prefix=%s", (long)handle, apiprefix));
 		if (count(handle) > 0) {
-			DEBUGPRINT(("Hey! VizServerApiCallbackMap::addcallback finds existing callback for handle=%ld prefix=%s", (long)handle, apiprefix));
+			if (strcmp((*this)[handle]->m_viztag, apiprefix) != 0) {
+				DEBUGPRINT(("Hey! VizServerApiCallbackMap::addcallback finds existing callback for handle=%ld with different prefix=%s", (long)handle, apiprefix));
+			}
+			else {
+				// Adding the same callback with the same handle and apiprefix
+				DEBUGPRINT(("Hey! VizServerApiCallbackMap::addcallback finds existing callback with identical handle=%ld prefix=%s", (long)handle, apiprefix));
+			}
 			return;
 		}
-		if (findprefix(apiprefix) != NULL) {
-			DEBUGPRINT(("Hey! VizServerApiCallbackMap::addcallback finds existing apiprefix for handle=%ld prefix=%s", (long)handle, apiprefix));
+		void* findhandle = NULL;
+		VizServerApiCallback* findcb = findprefix(apiprefix,&findhandle);
+		if (findcb != NULL) {
+			if (findhandle != handle) {
+				DEBUGPRINT(("Hey!? VizServerApiCallbackMap::addcallback finds existing apiprefix for handle=%ld prefix=%s", (long)handle, apiprefix));
+			}
+			else {
+				DEBUGPRINT(("Hey! VizServerApiCallbackMap alread has apiprefix for handle=%ld prefix=%s", (long)handle, apiprefix));
+			}
 			return;
 		}
 		VizServerApiCallback* sscb = new VizServerApiCallback(apiprefix, cb, data);
@@ -179,20 +192,23 @@ public:
 		DEBUGPRINT1(("VizServerApiCallbackMap inserted handle=%ld size=%d", (long)handle, size()));
 	}
 	void removecallback(void* handle) {
-		DEBUGPRINT(("API CALLBACKMAP removecallback handle=%ld",(long)handle));
+		DEBUGPRINT1(("API CALLBACKMAP removecallback handle=%ld",(long)handle));
 		if (count(handle) == 0) {
 			DEBUGPRINT(("Hey! VizServercallbackMap::removecallback didn't find existing callback for handle=%ld", (long)handle));
 			return;
 		}
 		erase(handle);
 	}
-	VizServerApiCallback* findprefix(std::string prefix) {
+	VizServerApiCallback* findprefix(std::string prefix, void** phandle = NULL) {
 		std::map<void*, VizServerApiCallback*>::iterator it;
 		// All comparisons here are case-insensitive
 		prefix = NosuchToLower(prefix);
 		for (it = this->begin(); it != this->end(); it++) {
 			VizServerApiCallback* sscb = it->second;
 			if (NosuchToLower(std::string(sscb->m_viztag)) == prefix) {
+				if (phandle) {
+					*phandle = it->first;
+				}
 				return sscb;
 			}
 		}
@@ -219,7 +235,7 @@ public:
 			DEBUGPRINT(("Hey! VizServercallbackMap::ChangeVizTag didn't find existing callback for handle=%ld", (long)handle));
 			return;
 		}
-		DEBUGPRINT(("ChangeVizTag handle=%ld  viztag=%s",(long)handle,viztag));
+		DEBUGPRINT1(("ChangeVizTag handle=%ld  viztag=%s",(long)handle,viztag));
 		VizServerApiCallback* sscb = (*this)[handle];
 		// Should we free prefix?  I tried freeing it in the destructor
 		// of ApiFilter, and it corrupted the heap, so I'm leary.
@@ -939,11 +955,6 @@ VizServer::VizServer() {
 	m_errorCallback = NULL;
 	m_errorCallbackData = NULL;
 
-#if 0
-	m_sidmin = 0;
-	m_sidmax = MAX_SESSIONID;
-#endif
-
 	VizParams::Initialize();
 
 	m_started = false;
@@ -1052,14 +1063,6 @@ void VizServer::_checkCursorUp() {
 	}
 }
 
-#if 0
-void
-VizServer::SetSidrange(int sidmin, int sidmax) {
-	m_sidmin = sidmin;
-	m_sidmax = sidmax;
-}
-#endif
-
 void
 VizServer::AdvanceCursorTo(VizCursor* c, double tm) {
 	c->advanceTo(tm);
@@ -1119,7 +1122,6 @@ double VizServer::SchedulerCurrentTimeInSeconds() {
 
 click_t VizServer::SchedulerCurrentClick() {
 	if (m_scheduler == NULL) {
-		DEBUGPRINT(("In VizServer::CurrentClick, _scheduler==NULL?"));
 		return 0;
 	}
 	else {
@@ -1574,7 +1576,7 @@ VizServer*
 VizServer::GetServer() {
 	if (OneServer == NULL) {
 		OneServer = new VizServer();
-		DEBUGPRINT(("NEW VizServer!  Setting OneServer"));
+		DEBUGPRINT1(("NEW VizServer!  Setting OneServer"));
 	}
 	return OneServer;
 }

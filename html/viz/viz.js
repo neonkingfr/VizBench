@@ -8,16 +8,9 @@ function format_error(meth,err) {
 }
 
 function edit_params(inputid,paramsclass) {
+	// paramsclass is either "sprite" or "midi"
 	var filename = dojo.byId(inputid);
 	window.location.href = ("edit_" + paramsclass + "_params.html?paramfile="+filename.value);
-}
-
-function edit_sprite_params(inputid) {
-	edit_params(inputid,"sprite");
-}
-
-function edit_midi_params(inputid) {
-	edit_params(inputid,"midi");
 }
 
 function vizapi(meth,params) {
@@ -99,6 +92,10 @@ function titlegen(title,otherlink) {
 	document.getElementById("title").innerHTML = html;
 }
 
+// This function is really only used to generate the UI for VizServer APIs,
+// and that UI probably shouldn't be automatically generated, it should
+// be more custom.
+
 function vizpagegen(viztags) {
 
 	var plugins = document.getElementById("vizplugins");
@@ -155,12 +152,7 @@ function vizpagegen(viztags) {
 					html += "<td width=10></td><td align=right>"
 						+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" id=\""+inputid+"\" size=8></td>";
 					if ( argname == "paramfile" ) {
-						var paramsclass;
-						if ( api.substring(0,4) == "midi" ) {
-							paramsclass = "midi";
-						} else {
-							paramsclass = "sprite";
-						}
+						var paramsclass = params_class_of_api(api);
 						html += "<td><button onclick=\"edit_"+paramsclass+"_params('"+inputid+"');\" >Edit SpriteParams</button>";
 					}
 				}

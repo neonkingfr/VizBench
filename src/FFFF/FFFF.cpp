@@ -42,6 +42,8 @@
 
 #include "VizServer.h"
 
+#include <sys/stat.h>
+
 extern "C" {
 	int zre_msg_test(bool);
 	int zre_log_msg_test(bool);
@@ -91,6 +93,8 @@ FFFF::FFFF(cJSON* config) {
 	m_window_width = jsonNeedInt(config, "window_width", 800);
 	m_window_height = jsonNeedInt(config, "window_height", 600);
 	m_showfps = jsonNeedInt(config, "showfps", 0) ? true : false;
+	m_autoload = jsonNeedInt(config, "autoload", 1) ? true : false;
+	m_autosave = jsonNeedInt(config, "autosave", 1) ? true : false;
 	m_audiohost_type = jsonNeedString(config, "audiohost_type", "");
 	m_desired_FPS = jsonNeedInt(config, "fps", 30);
 	m_spout = jsonNeedBool(config, "spout", true);
@@ -169,6 +173,39 @@ FFFF::StopStuff() {
 	if (FfffOutputFile) {
 		fclose(FfffOutputFile);
 		FfffOutputFile = NULL;
+	}
+}
+
+void
+FFFF::CheckAutoload()
+{
+	if (!m_autoload) {
+		return;
+	}
+	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
+
+		FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
+
+		std::time_t throttle = 1;  // don't check more often than this number of seconds
+		std::time_t tm = time(0);
+		if ((tm - pipeline.m_file_lastcheck) < throttle) {
+			continue;
+		}
+
+		std::string fpath = pipeline.m_filepath;
+
+		struct _stat statbuff;
+		int e = _stat(fpath.c_str(), &statbuff);
+		if (e != 0) {
+			throw NosuchException("Error in _stat fpath=%s - e=%d", fpath.c_str(), e);
+		}
+		if (statbuff.st_mtime > pipeline.m_file_lastupdate) {
+
+			DEBUGPRINT(("Pipeline file %s was updated!  Reloading!", pipeline.m_filepath.c_str()));
+
+			// Keep the same sidmin/sidmax
+			loadPipeline(pipenum, pipeline.m_name, pipeline.m_filepath, pipeline.m_sidmin, pipeline.m_sidmax);
+		}
 	}
 }
 
@@ -387,7 +424,7 @@ FFFF::clearPipeline(int pipenum)
 	// m_vizserver->ClearJsonCallbacks();
 	m_vizserver->ClearJsonCallbacksOfPipeline(pipenum);
 
-	m_vizserver->AddJsonCallback((void*)this,"ffff",FFFF_json,(void*)this);
+	// m_vizserver->AddJsonCallback((void*)this,"ffff",FFFF_json,(void*)this);
 }
 
 void
@@ -572,55 +609,56 @@ FFFF::FF10DeleteFromPipeline(int pipenum, std::string viztag) {
 	}
 }
 
-void FFFF::ErrorPopup(const char* msg) {
+void
+FFFF::ErrorPopup(const char* msg) {
 	MessageBoxA(NULL, msg, "FFFF", MB_OK);
 }
 
+std::string
+FFFF::pipelinePath(std::string name) {
+	if (name == "") {
+		throw NosuchException("pipeline name is blank!?");
+	}
+	if (!NosuchEndsWith(name, ".json")) {
+		name += ".json";
+	}
+	return VizConfigPath("pipelines",name);
+}
+
 void
-FFFF::loadPipeline(int pipenum, std::string configname, bool synthesize, std::string sidrange)
+FFFF::loadPipeline(int pipenum, std::string name, std::string fpath, int sidmin, int sidmax)
 {
-	if (configname == "") {
-		throw NosuchException("configname is blank!?");
-	}
-	if (!NosuchEndsWith(configname, ".json")) {
-		configname += ".json";
-	}
-	std::string fname = VizConfigPath("pipelines",configname);
 	std::string err;
 
-	DEBUGPRINT(("loadPipeline configname=%s sidrange=%s fname=%s",
-		configname.c_str(), sidrange.c_str(), fname.c_str()));
+	DEBUGPRINT(("loadPipeline pipenum=%d name=%s sidrange=%d-%d",
+		pipenum, name.c_str(), sidmin, sidmax));
 
-	bool exists = NosuchFileExists(fname);
+	bool exists = NosuchFileExists(fpath);
 	cJSON* json;
 	if (!exists) {
-		if (!synthesize) {
-			throw NosuchException("No such file: fname=%s", fname.c_str());
-		}
-		// If the configfile doesn't exist, synthesize one.
-		// This assumes that the configname is a vizlet name.
-		// First take off the trailing .json
-		if (NosuchEndsWith(configname, ".json")) {
-			int pos = configname.length() - 5;
-			configname = configname.substr(0, pos);
-		}
-		DEBUGPRINT(("Synthesizing FFFF pipeline for %s", configname.c_str(), configname.c_str()));
-		std::string jstr = NosuchSnprintf("{\"pipeline\": [ { \"plugin\": \"%s\", \"params\": [ ] } ] }", configname.c_str());
-		json = cJSON_Parse(jstr.c_str());
-		if (!json) {
-			throw NosuchException("Unable to parse synthesized config!? jstr=%s", jstr.c_str());
-		}
-	} else {
-		json = jsonReadFile(fname,err);
-		if (!json) {
-			std::string err = NosuchSnprintf("Unable to parse file!? fname=%s", fname.c_str());
-			throw NosuchException(err.c_str());
-		}
+		throw NosuchException("No such file: fpath=%s", fpath.c_str());
 	}
-	loadPipelineJson(pipenum,configname,json);
+	json = jsonReadFile(fpath,err);
+	if (!json) {
+		std::string err = NosuchSnprintf("Unable to parse file!? fpath=%s", fpath.c_str());
+		throw NosuchException(err.c_str());
+	}
+	loadPipelineJson(pipenum,name,json);
 	jsonFree(json);
 
-	m_ffglpipeline[pipenum].setSidrange(sidrange);
+	struct _stat statbuff;
+	int e = _stat(fpath.c_str(), &statbuff);
+	if (e != 0) {
+		throw NosuchException("Error in _stat fpath=%s - e=%d", fpath.c_str(), e);
+	}
+
+	FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
+
+	pipeline.m_name = name;
+	pipeline.m_filepath = fpath;
+	pipeline.m_file_lastupdate = statbuff.st_mtime;
+	pipeline.m_file_lastcheck = statbuff.st_mtime;
+	pipeline.setSidrange(sidmin,sidmax);
 }
 
 void
@@ -839,11 +877,8 @@ FFFF::doPipeline(int pipenum, int width, int height)
 }
 
 void
-FFGLPipeline::setSidrange(std::string sidrange) {
-	int sidmin, sidmax;
-	if (sscanf(sidrange.c_str(), "%d-%d", &sidmin, &sidmax) != 2) {
-		throw NosuchException("Invalid format of sidrange: %s", sidrange.c_str());
-	}
+FFGLPipeline::setSidrange(int sidmin, int sidmax) {
+
 	m_sidmin = sidmin;
 	m_sidmax = sidmax;
 
@@ -1292,10 +1327,7 @@ FFFF::FF10NeedPluginInstance(int pipenum, std::string viztag)
 
 std::string FFFF::savePipeline(int pipenum, std::string fname, const char* id)
 {
-	if ( ! NosuchEndsWith(fname, ".json") ) {
-		fname += ".json";
-	}
-	std::string fpath = VizConfigPath("pipelines",fname);
+	std::string fpath = pipelinePath(fname);
 
 	DEBUGPRINT(("savePipeline fpath=%s",fpath.c_str()));
 	std::string err;
@@ -1321,9 +1353,14 @@ std::string FFFF::savePipeline(int pipenum, std::string fname, const char* id)
 	FFGLPluginList& ffglplugins = m_ffglpipeline[pipenum].m_pluginlist;
 	for (FFGLPluginList::iterator it = ffglplugins.begin(); it != ffglplugins.end(); it++) {
 		FFGLPluginInstance* p = *it;
+
+		// Take off the pipeline# part of the viztag, and save it as a "vtag".
+		// When the pipeline is read back in, the pipeline# will be added back.
+		std::string vtag = p->viztag().substr(2);
+
 		f << sep;
 		f << "\t{\n";
-		f << "\t\t\"ffglplugin\": \"" + p->viztag() + "\",\n";
+		f << "\t\t\"vtag\": \"" + vtag + "\",\n";
 		f << "\t\t\"ffglplugin\": \"" + p->plugindef()->GetPluginName() + "\",\n";
 		f << "\t\t\"enabled\": " + std::string(p->isEnabled()?"1":"0") + ",\n";
 		f << "\t\t\"moveable\": " + std::string(p->isMoveable()?"1":"0") + ",\n";
@@ -1455,11 +1492,17 @@ FFFF::loadPipesetJson(cJSON* json)
 		bool enabled = jsonNeedBool(p, "enabled");
 		std::string sidrange = jsonNeedString(p, "sidrange");
 
+		int sidmin, sidmax;
+		if (sscanf(sidrange.c_str(), "%d-%d", &sidmin, &sidmax) != 2) {
+			throw NosuchException("Invalid format of sidrange: %s", sidrange.c_str());
+		}
+
 		pipeline.m_name = name;
 		pipeline.m_pipeline_enabled = enabled;
-		DEBUGPRINT(("Set pipenum=%d enabled to %d",pipenum,m_ffglpipeline[pipenum].m_pipeline_enabled));
+
+		std::string fpath = pipelinePath(name);
 		if (name != "") {
-			loadPipeline(pipenum, name, true, sidrange);
+			loadPipeline(pipenum, name, fpath, sidmin, sidmax);
 		}
 	}
 }
@@ -1511,12 +1554,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 			, id);
 	}
 	// DEBUGPRINT(("FFFF api = %s", meth.c_str()));
-#if 0
-	if (meth == "fps") {
-		m_showfps = jsonNeedBool(params, "onoff");
-		return jsonOK(id);
-	}
-#endif
+
 	if (meth == "audio") {
 		bool onoff = jsonNeedBool(params, "onoff",true);
 		if (m_audiohost == NULL) {
@@ -1902,7 +1940,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		std::string r = FF10ParamVals(pi);
 		return jsonResult(r,id);
 	}
-	if ( meth == "savepipeline" ) {
+	if ( meth == "save_pipeline" ) {
 		std::string fname =  jsonNeedString(params,"filename");
 		NosuchAssert(pipenum >= 0);
 		return savePipeline(pipenum,fname,id);
@@ -1935,6 +1973,22 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		savePipeset(fname);
 		return jsonOK(id);
 	}
+	if ( meth == "set_autoload" ) {
+		// controls autoloading of pipelines when their config files change
+		m_autoload = jsonNeedBool(params, "onoff", true);
+		return jsonOK(id);
+	}
+	if ( meth == "get_autoload" ) {
+		return jsonIntResult(m_autoload,id);
+	}
+	if ( meth == "set_autosave" ) {
+		// controls autosaving of pipeset
+		m_autosave = jsonNeedBool(params, "onoff", true);
+		return jsonOK(id);
+	}
+	if ( meth == "get_autosave" ) {
+		return jsonIntResult(m_autosave,id);
+	}
 	if ( meth == "set_showfps" ) {
 		m_showfps = jsonNeedBool(params, "onoff", true);
 		return jsonOK(id);
@@ -1955,8 +2009,42 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	if ( meth == "load_pipeline" ) {
 		std::string fname =  jsonNeedString(params,"filename");
 		NosuchAssert(pipenum >= 0);
-		std::string sidrange = NosuchSnprintf("%d-%d", ppipeline->m_sidmin, ppipeline->m_sidmax);
-		loadPipeline(pipenum, fname, true, sidrange);  // this will throw exceptions on failure
+		// Keep the same sidmin/sidmax
+		std::string fpath = pipelinePath(fname);
+		loadPipeline(pipenum, fname, fpath, ppipeline->m_sidmin, ppipeline->m_sidmax);
+		return jsonOK(id);
+	}
+
+	if ( meth == "copy_sprite" ) {
+		std::string fromfile =  jsonNeedString(params,"fromfile");
+		std::string tofile =  jsonNeedString(params,"tofile");
+		NosuchAssert(pipenum >= 0);
+
+		DEBUGPRINT(("Making copy of sprite, %s to %s",fromfile.c_str(),tofile.c_str()));
+
+		std::string frompath = SpriteVizParamsPath(fromfile);
+		std::string topath = SpriteVizParamsPath(tofile);
+
+		bool r = NosuchFileCopy(frompath, topath);
+		if (!r) {
+			return jsonError(-32000,"Unable to copy!?",id);
+		}
+		return jsonOK(id);
+	}
+	if ( meth == "copy_pipeline" ) {
+		std::string fromfile =  jsonNeedString(params,"fromfile");
+		std::string tofile =  jsonNeedString(params,"tofile");
+
+		DEBUGPRINT(("Making copy of %s in %s",fromfile.c_str(),tofile.c_str()));
+
+		std::string frompath = pipelinePath(fromfile);
+		std::string topath = pipelinePath(tofile);
+
+		bool r = NosuchFileCopy(frompath, topath);
+		if (!r) {
+			return jsonError(-32000,"Unable to copy!?",id);
+		}
+		// loadPipeline(pipenum, fname, fpath, ppipeline->m_sidmin, ppipeline->m_sidmax);
 		return jsonOK(id);
 	}
 	if (meth == "get_sidrange") {

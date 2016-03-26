@@ -23,7 +23,10 @@
     
 <body>
 
+<center>
 <div id="title">&nbsp;</div>
+<br>
+</center>
 <div id="status"></div>
 <div id="params"></div>
 	

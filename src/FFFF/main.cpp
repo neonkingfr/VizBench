@@ -134,6 +134,16 @@ int ffffMain(std::string pipeset, bool fullscreen)
 	int window_y = jsonNeedInt(config, "window_y", 0);
 	FfffOutputPrefix = jsonNeedString(config, "outputprefix", "");
 	FfffOutputFPS = jsonNeedInt(config, "outputfps", 30);
+	std::string pset = jsonNeedString(config, "pipeset", "");
+
+	// The command-line pipeset value presides.
+	if (pipeset == "") {
+		// but ffff.json can specify pipeset
+		pipeset = jsonNeedString(config, "pipeset", "");
+	}
+	if (pipeset == "") {
+		pipeset = "default";
+	}
 
 	F = new FFFF(config);
 
@@ -265,6 +275,7 @@ int ffffMain(std::string pipeset, bool fullscreen)
 		glfwPollEvents();
 
 		F->CheckFPS();
+		F->CheckAutoload();
 	}
 
 	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
@@ -322,7 +333,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLin
 	std::string cmdline = std::string(szCmdLine);
 	std::vector<std::string> args = NosuchSplitOnAnyChar(cmdline, " \t\n");
 
-	std::string pipeset = "default";
+	std::string pipeset = "";
 
 	for (unsigned int n = 0; n < args.size(); n++) {
 		std::string arg = args[n];

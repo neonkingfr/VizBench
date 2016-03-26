@@ -1,6 +1,7 @@
 {
 "pipeline": [
 	{
+		"vtag": "vizbrush",
 		"ffglplugin": "VizBrush",
 		"enabled": 1,
 		"moveable": 0,
@@ -13,7 +14,7 @@
 			}, {
 				"method":	"set_midi",
 				"params":	{
-					"paramfile":	"port1_pad1"
+					"paramfile":	"port1_pad3"
 				}
 			}, {
 				"method":	"set_looping",
@@ -22,10 +23,11 @@
 				}
 			}],
 		"params": [
-			{"name":"vtag", "value":"vizbrush" }
+			{"name":"viztag", "value":"2:vizbrush", "type":"text" }
 			]
 	},
 	{
+		"vtag": "kaleidoscope",
 		"ffglplugin": "Kaleidoscope",
 		"enabled": 0,
 		"moveable": 1,
@@ -38,6 +40,7 @@
 			]
 	},
 	{
+		"vtag": "trails",
 		"ffglplugin": "Trails",
 		"enabled": 1,
 		"moveable": 0,

@@ -9,7 +9,7 @@
 		"vizletdump": [{
 				"method":	"set_sprite",
 				"params":	{
-					"paramfile":	"red_square-1"
+					"paramfile":	"red_square"
 				}
 			}, {
 				"method":	"set_midi",
@@ -23,7 +23,7 @@
 				}
 			}],
 		"params": [
-			{"name":"viztag", "value":"0:vizbrush", "type":"text" }
+			{"name":"viztag", "value":"2:vizbrush", "type":"text" }
 			]
 	},
 	{
@@ -68,7 +68,7 @@
 	{
 		"vtag": "blur",
 		"ffglplugin": "Blur",
-		"enabled": 1,
+		"enabled": 0,
 		"moveable": 1,
 		"params": [
 			{"name":"Blur X Distance", "value":0.000000 }, 
@@ -161,11 +161,11 @@
 	{
 		"vtag": "edge detection",
 		"ffglplugin": "Edge Detection",
-		"enabled": 1,
+		"enabled": 0,
 		"moveable": 1,
 		"params": [
-			{"name":"Mode", "value":1.000000 }, 
-			{"name":"Multiplier", "value":1.000000 }
+			{"name":"Mode", "value":0.920000 }, 
+			{"name":"Multiplier", "value":0.240000 }
 			]
 	},
 	{

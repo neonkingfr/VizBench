@@ -1,5 +1,7 @@
 {
 
+  "pipeset": "bigpipeset",
+
   "ffglpath": "ffglplugins;ffglplugins_resolume;ffglplugins_loopycam",
 "ff10path": "ff10plugins;ff10plugins_pete;ff10plugins_loopycam",
 
@@ -7,8 +9,10 @@
 
   "window_x": 10,
   "window_y": 10,
-  "window_width": 640,
-  "window_height": 480,
+  # "window_width": 640,
+  # "window_height": 480,
+  "window_width": 1920,
+  "window_height": 1080,
 
   # "window_x": 3200,
   # "window_y": 0,
@@ -29,12 +33,15 @@
   # 	  "oscport": 3210
   #   },
 
-  "spout": 1,
+  "spout": 0,
   "showfps": 0,
-  "fps": 30,
+  "autoload": 1,
+  "autosave": 1,
+  "fps": 60,
   "trail_enable": 0,
   "trail_amount": 0.90,
   "camera": -1,    # a value of -1 disables the camera input
 # "camera": 1,  # the index of the camera, given to cvCreateCameraCapture
+
   "foo": 0
 }

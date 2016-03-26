@@ -1,0 +1,10 @@
+function autosave_pipeline_(refresh) {
+	var autosave = document.getElementById("autosave");
+	if ( autosave.checked && pipelinefilename != "" ) {
+		save_pipeline()
+		if ( refresh ) {
+			pipeline_pagegen(pipenum,pipelinefilename);
+		}
+	}
+}
+
