@@ -148,7 +148,10 @@ void *NosuchDaemon::network_input_threadfunc(void *arg)
 		}
 		if ( m_httpserver ) {
 			if ( m_httpserver->ShouldBeShutdown() ) {
-				delete m_httpserver;
+				// Crashes happen when m_httpserver is deleted,
+				// need better shutdown logic
+				DEBUGPRINT(("Avoiding delete of m_httpserver"));
+				// delete m_httpserver;
 				m_httpserver = NULL;
 			} else {
 				m_httpserver->Check();

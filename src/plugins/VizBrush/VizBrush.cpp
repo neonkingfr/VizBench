@@ -590,7 +590,7 @@ VizBrush::_set_sidrange(SidRangeable* b, cJSON* json, const char* id)
 bool VizBrush::_loadSpriteVizParamsFile(std::string fname, VizBrush::Region* r) {
 	r->lastspritefilecheck = time(0);
 	r->lastspritefileupdate = time(0);
-	SpriteVizParams* p = readSpriteVizParams(fname);
+	SpriteVizParams* p = readSpriteVizParams(fname,r->spriteparamfile);
 	if (!p) {
 		// A non-existent params file is now okay
 		// r->spriteparamfile = "";

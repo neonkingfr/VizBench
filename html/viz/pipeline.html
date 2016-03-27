@@ -32,7 +32,8 @@ function setup() {
 
 	fname = api.result;
 
-	// titlegen("Pipeline Editor");
+	otherlinks = "<a href=\"ffff.html\">Back to Pipeset</a>";
+	titlegen("Pipeline - "+fname,otherlinks);
 
 	pipeline_pagegen(pipenum,fname);
 
@@ -45,15 +46,10 @@ dojo.addOnLoad(setup);
     
 <body>
 
-<table width=100%>
-<tr>
-<td><div id="status">&nbsp;</div></td>
-<td align=right><a href=/viz/ffff.html>FFFF</a>&nbsp&nbsp<a href=/viz/vizserver.html>VizServer</a></td>
-</tr>
-</table>
+<div id="title">&nbsp;</div>
+<div id="status"></div>
 <div id="pipeline"></div>
-<p>
-	
+
 </body>
 
 </html>

@@ -124,6 +124,7 @@ Vizlet::Vizlet() {
 
 	m_defaultparams = new SpriteVizParams();
 
+	m_enableinput = true;
 	m_callbacksInitialized = false;
 	m_passthru = true;
 	m_call_RealProcessOpenGL = false;
@@ -295,7 +296,7 @@ void vizlet_osc(void* data,const char *source, const osc::ReceivedMessage& m) {
 void vizlet_midiinput(void* data,MidiMsg* m) {
 	Vizlet* v = (Vizlet*)data;
 	NosuchAssert(v);
-	if (v->IsConnected()) {
+	if (v->IsConnected() && v->InputEnabled()) {
 		v->processMidiInput(m);
 	}
 }
@@ -311,7 +312,7 @@ void vizlet_midioutput(void* data,MidiMsg* m) {
 void vizlet_cursor(void* data,VizCursor* c, int downdragup) {
 	Vizlet* v = (Vizlet*)data;
 	NosuchAssert(v);
-	if (v->IsConnected()) {
+	if (v->IsConnected() && v->InputEnabled()) {
 		v->processCursor(c, downdragup);
 	}
 }
@@ -319,7 +320,9 @@ void vizlet_cursor(void* data,VizCursor* c, int downdragup) {
 void vizlet_keystroke(void* data,int key, int downup) {
 	Vizlet* v = (Vizlet*)data;
 	NosuchAssert(v);
-	v->processKeystroke(key,downup);
+	if (v->InputEnabled()) {
+		v->processKeystroke(key, downup);
+	}
 }
 
 #if 0
@@ -769,9 +772,13 @@ std::string Vizlet::processJsonLockAndCatchExceptions(std::string meth, cJSON *p
 			r = jsonStringResult(val,id);
 		} else if ( meth == "time"  ) {
 			r = jsonDoubleResult(SchedulerCurrentTimeInSeconds(),id);
-		} else if ( meth == "name"  ) {
-		    std::string nm = CopyFFString16((const char *)(vizlet_plugininfo().GetPluginInfo()->PluginName));
-			r = jsonStringResult(nm,id);
+		}
+		else if (meth == "name") {
+			std::string nm = CopyFFString16((const char *)(vizlet_plugininfo().GetPluginInfo()->PluginName));
+			r = jsonStringResult(nm, id);
+		} else if (meth == "set_enableinput") {
+			m_enableinput = jsonNeedBool(params, "onoff", DFLT_BOOL_THROW_EXCEPTION);
+			r = jsonOK(id);
 		} else if (meth == "enableinputs") {
 		} else if (meth == "disableinputs") {
 		} else if ( meth == "dllpathname"  ) {
@@ -798,23 +805,29 @@ std::string Vizlet::processJsonLockAndCatchExceptions(std::string meth, cJSON *p
 }
 
 SpriteVizParams*
-Vizlet::readSpriteVizParams(std::string fname) {
+Vizlet::readSpriteVizParams(std::string fname, std::string default_fname) {
 	std::string err;
-	std::string path = SpriteVizParamsPath(fname);
+	std::string fpath = SpriteVizParamsPath(fname);
 	SpriteVizParams* p = new SpriteVizParams();
-	cJSON* json = jsonReadFile(path,err);
+	cJSON* json = jsonReadFile(fpath,err);
 	if (json) {
 		p->loadJson(json);
 		// XXX - should json be freed, here?
 	}
 	else {
-		// The file (presumably) doesn't exist, so create it with the default values
-		std::string contents = p->JsonListOfValues();
-		std::string err;
-		if (!jsonWriteFileContents(path, contents.c_str(), err)) {
-			throw NosuchException("Unable to write contents of %s", path.c_str());
+		if (default_fname != "") {
+			std::string default_fpath = SpriteVizParamsPath(default_fname);
+			NosuchFileCopy(default_fpath, fpath);
 		}
-		DEBUGPRINT(("Created spriteparams file with default parameters: %s",path.c_str()));
+		else {
+			// The file (presumably) doesn't exist, so create it with the default values
+			std::string contents = p->JsonListOfValues();
+			std::string err;
+			if (!jsonWriteFileContents(fpath, contents.c_str(), err)) {
+				throw NosuchException("Unable to write contents of %s", fpath.c_str());
+			}
+			DEBUGPRINT(("Created spriteparams file with default parameters: %s", fpath.c_str()));
+		}
 	}
 	return p;
 }

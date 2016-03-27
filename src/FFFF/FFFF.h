@@ -56,6 +56,7 @@ public:
 	FFGLPluginInstance* FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string viztag);
 	void paintTexture();
 	void setSidrange(int sidmin, int sidmax);
+	void setEnableInput(bool onoff);
 
 	void clear() {
 		DEBUGPRINT1(("FFGLPipeline.clear is called"));

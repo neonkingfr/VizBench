@@ -1,6 +1,7 @@
 {
 "pipeline": [
 	{
+		"vtag": "vizbrush",
 		"ffglplugin": "VizBrush",
 		"enabled": 1,
 		"moveable": 0,
@@ -13,7 +14,7 @@
 			}, {
 				"method":	"set_midi",
 				"params":	{
-					"paramfile":	"port1_pad1"
+					"paramfile":	"port1_pad4"
 				}
 			}, {
 				"method":	"set_looping",
@@ -22,10 +23,11 @@
 				}
 			}],
 		"params": [
-			{"name":"vtag", "value":"vizbrushxxx" }
+			{"name":"viztag", "value":"3:vizbrush", "type":"text" }
 			]
 	},
 	{
+		"vtag": "twisted",
 		"ffglplugin": "Twisted",
 		"enabled": 0,
 		"moveable": 1,
@@ -36,6 +38,7 @@
 			]
 	},
 	{
+		"vtag": "wave warp",
 		"ffglplugin": "Wave Warp",
 		"enabled": 0,
 		"moveable": 1,
@@ -50,6 +53,7 @@
 			]
 	},
 	{
+		"vtag": "kaleidoscope",
 		"ffglplugin": "Kaleidoscope",
 		"enabled": 0,
 		"moveable": 1,
@@ -62,6 +66,7 @@
 			]
 	},
 	{
+		"vtag": "blur",
 		"ffglplugin": "Blur",
 		"enabled": 1,
 		"moveable": 1,
@@ -73,6 +78,7 @@
 			]
 	},
 	{
+		"vtag": "goo",
 		"ffglplugin": "Goo",
 		"enabled": 0,
 		"moveable": 1,
@@ -85,6 +91,7 @@
 			]
 	},
 	{
+		"vtag": "fragment",
 		"ffglplugin": "Fragment",
 		"enabled": 1,
 		"moveable": 1,
@@ -100,6 +107,7 @@
 			]
 	},
 	{
+		"vtag": "posterize",
 		"ffglplugin": "Posterize",
 		"enabled": 0,
 		"moveable": 1,
@@ -108,6 +116,7 @@
 			]
 	},
 	{
+		"vtag": "displace",
 		"ffglplugin": "Displace",
 		"enabled": 1,
 		"moveable": 1,
@@ -118,6 +127,7 @@
 			]
 	},
 	{
+		"vtag": "iterate",
 		"ffglplugin": "Iterate",
 		"enabled": 0,
 		"moveable": 1,
@@ -149,6 +159,7 @@
 			]
 	},
 	{
+		"vtag": "edge detection",
 		"ffglplugin": "Edge Detection",
 		"enabled": 0,
 		"moveable": 1,
@@ -158,6 +169,7 @@
 			]
 	},
 	{
+		"vtag": "bendoscope",
 		"ffglplugin": "Bendoscope",
 		"enabled": 0,
 		"moveable": 1,
@@ -167,6 +179,7 @@
 			]
 	},
 	{
+		"vtag": "mirror",
 		"ffglplugin": "Mirror",
 		"enabled": 0,
 		"moveable": 1,
@@ -180,6 +193,7 @@
 			]
 	},
 	{
+		"vtag": "trails",
 		"ffglplugin": "Trails",
 		"enabled": 1,
 		"moveable": 0,

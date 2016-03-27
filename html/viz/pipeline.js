@@ -1,5 +1,6 @@
 var pipenum;
 var pipelinefilename;
+var autosave = true;
 
 function changeval(name) {
 	var valueid = document.getElementById("value_"+name);
@@ -51,13 +52,11 @@ function updateval2(name) {
 function moveup(fullviztag) {
 	checkapi(vizapi("ffff.moveup","{\"viztag\":\""+fullviztag+"\"}"));
 	autosave_pipeline();
-	// ffffpagegen();
 }
 
 function movedown(fullviztag) {
 	checkapi(vizapi("ffff.movedown","{\"viztag\":\""+fullviztag+"\"}"));
 	autosave_pipeline();
-	// ffffpagegen();
 }
 
 function browsepipelinefile() {
@@ -83,8 +82,8 @@ function autosave_pipeline() {
 }
 
 function autosave_pipeline_(refresh) {
-	var autosave = document.getElementById("autosave");
-	if ( autosave.checked && pipelinefilename != "" ) {
+	// var autosave = document.getElementById("autosave").checked;
+	if ( autosave&& pipelinefilename != "" ) {
 		save_pipeline()
 		if ( refresh ) {
 			pipeline_pagegen(pipenum,pipelinefilename);
@@ -122,7 +121,6 @@ function enable_all(onoff) {
 		checkapi(vizapi("ffff.ffglenable","{\"viztag\":\""+fullviztag+"\", \"onoff\": "+onoff+" }"));
 	}
 	autosave_pipeline();
-	// ffffpagegen();
 }
 
 function changeTextVal(tag,api,argname) {
@@ -160,27 +158,24 @@ function pipeline_pagegen(pn,fname) {
 
 	var html = "";
 
-	html += "<table>";
-	html += "<tr>";
-	html += "<td><font style=\"font-size: 200%\">Pipeline "+pipenum+"&nbsp;-&nbsp;"+pipelinefilename+"</font></td>";
-	html += "<td width=50px></td>";
-	html += "<td>";
-	html += "<input type=\"button\" style=\"width:100px\" value=\"Load\" onClick=\"load_pipeline();\">";
-	html += "&nbsp;&nbsp;";
-	// html += "<input type=\"button\" style=\"width:100px\" value=\"Save\" onClick=\"save_pipeline();\">";
-	html += "AutoSave<input type=\"checkbox\" checked=\"checked\" id=\"autosave\" value=\"AutoSave\" >";
-	html += "</td></tr>";
-	html += "</table>";
+	// html += "<table>";
+	// html += "<tr>";
+	// html += "<td>";
+	// html += "<input type=\"button\" style=\"width:100px\" value=\"Load\" onClick=\"load_pipeline();\">";
+	// html += "&nbsp;&nbsp;";
+	// html += "AutoSave<input type=\"checkbox\" checked=\"checked\" id=\"autosave\" value=\"AutoSave\" >";
+	// html += "</td></tr>";
+	// html += "</table>";
+	// html += "<p>";
 
-	html += "<p>";
-	html += "&nbsp;&nbsp;";
+	html += "Plugins: &nbsp;&nbsp;";
 	html += "<input type=\"button\" value=\"Enable All\" onClick=\"enable_all(1);\">";
 	html += "&nbsp;&nbsp;";
 	html += "<input type=\"button\" value=\"Disable All\" onClick=\"enable_all(0);\">";
 	html += "&nbsp;&nbsp;";
-	html += "<input type=\"button\" value=\"Shuffle Pipeline\" onClick=\"shufflepipeline();\">";
+	html += "<input type=\"button\" value=\"Shuffle\" onClick=\"shufflepipeline();\">";
 	html += "&nbsp;&nbsp;";
-	html += "<input type=\"button\" value=\"Randomize Pipeline\" onClick=\"randomizepipeline();\">";
+	html += "<input type=\"button\" value=\"Randomize\" onClick=\"randomizepipeline();\">";
 
 	var r;
 	html += "<table>";	// two columns, left column for plugin name
@@ -273,17 +268,10 @@ function pipeline_pagegen(pn,fname) {
 						var val = "";
 						if ( /^set_/.test(api) ) {
 
-							// var argstr = "&quot;" + argname + "&quot; : "
-							// 	+ "&quot;'+document.getElementById(&quot;" + inputid + "&quot;).value+'&quot;";
-							//
-							// html += "<td><input type=\"button\" style=\"width:150px\" value=\""
-							// 	+api+"\" onClick=\"checkapi(vizapi('"+fullapiname+"','{"+argstr+"}'));\"></td>";
-
 							var api_sans_set = api.substr(4);
 							var getapi = "get_"+api_sans_set;
 							var aaa = vizapi(fullviztag+"."+getapi,"{\"viztag\":\""+fullviztag+"\"}");
 							val = aaa.result;
-							// html += "<td width=10></td><td align=right>"
 							html += "<td align=right>"
 								+api_sans_set+"&nbsp;"+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" onChange=\"changeTextVal('"+fullviztag+"','"+api+"','"+argname+"')\" value=\""+val+"\" id=\""+inputid+"\" size=20></td>";
 							if ( argname == "paramfile" ) {
@@ -298,9 +286,6 @@ function pipeline_pagegen(pn,fname) {
 							html += "<td><input type=\"button\" style=\"width:150px\" value=\""
 								+api+"\" onClick=\"checkapi(vizapi('"+fullapiname+"','{}'));\"></td>";
 
-							// a non-set_* api
-							// html += "<td width=10></td><td align=right>"
-							// 	+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" value=\""+val+"\" id=\""+inputid+"\" size=8></td>";
 						}
 
 					}

@@ -9,7 +9,7 @@
 		"vizletdump": [{
 				"method":	"set_sprite",
 				"params":	{
-					"paramfile":	"eyeball"
+					"paramfile":	"eyeball-outline"
 				}
 			}, {
 				"method":	"set_midi",
@@ -71,7 +71,7 @@
 		"enabled": 1,
 		"moveable": 1,
 		"params": [
-			{"name":"Blur X Distance", "value":0.000000 }, 
+			{"name":"Blur X Distance", "value":0.090000 }, 
 			{"name":"Blur Y Distance", "value":0.110000 }, 
 			{"name":"Quality", "value":0.280000 }, 
 			{"name":"Gaussian", "value":0.370000 }

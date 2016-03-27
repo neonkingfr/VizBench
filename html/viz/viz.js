@@ -2,6 +2,8 @@ function format_error(meth,err) {
 	var estr = "" + err;
 	if ( estr.match(/xmlhttprequest exception 101/i) ) {
 		return "Unable to connect to MMTT - is it running?";
+	} else if ( estr.match(/NetworkError/i) ) {
+		return "Unable to connect to FFFF - is it running?";
 	} else {
 		return "Method: "+meth+"  Error:" + err;
 	}
@@ -74,7 +76,7 @@ function checkapi(api,success_message,error_message) {
 	}
 }
 
-function titlegen(title,otherlink) {
+function titlegen(title,homelink) {
 	var html = "";
 	html += "<table width=100%><tr>";
 	html += "<td align=left>";
@@ -82,9 +84,9 @@ function titlegen(title,otherlink) {
 	html += "<font style=\"font-weight: bold; font-size: 200%;\">" + title + "</font>";
 
 	html += "</td>";
-	html += "<td>";
-	if ( otherlink ) {
-		html += otherlink;
+	html += "<td align=right>";
+	if ( homelink != "" ) {
+		html += homelink;
 	}
 
 	html += "</td></tr></table>";

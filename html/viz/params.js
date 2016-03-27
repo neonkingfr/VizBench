@@ -4,6 +4,8 @@ ParamsClass = "undefined"
 
 var paramfilename;
 
+var autosave = true;
+
 function updateonevalue(name,value) {
 	var obj = ParamList[name];
 	var type = obj["type"];
@@ -207,9 +209,9 @@ function stringvalindex(name,val) {
 }
 
 function autowritefile() {
-	var autosave = document.getElementById("autosave");
+	// var autosave = document.getElementById("autosave").checked;
 	var paramfilename = document.getElementById("paramfilename");
-	if ( autosave.checked && paramfilename != "" ) {
+	if ( autosave && paramfilename != "" ) {
 		writefile()
 	}
 }
@@ -255,12 +257,18 @@ function updateval2(name) {
 	autowritefile();
 }
 
+// paramsclass is either "sprite" or "midi"
 function make_edit_page(paramsclass) {
+
+	var pipenum = 0;
 
 	// Fill in the Filename with the paramfile query value
 	var vals = queryvalues();
 	if ( vals["paramfile"] ) {
 		paramfilename = vals["paramfile"];
+	}
+	if ( vals["pipenum"] ) {
+		pipenum = vals["pipenum"];
 	}
 
 	ParamsClass = paramsclass
@@ -276,32 +284,36 @@ function make_edit_page(paramsclass) {
 	}
 
 	var typetitle = ParamsClass.substr(0,1).toUpperCase() + ParamsClass.substr(1);
-	titlegen(typetitle+"Params Editor");
+
+	if ( ! pipenum ) {
+		pipenum = 0;
+	}
+
+	var otherlinks = "<a href=\"pipeline.html?pipenum="+pipenum+"\">Back to Pipeline</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"ffff.html\">FFFF Home</a>";
+	titlegen(typetitle+" - "+paramfilename,otherlinks);
 
 	var html = "";
 
-	html += "Filename: ";
-	// html += "<input type=\"text\" style=\"width: 50%\" id=\"paramfilename\">";
-	html += "<b>"+paramfilename+"</b>";
-	html += "&nbsp;&nbsp;";
-	html += "<p>";
+	// html += "<input type=\"button\" style=\"width:100px\" value=\"Load\" onClick=\"readfile();\">";
+	// html += "&nbsp;&nbsp;";
 
-	html += "<input type=\"button\" style=\"width:100px\" value=\"Load\" onClick=\"readfile();\">";
+	// html += "<input type=\"button\" style=\"width:100px\" value=\"Defaults\" onClick=\"loaddefaults();\">";
+	// html += "&nbsp;&nbsp;";
+
+	html += "<input type=\"button\" style=\"width:150px\" value=\"Randomize\" onClick=\"randparams();\">";
 	html += "&nbsp;&nbsp;";
-	html += "<input type=\"button\" style=\"width:100px\" value=\"Defaults\" onClick=\"loaddefaults();\">";
+	html += "<input type=\"button\" style=\"width:150px\" value=\"Set ALL Randomize\" onClick=\"setallrandable(true);\">";
 	html += "&nbsp;&nbsp;";
-	html += "<input type=\"button\" style=\"width:100px\" value=\"Randomize\" onClick=\"randparams();\">";
-	html += "&nbsp;&nbsp;";
-	html += "<input type=\"button\" style=\"width:100px\" value=\"Set ALL Randomize\" onClick=\"setallrandable(true);\">";
-	html += "&nbsp;&nbsp;";
-	html += "<input type=\"button\" style=\"width:100px\" value=\"Unset ALL Randomize\" onClick=\"setallrandable(false);\">";
+	html += "<input type=\"button\" style=\"width:150px\" value=\"Unset ALL Randomize\" onClick=\"setallrandable(false);\">";
 	// html += "&nbsp;&nbsp;";
 	// html += "<input type=\"button\" style=\"width:100px\" value=\"Rand Defaults\" onClick=\"randdefaults();\">";
 	html += "&nbsp;&nbsp;";
-	html += "<input type=\"button\" style=\"width:100px\" value=\"Save\" onClick=\"writefile();\">";
-	html += "&nbsp;&nbsp;";
-	html += "AutoSave<input type=\"checkbox\" checked=\"checked\" id=\"autosave\" value=\"AutoSave\" >";
-	html += "<p>";
+
+	// html += "<input type=\"button\" style=\"width:100px\" value=\"Save\" onClick=\"writefile();\">";
+	// html += "&nbsp;&nbsp;";
+	// html += "AutoSave<input type=\"checkbox\" checked=\"checked\" id=\"autosave\" value=\"AutoSave\" >";
+
+	html += "<p><hr>";
 
 	var api = vizapi('VizServer.'+ParamsClass+'param_list');    // e.g. it calls VizServer.spriteparam_list
 	if ( checkapi(api) ) {

@@ -76,6 +76,9 @@ public:
 	bool IsConnected() {
 		return m_connected;
 	};
+	bool InputEnabled() {
+		return m_enableinput;
+	};
 
 	void LoadPipeline(std::string pipeline);
 
@@ -122,7 +125,7 @@ public:
 	std::string VizPath2ConfigName(std::string path);
 
 	// If there are more types of *VizParams, should probably use templates...
-	SpriteVizParams* readSpriteVizParams(std::string fname);
+	SpriteVizParams* readSpriteVizParams(std::string fname, std::string default_fname = "");
 	SpriteVizParams* checkSpriteVizParamsAndLoadIfModifiedSince(std::string fname, std::time_t& lastcheck, std::time_t& lastupdate);
 
 	MidiVizParams* checkMidiVizParamsAndLoadIfModifiedSince(std::string fname, std::time_t& lastcheck, std::time_t& lastupdate);
@@ -264,6 +267,7 @@ private:
 	VizServer* m_vizserver;
 	bool m_callbacksInitialized;
 	char* m_viztag;
+	bool m_enableinput;
 	VizSpriteList* m_spritelist;
 	SpriteVizParams* m_defaultparams;
 	SpriteVizParams* m_defaultmidiparams;

@@ -55,7 +55,7 @@
 	{
 		"vtag": "kaleidoscope",
 		"ffglplugin": "Kaleidoscope",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"Angles", "value":0.350000 }, 

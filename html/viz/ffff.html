@@ -12,13 +12,15 @@
 <script src="viz.js" djConfig="parseOnLoad: true"> </script>
 <script type="text/javascript">
 
+var autosave = true;
+
 function setup() {
 
-	var otherlink = "<br><a href=vizserver.html>VizServer Control</a>";
+	// titlegen("FFFF Home","");
 
-	titlegen("FFFF Control", otherlink);
+	pipelines_pagegen();
 
-	ffffpagegen();
+	vizserver_pagegen();
 
 	refresh_all();
 }
@@ -35,11 +37,14 @@ function refresh_all() {
 	var api = vizapi("ffff.get_pipeset");
 	if ( checkapi(api) ) {
 		document.getElementById("pipeset").value = api.result;
+	} else {
+		// alert("Failed to get_pipeset, aborting refresh_all");
+		return;
 	}
 
 	refresh_checkbox("showfps");
-	refresh_checkbox("autoload");
-	refresh_checkbox("autosave");
+	// refresh_checkbox("autoload");
+	// refresh_checkbox("autosave");
 
 	refresh_pipeline(0);
 	refresh_pipeline(1);
@@ -49,26 +54,32 @@ function refresh_all() {
 
 function ffff_loadsave() {
 	var html = "";
-	html += "<table>";
-	html += "<tr><td>";
-	html += "<input type=\"file\" style=\"display: none\" id=\"pipesetfile\" onChange=\"change_pipeset();\" >";
 
-	html += "PipeSet: ";
-	html += "</td><td>";
-	html += "<input type=\"text\" style=\"width:200px\" id=\"pipeset\">";
-	html += "&nbsp;&nbsp;";
-	html += "<input type=\"button\" style=\"width:100px\" value=\"Browse\" onClick=\"browse_pipeset();\">";
-	html += "&nbsp;&nbsp;";
-	html += "<input type=\"button\" style=\"width:100px\" value=\"Load\" onClick=\"load_pipeset();\">";
-	html += "&nbsp;&nbsp;";
-	html += "<input type=\"button\" style=\"width:100px\" value=\"Save\" onClick=\"save_pipeset();\">";
-	html += "</td></tr>";
-	html += "</table>";
+	html += "<font style=\"width:200px; font-size: 200%\";\">";
+	html += "PipeSet - &nbsp;&nbsp;&nbsp;";
+	html += "<input type=\"text\" style=\"width:200px; font-size: 100%\" id=\"pipeset\" onChange=\"change_pipeset();\" onKeypress=\"keypress_pipeset(event);\" >";
 
-	html += "Show FPS: <input type=\"checkbox\" id=\"showfps\" onChange=\"change_showfps();\">";
-	html += "Autoload pipelines: <input type=\"checkbox\" id=\"autoload\" onChange=\"change_autoload();\">";
-	html += "Autosave pipeset: <input type=\"checkbox\" id=\"autosave\" onChange=\"change_autosave();\">";
+	html += "</font>";
+
 	return html;
+
+	// html += "<input type=\"file\" style=\"display: none\" id=\"pipesetfile\" >";
+
+
+	// html += "</td><td>";
+	html += "&nbsp;&nbsp;";
+
+	// html += "<input type=\"button\" style=\"width:100px\" value=\"Browse\" onClick=\"browse_pipeset();\">";
+	// html += "&nbsp;&nbsp;";
+	// html += "<input type=\"button\" style=\"width:100px\" value=\"Load\" onClick=\"load_pipeset();\">";
+	// html += "&nbsp;&nbsp;";
+	// html += "<input type=\"button\" style=\"width:100px\" value=\"Save\" onClick=\"save_pipeset();\">";
+
+
+	// html += "<td>Show FPS: <input type=\"checkbox\" id=\"showfps\" onChange=\"change_showfps();\"></td>";
+	// html += "<td>Autoload pipelines: <input type=\"checkbox\" id=\"autoload\" onChange=\"change_autoload();\"></td>";
+	// html += "<td>Autosave pipeset: <input type=\"checkbox\" id=\"autosave\" onChange=\"change_autosave();\"></td>";
+
 }
 
 function onepipeline(pipenum) {
@@ -97,7 +108,7 @@ function onepipeline(pipenum) {
 	return html;
 }
 
-function ffffpagegen() {
+function pipelines_pagegen() {
 
 	var html = "";
 
@@ -111,12 +122,24 @@ function ffffpagegen() {
 	html += onepipeline(3);
 	html += "</table>";
 
-	html += "<br><hr>\n";
+	html += "<hr>\n";
 
-	document.getElementById("pipeline_list").innerHTML = html;
+	document.getElementById("pipelines").innerHTML = html;
+}
+
+function vizserver_pagegen() {
+	var html = "";
+
+	html += "Show FPS: <input type=\"checkbox\" id=\"showfps\" onChange=\"change_showfps();\">";
+
+	html += "<br><a href=\"vizserver.html\">VizServer control</a>";
+
+	document.getElementById("vizserver").innerHTML = html;
 }
 
 function change_pipeset() {
+	// Maybe this should just blindly load the pipeset, rather than
+	// try to be clever and only load it if it changes?
 	var api = vizapi("ffff.get_pipeset");
 	if ( ! checkapi(api) ) {
 		return;
@@ -124,19 +147,27 @@ function change_pipeset() {
 	var current_pipeset = api.result;
 	var fname = document.getElementById("pipeset").value;
 	if ( fname != current_pipeset ) {
-		checkapi(vizapi("ffff.load_pipeset","{\"filename\":\""+fname+"\" }"));
+		load_pipeset();
 	}
 }
 
-function browse_pipeset() {
-	var id = document.getElementById("pipesetfile");
-	id.click();
+function keypress_pipeset(e) {
+	if ( e.keyCode == 13 ) {
+		load_pipeset();
+	}
 }
+
+// function browse_pipeset() {
+// 	var id = document.getElementById("pipesetfile");
+// 	id.click();
+// }
 
 function load_pipeset() {
 	var fname = document.getElementById("pipeset").value;
-	checkapi(vizapi("ffff.load_pipeset","{\"filename\":\""+fname+"\" }"));
-	refresh_all();
+	if ( checkapi(vizapi("ffff.load_pipeset","{\"filename\":\""+fname+"\" }")) ) {
+		refresh_all();
+		set_status("Pipeset loaded!");
+	}
 }
 
 function save_pipeset() {
@@ -187,17 +218,17 @@ function change_showfps() {
 	checkapi(vizapi("ffff.set_showfps","{\"onoff\":"+onoff+" }"));
 }
 
-function change_autoload() {
-	var id = document.getElementById("autoload");
-	var onoff = id.checked ? "1" : "0";
-	checkapi(vizapi("ffff.set_autoload","{\"onoff\":"+onoff+" }"));
-}
+// function change_autoload() {
+// 	var id = document.getElementById("autoload");
+// 	var onoff = id.checked ? "1" : "0";
+// 	checkapi(vizapi("ffff.set_autoload","{\"onoff\":"+onoff+" }"));
+// }
 
-function change_autosave() {
-	var id = document.getElementById("autosave");
-	var onoff = id.checked ? "1" : "0";
-	checkapi(vizapi("ffff.set_autosave","{\"onoff\":"+onoff+" }"));
-}
+// function change_autosave() {
+// 	var id = document.getElementById("autosave");
+// 	var onoff = id.checked ? "1" : "0";
+// 	checkapi(vizapi("ffff.set_autosave","{\"onoff\":"+onoff+" }"));
+// }
 
 function edit_pipeline(pipenum) {
 	window.location.href = ("pipeline.html?pipenum="+pipenum);
@@ -233,9 +264,9 @@ function refresh_pipeline(pipenum) {
 }
 
 function autosave_pipeset() {
-	var autosave = document.getElementById("autosave");
+	// var autosave = document.getElementById("autosave");
 	var pipeset = document.getElementById("pipeset").value;
-	if ( autosave.checked && pipeset != "" ) {
+	if ( autosave && pipeset != "" ) {
 		save_pipeset()
 		refresh_all();
 	}
@@ -247,11 +278,9 @@ dojo.addOnLoad(setup);
     
 <body>
 
-<div id="title">&nbsp;</div>
-<br>
+<div id="pipelines"></div>
 <div id="status"></div>
-<br>
-<div id="pipeline_list"></div>
+<div id="vizserver"></div>
 <p>
 	
 </body>

@@ -630,13 +630,24 @@ FFFF::loadPipeline(int pipenum, std::string name, std::string fpath, int sidmin,
 {
 	std::string err;
 
+	FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
+
+	std::string current_name = pipeline.m_name;
+
 	DEBUGPRINT(("loadPipeline pipenum=%d name=%s sidrange=%d-%d",
 		pipenum, name.c_str(), sidmin, sidmax));
 
 	bool exists = NosuchFileExists(fpath);
 	cJSON* json;
 	if (!exists) {
-		throw NosuchException("No such file: fpath=%s", fpath.c_str());
+		// If it's a pipeline that doesn't exist,
+		// make a copy of the current one
+		if (NosuchFileExists(pipeline.m_filepath)) {
+			NosuchFileCopy(pipeline.m_filepath, fpath);
+		}
+		else {
+			throw NosuchException("No such file: fpath=%s", fpath.c_str());
+		}
 	}
 	json = jsonReadFile(fpath,err);
 	if (!json) {
@@ -652,13 +663,12 @@ FFFF::loadPipeline(int pipenum, std::string name, std::string fpath, int sidmin,
 		throw NosuchException("Error in _stat fpath=%s - e=%d", fpath.c_str(), e);
 	}
 
-	FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
-
 	pipeline.m_name = name;
 	pipeline.m_filepath = fpath;
 	pipeline.m_file_lastupdate = statbuff.st_mtime;
 	pipeline.m_file_lastcheck = statbuff.st_mtime;
 	pipeline.setSidrange(sidmin,sidmax);
+	pipeline.setEnableInput(pipeline.m_pipeline_enabled);
 }
 
 void
@@ -877,12 +887,45 @@ FFFF::doPipeline(int pipenum, int width, int height)
 }
 
 void
+FFGLPipeline::setEnableInput(bool onoff) {
+
+	// Go through all the vizlets in the pipeline, and enable/disable input
+
+	DEBUGPRINT(("setEnableInput pipe=%s onoff=%d ",m_name.c_str(),onoff));
+
+	VizServer* viz = VizServer::GetServer();
+	FFGLPluginList& ffglplugins = m_pluginlist;
+	for (FFGLPluginList::iterator it = ffglplugins.begin(); it != ffglplugins.end(); it++) {
+		FFGLPluginInstance* p = *it;
+		bool isvizlet = viz->IsVizlet(p->viztag().c_str());
+		if (!isvizlet) {
+			continue;
+		}
+
+		// This code just blindly calls a set_enableinput method on every vizlet.
+
+		std::string fullmethod = NosuchSnprintf("%s.set_enableinput",p->viztag().c_str());
+		std::string jsonstr = NosuchSnprintf("{ \"onoff\": \"%d\" }", onoff);
+		cJSON* params = cJSON_Parse(jsonstr.c_str());
+		if (!params) {
+			throw NosuchException("Internal error in parsing enableinput json!?");
+		}
+		std::string s = viz->ProcessJson(fullmethod.c_str(), params, "12345");
+		DEBUGPRINT1(("result of set_enableinput=%s",s.c_str()));
+		// XXX - should really check the result for success (or missing api), here.
+		cJSON_free(params);
+	}
+}
+
+void
 FFGLPipeline::setSidrange(int sidmin, int sidmax) {
 
 	m_sidmin = sidmin;
 	m_sidmax = sidmax;
 
 	// Now go through all the vizlets in the pipeline, and set the sidrange within them
+
+	DEBUGPRINT(("setSidrange sidmin=%d sidmax=%d",m_sidmin,m_sidmax));
 
 	VizServer* viz = VizServer::GetServer();
 	FFGLPluginList& ffglplugins = m_pluginlist;
@@ -1947,12 +1990,13 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	}
 	if ( meth == "set_enablepipeline" ) {
 		NosuchAssert(pipenum >= 0);
-		m_ffglpipeline[pipenum].m_pipeline_enabled = jsonNeedBool(params, "onoff", true);
+		ppipeline->m_pipeline_enabled = jsonNeedBool(params, "onoff", true);
+		ppipeline->setEnableInput(ppipeline->m_pipeline_enabled);
 		return jsonOK(id);
 	}
 	if ( meth == "get_enablepipeline" ) {
 		NosuchAssert(pipenum >= 0);
-		return jsonIntResult(m_ffglpipeline[pipenum].m_pipeline_enabled, id);
+		return jsonIntResult(ppipeline->m_pipeline_enabled, id);
 	}
 	if (meth == "get_pipeset") {
 		std::string s = m_pipeset_filename;
@@ -1998,7 +2042,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	}
 	if (meth == "pipelinefilename") {
 		NosuchAssert(pipenum >= 0);
-		std::string s = m_ffglpipeline[pipenum].m_name;
+		std::string s = ppipeline->m_name;
 		// Take off any trailing .json
 		int pos = s.find(".json");
 		if (pos != s.npos) {
@@ -2059,8 +2103,9 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 			return jsonError(-32000,"Bad format of sidrange value",id);
 		}
 		NosuchAssert(pipenum >= 0);
-		ppipeline->m_sidmin = sidmin;
-		ppipeline->m_sidmax = sidmax;
+		// ppipeline->m_sidmin = sidmin;
+		// ppipeline->m_sidmax = sidmax;
+		ppipeline->setSidrange(sidmin,sidmax);
 		return jsonOK(id);
 	}
 
