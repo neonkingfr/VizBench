@@ -891,7 +891,7 @@ FFGLPipeline::setEnableInput(bool onoff) {
 
 	// Go through all the vizlets in the pipeline, and enable/disable input
 
-	DEBUGPRINT(("setEnableInput pipe=%s onoff=%d ",m_name.c_str(),onoff));
+	DEBUGPRINT1(("setEnableInput pipe=%s onoff=%d ",m_name.c_str(),onoff));
 
 	VizServer* viz = VizServer::GetServer();
 	FFGLPluginList& ffglplugins = m_pluginlist;
@@ -925,7 +925,7 @@ FFGLPipeline::setSidrange(int sidmin, int sidmax) {
 
 	// Now go through all the vizlets in the pipeline, and set the sidrange within them
 
-	DEBUGPRINT(("setSidrange sidmin=%d sidmax=%d",m_sidmin,m_sidmax));
+	DEBUGPRINT1(("setSidrange sidmin=%d sidmax=%d",m_sidmin,m_sidmax));
 
 	VizServer* viz = VizServer::GetServer();
 	FFGLPluginList& ffglplugins = m_pluginlist;

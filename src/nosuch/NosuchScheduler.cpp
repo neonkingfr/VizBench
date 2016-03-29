@@ -187,12 +187,33 @@ void NosuchScheduler::QueueClear() {
 	UnlockQueue();
 }
 
+void NosuchScheduler::QueueRemoveBefore(int cursorid, click_t clk) {
+	m_scheduled->DeleteAllBefore(cursorid,clk);
+	m_queue->DeleteAllBefore(cursorid,clk);
+	DEBUGPRINT1(("NosuchScheduler::QueueRemoveBefore clk=%d sid=%d  afterward NumQueued=%d  NumScheduled=%d",
+		clk,cursorid,NumQueuedEventsOfSid(cursorid),NumScheduledEventsOfSid(cursorid) ));
+}
+
+int
+NosuchScheduler::NumQueuedEventsOfSid(int sid) {
+	return m_queue->NumEventsOfSid(sid);
+}
+
+int
+NosuchScheduler::NumScheduledEventsOfSid(int sid) {
+	return m_scheduled->NumEventsOfSid(sid);
+}
+
 bool
 NosuchScheduler::QueueAddEvent(SchedEvent* e) {
 	static int count = 0;
 	LockQueue();
 
 	m_queue->InsertEvent(e);
+
+	DEBUGPRINT1(("QueueAddEvent, queue size is now %d  cursorsid=%d  numofsid=%d",
+		m_queue->NumEvents(),e->m_cursorid,m_queue->NumEventsOfSid(e->m_cursorid)));
+
 	count++;
 	DEBUGPRINT1(("QueueAddEvent, count=%d queue is now: %s ", count, m_queue->DebugString().c_str()));
 	if (count == 3) {
@@ -650,6 +671,7 @@ void NosuchScheduler::SendPmMessage(PmMessage pm, PmStream* ps) {
 	PmEvent ev[1];
 	ev[0].timestamp = TIME_PROC(TIME_INFO);
 	ev[0].message = pm;
+	DEBUGPRINT(("Obsolete SendPmMessage called!?"));
 	if ( ps ) {
 		Pm_Write(ps,ev,1);
 	} else {
@@ -671,6 +693,10 @@ void NosuchScheduler::SendMidiMsg(MidiMsg* msg, int cursorid) {
 	MidiMsg* mm = msg;
 	MidiMsg* newmm = NULL;
 
+	PtTimestamp tm = TIME_PROC(TIME_INFO);
+
+	DEBUGPRINT1(("SendMidiMsg tm=%ld",tm));
+
 	int outputport = msg->OutputPort();
 
 	bool isnoteon = (mm->MidiType() == MIDI_NOTE_ON);
@@ -689,7 +715,6 @@ void NosuchScheduler::SendMidiMsg(MidiMsg* msg, int cursorid) {
 	// XXX - need to have map of channels that don't do pitch offset
 	_maintainNotesDown(mm);
 
-	PtTimestamp tm = TIME_PROC(TIME_INFO);
 	PmMessage pm = mm->PortMidiMessage();
 	PmEvent ev[1];
 	ev[0].timestamp = tm;

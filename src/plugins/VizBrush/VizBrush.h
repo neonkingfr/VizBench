@@ -74,8 +74,8 @@ private:
 
 	void _queueNoteonWithNoteoffPending(VizCursor* c, Region* r);
 
-	void _queueRegionMidiPhrase(MidiPhrase* ph, click_t tm, int cursorid, Region* r);
-	void _queueRegionMidiMsg(MidiMsg* m, click_t tm, int cursorid, Region* r);
+	void _queueRegionMidiPhrase(MidiPhrase* ph, click_t clk, int cursorid, Region* r);
+	void _queueRegionMidiMsg(MidiMsg* m, click_t clk, int cursorid, Region* r);
 
 	void _genArpeggiatedMidi(VizCursor* c, int downdragup, Region* r);
 	void _genNormalMidi(VizCursor* c, int downdragup, Region* r);

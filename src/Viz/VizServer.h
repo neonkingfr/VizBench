@@ -223,6 +223,11 @@ public:
 	void QueueClear();
 	void ScheduleClear(int cursorid = SCHEDID_ALL);
 
+	void QueueRemoveBefore(int cursorsid, click_t clk);
+
+	int NumQueuedOfId(int cursorsid);
+	int NumScheduledOfId(int cursorsid);
+
 	const char* MidiInputName(size_t n) {
 		return m_scheduler->MidiInputName(n);
 	}

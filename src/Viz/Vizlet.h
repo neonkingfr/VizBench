@@ -87,6 +87,10 @@ public:
 	void QueueClear();
 	void ScheduleClear();
 
+	void QueueRemoveBefore(int cursorsid, click_t clk);
+	int NumQueuedOfId(int sid);
+	int NumScheduledOfId(int sid);
+
 	bool SendOsc(std::string host, int port, const char* data, size_t size);
 
 	std::string MidiInputName(size_t n) { return m_vizserver->MidiInputName(n);  }

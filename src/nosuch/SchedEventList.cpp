@@ -57,7 +57,7 @@ void SchedEventList::DeleteAllId(int cursorid) {
 	for (SchedEvent* e = m_first; e != NULL; e = nexte) {
 		nexte = e->m_next;
 		if (e->m_cursorid != cursorid) {
-			continue;
+			continue;  // i.e. not deleting it
 		}
 #if 0
 		if (e->m_eventtype == SchedEvent::MIDIMSG ) {
@@ -68,6 +68,74 @@ void SchedEventList::DeleteAllId(int cursorid) {
 			}
 		}
 #endif
+		// cursorid matches, so we want to delete e from the list
+		if (e == m_last) {
+			DEBUGPRINT1(("Deleting AA SchedEvent e=%ld",(long)e));
+			if (m_last->m_prev == NULL) {
+				// It's the only one in the list
+				m_last = NULL;
+				m_first = NULL;
+			}
+			else {
+				m_last->m_prev->m_next = NULL;
+				m_last = m_last->m_prev;
+			}
+			DEBUGPRINT1(("Deleting A SchedEvent e=%ld", (long)e));
+			delete e;
+			continue;
+		}
+		if (e == m_first) {
+			if (m_first->m_next == NULL) {
+				// It's the only one in the list
+				m_last = NULL;
+				m_first = NULL;
+			}
+			else {
+				m_first->m_next->m_prev = NULL;
+				m_first = m_first->m_next;
+			}
+			DEBUGPRINT1(("Deleting B SchedEvent e=%ld", (long)e));
+			delete e;
+			continue;
+		}
+		// At this point e is not the first or last in the list
+		e->m_prev->m_next = e->m_next;
+		e->m_next->m_prev = e->m_prev;
+		DEBUGPRINT1(("Deleting C SchedEvent e=%ld", (long)e));
+		delete e;
+	}
+	DEBUGPRINT1(("post Deleting loop for cursorid=%d", cursorid));
+	CheckSanity("DeleteAllId end");
+}
+
+// We assume we're locked when this is called
+void SchedEventList::DeleteAllBefore(int cursorid, click_t beforeclk) {
+
+	DEBUGPRINT1(("DeleteAllId id=%d",cursorid));
+	// There can/will be multiple events with the same cursorid
+
+	CheckSanity("DeleteAllId A");
+
+	SchedEvent* nexte;
+	for (SchedEvent* e = m_first; e != NULL; e = nexte) {
+		nexte = e->m_next;
+		if (e->m_cursorid != cursorid) {
+			continue;  // i.e. not deleting it
+		}
+		if (e->click > beforeclk) {
+			DEBUGPRINT1(("click > beforeclk, not deleting it"));
+			continue;  // i.e. not deleting it
+		}
+		if (e->click <= beforeclk) {
+			DEBUGPRINT1(("click <= beforeclk, deleting it"));
+		}
+		if (e->m_eventtype == SchedEvent::MIDIMSG ) {
+			MidiMsg* m = e->u.midimsg;
+			if (m->MidiType() == MIDI_NOTE_OFF) {
+				DEBUGPRINT1(("DeleteAllBefore sees NOTEOFF and is not deleting it"));
+				continue;
+			}
+		}
 		// cursorid matches, so we want to delete e from the list
 		if (e == m_last) {
 			DEBUGPRINT1(("Deleting AA SchedEvent e=%ld",(long)e));
@@ -220,6 +288,18 @@ int SchedEventList::NumEvents() {
 	int n = 0;
 	for (SchedEvent* e = m_first; e != NULL; e = e->m_next) {
 		n++;
+	}
+	return n;
+}
+
+int SchedEventList::NumEventsOfSid(int sid) {
+	DEBUGPRINT1(("NumEvents"));
+	CheckSanity("NumEvents");
+	int n = 0;
+	for (SchedEvent* e = m_first; e != NULL; e = e->m_next) {
+		if (e->m_cursorid == sid) {
+			n++;
+		}
 	}
 	return n;
 }

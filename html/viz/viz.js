@@ -137,7 +137,7 @@ function vizpagegen(viztags) {
 				var api = w[0];
 				var fullapiname = tag + "." + api;
 				if ( w.length <= 1 ) {
-					html += "<td><input type=\"button\" style=\"width:100px\" value=\""+a[n]+"\" onClick=\"checkapi(vizapi('"+fullapiname+"'));\"></td>";
+					html += "<td><input type=\"button\" style=\"width:160px\" value=\""+a[n]+"\" onClick=\"checkapi(vizapi('"+fullapiname+"'));\"></td>";
 				} else if ( w.length != 3 ) {
 					alert("Hey, too many arguments on api="+w[0]+" length="+w.length+" an="+a[n]);
 				} else {
@@ -148,7 +148,7 @@ function vizpagegen(viztags) {
 					var argstr = "&quot;" + argname + "&quot; : "
 						+ "&quot;'+document.getElementById(&quot;" + inputid + "&quot;).value+'&quot;";
 
-					html += "<td><input type=\"button\" style=\"width:100px\" value=\""
+					html += "<td><input type=\"button\" style=\"width:160px\" value=\""
 						+api+"\" onClick=\"checkapi(vizapi('"+fullapiname+"','{"+argstr+"}'));\"></td>";
 
 					html += "<td width=10></td><td align=right>"

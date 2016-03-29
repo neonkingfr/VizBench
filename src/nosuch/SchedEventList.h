@@ -23,12 +23,16 @@ public:
 	void DeleteAllId(int cursorid);
 
 	// We assume we're locked when this is called
+	void DeleteAllBefore(int cursorid, click_t beforeclk);
+
+	// We assume we're locked when this is called
 	void CheckSanity(const char* tag = "unset");
 
 	// We assume we're locked when this is called
 	void InsertEvent(SchedEvent* e);
 
 	int NumEvents();
+	int NumEventsOfSid(int sid);
 	
 	std::string DebugString();
 

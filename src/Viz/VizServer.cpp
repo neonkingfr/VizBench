@@ -467,6 +467,8 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 				"set_midifile(file);"
 				"set_clickspersecond(clicks);"
 				"set_midioutput(index);"
+				"set_debugmidinotes(onoff);"
+				"set_debugmidiall(onoff);"
 				"set_debugapi(onoff);"
 				"set_debughttp(onoff);"
 				"set_showfps(onoff);"
@@ -618,9 +620,22 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 		if (api == "get_debugapi" ) {
 			return jsonIntResult(ss->m_debugApi,id);
 		}
-
+		if (api == "get_debugmidinotes" ) {
+			return jsonIntResult(NosuchDebugMidiNotes,id);
+		}
+		if (api == "set_debugmidinotes" ) {
+			NosuchDebugMidiNotes = jsonNeedBool(params, "onoff");
+			return jsonOK(id);
+		}
+		if (api == "get_debugmidiall" ) {
+			return jsonIntResult(NosuchDebugMidiAll,id);
+		}
+		if (api == "set_debugmidiall" ) {
+			NosuchDebugMidiAll = jsonNeedBool(params, "onoff");
+			return jsonOK(id);
+		}
 		if (api == "set_debughttp" ) {
-			ss->m_daemon->DebugRequests(jsonNeedBool(params, "onoff", true));
+			ss->m_daemon->DebugRequests(jsonNeedBool(params, "onoff"));
 			return jsonOK(id);
 		}
 		if (api == "get_debughttp" ) {
@@ -1233,7 +1248,23 @@ void
 VizServer::QueueMidiMsg(MidiMsg* m, click_t clk, int cursorid, bool looping, MidiVizParams* mp) {
 	NosuchAssert(m_scheduler);
 	m_scheduler->QueueMidiMsg(m, clk, cursorid, looping, mp);
-	DEBUGPRINT1(("After VizServer::QueueMidiMsg clk=%d type=%s",clk,m->MidiTypeName()));
+	DEBUGPRINT1(("After VizServer::QueueMidiMsg clk=%d type=%s",clk,m->MidiTypeName(),m_scheduler->NumEventsOfSid(cursorid)));
+}
+
+void
+VizServer::QueueRemoveBefore(int cursorsid, click_t clk){
+	DEBUGPRINT1(("VizServer::QueueRemoveBefore sid=%d clk=%d", cursorsid, clk));
+	m_scheduler->QueueRemoveBefore(cursorsid, clk);
+}
+
+int
+VizServer::NumQueuedOfId(int id) {
+	return m_scheduler->NumQueuedEventsOfSid(id);
+}
+
+int
+VizServer::NumScheduledOfId(int id) {
+	return m_scheduler->NumScheduledEventsOfSid(id);
 }
 
 void

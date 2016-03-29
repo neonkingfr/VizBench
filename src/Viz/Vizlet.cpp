@@ -513,6 +513,21 @@ Vizlet::QueueMidiMsg(MidiMsg* m, click_t clk, int cursorid, bool looping, MidiVi
 }
 
 void
+Vizlet::QueueRemoveBefore(int cursorsid, click_t clk) {
+	DEBUGPRINT1(("QueueRemoveBefore sid=%d tm=%d", cursorsid, clk));
+	m_vizserver->QueueRemoveBefore(cursorsid, clk);
+}
+
+int
+Vizlet::NumQueuedOfId(int sid) {
+	return m_vizserver->NumQueuedOfId(sid);
+}
+
+int
+Vizlet::NumScheduledOfId(int sid) {
+	return m_vizserver->NumScheduledOfId(sid);
+}
+void
 Vizlet::QueueClear() {
 	m_vizserver->QueueClear();
 }
@@ -777,7 +792,7 @@ std::string Vizlet::processJsonLockAndCatchExceptions(std::string meth, cJSON *p
 			std::string nm = CopyFFString16((const char *)(vizlet_plugininfo().GetPluginInfo()->PluginName));
 			r = jsonStringResult(nm, id);
 		} else if (meth == "set_enableinput") {
-			m_enableinput = jsonNeedBool(params, "onoff", DFLT_BOOL_THROW_EXCEPTION);
+			m_enableinput = jsonNeedBool(params, "onoff");
 			r = jsonOK(id);
 		} else if (meth == "enableinputs") {
 		} else if (meth == "disableinputs") {

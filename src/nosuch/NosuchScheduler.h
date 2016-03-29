@@ -107,6 +107,11 @@ public:
 	void QueueClear();
 	bool QueueAddEvent(SchedEvent* e);  // returns false if not added, i.e. means caller should free it
 
+	int NumQueuedEventsOfSid(int sid);
+	int NumScheduledEventsOfSid(int sid);
+
+	void QueueRemoveBefore(int cursorid, click_t clk);
+
 	void SendPmMessage(PmMessage pm, PmStream* ps);
 	void SendMidiMsg(MidiMsg* mm, int cursorid);
 	void ANO(int psi = -1, int ch = -1);
@@ -186,7 +191,6 @@ private:
 	void DoMidiMsgEvent(MidiMsg* m, int cursorid);
 	bool m_running;
 
-	// Per-handle scheduled events
 	SchedEventList* m_scheduled;
 	SchedEventList* m_queue;  // Things to be added to _scheduled
 

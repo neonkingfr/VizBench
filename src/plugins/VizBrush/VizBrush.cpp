@@ -215,7 +215,7 @@ click_t VizBrush::_durationOf(VizCursor* c) {
 click_t VizBrush::_quantOf(VizCursor* c) {
 	double f = 1.0;
 	// Slower/larger quantization toward the bottom.
-#define TIMEFRETS_3
+#define TIMEFRETS_4
 #ifdef TIMEFRETS_4
 	if (c->pos.y < 0.25) {
 		f = 1.0;
@@ -275,19 +275,28 @@ void VizBrush::_cursorMidi(VizCursor* c, int downdragup, Region* r) {
 }
 
 void
-VizBrush::_queueRegionMidiPhrase(MidiPhrase* ph, click_t tm, int cursorid, Region* r) {
+VizBrush::_queueRegionMidiPhrase(MidiPhrase* ph, click_t clk, int cursorid, Region* r) {
 	NosuchAssert(r);
-	QueueMidiPhrase(ph, tm, cursorid, r->m_looping, r->midiparams);
+	DEBUGPRINT1(("queueRegionMidiPhrase clk=%ld",clk));
+	QueueMidiPhrase(ph, clk, cursorid, r->m_looping, r->midiparams);
 }
 
 void
-VizBrush::_queueRegionMidiMsg(MidiMsg* m, click_t tm, int cursorid, Region* r) {
+VizBrush::_queueRegionMidiMsg(MidiMsg* m, click_t clk, int cursorid, Region* r) {
+	static click_t lastclk = -1;
 	NosuchAssert(r);
-	QueueMidiMsg(m, tm, cursorid, r->m_looping, r->midiparams);
+	DEBUGPRINT1(("queueRegionMidiMsg clk=%ld type=%s",clk,m->MidiTypeName()));
+
+	QueueMidiMsg(m, clk, cursorid, r->m_looping, r->midiparams);
+
+	DEBUGPRINT1(("_queueRegionMidiMsg  sid=%d  NumQueued=%d  NumScheduled=%d",
+		cursorid,NumQueuedOfId(cursorid),NumScheduledOfId(cursorid) ));
+	lastclk = clk;
 }
 
 void VizBrush::_genArpeggiatedMidi(VizCursor* c, int downdragup, Region* r) {
 
+	DEBUGPRINT(("genArpeggiatedMidi"));
 	MidiVizParams* mp = r->midiparams;
 	MidiPhrase *ph = new MidiPhrase();
 	int ch = _channelOf(c,mp);
@@ -406,6 +415,10 @@ VizBrush::_queueNoteonWithNoteoffPending(VizCursor* c, Region* r) {
 	click_t quant = _quantOf(c);
 	click_t nowquant = _quantizeToNext(now, quant);
 
+	// If there are any things queued for this cursor inbetween now and the time at which
+	// we're going to schedule this note, remove them before queuing up anything more.
+	QueueRemoveBefore(c->cursorid, nowquant);
+
 	MidiNoteOn *noteon = MidiNoteOn::make(ch, pitch, vel);
 	noteon->SetInputPort(MIDI_PORT_OF_GENERATED_STUFF);
 	noteon->SetOutputPort(outport);
@@ -441,6 +454,8 @@ void VizBrush::_genNormalMidi(VizCursor* c, int downdragup, Region* r) {
 	// if you hold a cursor down, the note will stay on until you release the cursor
 	// or move to a cursor position assigned to a different pitch.
 
+	// DEBUGPRINT(("genNormalMidi"));
+
 	MidiVizParams* mp = r->midiparams;
 	bool looping = r->m_looping;
 
@@ -474,6 +489,7 @@ void VizBrush::_genNormalMidi(VizCursor* c, int downdragup, Region* r) {
 				// Schedule the noteoff to make sure it happens after the noteon,
 				// which might not have been sent yet.
 				_finishNote(c, c->m_noteon_click + 1, outport, r);
+				DEBUGPRINT1(("FINISH NOTE now=%d  nowquant=%d   noteon_click=%d",now,nowquant,c->m_noteon_click));
 
 				// And then generate a new noteon with a pending noteoff
 				_queueNoteonWithNoteoffPending(c, r);
