@@ -1,9 +1,11 @@
 @echo off
 
-if x%1 == x echo "you need to provide an argument!  e.g. port1, port2, ..."
-if x%1 == x goto getout:
+if x%1 == x set PIPESET=bigpipeset
+if NOT x%1 == x set PIPESET=%1
 
-set FFFFPIPELINE=spacepuddle_%1
+echo PIPESET = %PIPESET%
+
+cd VIZBENCH=c:\users\tjt\documents\github\vizbench\bin
 
 taskkill /f /im igesture.exe
 taskkill /f /im ffff.exe
@@ -23,15 +25,15 @@ start "DEBUT" "c:\program files (x86)\NCH Software\Debut\debut.exe"
 rem we want to giv debut time to start before Bidule starts
 sleep 10
 
-start igesture.exe -v
+start igesture.exe -v -a 100
 
-start c:\users\tjt\documents\github\vizbench\config\bidule\spacepuddle.bidule
+start c:\users\tjt\documents\github\vizbench\config\bidule\spacepuddle2.bidule
 
 rem If I start ffff.exe right after Bidule, Bidule crashes - possibly/probably
 rem because FFFF sends OSC to Bidule, before Bidule is ready.
 sleep 5
 
-start c:\users\tjt\documents\github\vizbench\bin\ffff.exe -c %FFFFPIPELINE%
+start c:\users\tjt\documents\github\vizbench\bin\ffff.exe %PIPESET%
 
 rem Don't put the resize right after the invokation of igesture.exe,
 rem because the window won't exist right away.

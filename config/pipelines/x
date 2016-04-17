@@ -1,12 +1,25 @@
 	{
-		"ffglplugin": "Kaleidoscope",
-		"enabled": 0,
-		"moveable": 1,
+		"ffglplugin": "VizBrush",
+		"enabled": 1,
+		"moveable": 0,
+		"vizlet": 1,
+		"vizletdump": [{
+				"method":	"set_sprite",
+				"params":	{
+					"paramfile":	"red_triangle"
+				}
+			}, {
+				"method":	"set_midi",
+				"params":	{
+					"paramfile":	"port1_pad1"
+				}
+			}, {
+				"method":	"set_looping",
+				"params":	{
+					"onoff":	"0"
+				}
+			}],
 		"params": [
-			{"name":"Angles", "value":0.350000 }, 
-			{"name":"Rotation", "value":0.000000 }, 
-			{"name":"Zoom", "value":1.000000 }, 
-			{"name":"Input Rotation", "value":0.000000 }, 
-			{"name":"Black BG", "value":0.000000 }
+			{"name":"vtag", "value":"vizbrushxxx" }
 			]
 	},

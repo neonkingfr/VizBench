@@ -35,7 +35,17 @@
 bool
 jsonIsTrueValue(std::string s)
 {
-	return(s == "true" || s == "True" || s == "1");
+	bool r;
+	s = NosuchToLower(s);
+	if (s == "on" || s == "true" || s == "1") {
+		r = true;
+	} else if (s == "off" || s == "false" || s == "0") {
+		r = false;
+	} else {
+		DEBUGPRINT(("Unrecognized bool value - s=%s",s.c_str()));
+		r = false;
+	}
+	return r;
 }
 
 std::string jsonResult(std::string r, const char *id) {

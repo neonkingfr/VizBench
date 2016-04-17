@@ -123,25 +123,27 @@ public:
 		m_pluginlist[n1] = m_pluginlist[n2];
 		m_pluginlist[n2] = t;
 	}
-	void moveup(std::string viztag) {
+	void moveplugin(std::string viztag,int places) {
 		size_t sz = m_pluginlist.size();
-		for (size_t n = 0; n < sz; n++) {
-			if (viztag == m_pluginlist[n]->viztag()) {
-				if (n > 0) {
-					swap(n - 1, n);
-				}
-				return;
-			}
+		bool up = places < 0;
+		if (up) {
+			places = -places;
 		}
-	}
-	void movedown(std::string viztag) {
-		size_t sz = m_pluginlist.size();
-		for (size_t n = 0; n<sz; n++ ) {
-			if (viztag == m_pluginlist[n]->viztag()) {
-				if (n < (sz - 1)) {
-					swap(n + 1, n);
+		for (int t = 0; t < places; t++) {
+			for (size_t n = 0; n < sz; n++) {
+				if (viztag == m_pluginlist[n]->viztag()) {
+					if (up) {
+						if (n > 0) {
+							swap(n - 1, n);
+						}
+					}
+					else {
+						if (n < (sz - 1)) {
+							swap(n + 1, n);
+						}
+					}
+					break;
 				}
-				return;
 			}
 		}
 	}
@@ -234,7 +236,9 @@ public:
 	void loadPipeset(std::string nm);
 	void loadPipesetJson(cJSON* json);
 
+	std::string configJsonPath(std::string subdir, std::string name);
 	std::string pipelinePath(std::string configname);
+	std::string pipesetPath(std::string configname);
 
 	bool initCamera(int camindex);
 	// void setWidthHeight(int w, int h) { _width = w; _height = h; }

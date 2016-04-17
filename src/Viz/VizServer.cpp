@@ -670,7 +670,8 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 	}
 	else if (result[0] != '{') {
 		DEBUGPRINT(("HEY! result from json callback doesn't start with '{' !?  result=%s",result));
-		free((void*)result);
+		// DO NOT FREE IT!  This is a sign of corruption somewhere...
+		// free((void*)result);
 		s = jsonError(-32000, "Result from json callback doesn't start with curly brace", id);
 		result = _strdup(s.c_str());
 	}

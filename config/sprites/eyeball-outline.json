@@ -31,12 +31,14 @@
 	"saturation":	"1.000000",
 	"shape":	"circle",
 	"sizefinal":	"0",
-	"sizeinitial":	"2.6074",
+	"sizeinitial":	"0.45955",
 	"sizetime":	"0.65935",
 	"speedinitial":	"0.000000",
 	"thickness":	"3.000000",
 	"zable":	"on",
-	"zexponential":	"1.000000",
-	"zmultiply":	"1.000000",
-	"zoffset":	"0.000000"
+	"zexponential":	"1.9",
+	"zpostmultiply":	"3.74",
+	"zpostoffset":	"0.04",
+	"zpremultiply":	"1",
+	"zpreoffset":	"-0.18"
 }

@@ -615,14 +615,24 @@ FFFF::ErrorPopup(const char* msg) {
 }
 
 std::string
-FFFF::pipelinePath(std::string name) {
+FFFF::configJsonPath(std::string subdir, std::string name) {
 	if (name == "") {
-		throw NosuchException("pipeline name is blank!?");
+		throw NosuchException("config name is blank!?");
 	}
 	if (!NosuchEndsWith(name, ".json")) {
 		name += ".json";
 	}
-	return VizConfigPath("pipelines",name);
+	return VizConfigPath(subdir,name);
+}
+
+std::string
+FFFF::pipelinePath(std::string name) {
+	return configJsonPath("pipelines", name);
+}
+
+std::string
+FFFF::pipesetPath(std::string name) {
+	return configJsonPath("pipesets", name);
 }
 
 void
@@ -1840,14 +1850,10 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		ppipeline->delete_plugin(viztag);
 		return jsonOK(id);
 	}
-	if ( meth == "moveup" ) {
+	if ( meth == "moveplugin" ) {
 		// It's okay if it doesn't exist
-		ppipeline->moveup(viztag);
-		return jsonOK(id);
-	}
-	if ( meth == "movedown" ) {
-		// It's okay if it doesn't exist
-		ppipeline->movedown(viztag);
+		int n = jsonNeedInt(params, "n", 1);
+		ppipeline->moveplugin(viztag,n);
 		return jsonOK(id);
 	}
 	if (meth == "shufflepipeline") {
@@ -2078,17 +2084,25 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	if ( meth == "copy_pipeline" ) {
 		std::string fromfile =  jsonNeedString(params,"fromfile");
 		std::string tofile =  jsonNeedString(params,"tofile");
-
 		DEBUGPRINT(("Making copy of %s in %s",fromfile.c_str(),tofile.c_str()));
-
 		std::string frompath = pipelinePath(fromfile);
 		std::string topath = pipelinePath(tofile);
-
 		bool r = NosuchFileCopy(frompath, topath);
 		if (!r) {
-			return jsonError(-32000,"Unable to copy!?",id);
+			return jsonError(-32000,"Unable to copy pipeline!?",id);
 		}
-		// loadPipeline(pipenum, fname, fpath, ppipeline->m_sidmin, ppipeline->m_sidmax);
+		return jsonOK(id);
+	}
+	if ( meth == "copy_pipeset" ) {
+		std::string fromfile =  jsonNeedString(params,"fromfile");
+		std::string tofile =  jsonNeedString(params,"tofile");
+		DEBUGPRINT(("Making copy of %s in %s",fromfile.c_str(),tofile.c_str()));
+		std::string frompath = pipesetPath(fromfile);
+		std::string topath = pipesetPath(tofile);
+		bool r = NosuchFileCopy(frompath, topath);
+		if (!r) {
+			return jsonError(-32000,"Unable to copy pipeset!?",id);
+		}
 		return jsonOK(id);
 	}
 	if (meth == "get_sidrange") {

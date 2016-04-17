@@ -1,0 +1,24 @@
+{
+"pipeset": [
+	{
+		"pipeline": "rainbow_swirl2",
+		"enabled": 1,
+		"sidrange": "11000-11999"
+	},
+	{
+		"pipeline": "amoeba_trails",
+		"enabled": 1,
+		"sidrange": "12000-12999"
+	},
+	{
+		"pipeline": "boxes_four",
+		"enabled": 1,
+		"sidrange": "13000-13999"
+	},
+	{
+		"pipeline": "triangles",
+		"enabled": 1,
+		"sidrange": "14000-14999"
+	}
+	]
+}

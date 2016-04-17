@@ -20,7 +20,7 @@ function sendparamchange(name) {
 function updateval(name) {
 	changeval(name);
 	sendparamchange(name);
-	autosave_pipeline();
+	autosave_pipeline_norefresh();
 }
 
 function change_enable(vtag) {
@@ -49,13 +49,8 @@ function updateval2(name) {
 	autosave_pipeline();
 }
 
-function moveup(fullviztag) {
-	checkapi(vizapi("ffff.moveup","{\"viztag\":\""+fullviztag+"\"}"));
-	autosave_pipeline();
-}
-
-function movedown(fullviztag) {
-	checkapi(vizapi("ffff.movedown","{\"viztag\":\""+fullviztag+"\"}"));
+function moveplugin(fullviztag,n) {
+	checkapi(vizapi("ffff.moveplugin","{\"viztag\":\""+fullviztag+"\", \"n\":\""+n+"\"}"));
 	autosave_pipeline();
 }
 
@@ -119,6 +114,19 @@ function enable_all(onoff) {
 		// var fullviztag = "" + pipenum + ":" + f.viztag;
 		var fullviztag = f.viztag;
 		checkapi(vizapi("ffff.ffglenable","{\"viztag\":\""+fullviztag+"\", \"onoff\": "+onoff+" }"));
+	}
+	autosave_pipeline();
+}
+
+function changeTextVal_keypress(event,tag,api,argname) {
+	if ( event.keyCode != 13 ) {
+		return;
+	}
+	var inputid = document.getElementById(tag+"_"+api);
+	var api = vizapi(tag+"."+api,"{\""+argname+"\":\""+inputid.value+"\"}");
+	if ( ! checkapi(api) ) {
+		inputid.value = "";
+		return;
 	}
 	autosave_pipeline();
 }
@@ -219,8 +227,10 @@ function pipeline_pagegen(pn,fname) {
 		html += "<tr>";
 		html += "<td width=60px>Moveable</td><td><input type=\"checkbox\" "+moveablechecked+" id=\""+moveableid+"\" onchange=\"changemoveable('"+vtag+"')\")></td>";
 		html += "<td>&nbsp;Move";
-		html += "&nbsp;<input type=\"button\" value=\"up\" onClick=\"moveup('"+fullviztag+"')\")>";
-		html += "&nbsp;<input type=\"button\" value=\"down\" onClick=\"movedown('"+fullviztag+"')\")>";
+		html += "&nbsp;<input type=\"button\" value=\"up1\" onClick=\"moveplugin('"+fullviztag+"',-1)\")>";
+		html += "&nbsp;<input type=\"button\" value=\"up4\" onClick=\"moveplugin('"+fullviztag+"',-4)\")>";
+		html += "&nbsp;<input type=\"button\" value=\"down4\" onClick=\"moveplugin('"+fullviztag+"',4)\")>";
+		html += "&nbsp;<input type=\"button\" value=\"down1\" onClick=\"moveplugin('"+fullviztag+"',1)\")>";
 		html += "</td></tr>";
 
 		var api = vizapi("ffff.about","{\"viztag\":\""+fullviztag+"\"}");
@@ -273,7 +283,7 @@ function pipeline_pagegen(pn,fname) {
 							var aaa = vizapi(fullviztag+"."+getapi,"{\"viztag\":\""+fullviztag+"\"}");
 							val = aaa.result;
 							html += "<td align=right>"
-								+api_sans_set+"&nbsp;"+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" onChange=\"changeTextVal('"+fullviztag+"','"+api+"','"+argname+"')\" value=\""+val+"\" id=\""+inputid+"\" size=20></td>";
+								+api_sans_set+"&nbsp;"+argname+"&nbsp;=&nbsp;</td><td><input type=\"text\" onKeypress=\"changeTextVal_keypress(event,'"+fullviztag+"','"+api+"','"+argname+"')\" value=\""+val+"\" id=\""+inputid+"\" size=20></td>";
 							if ( argname == "paramfile" ) {
 								var paramsclass = params_class_of_api(api)
 								html += "<td>";

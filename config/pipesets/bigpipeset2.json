@@ -6,7 +6,7 @@
 		"sidrange": "11000-11999"
 	},
 	{
-		"pipeline": "bigpipe_two.json",
+		"pipeline": "amoeba_tmp",
 		"enabled": 1,
 		"sidrange": "12000-12999"
 	},

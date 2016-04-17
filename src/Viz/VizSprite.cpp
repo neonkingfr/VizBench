@@ -61,19 +61,31 @@ double VizSprite::degree2radian(double deg) {
 	return 2.0f * (double)M_PI * deg / 360.0f;
 }
 
-double scale_z(double z, double zexp, double zmult) {
+double scale_z(double z, double zexp) {
 	// We want the z value to be scaled exponentially toward 1.0,
 	// i.e. raw z of .5 should result in a scale_z value of .75
-	double expz = 1.0f - pow((1.0 - z), zexp);
-	return expz * zmult;
+	return 1.0f - pow((1.0 - z), zexp);
 }
 
 void VizSprite::draw(NosuchGraphics* p) {
 	if (m_params->zable && m_state.pos.z != CURSOR_Z_UNSET) {
-		double zmultiply = m_params->zmultiply.get();  // 1.0f;
-		double zexponential = m_params->zexponential.get();  // 2.0f;
-		double zoffset = m_params->zoffset.get();  // 2.0f;
-		double z = zoffset + scale_z(m_state.pos.z, zexponential, zmultiply);
+		double zpreoffset = m_params->zpreoffset.get();
+		double zpremultiply = m_params->zpremultiply.get();
+		double zexponential = m_params->zexponential.get();
+		double zpostoffset = m_params->zpostoffset.get();
+		double zpostmultiply = m_params->zpostmultiply.get();
+		double z;
+		// We want the z value to be scaled exponentially toward 1.0,
+		// i.e. raw z of .5 should result in a final value of .75
+		z = (m_state.pos.z + zpreoffset) * zpremultiply;
+		if (z < 0.0) {
+			z = 0.0;
+		}
+		else if (z > 1.0) {
+			z = 1.0;
+		}
+		z = 1.0f - pow((1.0 - z), zexponential);
+		z = (z * zpostmultiply) + zpostoffset;
 		draw(p, z);
 	}
 	else {

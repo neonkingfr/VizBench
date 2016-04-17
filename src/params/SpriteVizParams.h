@@ -51,8 +51,10 @@ extern char* SpriteVizParamsNames[];
 	"thickness",\
 	"zable",\
 	"zexponential",\
-	"zmultiply",\
-	"zoffset",\
+	"zpostmultiply",\
+	"zpostoffset",\
+	"zpremultiply",\
+	"zpreoffset",\
 	NULL
 
 class SpriteVizParams : public VizParams {
@@ -142,10 +144,14 @@ public:
 		if (j) { zable.set(j); }
 		j = cJSON_GetObjectItem(json,"zexponential");
 		if (j) { zexponential.set(j); }
-		j = cJSON_GetObjectItem(json,"zmultiply");
-		if (j) { zmultiply.set(j); }
-		j = cJSON_GetObjectItem(json,"zoffset");
-		if (j) { zoffset.set(j); }
+		j = cJSON_GetObjectItem(json,"zpostmultiply");
+		if (j) { zpostmultiply.set(j); }
+		j = cJSON_GetObjectItem(json,"zpostoffset");
+		if (j) { zpostoffset.set(j); }
+		j = cJSON_GetObjectItem(json,"zpremultiply");
+		if (j) { zpremultiply.set(j); }
+		j = cJSON_GetObjectItem(json,"zpreoffset");
+		if (j) { zpreoffset.set(j); }
 	}
 	void loadDefaults() {
 		alphafinal.set(0.000000);
@@ -186,8 +192,10 @@ public:
 		thickness.set(3.000000);
 		zable.set(true);
 		zexponential.set(1.000000);
-		zmultiply.set(1.000000);
-		zoffset.set(0.000000);
+		zpostmultiply.set(1.000000);
+		zpostoffset.set(0.000000);
+		zpremultiply.set(1.000000);
+		zpreoffset.set(0.000000);
 	}
 	void applyVizParamsFrom(SpriteVizParams* p) {
 		if ( ! p ) { return; }
@@ -229,8 +237,10 @@ public:
 		if ( p->thickness.isset() ) { this->thickness.set(p->thickness.get()); }
 		if ( p->zable.isset() ) { this->zable.set(p->zable.get()); }
 		if ( p->zexponential.isset() ) { this->zexponential.set(p->zexponential.get()); }
-		if ( p->zmultiply.isset() ) { this->zmultiply.set(p->zmultiply.get()); }
-		if ( p->zoffset.isset() ) { this->zoffset.set(p->zoffset.get()); }
+		if ( p->zpostmultiply.isset() ) { this->zpostmultiply.set(p->zpostmultiply.get()); }
+		if ( p->zpostoffset.isset() ) { this->zpostoffset.set(p->zpostoffset.get()); }
+		if ( p->zpremultiply.isset() ) { this->zpremultiply.set(p->zpremultiply.get()); }
+		if ( p->zpreoffset.isset() ) { this->zpreoffset.set(p->zpreoffset.get()); }
 	}
 	void Set(std::string nm, std::string val) {
 		bool stringval = false;
@@ -313,10 +323,14 @@ public:
 			zable.set(string2bool(val));
 		} else if ( nm == "zexponential" ) {
 			zexponential.set(string2double(val));
-		} else if ( nm == "zmultiply" ) {
-			zmultiply.set(string2double(val));
-		} else if ( nm == "zoffset" ) {
-			zoffset.set(string2double(val));
+		} else if ( nm == "zpostmultiply" ) {
+			zpostmultiply.set(string2double(val));
+		} else if ( nm == "zpostoffset" ) {
+			zpostoffset.set(string2double(val));
+		} else if ( nm == "zpremultiply" ) {
+			zpremultiply.set(string2double(val));
+		} else if ( nm == "zpreoffset" ) {
+			zpreoffset.set(string2double(val));
 		}
 
 		if ( ! stringval ) {
@@ -399,11 +413,15 @@ public:
 		} else if ( nm == "zable" ) {
 			zable.set(adjust(zable.get(),amount));
 		} else if ( nm == "zexponential" ) {
-			zexponential.set(adjust(zexponential.get(),amount,1.000000,4.000000));
-		} else if ( nm == "zmultiply" ) {
-			zmultiply.set(adjust(zmultiply.get(),amount,0.000000,2.000000));
-		} else if ( nm == "zoffset" ) {
-			zoffset.set(adjust(zoffset.get(),amount,0.000000,1.000000));
+			zexponential.set(adjust(zexponential.get(),amount,1.000000,6.000000));
+		} else if ( nm == "zpostmultiply" ) {
+			zpostmultiply.set(adjust(zpostmultiply.get(),amount,0.000000,4.000000));
+		} else if ( nm == "zpostoffset" ) {
+			zpostoffset.set(adjust(zpostoffset.get(),amount,-1.000000,1.000000));
+		} else if ( nm == "zpremultiply" ) {
+			zpremultiply.set(adjust(zpremultiply.get(),amount,0.000000,4.000000));
+		} else if ( nm == "zpreoffset" ) {
+			zpreoffset.set(adjust(zpreoffset.get(),amount,-1.000000,1.000000));
 		}
 
 	}
@@ -446,8 +464,10 @@ public:
 		if ( nm == "thickness" ) { return "3.0"; }
 		if ( nm == "zable" ) { return "true"; }
 		if ( nm == "zexponential" ) { return "1.0"; }
-		if ( nm == "zmultiply" ) { return "1.0"; }
-		if ( nm == "zoffset" ) { return "0.0"; }
+		if ( nm == "zpostmultiply" ) { return "1.0"; }
+		if ( nm == "zpostoffset" ) { return "0.0"; }
+		if ( nm == "zpremultiply" ) { return "1.0"; }
+		if ( nm == "zpreoffset" ) { return "0.0"; }
 		return "";
 	}
 	std::string MinValue(std::string nm) {
@@ -489,8 +509,10 @@ public:
 		if ( nm == "thickness" ) { return "0.01"; }
 		if ( nm == "zable" ) { return "false"; }
 		if ( nm == "zexponential" ) { return "1.00"; }
-		if ( nm == "zmultiply" ) { return "0.00"; }
-		if ( nm == "zoffset" ) { return "0.00"; }
+		if ( nm == "zpostmultiply" ) { return "0.00"; }
+		if ( nm == "zpostoffset" ) { return "-1.00"; }
+		if ( nm == "zpremultiply" ) { return "0.00"; }
+		if ( nm == "zpreoffset" ) { return "-1.00"; }
 		return "";
 	}
 	std::string MaxValue(std::string nm) {
@@ -531,9 +553,11 @@ public:
 		if ( nm == "speedinitial" ) { return "1.0"; }
 		if ( nm == "thickness" ) { return "10.0"; }
 		if ( nm == "zable" ) { return "true"; }
-		if ( nm == "zexponential" ) { return "4.0"; }
-		if ( nm == "zmultiply" ) { return "2.0"; }
-		if ( nm == "zoffset" ) { return "1.0"; }
+		if ( nm == "zexponential" ) { return "6.0"; }
+		if ( nm == "zpostmultiply" ) { return "4.0"; }
+		if ( nm == "zpostoffset" ) { return "1.0"; }
+		if ( nm == "zpremultiply" ) { return "4.0"; }
+		if ( nm == "zpreoffset" ) { return "1.0"; }
 		return "";
 	}
 	void Toggle(std::string nm) {
@@ -640,10 +664,14 @@ public:
 			return BoolString(zable.get());
 		} else if ( nm == "zexponential" ) {
 			return DoubleString(zexponential.get());
-		} else if ( nm == "zmultiply" ) {
-			return DoubleString(zmultiply.get());
-		} else if ( nm == "zoffset" ) {
-			return DoubleString(zoffset.get());
+		} else if ( nm == "zpostmultiply" ) {
+			return DoubleString(zpostmultiply.get());
+		} else if ( nm == "zpostoffset" ) {
+			return DoubleString(zpostoffset.get());
+		} else if ( nm == "zpremultiply" ) {
+			return DoubleString(zpremultiply.get());
+		} else if ( nm == "zpreoffset" ) {
+			return DoubleString(zpreoffset.get());
 		}
 		return "";
 	}
@@ -686,8 +714,10 @@ public:
 		if ( nm == "thickness" ) { return "double"; }
 		if ( nm == "zable" ) { return "bool"; }
 		if ( nm == "zexponential" ) { return "double"; }
-		if ( nm == "zmultiply" ) { return "double"; }
-		if ( nm == "zoffset" ) { return "double"; }
+		if ( nm == "zpostmultiply" ) { return "double"; }
+		if ( nm == "zpostoffset" ) { return "double"; }
+		if ( nm == "zpremultiply" ) { return "double"; }
+		if ( nm == "zpreoffset" ) { return "double"; }
 		return "";
 	}
 
@@ -729,8 +759,10 @@ public:
 	DoubleParam thickness;
 	BoolParam zable;
 	DoubleParam zexponential;
-	DoubleParam zmultiply;
-	DoubleParam zoffset;
+	DoubleParam zpostmultiply;
+	DoubleParam zpostoffset;
+	DoubleParam zpremultiply;
+	DoubleParam zpreoffset;
 };
 
 #endif

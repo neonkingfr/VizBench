@@ -90,12 +90,19 @@ function onepipeline(pipenum) {
 	html = "";
 	html += "<tr><td>";
 	html += "Pipeline "+pipenum+": </td><td>";
-	html += "<input type=\"text\" style=\"width:150px\" id=\""+pipelineid+"\" onChange=\"change_pipeline("+pipenum+");\" >";
+
+	// The pipeline value only gets looked at when you hit Enter
+	html += "<input type=\"text\" style=\"width:150px\" id=\""+pipelineid+"\" onKeypress=\"keypress_pipeline(event,"+pipenum+");\" >";
+
 	html += "&nbsp;&nbsp;";
 	html += "SidRange: ";
 	html += "<input type=\"text\" style=\"width:90px\" id=\""+sidrangeid+"\" onChange=\"change_sidrange("+pipenum+");\" >";
 	html += "&nbsp;&nbsp;";
 	html += "<input type=\"button\" style=\"width:100px\" value=\"Edit\" onClick=\"edit_pipeline("+pipenum+");\">";
+	html += "&nbsp;&nbsp;";
+	html += "<input type=\"button\" style=\"width:100px\" value=\"Edit Temp\" onClick=\"edit_pipeline_tmp("+pipenum+");\">";
+	html += "&nbsp;&nbsp;";
+	html += "<input type=\"button\" style=\"width:100px\" value=\"Use Temp\" onClick=\"use_pipeline_tmp("+pipenum+");\">";
 	html += "&nbsp;&nbsp;";
 
 	var enabledid = "enabled_"+pipenum;
@@ -175,20 +182,30 @@ function save_pipeset() {
 	checkapi(vizapi("ffff.save_pipeset","{\"filename\":\""+pipeset+"\" }"));
 }
 
-function change_pipeline(pipenum) {
-	var api = vizapi("ffff.ffglpipeline","{\"pipenum\":\""+pipenum+"\" }");
-	if ( ! checkapi(api) ) {
+function keypress_pipeline(e,pipenum) {
+	if ( e.keyCode != 13 ) {
 		return;
 	}
-	var current_pipeline = api.result;
-	var pipelineid = "pipeline_"+pipenum;
-	var new_pipeline = document.getElementById(pipelineid).value;
-	if ( new_pipeline != current_pipeline ) {
-		checkapi(vizapi("ffff.load_pipeline","{\"pipenum\":\""+pipenum+"\", \"filename\":\""+new_pipeline+"\" }"));
-	}
-
+	var id = "pipeline_"+pipenum;
+	var obj = document.getElementById(id);
+	checkapi(vizapi("ffff.load_pipeline","{\"pipenum\":\""+pipenum+"\", \"filename\":\""+obj.value+"\" }"));
 	autosave_pipeset();
 }
+
+// function change_pipeline(pipenum) {
+// 	var api = vizapi("ffff.ffglpipeline","{\"pipenum\":\""+pipenum+"\" }");
+// 	if ( ! checkapi(api) ) {
+// 		return;
+// 	}
+// 	var current_pipeline = api.result;
+// 	var pipelineid = "pipeline_"+pipenum;
+// 	var new_pipeline = document.getElementById(pipelineid).value;
+// 	if ( new_pipeline != current_pipeline ) {
+// 		checkapi(vizapi("ffff.load_pipeline","{\"pipenum\":\""+pipenum+"\", \"filename\":\""+new_pipeline+"\" }"));
+// 	}
+// 
+// 	autosave_pipeset();
+// }
 
 function change_sidrange(pipenum) {
 	var api = vizapi("ffff.get_sidrange","{\"pipenum\":\""+pipenum+"\" }");
@@ -232,6 +249,37 @@ function change_showfps() {
 
 function edit_pipeline(pipenum) {
 	window.location.href = ("pipeline.html?pipenum="+pipenum);
+}
+
+function edit_pipeline_tmp(pipenum) {
+	var id = "pipeline_"+pipenum;
+	var obj = document.getElementById(id);
+	var oldname = obj.value;
+	var newname = obj.value + "_tmp";
+
+	checkapi(vizapi("ffff.copy_pipeline","{\"pipenum\":\""+pipenum+"\", \"fromfile\":\""+oldname+"\", \"tofile\":\""+newname+"\" }"));
+
+	checkapi(vizapi("ffff.load_pipeline","{\"pipenum\":\""+pipenum+"\", \"filename\":\""+newname+"\" }"));
+
+	window.location.href = ("pipeline.html?pipenum="+pipenum);
+}
+
+function use_pipeline_tmp(pipenum) {
+	var id = "pipeline_"+pipenum;
+	var obj = document.getElementById(id);
+	var newname = obj.value;
+	var i = newname.indexOf("_tmp");
+	if ( i <= 0 ) {
+		alert("Hey, current pipeline doesn't end in _tmp !?");
+		return;
+	}
+	var oldname = newname.substring(0,i);
+
+	checkapi(vizapi("ffff.copy_pipeline","{\"pipenum\":\""+pipenum+"\", \"fromfile\":\""+newname+"\", \"tofile\":\""+oldname+"\" }"));
+
+	checkapi(vizapi("ffff.load_pipeline","{\"pipenum\":\""+pipenum+"\", \"filename\":\""+oldname+"\" }"));
+
+	obj.value = oldname;
 }
 
 function refresh_pipeline(pipenum) {
