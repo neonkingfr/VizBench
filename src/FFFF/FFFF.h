@@ -3,26 +3,19 @@
 
 #include "NosuchDebug.h"
 #include "NosuchException.h"
-#include <pthread.h>
 #include <opencv/cv.h>
-#include <GLFW/glfw3.h>
 
 #include "VizServer.h"
 #include "AudioHost.h"
 
 #include "ffffutil.h"
 
-#include "spout.h"
+class SpoutSender;
 
 int FFGLinit();
 int FFGLinit2(int width, int height);
 void socket_check();
 void bonjour_check();
-
-extern int 		camWidth;
-extern int 		camHeight;
-extern int		ffWidth;
-extern int		ffHeight;
 
 extern std::string FfffOutputPrefix;
 extern int FfffOutputFPS;
@@ -42,6 +35,44 @@ struct CvCapture;
 class Timer;
 
 typedef std::vector < FFGLPluginInstance* > FFGLPluginList;
+
+typedef std::string(*PathGenerator)(std::string f);
+
+class FFFFState {
+public:
+	FFFFState() {
+		statepath = VizConfigPath("state.json");
+		state = NULL;
+		if (NosuchFileExists(statepath)) {
+			std::string err;
+			state = jsonReadFile(statepath, err);
+			if (!state) {
+				NosuchErrorOutput("Unable to parse state file!? path=%s", statepath.c_str());
+			}
+		}
+		if (!state) {
+			state = cJSON_Parse("{ }");
+			NosuchAssert(state);
+		}
+	};
+	void save() {
+		std::string err;
+		if (!jsonWriteFile(statepath, state, err)) {
+			std::string err = NosuchSnprintf("Unable to write state file!? path=%s", statepath.c_str());
+			throw NosuchException(err.c_str());
+		}
+	}
+	void set_pipeset(std::string pipeset) {
+		cJSON_ReplaceItemInObject(state, "pipeset",
+			cJSON_CreateString(pipeset.c_str()));
+	}
+	std::string pipeset() {
+		return jsonNeedString(state,"pipeset","");
+	}
+private:
+	cJSON* state;
+	std::string statepath;
+};
 
 class FFGLPipeline {
 public:
@@ -166,7 +197,6 @@ public:
 	FFGLFBO* fbo_output;
 };
 
-// typedef std::vector < FFGLPluginInstance* > FFGLPipeline;
 typedef std::vector < FF10PluginInstance* > FF10Pipeline;
 
 class FFFF : public NosuchJsonListener, NosuchOscListener {
@@ -174,7 +204,10 @@ class FFFF : public NosuchJsonListener, NosuchOscListener {
 public:
 	FFFF(cJSON* config);
 
+	int InitGlExtensions();
 	int FFGLinit2(int width, int height);
+	int spoutInitTexture(int width, int height);
+	int spoutInit(int width, int height);
 
 	void ErrorPopup(const char* msg);
 	bool StartStuff();
@@ -236,9 +269,7 @@ public:
 	void loadPipeset(std::string nm);
 	void loadPipesetJson(cJSON* json);
 
-	std::string configJsonPath(std::string subdir, std::string name);
-	std::string pipelinePath(std::string configname);
-	std::string pipesetPath(std::string configname);
+	std::string copyFile(cJSON *params, PathGenerator pathgen, const char* id);
 
 	bool initCamera(int camindex);
 	// void setWidthHeight(int w, int h) { _width = w; _height = h; }
@@ -250,6 +281,7 @@ public:
 	void InsertKeystroke(int key, int downup);
 
 	GLFWwindow* window;
+	GLFWwindow* preview;
 	bool hidden;
 
 	std::string m_json_result;
@@ -258,6 +290,8 @@ public:
 	SpoutSender* m_spoutsender;
 	// The Spout documentation says the sender name buffer must be at least 256 characters long.
 	char m_sendername[256];
+
+	FFFFState* m_state;
 
 private:
 	IplImage* m_img1;
@@ -290,8 +324,11 @@ private:
 
 	int m_window_width;
 	int m_window_height;
+	int m_camWidth;
+	int m_camHeight;
 
-	std::string m_pipeset_filename;
+	std::string m_pipesetname;
+	std::string m_pipesetpath;
 
 #define NPIPELINES 4
 

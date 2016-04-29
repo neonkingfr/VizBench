@@ -16,7 +16,6 @@
 function setup() {
 
 	var vals = queryvalues();
-	var pipelinefilename;
 
 	var pipenum = 0;
 	if ( vals["pipenum"] ) {
@@ -24,8 +23,8 @@ function setup() {
 
 	}
 
-	// Get the filename of that pipeline
-	var api = vizapi("ffff.pipelinefilename","{\"pipenum\":\""+pipenum+"\"}");
+	// Get the name of that pipeline
+	var api = vizapi("ffff.pipelinename","{\"pipenum\":\""+pipenum+"\"}");
 	if ( ! checkapi(api) ) {
 		return;
 	}

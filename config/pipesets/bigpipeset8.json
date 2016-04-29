@@ -1,0 +1,24 @@
+{
+"pipeset": [
+	{
+		"pipeline": "rainbow_swirl333",
+		"enabled": 1,
+		"sidrange": "11000-11999"
+	},
+	{
+		"pipeline": "line_cathedral_2",
+		"enabled": 1,
+		"sidrange": "12000-12999"
+	},
+	{
+		"pipeline": "yellow_puddles",
+		"enabled": 1,
+		"sidrange": "13000-13999"
+	},
+	{
+		"pipeline": "triangles",
+		"enabled": 1,
+		"sidrange": "14000-14999"
+	}
+	]
+}

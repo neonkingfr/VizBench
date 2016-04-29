@@ -29,7 +29,16 @@
 
 #include "NosuchUtil.h"
 
+#define GLEW_STATIC
+#include <gl/glew.h>
+
+#include "glstuff.h"
+
+#include "FFGLPlugin.h"
+#include "FF10Plugin.h"
+
 #include "FFFF.h"
+
 #include "NosuchJSON.h"
 #include "Timer.h"
 #include "AudioHost.h"
@@ -37,18 +46,15 @@
 #include "opencv/cv.h"
 #include "opencv/highgui.h"
 
+#include "spout.h"
+
 #include <iostream>
 #include <fstream>
 
 #include "VizServer.h"
+#include "VizParams.h"
 
 #include <sys/stat.h>
-
-extern "C" {
-	int zre_msg_test(bool);
-	int zre_log_msg_test(bool);
-	int zre_uuid_test(bool);
-};
 
 const char* FFFF_json(void* data,const char *method, cJSON* params, const char* id) {
 
@@ -104,37 +110,18 @@ FFFF::FFFF(cJSON* config) {
 	else {
 		m_audiohost = NULL;
 	}
-#ifdef ZRE_TEST
-	zre_msg_test(true);
-    zre_log_msg_test (true);
-    zre_uuid_test (true);
-
-	void *context = zmq_ctx_new();
-	void *responder = zmq_socket(context, ZMQ_REP);
-	int rc = zmq_bind(responder, "tcp://*:5555");
-	DEBUGPRINT(("zmq_bind rc=%d",rc));
-	while (1) {
-        char buffer [10];
-        zmq_recv (responder, buffer, 10, 0);
-        printf ("Received Hello\n");
-        Sleep (1);          //  Do some 'work'
-        zmq_send (responder, "World", 5, 0);
-    }
-	DEBUGPRINT(("zmq test done"));
-#endif
 
 	NosuchLockInit(&_json_mutex,"json");
 	m_json_cond = PTHREAD_COND_INITIALIZER;
 	m_json_pending = false;
 	m_timer = Timer::New();
-	// m_desired_FPS = 60.0;
-	// m_desired_FPS = 120.0;
 	m_throttle_timePerFrame = 1.0 / m_desired_FPS;
 	m_throttle_lasttime = 0.0;
 
 	m_fps_accumulator = 0;
 	m_fps_lasttime = -1.0;
 
+	m_state = new FFFFState();
 }
 
 void
@@ -366,10 +353,10 @@ FFFF::initCamera(int camindex) {
     double fwidth = cvGetCaptureProperty( m_capture, CV_CAP_PROP_FRAME_WIDTH );
     double fheight = cvGetCaptureProperty( m_capture, CV_CAP_PROP_FRAME_HEIGHT );
 
-    camWidth = (int)fwidth;
-    camHeight = (int)fheight;
+    m_camWidth = (int)fwidth;
+    m_camHeight = (int)fheight;
 
-    DEBUGPRINT(("CAMERA CV says width=%d height=%d\n",camWidth,camHeight));
+    DEBUGPRINT(("CAMERA CV says width=%d height=%d\n",m_camWidth,m_camHeight));
 	return TRUE;
 }
 
@@ -395,7 +382,7 @@ FFFF::FF10NewPluginInstance(FF10PluginDef* plugdef, std::string viztag)
 	char nm[17];
 	memcpy(nm, pi->PluginName, 16);
 	nm[16] = 0;
-	VideoInfoStruct vis = { ffWidth, ffHeight, FF_DEPTH_24, FF_ORIENTATION_TL };
+	VideoInfoStruct vis = { m_window_width, m_window_height, FF_DEPTH_24, FF_ORIENTATION_TL };
 
 	if ( np->Instantiate(&vis)!=FF_SUCCESS ) {
 		delete np;
@@ -428,13 +415,13 @@ FFFF::clearPipeline(int pipenum)
 }
 
 void
-FFFF::loadAllPluginDefs(std::string ff10path, std::string ffglpath, int ffgl_width, int ffgl_height)
+FFFF::loadAllPluginDefs(std::string ff10path, std::string ffglpath, int width, int height)
 {
     nff10plugindefs = 0;
     nffglplugindefs = 0;
 
     loadffglpath(ffglpath);
-    if ( FFGLinit2(ffgl_width,ffgl_height) != 1 ) {
+    if ( FFGLinit2(width,height) != 1 ) {
 		DEBUGPRINT(("HEY!  FFGLinit2 failed!?"));
 		return;
 	}
@@ -614,26 +601,6 @@ FFFF::ErrorPopup(const char* msg) {
 	MessageBoxA(NULL, msg, "FFFF", MB_OK);
 }
 
-std::string
-FFFF::configJsonPath(std::string subdir, std::string name) {
-	if (name == "") {
-		throw NosuchException("config name is blank!?");
-	}
-	if (!NosuchEndsWith(name, ".json")) {
-		name += ".json";
-	}
-	return VizConfigPath(subdir,name);
-}
-
-std::string
-FFFF::pipelinePath(std::string name) {
-	return configJsonPath("pipelines", name);
-}
-
-std::string
-FFFF::pipesetPath(std::string name) {
-	return configJsonPath("pipesets", name);
-}
 
 void
 FFFF::loadPipeline(int pipenum, std::string name, std::string fpath, int sidmin, int sidmax)
@@ -805,7 +772,7 @@ FFFF::doCameraAndFF10Pipeline(int pipenum, bool use_camera, GLuint texturehandle
 		camframe = getCameraFrame();
 	}
 
-	CvSize fbosz = cvSize(fboWidth, fboHeight);
+	CvSize fbosz = cvSize(m_window_width, m_window_height);
 
 	if (camframe != NULL) {
 		unsigned char* pixels = (unsigned char *)(camframe->imageData);
@@ -813,13 +780,13 @@ FFFF::doCameraAndFF10Pipeline(int pipenum, bool use_camera, GLuint texturehandle
 		CvSize camsz;
 		CvSize ffsz;
 
-		camsz = cvSize(camWidth, camHeight);
-		ffsz = cvSize(ffWidth, ffHeight);
+		camsz = cvSize(m_camWidth, m_camHeight);
+		ffsz = cvSize(m_window_width, m_window_height);
 
 		if (m_img1 == NULL) {
 			m_img1 = cvCreateImageHeader(camsz, IPL_DEPTH_8U, 3);
 		}
-		cvSetImageData(m_img1, pixels, camWidth * 3);
+		cvSetImageData(m_img1, pixels, m_camWidth * 3);
 
 		if (m_img2 == NULL) {
 			m_img2 = cvCreateImage(ffsz, IPL_DEPTH_8U, 3);
@@ -878,8 +845,8 @@ FFFF::doCameraAndFF10Pipeline(int pipenum, bool use_camera, GLuint texturehandle
 	//size of the texture on the gpu hardware
 	glTexSubImage2D(GL_TEXTURE_2D, 0,
 		0, 0,
-		fboWidth,
-		fboHeight,
+		m_window_width,
+		m_window_height,
 		GL_BGR_EXT,
 		GL_UNSIGNED_BYTE,
 		pixels_into_pipeline);
@@ -1000,6 +967,26 @@ FFGLPipeline::paintTexture() {
 	glEnd();
 	
 	glDisable(GL_TEXTURE_2D);
+}
+
+int
+FFFF::spoutInit(int width, int height) {
+
+	if (m_spout) {
+		if ( ! spoutInitTexture(width, height)) {
+			return 0;
+		}
+		strcpy(m_sendername, "FFFF");
+		m_spoutsender = new SpoutSender;
+		bool b = m_spoutsender->CreateSender(m_sendername, width, height);
+		if (!b) {
+			DEBUGPRINT(("Unable to CreateSender for Spout!?"));
+			NosuchErrorOutput("Unable to CreateSender for Spout!?");
+			delete m_spoutsender;
+			m_spoutsender = NULL;
+		}
+	}
+	return 1;
 }
 
 void
@@ -1488,27 +1475,39 @@ FFFF::loadPipeset(std::string pipesetname)
 	if (pipesetname == "") {
 		throw NosuchException("Pipeset name is blank!?");
 	}
-	if (!NosuchEndsWith(pipesetname, ".json")) {
-		pipesetname += ".json";
+	std::string fname = pipesetname;
+	if (!NosuchEndsWith(fname, ".json")) {
+		fname += ".json";
 	}
-	std::string fname = VizConfigPath("pipesets",pipesetname);
+	std::string fpath = VizConfigPath("pipesets",fname);
 	std::string err;
 
-	DEBUGPRINT(("loadPipeset configname=%s fname=%s", pipesetname.c_str(), fname.c_str()));
+	DEBUGPRINT(("loadPipeset name=%s path=%s", pipesetname.c_str(), fpath.c_str()));
 
-	bool exists = NosuchFileExists(fname);
+	bool exists = NosuchFileExists(fpath);
 	cJSON* json;
 	if (!exists) {
-		throw NosuchException("No such file: fname=%s", fname.c_str());
+		// make a copy of the current one
+		if (NosuchFileExists(m_pipesetpath)) {
+			NosuchFileCopy(m_pipesetpath, fpath);
+		}
+		else {
+			throw NosuchException("No such file: fpath=%s", fpath.c_str());
+		}
 	}
 
-	json = jsonReadFile(fname,err);
+	json = jsonReadFile(fpath,err);
 	if (!json) {
-		std::string err = NosuchSnprintf("Unable to parse file!? fname=%s", fname.c_str());
+		std::string err = NosuchSnprintf("Unable to parse file!? fpath=%s", fpath.c_str());
 		throw NosuchException(err.c_str());
 	}
 	loadPipesetJson(json);
-	m_pipeset_filename = pipesetname;
+	m_pipesetname = pipesetname;
+	m_pipesetpath = fpath;
+
+	m_state->set_pipeset(pipesetname);
+	m_state->save();
+
 	jsonFree(json);
 }
 
@@ -1572,6 +1571,21 @@ FFFF::parseVizTag(std::string fulltag, int& pipenum, std::string& vtag)
 	}
 	pipenum = *p - '0';
 	vtag = std::string(p + 2);
+}
+
+std::string
+FFFF::copyFile(cJSON *params, PathGenerator pathgen, const char* id)
+{
+	std::string fromfile =  jsonNeedString(params,"fromfile");
+	std::string tofile =  jsonNeedString(params,"tofile");
+	DEBUGPRINT(("Making copy %s to %s",fromfile.c_str(),tofile.c_str()));
+	std::string frompath = pathgen(fromfile);
+	std::string topath = pathgen(tofile);
+	bool r = NosuchFileCopy(frompath, topath);
+	if (!r) {
+		return jsonError(-32000,"Unable to copy!?",id);
+	}
+	return jsonOK(id);
 }
 
 std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
@@ -1990,7 +2004,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		return jsonResult(r,id);
 	}
 	if ( meth == "save_pipeline" ) {
-		std::string fname =  jsonNeedString(params,"filename");
+		std::string fname =  jsonNeedString(params,"name");
 		NosuchAssert(pipenum >= 0);
 		return savePipeline(pipenum,fname,id);
 	}
@@ -2005,21 +2019,15 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		return jsonIntResult(ppipeline->m_pipeline_enabled, id);
 	}
 	if (meth == "get_pipeset") {
-		std::string s = m_pipeset_filename;
-		// Take off any trailing .json
-		int pos = s.find(".json");
-		if (pos != s.npos) {
-			s = s.substr(0, pos);
-		}
-		return jsonStringResult(s, id);
+		return jsonStringResult(m_pipesetname, id);
 	}
 	if ( meth == "load_pipeset" ) {
-		std::string fname =  jsonNeedString(params,"filename");
+		std::string fname =  jsonNeedString(params,"name");
 		loadPipeset(fname);
 		return jsonOK(id);
 	}
 	if ( meth == "save_pipeset" ) {
-		std::string fname =  jsonNeedString(params,"filename");
+		std::string fname =  jsonNeedString(params,"name");
 		savePipeset(fname);
 		return jsonOK(id);
 	}
@@ -2046,18 +2054,15 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	if ( meth == "get_showfps" ) {
 		return jsonIntResult(m_showfps,id);
 	}
-	if (meth == "pipelinefilename") {
-		NosuchAssert(pipenum >= 0);
-		std::string s = ppipeline->m_name;
-		// Take off any trailing .json
-		int pos = s.find(".json");
-		if (pos != s.npos) {
-			s = s.substr(0, pos);
-		}
-		return jsonStringResult(s, id);
+	if (meth == "pipelinename") {
+		NosuchAssert(pipenum >= 0 && ppipeline != NULL);
+		return jsonStringResult(ppipeline->m_name, id);
+	}
+	if (meth == "pipesetname") {
+		return jsonStringResult(m_pipesetname, id);
 	}
 	if ( meth == "load_pipeline" ) {
-		std::string fname =  jsonNeedString(params,"filename");
+		std::string fname =  jsonNeedString(params,"name");
 		NosuchAssert(pipenum >= 0);
 		// Keep the same sidmin/sidmax
 		std::string fpath = pipelinePath(fname);
@@ -2066,44 +2071,18 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	}
 
 	if ( meth == "copy_sprite" ) {
-		std::string fromfile =  jsonNeedString(params,"fromfile");
-		std::string tofile =  jsonNeedString(params,"tofile");
 		NosuchAssert(pipenum >= 0);
-
-		DEBUGPRINT(("Making copy of sprite, %s to %s",fromfile.c_str(),tofile.c_str()));
-
-		std::string frompath = SpriteVizParamsPath(fromfile);
-		std::string topath = SpriteVizParamsPath(tofile);
-
-		bool r = NosuchFileCopy(frompath, topath);
-		if (!r) {
-			return jsonError(-32000,"Unable to copy!?",id);
-		}
-		return jsonOK(id);
+		return copyFile(params, SpriteVizParamsPath, id);
+	}
+	if ( meth == "copy_midi" ) {
+		NosuchAssert(pipenum >= 0);
+		return copyFile(params, MidiVizParamsPath, id);
 	}
 	if ( meth == "copy_pipeline" ) {
-		std::string fromfile =  jsonNeedString(params,"fromfile");
-		std::string tofile =  jsonNeedString(params,"tofile");
-		DEBUGPRINT(("Making copy of %s in %s",fromfile.c_str(),tofile.c_str()));
-		std::string frompath = pipelinePath(fromfile);
-		std::string topath = pipelinePath(tofile);
-		bool r = NosuchFileCopy(frompath, topath);
-		if (!r) {
-			return jsonError(-32000,"Unable to copy pipeline!?",id);
-		}
-		return jsonOK(id);
+		return copyFile(params, pipelinePath, id);
 	}
 	if ( meth == "copy_pipeset" ) {
-		std::string fromfile =  jsonNeedString(params,"fromfile");
-		std::string tofile =  jsonNeedString(params,"tofile");
-		DEBUGPRINT(("Making copy of %s in %s",fromfile.c_str(),tofile.c_str()));
-		std::string frompath = pipesetPath(fromfile);
-		std::string topath = pipesetPath(tofile);
-		bool r = NosuchFileCopy(frompath, topath);
-		if (!r) {
-			return jsonError(-32000,"Unable to copy pipeset!?",id);
-		}
-		return jsonOK(id);
+		return copyFile(params, pipesetPath, id);
 	}
 	if (meth == "get_sidrange") {
 		NosuchAssert(pipenum >= 0);

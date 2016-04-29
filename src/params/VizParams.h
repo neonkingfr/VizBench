@@ -7,9 +7,6 @@
 #include "NosuchJson.h"
 #include "Scale.h"
 
-std::string JsonAllValues();
-std::string JsonAllTypes();
-
 #define IntString(x) NosuchSnprintf("%d",x)
 #define DoubleString(x) NosuchSnprintf("%f",x)
 #define BoolString(x) NosuchSnprintf("%s",x?"on":"off")
@@ -19,6 +16,13 @@ typedef std::vector<std::string> StringList;
 int string2int(std::string s);
 float string2double(std::string s);
 bool string2bool(std::string s);
+
+std::string VizParamsPath(std::string f,std::string paramtype);
+std::string SpriteVizParamsPath(std::string f);
+std::string MidiVizParamsPath(std::string f);
+std::string PluginParamsPath(std::string f);
+std::string pipelinePath(std::string name);
+std::string pipesetPath(std::string name);
 
 class DoubleParam {
 public:

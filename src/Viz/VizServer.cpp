@@ -529,6 +529,12 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 				return jsonError(-32000, "No paramfile parameter specified on *param_readfile?", id);
 			}
 			std::string fpath = ApiSpecificVizParamsPath(api,file);
+			bool exists = NosuchFileExists(fpath);
+			if (!exists) {
+				// If it's a file that doesn't exist,
+				// make a copy of the current one
+				throw NosuchException("File doesn't exist - fpath=%s", fpath.c_str());
+			}
 			std::string err;
 			cJSON* json = jsonReadFile(fpath, err);
 			if (!json){

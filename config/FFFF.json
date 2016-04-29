@@ -1,47 +1,48 @@
 {
 
-  "pipeset": "bigpipeset",
+# If pipeset is "" or unspecified, the pipset is obtained from state.json,
+# so that it's always whatever pipeset you were last using.
+# If you always want to start on a given pipeset, specify it here
+# or on the command-line.
+  "pipeset" : "",
 
   "ffglpath": "ffglplugins;ffglplugins_resolume;ffglplugins_loopycam",
-"ff10path": "ff10plugins;ff10plugins_pete;ff10plugins_loopycam",
+  "ff10path": "ff10plugins;ff10plugins_pete;ff10plugins_loopycam",
 
-  # "window_y": 20,
-
-  "window_x": 10,
-  "window_y": 10,
+  # "window_x": 10,
+  # "window_y": 10,
+  # "window_width": 1920,
+  # "window_height": 1080,
   # "window_width": 640,
   # "window_height": 480,
-  "window_width": 1920,
-  "window_height": 1080,
 
-  # "window_x": 3200,
+  ### Settings from VizCamp
+  # "window_x": -1920,
   # "window_y": 0,
   # "window_width": 1920,
   # "window_height": 1080,
 
-  # "window_x": -2050,
-  # "window_y": 0,
-  # "window_width": 2050,
-  # "window_height": 1152,
+  "window_monitor": 0,
+  "window_x": 100,
+  "window_y": 100,
+  "window_width": 800,
+  "window_height": 450,
 
-  #   # The only audio host currently supported is Plogue Bidule, which
-  #   # has excellent OSC support
-  #   "audiohost_type": "bidule",
-  #   "audiohost_config": {
-  # 	  "executable": "C:\\Program Files\\Plogue\\Bidule\\PlogueBidule_x64.exe",
-  # 	  "patch": "bidule\\spacepuddle.bidule",
-  # 	  "oscport": 3210
-  #   },
+  "preview_monitor": 0,
+  "preview_x": 1000,
+  "preview_y": 100,
+  "preview_width": 800,
+  "preview_height": 450,
 
-  "spout": 0,
+  "spout": 1,
   "showfps": 0,
   "autoload": 1,
   "autosave": 1,
   "fps": 60,
-  "trail_enable": 0,
-  "trail_amount": 0.90,
-  "camera": -1,    # a value of -1 disables the camera input
-# "camera": 1,  # the index of the camera, given to cvCreateCameraCapture
 
-  "foo": 0
+# The camera value is the index given to cvCreateCameraCapture.
+# A value of -1 disables the camera input.
+  "camera": -1,
+
+  "foo": 0  # silly, make sure the last entry doesn't have a comma
 }

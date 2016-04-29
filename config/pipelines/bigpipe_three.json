@@ -29,7 +29,7 @@
 	{
 		"vtag": "twisted",
 		"ffglplugin": "Twisted",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"Twirl", "value":0.270000 }, 
@@ -40,7 +40,7 @@
 	{
 		"vtag": "wave warp",
 		"ffglplugin": "Wave Warp",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"Mode", "value":0.020000 }, 
@@ -68,7 +68,7 @@
 	{
 		"vtag": "blur",
 		"ffglplugin": "Blur",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"Blur X Distance", "value":0.000000 }, 
@@ -118,7 +118,7 @@
 	{
 		"vtag": "displace",
 		"ffglplugin": "Displace",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"X factor", "value":0.760000 }, 

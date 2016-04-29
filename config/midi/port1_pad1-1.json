@@ -1,0 +1,20 @@
+{
+	"arpeggiate":	"0",
+	"channel":	"1",
+	"depthctlmax":	"127",
+	"depthctlmin":	"49",
+	"depthctlnum":	"1",
+	"depthretrigger_on":	"0",
+	"depthretrigger_thresh":	"0",
+	"depthsmooth":	"32",
+	"duration":	"hold",
+	"loopclicks":	"768",
+	"loopctrl":	"1",
+	"loopfade":	"0.5",
+	"notelimit":	"4",
+	"pitchmax":	"88",
+	"pitchmin":	"41",
+	"port":	"0",
+	"scale":	"newage",
+	"scale_on":	"1"
+}

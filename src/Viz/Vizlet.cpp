@@ -209,9 +209,9 @@ bool Vizlet::SendOsc(std::string host, int port, const char* data, size_t leng) 
 
 void
 Vizlet::LoadPipeline(std::string pipeline) {
-	const char* currentpipeline = m_vizserver->ProcessJson("ffff.pipelinefilename",NULL,"12345");
+	const char* currentpipeline = m_vizserver->ProcessJson("ffff.pipelinename",NULL,"12345");
 	DEBUGPRINT(("Vizlet::LoadPipeline pipeline=%s currentpipeline=%s",pipeline.c_str(),currentpipeline));
-	const char* r = m_vizserver->ProcessJson("ffff.pipelinefilename",NULL,"12345");
+	const char* r = m_vizserver->ProcessJson("ffff.pipelinename",NULL,"12345");
 }
 
 DWORD Vizlet::SetParameter(const SetParameterStruct* pParam) {

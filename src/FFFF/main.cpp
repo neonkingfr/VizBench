@@ -27,22 +27,22 @@
 
 #include "NosuchDebug.h"
 
-// #include "mmtt_sharedmem.h"
-#include "FFFF.h"
-#include "NosuchJSON.h"
-#include "NosuchMidi.h"
 
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <gl/gl.h>
-#include <gl/glu.h>
-#pragma comment(lib, "opengl32.lib")
-#pragma comment(lib, "glu32.lib")
-// #include "mmsystem.h"
+
+#define GLEW_STATIC
+#include <gl/glew.h>
+
+#include "glstuff.h"
 
 #include "resource.h"
+
+#include "FFFF.h"
+#include "NosuchJSON.h"
+#include "NosuchMidi.h"
 
 #include "stdint.h"
 #include "FFGLPlugin.h"
@@ -51,15 +51,7 @@
 #include "Timer.h"
 #include "XGetopt.h"
 
-#include "spout.h"
-
-// #include "Python.h"
-
 FFFF* F;
-void tjtdebug();
-
-int 				camWidth;
-int 				camHeight;
 
 // Function prototypes.
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLine, int iCmdShow );
@@ -104,7 +96,7 @@ int ffffMain(std::string pipeset, bool fullscreen)
 
 	if (NosuchNetworkInit()) {
 		DEBUGPRINT(("Unable to initialize networking?"));
-		return false;
+		exit(EXIT_FAILURE);
 	}
 
 	glfwSetTime(0.0);
@@ -114,8 +106,10 @@ int ffffMain(std::string pipeset, bool fullscreen)
 	cJSON* config = jsonReadFile(fname, err);
 	if (!config) {
 		DEBUGPRINT(("Hey!  Error in reading JSON from %s!  err=%s", fname.c_str(), err.c_str()));
-		return false;
+		exit(EXIT_FAILURE);
 	}
+
+	F = new FFFF(config);
 
 	jsonSetDebugConfig(config);
 
@@ -128,52 +122,74 @@ int ffffMain(std::string pipeset, bool fullscreen)
 	// variable subsitution mechanism should be put here.
 
 	int camera_index = jsonNeedInt(config, "camera", -1);  // -1 for no camera, 0+ for camera
+
+	int window_monitor = jsonNeedInt(config, "window_monitor", 800);
 	int window_width = jsonNeedInt(config, "window_width", 800);
 	int window_height = jsonNeedInt(config, "window_height", 600);
 	int window_x = jsonNeedInt(config, "window_x", 0);
 	int window_y = jsonNeedInt(config, "window_y", 0);
+
+	int preview_monitor = jsonNeedInt(config, "preview_monitor", 800);
+	int preview_width = jsonNeedInt(config, "preview_width", 800);
+	int preview_height = jsonNeedInt(config, "preview_height", 600);
+	int preview_x = jsonNeedInt(config, "preview_x", 0);
+	int preview_y = jsonNeedInt(config, "preview_y", 0);
+
 	FfffOutputPrefix = jsonNeedString(config, "outputprefix", "");
 	FfffOutputFPS = jsonNeedInt(config, "outputfps", 30);
-	std::string pset = jsonNeedString(config, "pipeset", "");
 
 	// The command-line pipeset value presides.
 	if (pipeset == "") {
-		// but ffff.json can specify pipeset
+		// Then we look at FFFF.json for a pipeset value
 		pipeset = jsonNeedString(config, "pipeset", "");
+		if (pipeset == "") {
+			// Last is the pipeset value in the saved state
+			pipeset = F->m_state->pipeset();
+		}
 	}
 	if (pipeset == "") {
 		pipeset = "default";
 	}
 
-	F = new FFFF(config);
-
 	if (!F->StartStuff()) {
+		DEBUGPRINT(("StartStuff failed!?"));
 		exit(EXIT_FAILURE);
 	}
 
 	glfwSetErrorCallback(error_callback);
 
-	if (!glfwInit())
+	if (!glfwInit()) {
+		DEBUGPRINT(("glfwInit failed!?"));
 		exit(EXIT_FAILURE);
+	}
 
 	GLFWmonitor* monitor;
 	int nmonitors;
 	GLFWmonitor** monitors = glfwGetMonitors(&nmonitors);
 
+	for (int n = 0; n < nmonitors; n++) {
+		const char* nm = glfwGetMonitorName(monitors[n]);
+		const GLFWvidmode* mode = glfwGetVideoMode(monitors[n]);
+		DEBUGPRINT(("GLFW Monitor %d - name=%s  width=%d height=%d refresh=%d",n,nm?nm:"NULL?",mode->width,mode->height,mode->refreshRate));
+	}
+
+	if (window_monitor >= nmonitors) {
+		DEBUGPRINT(("window_monitor value is too big (%d), there are only %d monitors!", window_monitor, nmonitors));
+		window_monitor = 0;
+	}
+
 	if (fullscreen) {
 		if (nmonitors == 0) {
+			DEBUGPRINT(("No monitors!?"));
 			glfwTerminate();
 			exit(EXIT_FAILURE);
 		}
-		monitor = monitors[nmonitors - 1];
+		monitor = monitors[nmonitors - 1]; // XXX - this is probably wrong
 		// monitor = glfwGetPrimaryMonitor();
 	}
 	else {
 		monitor = NULL;
 	}
-
-	int ffgl_width = window_width;
-	int ffgl_height = window_height;
 
 	glfwWindowHint(GLFW_DECORATED, GL_FALSE);
 
@@ -182,14 +198,39 @@ int ffffMain(std::string pipeset, bool fullscreen)
 		glfwTerminate();
 		exit(EXIT_FAILURE);
 	}
+	glfwSetWindowPos(F->window, window_x, window_y);
+	glfwSetWindowSize(F->window, window_width, window_height);
+	glfwShowWindow(F->window);
+
+	// MAKE PREVIEW WINDOW, be sure to share resources with main window
+	F->preview = glfwCreateWindow(800, 450, "Preview", monitor, F->window);
+	if (F->preview == NULL) {
+		glfwTerminate();
+		exit(EXIT_FAILURE);
+	}
+	glfwSetWindowPos(F->preview, 1000, 200);
+	glfwSetWindowSize(F->preview, 800, 450);
+	glfwShowWindow(F->preview);
+	// END MAKE PREVIEW WINDOW
 
 	glfwMakeContextCurrent(F->window);
 
+	GLenum glewerr = glewInit();
+	if (glewerr != GLEW_OK) {
+		DEBUGPRINT(("glewInit failed!?  Error: %s",glewGetErrorString(glewerr)));
+		glfwTerminate();
+		exit(EXIT_FAILURE);
+	}
+
 	glfwSetKeyCallback(F->window, key_callback);
 
-	F->loadAllPluginDefs(ff10path, ffglpath, ffgl_width, ffgl_height);
+	if ( ! F->InitGlExtensions() ) {
+		DEBUGPRINT(("InitGlExtensions failed!?"));
+		glfwTerminate();
+		exit(EXIT_FAILURE);
+	}
 
-	// glfwShowWindow(F->window);
+	F->loadAllPluginDefs(ff10path, ffglpath, window_width, window_height);
 
 	bool use_camera = FALSE;
 	if (camera_index < 0) {
@@ -219,21 +260,10 @@ int ffffMain(std::string pipeset, bool fullscreen)
 	_CrtMemCheckpoint(&s0);
 #endif
 
-	glfwSetWindowPos(F->window, window_x, window_y);
-	glfwSetWindowSize(F->window, window_width, window_height);
-	// glfwIconifyWindow(F->window);
-	glfwShowWindow(F->window);
-
-	if (F->m_spout) {
-		strcpy(F->m_sendername, "FFFF");
-		F->m_spoutsender = new SpoutSender;
-		bool b = F->m_spoutsender->CreateSender(F->m_sendername,window_width,window_height);
-		if (!b) {
-			DEBUGPRINT(("Unable to CreateSender for Spout!?"));
-			NosuchErrorOutput("Unable to CreateSender for Spout!?");
-			delete F->m_spoutsender;
-			F->m_spoutsender = NULL;
-		}
+	if ( ! F->spoutInit(window_width,window_height) ) {
+		DEBUGPRINT(("spoutInit failed!?"));
+		glfwTerminate();
+		exit(EXIT_FAILURE);
 	}
 
 	// int count = 0;
@@ -243,6 +273,9 @@ int ffffMain(std::string pipeset, bool fullscreen)
 
 		if (F->hidden == false) {
 			int width, height;
+
+			// MAIN WINDOW
+			glfwMakeContextCurrent(F->window);
 			glfwGetFramebufferSize(F->window, &width, &height);
 
 			for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
@@ -251,12 +284,9 @@ int ffffMain(std::string pipeset, bool fullscreen)
 					F->doPipeline(pipenum, width, height);
 				}
 			}
-
-			// TRY CLEARING
 			glClearColor(0, 0, 0, 0);
 			glClearDepth(1.0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			// END OF TRY CLEARING
 
 			for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
 				if (!F->isPipelineEnabled(pipenum)) {
@@ -270,6 +300,40 @@ int ffffMain(std::string pipeset, bool fullscreen)
 			F->sendSpout(width, height);
 
 			glfwSwapBuffers(F->window);
+
+			///////////////////////////////////////
+			// PREVIEW WINDOW
+			glfwMakeContextCurrent(F->preview);
+			glPushMatrix();
+
+			glClearColor(0, 0.0, 0, 0);
+			glClearDepth(1.0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
+				if (!F->isPipelineEnabled(pipenum)) {
+					continue;
+				}
+				FFGLPipeline& pipeline = F->Pipeline(pipenum);
+
+				pipeline.paintTexture();
+			}
+#if 0
+			// Draw a rectangle just to show that we're alive.
+			glColor4f(1.0, 0.0, 0.0, 1.0);
+			glLineWidth((GLfloat)2.0f);
+			glBegin(GL_LINE_LOOP);
+			glVertex3f(0.1f, 0.1f, 0.0f);	// Top Left
+			glVertex3f(0.1f, 0.9f, 0.0f);	// Top Right
+			glVertex3f(0.9f, 0.9f, 0.0f);	// Bottom Right
+			glVertex3f(0.9f, 0.1f, 0.0f);	// Bottom Left
+			glEnd();
+#endif
+
+			glPopMatrix();
+			glfwSwapBuffers(F->preview);
+			// END PREVIEW WINDOW
+			///////////////////////////////////////
 		}
 
 		glfwPollEvents();
@@ -297,6 +361,7 @@ int ffffMain(std::string pipeset, bool fullscreen)
 	// F->clearPipeline();
 
     glfwDestroyWindow(F->window);
+    glfwDestroyWindow(F->preview);
 
     glfwTerminate();
 

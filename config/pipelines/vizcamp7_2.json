@@ -1,0 +1,206 @@
+{
+"pipeline": [
+	{
+		"vtag": "vizbrush",
+		"ffglplugin": "VizBrush",
+		"enabled": 1,
+		"moveable": 0,
+		"vizlet": 1,
+		"vizletdump": [{
+				"method":	"set_sprite",
+				"params":	{
+					"paramfile":	"vizcamp7_2"
+				}
+			}, {
+				"method":	"set_midi",
+				"params":	{
+					"paramfile":	"port1_pad1"
+				}
+			}, {
+				"method":	"set_looping",
+				"params":	{
+					"onoff":	"0"
+				}
+			}],
+		"params": [
+			{"name":"viztag", "value":"2:vizbrush", "type":"text" }
+			]
+	},
+	{
+		"vtag": "twisted",
+		"ffglplugin": "Twisted",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"Twirl", "value":0.270000 }, 
+			{"name":"Radius", "value":0.270000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"vtag": "wave warp",
+		"ffglplugin": "Wave Warp",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"Mode", "value":0.020000 }, 
+			{"name":"Height", "value":0.470000 }, 
+			{"name":"Width", "value":0.930000 }, 
+			{"name":"Angle", "value":0.500000 }, 
+			{"name":"Speed", "value":0.000000 }, 
+			{"name":"Pin edges?", "value":1.000000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"vtag": "kaleidoscope",
+		"ffglplugin": "Kaleidoscope",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"Angles", "value":0.350000 }, 
+			{"name":"Rotation", "value":0.000000 }, 
+			{"name":"Zoom", "value":1.000000 }, 
+			{"name":"Input Rotation", "value":0.000000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"vtag": "blur",
+		"ffglplugin": "Blur",
+		"enabled": 1,
+		"moveable": 1,
+		"params": [
+			{"name":"Blur X Distance", "value":0.090000 }, 
+			{"name":"Blur Y Distance", "value":0.110000 }, 
+			{"name":"Quality", "value":0.280000 }, 
+			{"name":"Gaussian", "value":0.370000 }
+			]
+	},
+	{
+		"vtag": "goo",
+		"ffglplugin": "Goo",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"Speed", "value":0.250000 }, 
+			{"name":"MaxDistortionX", "value":1.000000 }, 
+			{"name":"MaxDistortionY", "value":1.000000 }, 
+			{"name":"MaxDistortionZ", "value":0.000000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"vtag": "fragment",
+		"ffglplugin": "Fragment",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"Fragments", "value":0.300000 }, 
+			{"name":"Distance", "value":0.020000 }, 
+			{"name":"Rotation", "value":0.000000 }, 
+			{"name":"FragRotationX", "value":0.500000 }, 
+			{"name":"FragRotationY", "value":0.500000 }, 
+			{"name":"FragRotationZ", "value":0.500000 }, 
+			{"name":"FragScale", "value":1.000000 }, 
+			{"name":"CompositeOpacity", "value":0.710000 }
+			]
+	},
+	{
+		"vtag": "posterize",
+		"ffglplugin": "Posterize",
+		"enabled": 1,
+		"moveable": 1,
+		"params": [
+			{"name":"Posterize", "value":0.380000 }
+			]
+	},
+	{
+		"vtag": "displace",
+		"ffglplugin": "Displace",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"X factor", "value":0.760000 }, 
+			{"name":"Y factor", "value":0.240000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"vtag": "iterate",
+		"ffglplugin": "Iterate",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"TransformStrengt", "value":1.000000 }, 
+			{"name":"Iterations", "value":0.300000 }, 
+			{"name":"StartOpacity", "value":1.000000 }, 
+			{"name":"OpacityChange", "value":0.500000 }, 
+			{"name":"TranslateX", "value":0.490000 }, 
+			{"name":"TranslateY", "value":0.500000 }, 
+			{"name":"TranslateZ", "value":0.480000 }, 
+			{"name":"RotateX", "value":0.700000 }, 
+			{"name":"RotateY", "value":0.210000 }, 
+			{"name":"RotateZ", "value":0.710000 }, 
+			{"name":"Scale", "value":0.350000 }, 
+			{"name":"DOpacityChange", "value":0.500000 }, 
+			{"name":"DTranslateX", "value":0.500000 }, 
+			{"name":"DTranslateY", "value":0.500000 }, 
+			{"name":"DTranslateZ", "value":0.500000 }, 
+			{"name":"DRotateX", "value":0.500000 }, 
+			{"name":"DRotateY", "value":0.500000 }, 
+			{"name":"DRotateZ", "value":0.500000 }, 
+			{"name":"DScale", "value":0.430000 }, 
+			{"name":"BlendMode", "value":1.000000 }, 
+			{"name":"GRotateX", "value":1.000000 }, 
+			{"name":"GRotateY", "value":1.000000 }, 
+			{"name":"GRotateZ", "value":1.000000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"vtag": "edge detection",
+		"ffglplugin": "Edge Detection",
+		"enabled": 1,
+		"moveable": 1,
+		"params": [
+			{"name":"Mode", "value":1.000000 }, 
+			{"name":"Multiplier", "value":1.000000 }
+			]
+	},
+	{
+		"vtag": "bendoscope",
+		"ffglplugin": "Bendoscope",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"Divisions", "value":0.220000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"vtag": "mirror",
+		"ffglplugin": "Mirror",
+		"enabled": 0,
+		"moveable": 1,
+		"params": [
+			{"name":"X", "value":0.500000 }, 
+			{"name":"Y", "value":0.500000 }, 
+			{"name":"In / Out", "value":0.500000 }, 
+			{"name":"Flip X", "value":0.000000 }, 
+			{"name":"Flip Y", "value":0.000000 }, 
+			{"name":"Black BG", "value":0.000000 }
+			]
+	},
+	{
+		"vtag": "trails",
+		"ffglplugin": "Trails",
+		"enabled": 1,
+		"moveable": 0,
+		"params": [
+			{"name":"Feedback", "value":0.700000 }, 
+			{"name":"Mode", "value":0.000000 }
+			]
+	}
+	]
+}

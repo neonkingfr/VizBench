@@ -42,7 +42,7 @@ jsonIsTrueValue(std::string s)
 	} else if (s == "off" || s == "false" || s == "0") {
 		r = false;
 	} else {
-		DEBUGPRINT(("Unrecognized bool value - s=%s",s.c_str()));
+		NosuchErrorOutput("Unrecognized bool value - s=%s",s.c_str());
 		r = false;
 	}
 	return r;

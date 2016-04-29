@@ -1,0 +1,24 @@
+{
+"pipeset": [
+	{
+		"pipeline": "lines_vertical_grow_b",
+		"enabled": 1,
+		"sidrange": "11000-11999"
+	},
+	{
+		"pipeline": "lines_horizontal_grow_b",
+		"enabled": 1,
+		"sidrange": "12000-12999"
+	},
+	{
+		"pipeline": "lines_vertical_fast",
+		"enabled": 1,
+		"sidrange": "13000-13999"
+	},
+	{
+		"pipeline": "lines_horizontal_fast",
+		"enabled": 1,
+		"sidrange": "14000-14999"
+	}
+	]
+}

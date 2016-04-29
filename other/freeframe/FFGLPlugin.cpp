@@ -91,7 +91,7 @@ bool FFGLPluginInstance::setparam(std::string pnm, std::string v)
 		SetStringParameter(pnum, v);
 	    return true;
 	} else {
-	    DEBUGPRINT(("Didn't find FFGL parameter pnm=%s in plugin=%s\n",pnm.c_str(),m_plugindef->GetPluginName().c_str()));
+	    NosuchErrorOutput("Didn't find FFGL parameter pnm=%s in plugin=%s\n",pnm.c_str(),m_plugindef->GetPluginName().c_str());
 	    return false;
 	}
 }
@@ -161,6 +161,12 @@ void FFGLPluginInstance::SetStringParameter(int paramNum, std::string value)
 	} else if ( ffParameterType == FF_TYPE_STANDARD ) {
 		ArgStruct.u.NewFloatValue = (float) atof(value.c_str());
 	} else if ( ffParameterType == FF_TYPE_BOOLEAN ) {
+		// XXX - hack to handle float values coming in.
+		// XXX - should eventually handle bool parameters better
+		if (value.find(".") >= 0) {
+			double v = atof(value.c_str());
+			value = (v >= 0.5) ? "true" : "false";
+		}
 		ArgStruct.u.NewParameterValue = jsonIsTrueValue(value.c_str());
     } else {
 		throw NosuchException("HEY! SetStringParameter called on non-TEXT/STANDARD parameter (paramnum=%d)",paramNum);

@@ -356,19 +356,4 @@ VizConfigPath(std::string f1, std::string f2, std::string f3)
 	return path;
 }
 
-std::string
-VizParamsPath(std::string f, std::string paramtype) {
-	if (!NosuchEndsWith(f, ".json")) {
-		f += ".json";
-	}
-	return VizConfigPath(paramtype, f);
-}
-
-std::string
-PluginParamsPath(std::string f) {
-	if (!NosuchEndsWith(f, ".json")) {
-		f += ".json";
-	}
-	return VizConfigPath("plugins", f);
-}
 

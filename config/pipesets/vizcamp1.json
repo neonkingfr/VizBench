@@ -1,0 +1,24 @@
+{
+"pipeset": [
+	{
+		"pipeline": "vizcamp1_0",
+		"enabled": 1,
+		"sidrange": "11000-11999"
+	},
+	{
+		"pipeline": "vizcamp1_1",
+		"enabled": 1,
+		"sidrange": "12000-12999"
+	},
+	{
+		"pipeline": "vizcamp1_2",
+		"enabled": 1,
+		"sidrange": "13000-13999"
+	},
+	{
+		"pipeline": "vizcamp1_3",
+		"enabled": 1,
+		"sidrange": "14000-14999"
+	}
+	]
+}

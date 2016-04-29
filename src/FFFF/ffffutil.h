@@ -38,8 +38,6 @@
 
 #define MAXPLUGINS 512
 
-// #define NPREPLUGINS 20
-
 class FF10PluginDef;
 class FFGLPluginDef;
 
@@ -49,16 +47,10 @@ extern FF10PluginDef *ff10plugindefs[MAXPLUGINS];
 extern int nffglplugindefs;
 extern FFGLPluginDef *ffglplugindefs[MAXPLUGINS];
 
-// extern FFGLViewportStruct fboViewport;
-// extern FFGLViewportStruct windowViewport;
-
 extern double curFrameTime;
 
 extern FFGLTextureStruct mapTexture;
 extern FFGLTextureStruct spoutTexture;
-extern int fboWidth;
-extern int fboHeight;
-extern FFGLFBO* fbo_output;
 extern FFGLExtensions glExtensions;
 extern int	ffWidth;
 extern int	ffHeight;
@@ -70,23 +62,6 @@ std::string CopyFFString16(const char *src);
 #define FFString CopyFFString16
 bool ff_passthru(ProcessOpenGLStruct *pGL);
 
-std::string &ltrim(std::string &s);
-std::string &rtrim(std::string &s);
 std::string &trim(std::string &s);
-
-extern "C" { bool vizlet_setdll(std::string dllpath); }
-
-#define WINDOWS_DLLMAIN_FUNCTION(setdll) \
-	BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) { \
-	char dllpath[MAX_PATH]; \
-	GetModuleFileNameA((HMODULE)hModule, dllpath, MAX_PATH); \
-	\
-	if (ul_reason_for_call == DLL_PROCESS_ATTACH ) { \
-		if ( ! vizlet_setdll(std::string(dllpath)) ) { \
-			return FALSE; \
-		} \
-	} \
-    return TRUE; \
-	}
 
 #endif

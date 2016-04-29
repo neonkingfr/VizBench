@@ -38,7 +38,7 @@ src/oscutil/build
 src/pthreads-w32-2-9-1-release
 src/ShaderMaker-1.0.0
 src/bonjour
-src/freeglut-2.6.0
+other/freeglut-2.6.0
 src/opencv
 other/oscpack_1_1_0
 other/jquery.mobile-1.4.5

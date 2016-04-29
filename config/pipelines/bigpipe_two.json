@@ -55,7 +55,7 @@
 	{
 		"vtag": "kaleidoscope",
 		"ffglplugin": "Kaleidoscope",
-		"enabled": 1,
+		"enabled": 0,
 		"moveable": 1,
 		"params": [
 			{"name":"Angles", "value":0.350000 }, 
@@ -68,7 +68,7 @@
 	{
 		"vtag": "edge detection",
 		"ffglplugin": "Edge Detection",
-		"enabled": 1,
+		"enabled": 0,
 		"moveable": 1,
 		"params": [
 			{"name":"Mode", "value":1.000000 }, 
@@ -78,7 +78,7 @@
 	{
 		"vtag": "blur",
 		"ffglplugin": "Blur",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"Blur X Distance", "value":0.000000 }, 
@@ -90,7 +90,7 @@
 	{
 		"vtag": "goo",
 		"ffglplugin": "Goo",
-		"enabled": 1,
+		"enabled": 0,
 		"moveable": 1,
 		"params": [
 			{"name":"Speed", "value":0.250000 }, 

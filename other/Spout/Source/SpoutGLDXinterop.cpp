@@ -1463,14 +1463,14 @@ bool spoutGLDXinterop::ReadTexture(GLuint TextureID, GLuint TextureTarget, unsig
 			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_fbo);
 			
 			// Attach the Input texture (the shared texture) to the color buffer in our frame buffer - note texturetarget 
-			glFramebufferTexture2DEXT(READ_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, m_glTexture, 0);
+			glFramebufferTexture2DEXT(GL_READ_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, m_glTexture, 0);
 			glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
 			
 			// Flip if the user wants that
 			if(bInvert) { // fbo blitting supported - flip the texture while copying
 
 				// attach target texture (the one we read into and return) to second attachment point
-				glFramebufferTexture2DEXT(DRAW_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT, TextureTarget, TextureID, 0);
+				glFramebufferTexture2DEXT(GL_DRAW_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT, TextureTarget, TextureID, 0);
 				glDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
 
 				// copy one texture buffer to the other while flipping upside down

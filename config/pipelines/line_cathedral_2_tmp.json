@@ -9,7 +9,7 @@
 		"vizletdump": [{
 				"method":	"set_sprite",
 				"params":	{
-					"paramfile":	"lines_jumpy-1"
+					"paramfile":	"lines_ahoy-2"
 				}
 			}, {
 				"method":	"set_midi",
@@ -82,7 +82,7 @@
 	{
 		"vtag": "blur",
 		"ffglplugin": "Blur",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"Blur X Distance", "value":0.090000 }, 
@@ -94,12 +94,12 @@
 	{
 		"vtag": "goo",
 		"ffglplugin": "Goo",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
-			{"name":"Speed", "value":0.230000 }, 
+			{"name":"Speed", "value":0.250000 }, 
 			{"name":"MaxDistortionX", "value":1.000000 }, 
-			{"name":"MaxDistortionY", "value":0.970000 }, 
+			{"name":"MaxDistortionY", "value":1.000000 }, 
 			{"name":"MaxDistortionZ", "value":0.000000 }, 
 			{"name":"Black BG", "value":0.000000 }
 			]
@@ -107,17 +107,17 @@
 	{
 		"vtag": "fragment",
 		"ffglplugin": "Fragment",
-		"enabled": 1,
+		"enabled": 0,
 		"moveable": 1,
 		"params": [
-			{"name":"Fragments", "value":0.450000 }, 
+			{"name":"Fragments", "value":0.810000 }, 
 			{"name":"Distance", "value":0.020000 }, 
-			{"name":"Rotation", "value":0.690000 }, 
-			{"name":"FragRotationX", "value":0.320000 }, 
-			{"name":"FragRotationY", "value":0.690000 }, 
-			{"name":"FragRotationZ", "value":0.060000 }, 
-			{"name":"FragScale", "value":0.820000 }, 
-			{"name":"CompositeOpacity", "value":0.930000 }
+			{"name":"Rotation", "value":0.000000 }, 
+			{"name":"FragRotationX", "value":0.500000 }, 
+			{"name":"FragRotationY", "value":0.500000 }, 
+			{"name":"FragRotationZ", "value":0.500000 }, 
+			{"name":"FragScale", "value":1.000000 }, 
+			{"name":"CompositeOpacity", "value":0.710000 }
 			]
 	},
 	{
@@ -132,11 +132,11 @@
 	{
 		"vtag": "trails",
 		"ffglplugin": "Trails",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 0,
 		"params": [
-			{"name":"Feedback", "value":0.390000 }, 
-			{"name":"Mode", "value":0.100000 }
+			{"name":"Feedback", "value":0.630000 }, 
+			{"name":"Mode", "value":0.190000 }
 			]
 	},
 	{

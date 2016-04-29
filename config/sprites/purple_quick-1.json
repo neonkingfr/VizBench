@@ -1,16 +1,16 @@
 {
 	"alphafinal":	"0.000000",
-	"alphainitial":	"1",
+	"alphainitial":	"0.445",
 	"alphatime":	"2.000000",
 	"aspect":	"1.000000",
 	"bounce":	"off",
 	"filled":	"true",
 	"gravity":	"off",
 	"huefillfinal":	"0.000000",
-	"huefillinitial":	"360.000000",
+	"huefillinitial":	"0",
 	"huefilltime":	"2.000000",
 	"huefinal":	"360.000000",
-	"hueinitial":	"0.000000",
+	"hueinitial":	"360",
 	"huetime":	"2.000000",
 	"lifetime":	"3.000000",
 	"luminance":	"0.500000",
@@ -37,6 +37,8 @@
 	"thickness":	"3.000000",
 	"zable":	"on",
 	"zexponential":	"1.000000",
-	"zmultiply":	"1.000000",
-	"zoffset":	"0.000000"
+	"zpostmultiply":	"1.0",
+	"zpostoffset":	"0.0",
+	"zpremultiply":	"1.0",
+	"zpreoffset":	"0.0"
 }

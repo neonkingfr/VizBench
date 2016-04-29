@@ -29,9 +29,19 @@
 #include <cctype>
 #include <algorithm>
 
+#include <Windows.h>
+#include <gl/gl.h>
+#include <gl/glu.h>
+#pragma comment(lib, "opengl32.lib")
+#pragma comment(lib, "glu32.lib")
+
+#include <GLFW/glfw3.h>
+
 #include "NosuchDebug.h"
 #include "NosuchUtil.h"
+
 #include "FFFF.h"
+
 #include "ffffutil.h"
 
 #include "FF10Plugin.h"
@@ -55,8 +65,6 @@ int	ffHeight;
 // FFGLViewportStruct windowViewport;
 FFGLTextureStruct mapTexture;
 FFGLTextureStruct spoutTexture;
-int fboWidth;
-int fboHeight;
 FFGLExtensions glExtensions;
 FFGLFBO fbospout;
 
@@ -202,40 +210,46 @@ FFGLTextureStruct CreateOpenGLTexture(int textureWidth, int textureHeight)
 }
 
 int
-FFFF::FFGLinit2(int ffgl_width, int ffgl_height)
-{
-    glExtensions.Initialize();
-    if (glExtensions.EXT_framebuffer_object==0)
-    {
-        DEBUGPRINT(("FBO not detected, cannot continue"));
-        return 0;
-    }
+FFFF::spoutInitTexture(int width, int height){
 
-    //set swap control so that the framerate is capped
-    //at the monitor refresh rate
-    if (glExtensions.WGL_EXT_swap_control)
-        glExtensions.wglSwapIntervalEXT(0);
-
-    fboWidth = ffgl_width;
-    fboHeight = ffgl_height;
-
-    if (!fbospout.Create(fboWidth, fboHeight, glExtensions))
-    {
+    if (!fbospout.Create(width, height, glExtensions)) {
         DEBUGPRINT(("Framebuffer Object Init Failed"));
         return 0;
     }
 
-    //allocate a texture for the map
-    mapTexture = CreateOpenGLTexture(fboWidth,fboHeight);
-    if (mapTexture.Handle==0)
-    {
-        DEBUGPRINT(("Texture allocation failed"));
+    spoutTexture = CreateOpenGLTexture(width,height);
+    if (spoutTexture.Handle==0) {
+        DEBUGPRINT(("Spout Texture allocation failed"));
         return 0;
     }
-    spoutTexture = CreateOpenGLTexture(fboWidth,fboHeight);
-    if (spoutTexture.Handle==0)
-    {
-        DEBUGPRINT(("Spout Texture allocation failed"));
+
+	return 1;
+}
+
+int
+FFFF::InitGlExtensions() {
+	glExtensions.Initialize();
+	if (glExtensions.EXT_framebuffer_object == 0)
+	{
+		DEBUGPRINT(("FBO not detected, cannot continue"));
+		return 0;
+	}
+	return 1;
+}
+
+int
+FFFF::FFGLinit2(int width, int height)
+{
+	//set swap control so that the framerate is capped
+	//at the monitor refresh rate
+	if (glExtensions.WGL_EXT_swap_control) {
+		glExtensions.wglSwapIntervalEXT(0);
+	}
+
+    //allocate a texture for the map
+    mapTexture = CreateOpenGLTexture(width,height);
+    if (mapTexture.Handle==0) {
+        DEBUGPRINT(("Texture allocation failed"));
         return 0;
     }
 
@@ -244,16 +258,16 @@ FFFF::FFGLinit2(int ffgl_width, int ffgl_height)
 
 		pipeline.fboViewport.x = 0;
 		pipeline.fboViewport.y = 0;
-		pipeline.fboViewport.width = fboWidth;
-		pipeline.fboViewport.height = fboHeight;
+		pipeline.fboViewport.width = width;
+		pipeline.fboViewport.height = height;
 
-		pipeline.m_texture = CreateOpenGLTexture(fboWidth,fboHeight);
-		if (!pipeline.fbo1.Create(fboWidth, fboHeight, glExtensions))
+		pipeline.m_texture = CreateOpenGLTexture(width,height);
+		if (!pipeline.fbo1.Create(width, height, glExtensions))
 		{
 			DEBUGPRINT(("Framebuffer init of fbo1 failed"));
 			return 0;
 		}
-		if (!pipeline.fbo2.Create(fboWidth, fboHeight, glExtensions))
+		if (!pipeline.fbo2.Create(width, height, glExtensions))
 		{
 			DEBUGPRINT(("Framebuffer init of fbo2 failed"));
 			return 0;

@@ -1,5 +1,5 @@
 var pipenum;
-var pipelinefilename;
+var pipelinename;
 var autosave = true;
 
 function changeval(name) {
@@ -46,7 +46,7 @@ function updateval2(name) {
 	var rangeid = document.getElementById("range_"+name);
 	rangeid.value = valueid.value;
 	sendparamchange(name);
-	autosave_pipeline();
+	autosave_pipeline_norefresh();
 }
 
 function moveplugin(fullviztag,n) {
@@ -60,11 +60,11 @@ function browsepipelinefile() {
 }
 
 function load_pipeline() {
-	checkapi(vizapi("ffff.load_pipeline","{\"filename\":\""+pipelinefilename+"\", \"pipenum\":\""+pipenum+"\" }"));
+	checkapi(vizapi("ffff.load_pipeline","{\"name\":\""+pipelinename+"\", \"pipenum\":\""+pipenum+"\" }"));
 }
 
 function save_pipeline() {
-	var api = vizapi("ffff.save_pipeline","{\"filename\":\""+pipelinefilename+"\", \"pipenum\":\""+pipenum+"\" }");
+	var api = vizapi("ffff.save_pipeline","{\"name\":\""+pipelinename+"\", \"pipenum\":\""+pipenum+"\" }");
 	checkapi(api);
 }
 
@@ -78,10 +78,10 @@ function autosave_pipeline() {
 
 function autosave_pipeline_(refresh) {
 	// var autosave = document.getElementById("autosave").checked;
-	if ( autosave&& pipelinefilename != "" ) {
+	if ( autosave&& pipelinename != "" ) {
 		save_pipeline()
 		if ( refresh ) {
-			pipeline_pagegen(pipenum,pipelinefilename);
+			pipeline_pagegen(pipenum,pipelinename);
 		}
 	}
 }
@@ -122,18 +122,13 @@ function changeTextVal_keypress(event,tag,api,argname) {
 	if ( event.keyCode != 13 ) {
 		return;
 	}
-	var inputid = document.getElementById(tag+"_"+api);
-	var api = vizapi(tag+"."+api,"{\""+argname+"\":\""+inputid.value+"\"}");
-	if ( ! checkapi(api) ) {
-		inputid.value = "";
-		return;
-	}
-	autosave_pipeline();
+	changeTextVal(tag,api,argname);
 }
 
 function changeTextVal(tag,api,argname) {
 	var inputid = document.getElementById(tag+"_"+api);
-	var api = vizapi(tag+"."+api,"{\""+argname+"\":\""+inputid.value+"\"}");
+	var inputvalue = inputid.value;
+	var api = vizapi(tag+"."+api,"{\""+argname+"\":\""+inputvalue+"\"}");
 	if ( ! checkapi(api) ) {
 		inputid.value = "";
 		return;
@@ -156,7 +151,7 @@ function params_class_of_api(api) {
 function pipeline_pagegen(pn,fname) {
 
 	pipenum = pn;
-	pipelinefilename = fname;
+	pipelinename = fname;
 
 	var api = vizapi("ffff.ffglpipeline","{\"pipenum\":\""+pipenum+"\"}");
 	if ( ! checkapi(api) ) {
@@ -165,16 +160,6 @@ function pipeline_pagegen(pn,fname) {
 	var ffglpipeline = api.result;
 
 	var html = "";
-
-	// html += "<table>";
-	// html += "<tr>";
-	// html += "<td>";
-	// html += "<input type=\"button\" style=\"width:100px\" value=\"Load\" onClick=\"load_pipeline();\">";
-	// html += "&nbsp;&nbsp;";
-	// html += "AutoSave<input type=\"checkbox\" checked=\"checked\" id=\"autosave\" value=\"AutoSave\" >";
-	// html += "</td></tr>";
-	// html += "</table>";
-	// html += "<p>";
 
 	html += "Plugins: &nbsp;&nbsp;";
 	html += "<input type=\"button\" value=\"Enable All\" onClick=\"enable_all(1);\">";
@@ -287,7 +272,7 @@ function pipeline_pagegen(pn,fname) {
 							if ( argname == "paramfile" ) {
 								var paramsclass = params_class_of_api(api)
 								html += "<td>";
-								html += "<button onclick=\"edit_params('"+inputid+"','"+paramsclass+"');\" >Edit</button>";
+								html += "<button onclick=\"changeTextVal('"+fullviztag+"','"+api+"','"+argname+"');edit_params('"+inputid+"','"+paramsclass+"');\" >Edit</button>";
 								html += "&nbsp;&nbsp;";
 								html += "<button onclick=\"newvariation_params('"+inputid+"','"+paramsclass+"','"+fullviztag+"','"+api+"','"+argname+"');\" >New Variation</button>";
 							}
@@ -382,7 +367,9 @@ function newvariation_params(inputid,paramsclass,viztag,api,argname) {
 
 	var copyapi = "ffff.copy_"+paramsclass;
 
+	alert("copying from="+oldfilename+" to="+newfilename);
 	checkapi(vizapi(copyapi,"{\"fromfile\":\""+oldfilename+"\", \"tofile\":\""+newfilename+"\", \"pipenum\":\""+pipenum+"\" }"));
+	alert("AFTER copying from="+oldfilename+" to="+newfilename);
 
 	dojo.byId(inputid).value = newfilename;
 

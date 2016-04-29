@@ -66,5 +66,8 @@
     <ClInclude Include="..\..\..\src\FFFF\AudioHost.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\FFFF\glstuff.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

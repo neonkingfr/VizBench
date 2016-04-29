@@ -71,10 +71,10 @@
 		"enabled": 1,
 		"moveable": 1,
 		"params": [
-			{"name":"Blur X Distance", "value":0.090000 }, 
+			{"name":"Blur X Distance", "value":0.100000 }, 
 			{"name":"Blur Y Distance", "value":0.110000 }, 
-			{"name":"Quality", "value":0.280000 }, 
-			{"name":"Gaussian", "value":0.370000 }
+			{"name":"Quality", "value":0.530000 }, 
+			{"name":"Gaussian", "value":0.930000 }
 			]
 	},
 	{
@@ -118,7 +118,7 @@
 	{
 		"vtag": "displace",
 		"ffglplugin": "Displace",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"X factor", "value":0.760000 }, 

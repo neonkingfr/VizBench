@@ -120,3 +120,51 @@ void VizParams::Initialize() {
 	StringVals["soundTypes"].push_back("Drum2");
 }
 
+std::string
+PluginParamsPath(std::string f) {
+	if (!NosuchEndsWith(f, ".json")) {
+		f += ".json";
+	}
+	return VizConfigPath("plugins", f);
+}
+
+std::string
+VizParamsPath(std::string f, std::string paramtype) {
+	if (!NosuchEndsWith(f, ".json")) {
+		f += ".json";
+	}
+	return VizConfigPath(paramtype, f);
+}
+
+std::string
+SpriteVizParamsPath(std::string f)
+{
+	return VizParamsPath(f, "sprites");
+}
+
+std::string
+MidiVizParamsPath(std::string f)
+{
+	return VizParamsPath(f, "midi");
+}
+
+std::string
+configJsonPath(std::string subdir, std::string name) {
+	if (name == "") {
+		throw NosuchException("config name is blank!?");
+	}
+	if (!NosuchEndsWith(name, ".json")) {
+		name += ".json";
+	}
+	return VizConfigPath(subdir, name);
+}
+
+std::string
+pipelinePath(std::string name) {
+	return configJsonPath("pipelines", name);
+}
+
+std::string
+pipesetPath(std::string name) {
+	return configJsonPath("pipesets", name);
+}

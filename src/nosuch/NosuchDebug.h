@@ -54,14 +54,10 @@ void NosuchDebug(char const *fmt, ... );
 void NosuchDebug(int level, char const *fmt, ... );
 void NosuchErrorOutput(const char *fmt, ...);
 std::string NosuchForwardSlash(std::string filepath);
+
 void SetVizPath(std::string path);
 std::string VizConfigPath(std::string f1 = "", std::string f2 = "", std::string f3 = "");
 std::string VizPath(std::string fname);
-std::string VizParamsPath(std::string f,std::string paramtype);
-std::string PluginParamsPath(std::string f);
-
-#define SpriteVizParamsPath(f) VizParamsPath(f,"sprites")
-#define MidiVizParamsPath(f) VizParamsPath(f,"midi")
 
 #define DBGLEVEL 0
 
