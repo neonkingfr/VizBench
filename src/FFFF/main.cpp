@@ -33,10 +33,9 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define GLEW_STATIC
-#include <gl/glew.h>
-
 #include "glstuff.h"
+
+#include "drawtext.h"
 
 #include "resource.h"
 
@@ -203,29 +202,31 @@ int ffffMain(std::string pipeset, bool fullscreen)
 	glfwShowWindow(F->window);
 
 	// MAKE PREVIEW WINDOW, be sure to share resources with main window
-	F->preview = glfwCreateWindow(800, 450, "Preview", monitor, F->window);
+	F->preview = glfwCreateWindow(preview_width, preview_height, "Preview", monitor, F->window);
 	if (F->preview == NULL) {
 		glfwTerminate();
 		exit(EXIT_FAILURE);
 	}
-	glfwSetWindowPos(F->preview, 1000, 200);
-	glfwSetWindowSize(F->preview, 800, 450);
+	glfwSetWindowPos(F->preview, preview_x, preview_y);
+	glfwSetWindowSize(F->preview, preview_width, preview_height);
 	glfwShowWindow(F->preview);
 	// END MAKE PREVIEW WINDOW
 
 	glfwMakeContextCurrent(F->window);
 
-	GLenum glewerr = glewInit();
-	if (glewerr != GLEW_OK) {
-		DEBUGPRINT(("glewInit failed!?  Error: %s",glewGetErrorString(glewerr)));
-		glfwTerminate();
-		exit(EXIT_FAILURE);
-	}
-
 	glfwSetKeyCallback(F->window, key_callback);
 
 	if ( ! F->InitGlExtensions() ) {
 		DEBUGPRINT(("InitGlExtensions failed!?"));
+		glfwTerminate();
+		exit(EXIT_FAILURE);
+	}
+
+	const char *fontname = "c:\\windows\\fonts\\poorich.ttf";
+	int fontsize = 48;
+	struct dtx_font *font = dtx_open_font(fontname, fontsize);
+	if (font == NULL) {
+		DEBUGPRINT(("Unable to load font '%s'!?",fontname));
 		glfwTerminate();
 		exit(EXIT_FAILURE);
 	}
@@ -297,6 +298,24 @@ int ffffMain(std::string pipeset, bool fullscreen)
 				pipeline.paintTexture();
 			}
 
+			// Draw a rectangle just to show that we're alive.
+			glColor4f(0.0, 1.0, 0.0, 1.0);
+			glLineWidth((GLfloat)2.0f);
+			glBegin(GL_LINE_LOOP);
+			glVertex3f(0.1f, 0.1f, 0.0f);	// Top Left
+			glVertex3f(0.1f, 0.9f, 0.0f);	// Top Right
+			glVertex3f(0.9f, 0.9f, 0.0f);	// Bottom Right
+			glVertex3f(0.9f, 0.1f, 0.0f);	// Bottom Left
+			glEnd();
+
+			glColor4f(1.0, 0.0, 0.0, 1.0);
+			glPushMatrix();
+			glTranslatef(-0.5, -0.5, 0.0);
+			glScalef(0.002, 0.004, 1.0);
+			dtx_use_font(font, fontsize);
+			dtx_string("Space Puddle");
+			glPopMatrix();
+
 			F->sendSpout(width, height);
 
 			glfwSwapBuffers(F->window);
@@ -318,7 +337,7 @@ int ffffMain(std::string pipeset, bool fullscreen)
 
 				pipeline.paintTexture();
 			}
-#if 0
+
 			// Draw a rectangle just to show that we're alive.
 			glColor4f(1.0, 0.0, 0.0, 1.0);
 			glLineWidth((GLfloat)2.0f);
@@ -328,7 +347,6 @@ int ffffMain(std::string pipeset, bool fullscreen)
 			glVertex3f(0.9f, 0.9f, 0.0f);	// Bottom Right
 			glVertex3f(0.9f, 0.1f, 0.0f);	// Bottom Left
 			glEnd();
-#endif
 
 			glPopMatrix();
 			glfwSwapBuffers(F->preview);

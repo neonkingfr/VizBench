@@ -71,7 +71,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\src\FFFF;..\..\..\other\glew\include;..\..\..\other\glfw\include;..\..\..\src\misclib;..\..\..\src\vizlet1;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\osc\include;..\..\..\other\freeframe;..\..\..\other\portmidi\porttime;..\..\..\other\cJSON;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;..\..\..\other\opencv\build\include;..\..\..\other\Spout\Source;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\FFFF;..\..\..\other\glew\include;..\..\..\other\freetype\include;..\..\..\other\libdrawtext\src;..\..\..\other\glfw\include;..\..\..\src\misclib;..\..\..\src\vizlet1;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\vizlet;..\..\..\src\nosuch;..\..\..\other\osc\include;..\..\..\other\freeframe;..\..\..\other\portmidi\porttime;..\..\..\other\cJSON;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;..\..\..\other\opencv\build\include;..\..\..\other\Spout\Source;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -88,9 +88,9 @@
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>FFGLlib_MT.lib;opencv_highgui2410d.lib;opencv_core2410d.lib;opencv_flann2410d.lib;opencv_ml2410d.lib;opencv_imgproc2410d.lib;libjpegd.lib;libpngd.lib;libtiffd.lib;libjasperd.lib;IlmImfd.lib;pthreadVC2.lib;winmm.lib;VizServer.lib;vfw32.lib;Ws2_32.lib;glfw3.lib;glew32sd.lib;Rpcrt4.lib;zlib.lib;spout.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FFGLlib_MT.lib;opencv_highgui2410d.lib;opencv_core2410d.lib;opencv_flann2410d.lib;opencv_ml2410d.lib;opencv_imgproc2410d.lib;libjpegd.lib;libpngd.lib;libtiffd.lib;libjasperd.lib;IlmImfd.lib;pthreadVC2.lib;winmm.lib;VizServer.lib;vfw32.lib;Ws2_32.lib;glfw3.lib;glew32sd.lib;Rpcrt4.lib;zlib.lib;spout.lib;freetype263d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(Configuration)\$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\other\opencv\build\x86\vc12\staticlib;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\glfw\src\Debug;..\FFGLlib_MT\Debug;..\VizServer\Debug;..\Spout\Debug;..\..\..\other\glew\lib\Debug\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\other\opencv\build\x86\vc12\staticlib;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\..\..\other\glfw\src\Debug;..\FFGLlib_MT\Debug;..\VizServer\Debug;..\Spout\Debug;..\..\..\other\glew\lib\Debug\Win32;..\..\..\other\freetype\objs\vc2010\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>LIBCMT;LIBCMTD</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -206,6 +206,11 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\other\freeframe\FF10Plugin.cpp" />
     <ClCompile Include="..\..\..\other\freeframe\FFGLPlugin.cpp" />
+    <ClCompile Include="..\..\..\other\libdrawtext\src\draw.c" />
+    <ClCompile Include="..\..\..\other\libdrawtext\src\drawgl.c" />
+    <ClCompile Include="..\..\..\other\libdrawtext\src\drawrast.c" />
+    <ClCompile Include="..\..\..\other\libdrawtext\src\font.c" />
+    <ClCompile Include="..\..\..\other\libdrawtext\src\utf8.c" />
     <ClCompile Include="..\..\..\src\FFFF\AudioHost.cpp" />
     <ClCompile Include="..\..\..\src\FFFF\ffffutil.cpp" />
     <ClCompile Include="..\..\..\src\FFFF\main.cpp" />
@@ -220,6 +225,8 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\other\freeframe\FF10Plugin.h" />
     <ClInclude Include="..\..\..\other\freeframe\FFGLPlugin.h" />
+    <ClInclude Include="..\..\..\other\libdrawtext\src\drawtext.h" />
+    <ClInclude Include="..\..\..\other\libdrawtext\src\drawtext_impl.h" />
     <ClInclude Include="..\..\..\src\FFFF\AudioHost.h" />
     <ClInclude Include="..\..\..\src\FFFF\FFFF.h" />
     <ClInclude Include="..\..\..\src\FFFF\ffffutil.h" />

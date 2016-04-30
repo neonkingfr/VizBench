@@ -30,6 +30,10 @@
 #include <algorithm>
 
 #include <Windows.h>
+
+#define GLEW_STATIC
+#include <gl/glew.h>
+
 #include <gl/gl.h>
 #include <gl/glu.h>
 #pragma comment(lib, "opengl32.lib")
@@ -228,6 +232,13 @@ FFFF::spoutInitTexture(int width, int height){
 
 int
 FFFF::InitGlExtensions() {
+
+	GLenum glewerr = glewInit();
+	if (glewerr != GLEW_OK) {
+		DEBUGPRINT(("glewInit failed!?  Error: %s",glewGetErrorString(glewerr)));
+		return 0;
+	}
+
 	glExtensions.Initialize();
 	if (glExtensions.EXT_framebuffer_object == 0)
 	{
