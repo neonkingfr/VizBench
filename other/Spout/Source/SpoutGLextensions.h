@@ -58,7 +58,9 @@
 #ifndef __spoutGLextensions__	// standard way as well
 #define __spoutGLextensions__
 
+#ifndef GLEW_STATIC
 #define GLEW_STATIC // to use glew32s.lib instead of glew32.lib
+#endif
 
 // set this to use GLEW instead of dynamic load of extensions - used for SpoutCam and SpoutTray
 #define USE_GLEW	

@@ -31,7 +31,6 @@
 
 #include <Windows.h>
 
-#define GLEW_STATIC
 #include <gl/glew.h>
 
 #include <gl/gl.h>
@@ -45,6 +44,7 @@
 #include "NosuchUtil.h"
 
 #include "FFFF.h"
+#include "FFGLPipeline.h"
 
 #include "ffffutil.h"
 
@@ -213,44 +213,40 @@ FFGLTextureStruct CreateOpenGLTexture(int textureWidth, int textureHeight)
     return t;
 }
 
-int
-FFFF::spoutInitTexture(int width, int height){
+void
+FFFF::spoutInitTexture(){
 
-    if (!fbospout.Create(width, height, glExtensions)) {
-        DEBUGPRINT(("Framebuffer Object Init Failed"));
-        return 0;
+    if (!fbospout.Create(m_window_width, m_window_height, glExtensions)) {
+        throw NosuchException("Framebuffer Object Init Failed");
     }
 
-    spoutTexture = CreateOpenGLTexture(width,height);
+    spoutTexture = CreateOpenGLTexture(m_window_width,m_window_height);
     if (spoutTexture.Handle==0) {
-        DEBUGPRINT(("Spout Texture allocation failed"));
-        return 0;
+        throw NosuchException("Spout Texture allocation failed");
     }
-
-	return 1;
 }
 
-int
+void
 FFFF::InitGlExtensions() {
 
 	GLenum glewerr = glewInit();
 	if (glewerr != GLEW_OK) {
-		DEBUGPRINT(("glewInit failed!?  Error: %s",glewGetErrorString(glewerr)));
-		return 0;
+		throw NosuchException("glewInit failed!?  Error: %s",glewGetErrorString(glewerr));
 	}
 
 	glExtensions.Initialize();
 	if (glExtensions.EXT_framebuffer_object == 0)
 	{
-		DEBUGPRINT(("FBO not detected, cannot continue"));
-		return 0;
+		throw NosuchException("FBO not detected, cannot continue");
 	}
-	return 1;
 }
 
-int
-FFFF::FFGLinit2(int width, int height)
+void
+FFFF::FFGLinit2()
 {
+	int width = m_window_width;
+	int height = m_window_height;
+
 	//set swap control so that the framerate is capped
 	//at the monitor refresh rate
 	if (glExtensions.WGL_EXT_swap_control) {
@@ -260,8 +256,7 @@ FFFF::FFGLinit2(int width, int height)
     //allocate a texture for the map
     mapTexture = CreateOpenGLTexture(width,height);
     if (mapTexture.Handle==0) {
-        DEBUGPRINT(("Texture allocation failed"));
-        return 0;
+        throw NosuchException("Texture allocation failed");
     }
 
 	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
@@ -273,19 +268,13 @@ FFFF::FFGLinit2(int width, int height)
 		pipeline.fboViewport.height = height;
 
 		pipeline.m_texture = CreateOpenGLTexture(width,height);
-		if (!pipeline.fbo1.Create(width, height, glExtensions))
-		{
-			DEBUGPRINT(("Framebuffer init of fbo1 failed"));
-			return 0;
+		if (!pipeline.fbo1.Create(width, height, glExtensions)) {
+			throw NosuchException("Framebuffer init of fbo1 failed");
 		}
-		if (!pipeline.fbo2.Create(width, height, glExtensions))
-		{
-			DEBUGPRINT(("Framebuffer init of fbo2 failed"));
-			return 0;
+		if (!pipeline.fbo2.Create(width, height, glExtensions)) {
+			throw NosuchException("Framebuffer init of fbo2 failed");
 		}
 	}
-
-    return 1;
 }
 
 

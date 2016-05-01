@@ -284,8 +284,8 @@ struct dtx_glyphmap *dtx_create_glyphmap_range(struct dtx_font *fnt, int sz, int
 		}
 
 		gmap->glyphs[i].code = i;
-		gmap->glyphs[i].x = gx - 1;
-		gmap->glyphs[i].y = gy - 1;
+		gmap->glyphs[i].x = (float)gx - 1;
+		gmap->glyphs[i].y = (float)gy - 1;
 		gmap->glyphs[i].width = gwidth + 2;
 		gmap->glyphs[i].height = gheight + 2;
 		gmap->glyphs[i].orig_x = -FTSZ_TO_PIXELS((float)glyph->metrics.horiBearingX) + 1;
@@ -297,7 +297,7 @@ struct dtx_glyphmap *dtx_create_glyphmap_range(struct dtx_font *fnt, int sz, int
 		gmap->glyphs[i].nwidth = (float)gmap->glyphs[i].width / (float)gmap->xsz;
 		gmap->glyphs[i].nheight = (float)gmap->glyphs[i].height / (float)gmap->ysz;
 
-		gx += gwidth + padding;
+		gx += (int)gwidth + padding;
 	}
 
 	/* add it to the glyphmaps list of the font */
@@ -476,7 +476,7 @@ struct dtx_glyphmap *dtx_load_glyphmap_stream(FILE *fp)
 			fprintf(stderr, "unexpected end of file while reading pixels\n");
 			goto err;
 		}
-		gmap->pixels[i] = 255 * c / max_pixval;
+		gmap->pixels[i] = 255 * (unsigned char)c / max_pixval;
 		fseek(fp, 2, SEEK_CUR);
 	}
 
@@ -711,7 +711,7 @@ struct dtx_glyphmap *dtx_proc_char(int code, float *xpos, float *ypos)
 
 	case '\t':
 		if(gmap) {
-			*xpos = (fmod(*xpos, 4.0) + 4.0) * gmap->glyphs[0].advance;
+			*xpos = (float)(fmod(*xpos, 4.0) + 4.0) * gmap->glyphs[0].advance;
 		}
 		return 0;
 

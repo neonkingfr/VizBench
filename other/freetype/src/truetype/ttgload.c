@@ -1695,6 +1695,7 @@
         char*       tags     = NULL;
         short*      contours = NULL;
 
+		memset(&outline, 0, sizeof(outline));
 
         limit = (short)gloader->current.num_subglyphs;
 

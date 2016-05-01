@@ -34,10 +34,10 @@
   "preview_width": 800,
   "preview_height": 450,
 
-  "font": "poorich.ttf",
+  "fontname": "poorich.ttf",
   "fontsize": 48,
 
-  "spout": 0,
+  "spout": 1,
   "showfps": 0,
   "autoload": 1,
   "autosave": 1,

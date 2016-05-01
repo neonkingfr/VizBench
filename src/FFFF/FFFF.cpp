@@ -29,15 +29,17 @@
 
 #include "NosuchUtil.h"
 
-#define GLEW_STATIC
 #include <gl/glew.h>
 
 #include "glstuff.h"
+
+#include "drawtext.h"
 
 #include "FFGLPlugin.h"
 #include "FF10Plugin.h"
 
 #include "FFFF.h"
+#include "FFGLPipeline.h"
 
 #include "NosuchJSON.h"
 #include "Timer.h"
@@ -56,6 +58,13 @@
 
 #include <sys/stat.h>
 
+VizServer* FFFF::m_vizserver = NULL;
+
+char* FfffOutput = NULL;
+FILE* FfffOutputFile = NULL;
+std::string FfffOutputPrefix;
+int FfffOutputFPS;
+
 const char* FFFF_json(void* data,const char *method, cJSON* params, const char* id) {
 
 	// NEEDS to be static, since we return the c_str() of it.
@@ -68,17 +77,13 @@ const char* FFFF_json(void* data,const char *method, cJSON* params, const char* 
 }
 
 void FFFF_error(void* data,const char* msg) {
-
-	// NEEDS to be static, since we return the c_str() of it.
-	// This also assumes that JSON API calls are serialized.
-	static std::string result;
-
 	FFFF* ffff = (FFFF*)data;
 	ffff->ErrorPopup(msg);
 }
 
 FFFF::FFFF(cJSON* config) {
 
+	m_vizserver = NULL;
 	m_output_framedata = NULL;
 	m_output_lastwrite = 0.0;
 	m_output_framenum = 0;
@@ -98,6 +103,21 @@ FFFF::FFFF(cJSON* config) {
 
 	m_window_width = jsonNeedInt(config, "window_width", 800);
 	m_window_height = jsonNeedInt(config, "window_height", 600);
+	m_window_x = jsonNeedInt(config, "window_x", 0);
+	m_window_y = jsonNeedInt(config, "window_y", 0);
+
+	m_preview_width = jsonNeedInt(config, "preview_width", 800);
+	m_preview_height = jsonNeedInt(config, "preview_height", 600);
+	m_preview_x = jsonNeedInt(config, "preview_x", 1000);
+	m_preview_y = jsonNeedInt(config, "preview_y", 0);
+
+	m_pipesetname = jsonNeedString(config, "pipeset", "");
+
+	m_fontname = jsonNeedString(config, "fontname", "arial.ttf");
+	m_fontsize = jsonNeedInt(config, "fontsize", 24);
+
+	m_camera_index = jsonNeedInt(config, "camera", -1);  // -1 for no camera, 0+ for camera
+
 	m_showfps = jsonNeedInt(config, "showfps", 0) ? true : false;
 	m_autoload = jsonNeedInt(config, "autoload", 1) ? true : false;
 	m_autosave = jsonNeedInt(config, "autosave", 1) ? true : false;
@@ -110,6 +130,9 @@ FFFF::FFFF(cJSON* config) {
 	else {
 		m_audiohost = NULL;
 	}
+
+	FfffOutputPrefix = jsonNeedString(config, "outputprefix", "");
+	FfffOutputFPS = jsonNeedInt(config, "outputfps", 30);
 
 	NosuchLockInit(&_json_mutex,"json");
 	m_json_cond = PTHREAD_COND_INITIALIZER;
@@ -124,12 +147,168 @@ FFFF::FFFF(cJSON* config) {
 	m_state = new FFFFState();
 }
 
-void
-FFFF::InsertKeystroke(int key,int updown) {
-	m_vizserver->InsertKeystroke(key,updown);
+void FFFF::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, GL_TRUE);
+
+	switch (action) {
+	case GLFW_PRESS:
+		m_vizserver->InsertKeystroke(key,KEYSTROKE_DOWN);
+		break;
+	case GLFW_RELEASE:
+		m_vizserver->InsertKeystroke(key,KEYSTROKE_UP);
+		break;
+	}
 }
 
-bool
+
+void
+FFFF::CreateWindows() {
+
+	GLFWmonitor* monitor;
+	int nmonitors;
+	GLFWmonitor** monitors = glfwGetMonitors(&nmonitors);
+
+	for (int n = 0; n < nmonitors; n++) {
+		const char* nm = glfwGetMonitorName(monitors[n]);
+		const GLFWvidmode* mode = glfwGetVideoMode(monitors[n]);
+		DEBUGPRINT(("GLFW Monitor %d - name=%s  width=%d height=%d refresh=%d", n, nm ? nm : "NULL?", mode->width, mode->height, mode->refreshRate));
+	}
+
+	// Only set monitor if you're doing fullscreen
+	// monitor = glfwGetPrimaryMonitor();
+	monitor = NULL;
+
+	glfwWindowHint(GLFW_DECORATED, GL_FALSE);
+
+	window = glfwCreateWindow(m_window_width, m_window_height, "FFFF", monitor, NULL);
+	if (window == NULL) {
+		throw NosuchException("Unable to create main window!?");
+	}
+	glfwSetWindowPos(window, m_window_x, m_window_y);
+	glfwSetWindowSize(window, m_window_width, m_window_height);
+	glfwShowWindow(window);
+
+	// MAKE PREVIEW WINDOW, be sure to share resources with main window
+	preview = glfwCreateWindow(m_preview_width, m_preview_height, "Preview", monitor, window);
+	if (preview == NULL) {
+		throw NosuchException("Unable to create preview window!?");
+	}
+	glfwSetWindowPos(preview, m_preview_x, m_preview_y);
+	glfwSetWindowSize(preview, m_preview_width, m_preview_height);
+	glfwShowWindow(preview);
+	// END MAKE PREVIEW WINDOW
+
+	glfwMakeContextCurrent(window);
+
+	glfwSetKeyCallback(window, key_callback);
+
+	InitGlExtensions();
+
+	std::string fontpath = "c:\\windows\\fonts\\" + m_fontname;
+	m_font = dtx_open_font(fontpath.c_str(), m_fontsize);
+	if (m_font == NULL) {
+		throw NosuchException("Unable to load font '%s'!?",fontpath.c_str());
+	}
+}
+
+void FFFF::drawWindowPipelines() {
+	// MAIN WINDOW
+	glfwMakeContextCurrent(window);
+	// glfwGetFramebufferSize(F->window, &width, &height);
+
+	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
+		if (isPipelineEnabled(pipenum)) {
+			doCameraAndFF10Pipeline(pipenum, mapTexture.Handle);
+			doPipeline(pipenum, m_window_width, m_window_height);
+		}
+	}
+	glClearColor(0, 0, 0, 0);
+	glClearDepth(1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
+		if (!isPipelineEnabled(pipenum)) {
+			continue;
+		}
+		FFGLPipeline& pipeline = Pipeline(pipenum);
+
+		pipeline.paintTexture();
+	}
+
+}
+
+void
+FFFF::drawWindowFinish() {
+
+	// Draw a rectangle just to show that we're alive.
+	glColor4f(1.0, 1.0, 1.0, 1.0);
+	glLineWidth((GLfloat)2.0f);
+	glBegin(GL_LINE_LOOP);
+	glVertex3f(0.1f, 0.1f, 0.0f);	// Top Left
+	glVertex3f(0.1f, 0.9f, 0.0f);	// Top Right
+	glVertex3f(0.9f, 0.9f, 0.0f);	// Bottom Right
+	glVertex3f(0.9f, 0.1f, 0.0f);	// Bottom Left
+	glEnd();
+
+	glColor4f(1.0, 0.0, 0.0, 1.0);
+	glPushMatrix();
+	glTranslatef(-0.5, -0.5, 0.0);
+	glScalef(0.002, 0.004, 1.0);
+	dtx_use_font(m_font, m_fontsize);
+	dtx_string("Space Puddle");
+	glPopMatrix();
+
+	glfwSwapBuffers(window);
+
+	sendSpout();
+}
+
+void
+FFFF::drawPrefixPipelines() {
+
+	glfwMakeContextCurrent(preview);
+
+	glClearColor(0, 0.0, 0, 0);
+	glClearDepth(1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
+		if (!isPipelineEnabled(pipenum)) {
+			continue;
+		}
+		FFGLPipeline& pipeline = Pipeline(pipenum);
+
+		pipeline.paintTexture();
+	}
+}
+
+void
+FFFF::drawPrefixFinish() {
+
+	// Draw a rectangle just to show that we're alive.
+	glColor4f(1.0, 0.0, 0.0, 1.0);
+	glLineWidth((GLfloat)2.0f);
+	glBegin(GL_LINE_LOOP);
+	glVertex3f(0.1f, 0.1f, 0.0f);	// Top Left
+	glVertex3f(0.1f, 0.9f, 0.0f);	// Top Right
+	glVertex3f(0.9f, 0.9f, 0.0f);	// Bottom Right
+	glVertex3f(0.9f, 0.1f, 0.0f);	// Bottom Left
+	glEnd();
+
+	glColor4f(1.0, 1.0, 1.0, 1.0);
+	glPushMatrix();
+	glTranslatef(-0.5, -0.5, 0.0);
+	glScalef(0.002, 0.004, 1.0);
+	dtx_use_font(m_font, m_fontsize);
+	dtx_string("Space Puddle");
+	glPopMatrix();
+
+	glfwSwapBuffers(preview);
+}
+
+void
 FFFF::StartStuff() {
 
 	m_vizserver = VizServer::GetServer();
@@ -137,8 +316,7 @@ FFFF::StartStuff() {
 	m_vizserver->SetErrorCallback(FFFF_error,this);
 
 	if (!m_vizserver->Start()) {
-		NosuchErrorOutput("Unable to start VizServer!?");
-		return false;
+		throw NosuchException("Unable to start VizServer!?");
 	}
 
 	m_vizserver->AddJsonCallback((void*)this,"ffff",FFFF_json,(void*)this);
@@ -146,8 +324,6 @@ FFFF::StartStuff() {
 	if (m_audiohost) {
 	 	m_audiohost->Start();
 	}
-
-	return true;
 }
 
 
@@ -306,19 +482,24 @@ FFFF::getCameraFrame()
 	return cvQueryFrame(m_capture);
 }
 
-bool
-FFFF::initCamera(int camindex) {
+void
+FFFF::InitCamera() {
 
-	if ( camindex < 0 ) {
-		DEBUGPRINT(("CAMERA disabled (camera < 0)"));
+	m_use_camera = FALSE;
+	if (m_camera_index < 0) {
+		DEBUGPRINT(("Camera is disabled (camera < 0)"));
 		m_capture = NULL;
-		return FALSE;
+		return;
 	}
-	m_capture = cvCreateCameraCapture(camindex);
+
+	m_capture = cvCreateCameraCapture(m_camera_index);
 	if ( !m_capture ) {
-	    DEBUGPRINT(("Unable to initialize capture from camera index=%d\n",camindex));
-	    return FALSE;
+	    DEBUGPRINT(("Unable to initialize capture from camera index=%d\n",m_camera_index));
+		return;
 	}
+
+	m_use_camera = TRUE;
+
 	DEBUGPRINT(("CAMERA detail FPS=%f wid=%f hgt=%f msec=%f ratio=%f fourcc=%f",
 		cvGetCaptureProperty(m_capture,CV_CAP_PROP_FPS),
 		cvGetCaptureProperty(m_capture,CV_CAP_PROP_FRAME_WIDTH),
@@ -343,7 +524,7 @@ FFFF::initCamera(int camindex) {
 		cvReleaseCapture(&m_capture);
 		m_capture = NULL;
 		DEBUGPRINT(("Getting Camera Frames is too slow!  Disabling camera! (times=%lf %lf %lf",t1,t2,t3));
-		return FALSE;
+		return;
 	}
 
 #define CV_CAP_PROP_FRAME_WIDTH    3
@@ -357,7 +538,7 @@ FFFF::initCamera(int camindex) {
     m_camHeight = (int)fheight;
 
     DEBUGPRINT(("CAMERA CV says width=%d height=%d\n",m_camWidth,m_camHeight));
-	return TRUE;
+	return;
 }
 
 FFGLPluginInstance*
@@ -415,17 +596,13 @@ FFFF::clearPipeline(int pipenum)
 }
 
 void
-FFFF::loadAllPluginDefs(std::string ff10path, std::string ffglpath, int width, int height)
+FFFF::loadAllPluginDefs(std::string ff10path, std::string ffglpath)
 {
     nff10plugindefs = 0;
     nffglplugindefs = 0;
 
     loadffglpath(ffglpath);
-    if ( FFGLinit2(width,height) != 1 ) {
-		DEBUGPRINT(("HEY!  FFGLinit2 failed!?"));
-		return;
-	}
-
+	FFGLinit2();
     loadff10path(ff10path);
 
     DEBUGPRINT(("%d FF plugins, %d FFGL plugins\n",nff10plugindefs,nffglplugindefs));
@@ -759,7 +936,7 @@ do_ff10pipeline(std::vector<FF10PluginInstance*> pipeline, unsigned char* pixels
 }
 
 bool
-FFFF::doCameraAndFF10Pipeline(int pipenum, bool use_camera, GLuint texturehandle) {
+FFFF::doCameraAndFF10Pipeline(int pipenum, GLuint texturehandle) {
 
 	int interp;
 	unsigned char *pixels_into_pipeline;
@@ -768,7 +945,7 @@ FFFF::doCameraAndFF10Pipeline(int pipenum, bool use_camera, GLuint texturehandle
 	//bind the gl texture so we can upload the next video frame
 	glBindTexture(GL_TEXTURE_2D, texturehandle);
 
-	if (use_camera) {
+	if (m_use_camera) {
 		camframe = getCameraFrame();
 	}
 
@@ -969,16 +1146,16 @@ FFGLPipeline::paintTexture() {
 	glDisable(GL_TEXTURE_2D);
 }
 
-int
-FFFF::spoutInit(int width, int height) {
+void
+FFFF::spoutInit() {
 
 	if (m_spout) {
-		if ( ! spoutInitTexture(width, height)) {
-			return 0;
-		}
+
+		spoutInitTexture();
+
 		strcpy(m_sendername, "FFFF");
 		m_spoutsender = new SpoutSender;
-		bool b = m_spoutsender->CreateSender(m_sendername, width, height);
+		bool b = m_spoutsender->CreateSender(m_sendername, m_window_width, m_window_height);
 		if (!b) {
 			DEBUGPRINT(("Unable to CreateSender for Spout!?"));
 			NosuchErrorOutput("Unable to CreateSender for Spout!?");
@@ -986,21 +1163,20 @@ FFFF::spoutInit(int width, int height) {
 			m_spoutsender = NULL;
 		}
 	}
-	return 1;
 }
 
 void
-FFFF::sendSpout(int width, int height) {
+FFFF::sendSpout() {
 
 	if (m_spoutsender != NULL && spoutTexture.Handle != 0) {
 
 		// Copy screen into spoutTexture
 		glBindTexture(GL_TEXTURE_2D, spoutTexture.Handle);
-		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, width, height);
+		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, m_window_width, m_window_height);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		// Send it.
-		bool b = m_spoutsender->SendTexture(spoutTexture.Handle, GL_TEXTURE_2D, width, height);
+		bool b = m_spoutsender->SendTexture(spoutTexture.Handle, GL_TEXTURE_2D, m_window_width, m_window_height);
 		if (!b) {
 			DEBUGPRINT(("Error in spout SendTexture!?"));
 		}
@@ -1141,6 +1317,14 @@ FFGLPipeline::doPipeline(int window_width, int window_height)
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	return;
+}
+
+FFGLPipeline& FFFF::Pipeline(int pipenum) {
+	return m_ffglpipeline[pipenum];
+}
+
+bool FFFF::isPipelineEnabled(int pipenum) {
+	return m_ffglpipeline[pipenum].m_pipeline_enabled;
 }
 
 std::string FFFF::FF10List() {
@@ -1470,19 +1654,29 @@ void FFFF::savePipeset(std::string fname)
 }
 
 void
-FFFF::loadPipeset(std::string pipesetname)
+FFFF::loadPipeset(std::string pipeset)
 {
-	if (pipesetname == "") {
-		throw NosuchException("Pipeset name is blank!?");
+	// The passed-in command-line pipeset value presides.
+	if (pipeset == "") {
+		// Then we look at FFFF.json for a pipeset value
+		pipeset = m_pipesetname;
 	}
-	std::string fname = pipesetname;
+	if (pipeset == "" ) {
+		// Last is the pipeset value in the saved state
+		pipeset = m_state->pipeset();
+	}
+	if (pipeset == "") {
+		pipeset = "default";
+	}
+
+	std::string fname = pipeset;
 	if (!NosuchEndsWith(fname, ".json")) {
 		fname += ".json";
 	}
 	std::string fpath = VizConfigPath("pipesets",fname);
 	std::string err;
 
-	DEBUGPRINT(("loadPipeset name=%s path=%s", pipesetname.c_str(), fpath.c_str()));
+	DEBUGPRINT(("loadPipeset %s path=%s", pipeset.c_str(), fpath.c_str()));
 
 	bool exists = NosuchFileExists(fpath);
 	cJSON* json;
@@ -1502,10 +1696,10 @@ FFFF::loadPipeset(std::string pipesetname)
 		throw NosuchException(err.c_str());
 	}
 	loadPipesetJson(json);
-	m_pipesetname = pipesetname;
+	m_pipesetname = pipeset;
 	m_pipesetpath = fpath;
 
-	m_state->set_pipeset(pipesetname);
+	m_state->set_pipeset(pipeset);
 	m_state->save();
 
 	jsonFree(json);
