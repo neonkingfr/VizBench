@@ -48,6 +48,8 @@
 #include "opencv/cv.h"
 #include "opencv/highgui.h"
 
+#include <GLFW/glfw3.h>
+
 #include "spout.h"
 
 #include <iostream>
@@ -81,9 +83,23 @@ void FFFF_error(void* data,const char* msg) {
 	ffff->ErrorPopup(msg);
 }
 
-FFFF::FFFF(cJSON* config) {
+FFFF::FFFF() {
 
-	m_vizserver = NULL;
+	m_vizserver = VizServer::GetServer();
+
+	m_vizserver->SetErrorCallback(FFFF_error,this);
+
+	glfwSetTime(0.0);
+
+	std::string err;
+	std::string fname = VizConfigPath("FFFF.json");
+	cJSON* config = jsonReadFile(fname, err);
+	if (!config) {
+		throw NosuchException("Hey!  Error in reading JSON from %s!  err=%s", fname.c_str(), err.c_str());
+	}
+
+	jsonSetDebugConfig(config);
+
 	m_output_framedata = NULL;
 	m_output_lastwrite = 0.0;
 	m_output_framenum = 0;
@@ -100,6 +116,10 @@ FFFF::FFFF(cJSON* config) {
 		m_ff10pipeline[pipenum].clear();
 	}
 	hidden = false;
+
+	// Allow the config to override the default paths for these
+	m_ff10path = jsonNeedString(config, "ff10path", "ff10plugins");
+	m_ffglpath = jsonNeedString(config, "ffglpath", "ffglplugins");
 
 	m_window_width = jsonNeedInt(config, "window_width", 800);
 	m_window_height = jsonNeedInt(config, "window_height", 600);
@@ -216,7 +236,7 @@ FFFF::CreateWindows() {
 void FFFF::drawWindowPipelines() {
 	// MAIN WINDOW
 	glfwMakeContextCurrent(window);
-	// glfwGetFramebufferSize(F->window, &width, &height);
+	// glfwGetFramebufferSize(window, &width, &height);
 
 	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
 		if (isPipelineEnabled(pipenum)) {
@@ -242,6 +262,7 @@ void FFFF::drawWindowPipelines() {
 void
 FFFF::drawWindowFinish() {
 
+#if 0
 	// Draw a rectangle just to show that we're alive.
 	glColor4f(1.0, 1.0, 1.0, 1.0);
 	glLineWidth((GLfloat)2.0f);
@@ -255,10 +276,11 @@ FFFF::drawWindowFinish() {
 	glColor4f(1.0, 0.0, 0.0, 1.0);
 	glPushMatrix();
 	glTranslatef(-0.5, -0.5, 0.0);
-	glScalef(0.002, 0.004, 1.0);
+	glScalef(0.002f, 0.004f, 1.0f);
 	dtx_use_font(m_font, m_fontsize);
 	dtx_string("Space Puddle");
 	glPopMatrix();
+#endif
 
 	glfwSwapBuffers(window);
 
@@ -287,6 +309,7 @@ FFFF::drawPrefixPipelines() {
 void
 FFFF::drawPrefixFinish() {
 
+#if 0
 	// Draw a rectangle just to show that we're alive.
 	glColor4f(1.0, 0.0, 0.0, 1.0);
 	glLineWidth((GLfloat)2.0f);
@@ -300,20 +323,28 @@ FFFF::drawPrefixFinish() {
 	glColor4f(1.0, 1.0, 1.0, 1.0);
 	glPushMatrix();
 	glTranslatef(-0.5, -0.5, 0.0);
-	glScalef(0.002, 0.004, 1.0);
+	glScalef(0.002f, 0.004f, 1.0f);
 	dtx_use_font(m_font, m_fontsize);
 	dtx_string("Space Puddle");
 	glPopMatrix();
+#endif
 
 	glfwSwapBuffers(preview);
+}
+
+static void error_callback(int error, const char* description)
+{
+    fputs(description, stderr);
 }
 
 void
 FFFF::StartStuff() {
 
-	m_vizserver = VizServer::GetServer();
+	glfwSetErrorCallback(error_callback);
 
-	m_vizserver->SetErrorCallback(FFFF_error,this);
+	if (!glfwInit()) {
+		throw NosuchException("glfwInit failed!?");
+	}
 
 	if (!m_vizserver->Start()) {
 		throw NosuchException("Unable to start VizServer!?");
@@ -324,11 +355,51 @@ FFFF::StartStuff() {
 	if (m_audiohost) {
 	 	m_audiohost->Start();
 	}
+
+	CreateWindows();
+
+	InitCamera();
+
+	loadAllPluginDefs();
+
+	spoutInit();
+
+#ifdef DUMPOBJECTS
+	_CrtMemCheckpoint(&m_s0);
+#endif
+
 }
 
+void
+FFFF::RunStuff() {	
+
+	// int count = 0;
+	while (!glfwWindowShouldClose(window))
+	{
+		checkAndExecuteJSON();
+
+		if (hidden == false) {
+
+			drawWindowPipelines();
+			drawWindowFinish();
+
+			drawPrefixPipelines();
+			drawPrefixFinish();
+		}
+
+		glfwPollEvents();
+
+		CheckFPS();
+		CheckAutoload();
+	}
+}
 
 void
 FFFF::StopStuff() {
+
+	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
+		clearPipeline(pipenum);
+	}
 
 	m_vizserver->Stop();
 	VizServer::DeleteServer();
@@ -337,6 +408,23 @@ FFFF::StopStuff() {
 		fclose(FfffOutputFile);
 		FfffOutputFile = NULL;
 	}
+
+#ifdef _DEBUG
+#ifdef DUMPOBJECTS
+	_CrtMemDumpAllObjectsSince(&m_s0);
+#endif
+#endif
+
+	// clearPipeline();
+
+	glfwDestroyWindow(window);
+	glfwDestroyWindow(preview);
+
+	glfwTerminate();
+
+	Pt_Stop();
+
+	// _CrtDumpMemoryLeaks();
 }
 
 void
@@ -456,7 +544,7 @@ FFFF::checkAndExecuteJSON() {
 
 }
 
-std::string FFFF::executeJsonAndCatchExceptions(std::string meth, cJSON *params, const char* id) {
+std::string FFFF::executeJsonAndCatchExceptions(const std::string meth, cJSON *params, const char* id) {
 	std::string r;
 	try {
 		CATCH_NULL_POINTERS;
@@ -596,14 +684,14 @@ FFFF::clearPipeline(int pipenum)
 }
 
 void
-FFFF::loadAllPluginDefs(std::string ff10path, std::string ffglpath)
+FFFF::loadAllPluginDefs()
 {
     nff10plugindefs = 0;
     nffglplugindefs = 0;
 
-    loadffglpath(ffglpath);
+    loadffglpath(m_ffglpath);
 	FFGLinit2();
-    loadff10path(ff10path);
+    loadff10path(m_ff10path);
 
     DEBUGPRINT(("%d FF plugins, %d FFGL plugins\n",nff10plugindefs,nffglplugindefs));
 }
@@ -1654,7 +1742,7 @@ void FFFF::savePipeset(std::string fname)
 }
 
 void
-FFFF::loadPipeset(std::string pipeset)
+FFFF::LoadPipeset(std::string pipeset)
 {
 	// The passed-in command-line pipeset value presides.
 	if (pipeset == "") {
@@ -1676,7 +1764,7 @@ FFFF::loadPipeset(std::string pipeset)
 	std::string fpath = VizConfigPath("pipesets",fname);
 	std::string err;
 
-	DEBUGPRINT(("loadPipeset %s path=%s", pipeset.c_str(), fpath.c_str()));
+	DEBUGPRINT(("LoadPipeset %s path=%s", pipeset.c_str(), fpath.c_str()));
 
 	bool exists = NosuchFileExists(fpath);
 	cJSON* json;
@@ -2217,7 +2305,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	}
 	if ( meth == "load_pipeset" ) {
 		std::string fname =  jsonNeedString(params,"name");
-		loadPipeset(fname);
+		LoadPipeset(fname);
 		return jsonOK(id);
 	}
 	if ( meth == "save_pipeset" ) {

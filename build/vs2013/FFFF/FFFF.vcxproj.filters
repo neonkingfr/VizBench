@@ -13,52 +13,10 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
-    <Filter Include="Source Files\freeframe">
-      <UniqueIdentifier>{c1e113ba-c9c7-430b-8316-6f87bc556968}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\freeframe">
-      <UniqueIdentifier>{ceb8619b-0013-4a28-99c9-eb1c6ca23047}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\libdrawtext">
-      <UniqueIdentifier>{0f739a17-6492-4e3e-8800-d2400ec843b4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\libdrawtext">
-      <UniqueIdentifier>{68877258-36c7-4bd5-beca-586e386635ca}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\FFFF\main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\FFFF\FFFF.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FF10Plugin.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FFGLPlugin.cpp">
-      <Filter>Source Files\freeframe</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\FFFF\ffffutil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\FFFF\AudioHost.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\libdrawtext\src\utf8.c">
-      <Filter>Source Files\libdrawtext</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\libdrawtext\src\drawgl.c">
-      <Filter>Source Files\libdrawtext</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\libdrawtext\src\font.c">
-      <Filter>Source Files\libdrawtext</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\libdrawtext\src\draw.c">
-      <Filter>Source Files\libdrawtext</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\libdrawtext\src\drawrast.c">
-      <Filter>Source Files\libdrawtext</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -70,31 +28,5 @@
     <ResourceCompile Include="ffff.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\src\FFFF\FFFF.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\FFFF\ffffutil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FF10Plugin.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FFGLPlugin.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\FFFF\AudioHost.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\FFFF\glstuff.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\libdrawtext\src\drawtext.h">
-      <Filter>Header Files\libdrawtext</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\other\libdrawtext\src\drawtext_impl.h">
-      <Filter>Header Files\libdrawtext</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

@@ -179,9 +179,10 @@ private:
 
 class VIZSERVER_API VizServer {
 public:
-	static VizServer* GetServer();
+	static VizServer* GetServer(const char* vizpath = NULL);
 	static void DeleteServer();
 
+	void DoFFFF(const char* pipeset);
 	bool Start();
 	void Stop();
 

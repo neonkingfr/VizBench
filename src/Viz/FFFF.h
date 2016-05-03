@@ -4,8 +4,9 @@
 #include <opencv/cv.h>
 #include "VizServer.h"
 #include "AudioHost.h"
-#include "ffffutil.h"
+#include "VizUtil.h"
 #include "FFGLPipeline.h"
+#include <GLFW/glfw3.h>
 
 class FFFF;
 class Timer;
@@ -51,14 +52,16 @@ private:
 class FFFF : public NosuchJsonListener, NosuchOscListener {
 
 public:
-	FFFF(cJSON* config);
+	FFFF();
 
 	void InitGlExtensions();
 	void FFGLinit2();
 	void spoutInitTexture();
 	void spoutInit();
 	void InitCamera();
+
 	void StartStuff();
+	void RunStuff();
 	void StopStuff();
 	void ErrorPopup(const char* msg);
 
@@ -111,10 +114,10 @@ public:
 	FF10PluginInstance* FF10AddToPipeline(int pipenum, std::string pluginName, std::string viztag, bool autoenable, cJSON* params);
 	void				FF10DeleteFromPipeline(int pipenum, std::string viztag);
 
-	void loadAllPluginDefs(std::string ffdir, std::string ffgldir);
+	void loadAllPluginDefs();
 
 	void savePipeset(std::string nm);
-	void loadPipeset(std::string nm);
+	void LoadPipeset(std::string nm);
 	void loadPipesetJson(cJSON* json);
 
 	std::string copyFile(cJSON *params, PathGenerator pathgen, const char* id);
@@ -194,6 +197,9 @@ private:
 	int m_camWidth;
 	int m_camHeight;
 
+    std::string m_ffglpath;
+    std::string m_ff10path;
+
 	std::string m_pipesetname;
 	std::string m_pipesetpath;
 
@@ -203,6 +209,10 @@ private:
 	FF10Pipeline m_ff10pipeline[NPIPELINES];
 	bool m_autoload;
 	bool m_autosave;
+
+#ifdef DUMPOBJECTS
+	_CrtMemState m_s0;
+#endif
 };
 
 void loadff10path(std::string ffpath);

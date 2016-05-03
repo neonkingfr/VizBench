@@ -26,162 +26,38 @@
 */
 
 #include "NosuchDebug.h"
-
-
 #include <windows.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-
-#include "glstuff.h"
-
-#include "resource.h"
-
-#include "FFFF.h"
-#include "NosuchJSON.h"
-#include "NosuchMidi.h"
-
-#include "stdint.h"
-#include "FFGLPlugin.h"
-#include "FF10Plugin.h"
-#include "ffffutil.h"
-#include "Timer.h"
+#include "VizServer.h"
 #include "XGetopt.h"
 
-FFFF* F;
-
-// Function prototypes.
-int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLine, int iCmdShow );
-
-//////////////// NEW GLFW CODE START
-
-#include <GLFW/glfw3.h>
-
-#include <stdlib.h>
-#include <stdio.h>
-
-static void error_callback(int error, const char* description)
+std::vector<std::string> NosuchSplitOnAnyChar(std::string s, std::string sepchars)
 {
-    fputs(description, stderr);
-}
+	std::vector<std::string> result;
+	const char *seps = sepchars.c_str();
+	const char *str = s.c_str();
 
-int ffffMain(std::string pipeset, bool fullscreen)
-{
-	NosuchDebugInit();
-	NosuchDebugSetLogDirFile(VizPath("log"), "ffff.debug");
-	DEBUGPRINT(("FFFF is starting."));
-
-	if (NosuchNetworkInit()) {
-		DEBUGPRINT(("Unable to initialize networking?"));
-		exit(EXIT_FAILURE);
-	}
-
-	glfwSetTime(0.0);
-
-	std::string err;
-	std::string fname = VizConfigPath("FFFF.json");
-	cJSON* config = jsonReadFile(fname, err);
-	if (!config) {
-		DEBUGPRINT(("Hey!  Error in reading JSON from %s!  err=%s", fname.c_str(), err.c_str()));
-		exit(EXIT_FAILURE);
-	}
-
-	F = new FFFF(config);
-
-	jsonSetDebugConfig(config);
-
-	// Allow the config to override the default paths for these
-	std::string ff10path = jsonNeedString(config, "ff10path", "ff10plugins");
-	std::string ffglpath = jsonNeedString(config, "ffglpath", "ffglplugins");
-
-	glfwSetErrorCallback(error_callback);
-
-	if (!glfwInit()) {
-		DEBUGPRINT(("glfwInit failed!?"));
-		exit(EXIT_FAILURE);
-	}
-
-	try {
-		CATCH_NULL_POINTERS;
-
-		F->StartStuff();
-
-		F->CreateWindows();
-
-		F->InitCamera();
-
-		F->loadAllPluginDefs(ff10path, ffglpath);
-
-		F->loadPipeset(pipeset);
-
-		F->spoutInit();
-	}
-	catch (NosuchException& e) {
-		NosuchErrorOutput("NosuchException while initializing!! - %s", e.message());
-		glfwTerminate();
-		exit(EXIT_FAILURE);
-	}
-	catch (...) {
-		// This doesn't seem to work - it doesn't seem to catch other exceptions...
-		NosuchErrorOutput("Some other kind of exception occured while loading Pipeline!?");
-		glfwTerminate();
-		exit(EXIT_FAILURE);
-	}
-
-#ifdef DUMPOBJECTS
-	_CrtMemState s0;
-	_CrtMemCheckpoint(&s0);
-#endif
-
-	// int count = 0;
-	while (!glfwWindowShouldClose(F->window))
-	{
-		F->checkAndExecuteJSON();
-
-		if (F->hidden == false) {
-
-			F->drawWindowPipelines();
-			F->drawWindowFinish();
-
-			F->drawPrefixPipelines();
-			F->drawPrefixFinish();
+	while (1) {
+		const char *begin = str;
+		while (strchr(seps, *str) == NULL && *str) {
+			str++;
 		}
-
-		glfwPollEvents();
-
-		F->CheckFPS();
-		F->CheckAutoload();
+		result.push_back(std::string(begin, str));
+		if (0 == *str) {
+			break;
+		}
+		// skip one or more of the sepchars
+		while (strchr(seps, *str) != NULL && *str) {
+			str++;
+		}
 	}
-
-	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
-		F->clearPipeline(pipenum);
-	}
-
-	F->StopStuff();
-
-#ifdef _DEBUG
-#ifdef DUMPOBJECTS
-	_CrtMemDumpAllObjectsSince( &s0 );
-#endif
-#endif
-
-	// F->clearPipeline();
-
-    glfwDestroyWindow(F->window);
-    glfwDestroyWindow(F->preview);
-
-    glfwTerminate();
-
-	Pt_Stop();
-
-	// _CrtDumpMemoryLeaks();
-
-    exit(EXIT_SUCCESS);
+	return result;
 }
 
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLine, int iCmdShow )
 {
 	int r = -1;
+	std::string vizpath = "";
 
 	char pathbuff[MAX_PATH];
 	HMODULE module = GetModuleHandleA(NULL);
@@ -195,12 +71,10 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLin
 		std::string parent = path.substr(0,pos);
 		pos = path.substr(0,pos-1).find_last_of("/\\");
 		if ( pos != parent.npos && pos > 0) {
-			SetVizPath(parent.substr(0,pos));
+			vizpath = parent.substr(0,pos);
+			// SetVizPath(parent.substr(0,pos));
 		}
 	}
-
-	bool fullscreen = false;
-	std::string pipeline[4];
 
 	std::string cmdline = std::string(szCmdLine);
 	std::vector<std::string> args = NosuchSplitOnAnyChar(cmdline, " \t\n");
@@ -211,9 +85,6 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLin
 		std::string arg = args[n];
 		if (arg.size() > 1 && arg[0] == '-') {
 			switch (arg[1]) {
-			case 'f':
-				fullscreen = true;
-				break;
 			case 'p':
 				if ((n + 1) < args.size()) {
 					pipeset = args[n + 1];
@@ -224,14 +95,8 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLin
 		}
 	}
 
-	try {
-		CATCH_NULL_POINTERS;
-		r = ffffMain(pipeset,fullscreen);
-	} catch (NosuchException& e) {
-		NosuchErrorOutput("NosuchException in ffffMain!! - %s",e.message());
-	} catch (...) {
-		// This doesn't seem to work - it doesn't seem to catch other exceptions...
-		NosuchErrorOutput("Some other kind of exception occured in ffffMain!?");
-	}
-	return r;
+	VizServer* server = VizServer::GetServer(vizpath.c_str());
+	server->DoFFFF(pipeset.c_str());
+
+    exit(EXIT_SUCCESS);
 }

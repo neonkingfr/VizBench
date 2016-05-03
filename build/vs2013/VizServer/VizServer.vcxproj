@@ -80,22 +80,23 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;VIZSERVER_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\src\mmtt;..\..\..\src\misclib;..\..\..\other\freeframe;..\..\..\src\Vizlet1;..\..\..\other\cvblobslib\src;..\..\..\src\vizlet1;..\..\..\other\cJSON;..\..\..\other\osc\include;..\..\..\other\opencv\build\include;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\nosuch;..\..\..\other\portmidi\porttime;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;VIZSERVER_EXPORTS;GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\src\mmtt;..\..\..\src\misclib;..\..\..\other\freeframe;..\..\..\other\glfw\include;..\..\..\other\glew\include;..\..\..\other\freetype\include;..\..\..\other\libdrawtext\src;..\..\..\src\Vizlet1;..\..\..\other\cvblobslib\src;..\..\..\src\vizlet1;..\..\..\other\cJSON;..\..\..\other\osc\include;..\..\..\other\opencv\build\include;..\..\..\other\Spout\Source;..\..\..\src\params;..\..\..\src\Viz;..\..\..\src\nosuch;..\..\..\other\portmidi\porttime;..\..\..\other\portmidi\pm_common;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>pthreadVC2.lib;winmm.lib;OpenGL32.lib;Glu32.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalLibraryDirectories>..\..\..\other\opencv\build\x86\vc12\staticlib;..\Spout\Debug;..\..\..\other\glfw\src\Debug;..\..\..\other\glew\lib\Debug\Win32;..\..\..\other\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;..\FFGLlib_MD\Debug;..\..\..\other\freetype\objs\vc2010\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>FFGLlib_MD.lib;opencv_highgui2410d.lib;opencv_core2410d.lib;opencv_flann2410d.lib;opencv_ml2410d.lib;opencv_imgproc2410d.lib;libjpegd.lib;libpngd.lib;libtiffd.lib;libjasperd.lib;IlmImfd.lib;spout.lib;pthreadVC2.lib;winmm.lib;vfw32.lib;OpenGL32.lib;Glu32.lib;Ws2_32.lib;glew32sd.lib;glfw3.lib;freetype263d.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
       <OutputFile>$(Configuration)\$(ProjectName).dll</OutputFile>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>LIBCMTD</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
       <Command>..\..\..\bin\postbuildserver.bat $(Configuration) $(ProjectName)</Command>
@@ -179,6 +180,12 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\other\freeframe\FF10Plugin.h" />
+    <ClInclude Include="..\..\..\other\freeframe\FFGLExtensions.h" />
+    <ClInclude Include="..\..\..\other\freeframe\FFGLFBO.h" />
+    <ClInclude Include="..\..\..\other\freeframe\FFGLPlugin.h" />
+    <ClInclude Include="..\..\..\other\libdrawtext\src\drawtext.h" />
+    <ClInclude Include="..\..\..\other\libdrawtext\src\drawtext_impl.h" />
     <ClInclude Include="..\..\..\src\misclib\sha1.h" />
     <ClInclude Include="..\..\..\src\misclib\UT_Mutex.h" />
     <ClInclude Include="..\..\..\src\misclib\UT_SharedMem.h" />
@@ -196,10 +203,24 @@
     <ClInclude Include="..\..\..\src\nosuch\SchedEventList.h" />
     <ClInclude Include="..\..\..\src\params\SpriteVizParams.h" />
     <ClInclude Include="..\..\..\src\params\VizParams.h" />
+    <ClInclude Include="..\..\..\src\Viz\AudioHost.h" />
+    <ClInclude Include="..\..\..\src\Viz\FFFF.h" />
+    <ClInclude Include="..\..\..\src\Viz\FFGLPipeline.h" />
+    <ClInclude Include="..\..\..\src\Viz\Timer.h" />
     <ClInclude Include="..\..\..\src\Viz\VizServer.h" />
+    <ClInclude Include="..\..\..\src\Viz\VizUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\other\cJSON\cJSON.cpp" />
+    <ClCompile Include="..\..\..\other\freeframe\FF10Plugin.cpp" />
+    <ClCompile Include="..\..\..\other\freeframe\FFGLExtensions.cpp" />
+    <ClCompile Include="..\..\..\other\freeframe\FFGLFBO.cpp" />
+    <ClCompile Include="..\..\..\other\freeframe\FFGLPlugin.cpp" />
+    <ClCompile Include="..\..\..\other\libdrawtext\src\draw.c" />
+    <ClCompile Include="..\..\..\other\libdrawtext\src\drawgl.c" />
+    <ClCompile Include="..\..\..\other\libdrawtext\src\drawrast.c" />
+    <ClCompile Include="..\..\..\other\libdrawtext\src\font.c" />
+    <ClCompile Include="..\..\..\other\libdrawtext\src\utf8.c" />
     <ClCompile Include="..\..\..\other\oscpack\ip\IpEndpointName.cpp" />
     <ClCompile Include="..\..\..\other\oscpack\ip\win32\NetworkingUtils.cpp" />
     <ClCompile Include="..\..\..\other\oscpack\ip\win32\UdpSocket.cpp" />
@@ -239,7 +260,10 @@
     <ClCompile Include="..\..\..\src\params\MidiVizParams.cpp" />
     <ClCompile Include="..\..\..\src\params\SpriteVizParams.cpp" />
     <ClCompile Include="..\..\..\src\params\VizParams.cpp" />
+    <ClCompile Include="..\..\..\src\Viz\AudioHost.cpp" />
+    <ClCompile Include="..\..\..\src\Viz\FFFF.cpp" />
     <ClCompile Include="..\..\..\src\Viz\VizServer.cpp" />
+    <ClCompile Include="..\..\..\src\Viz\VizUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>

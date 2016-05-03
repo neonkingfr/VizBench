@@ -37,6 +37,7 @@
 #include <NosuchDaemon.h>
 #include <NosuchScheduler.h>
 #include "UT_SharedMem.h"
+#include "FFFF.h"
 
 BOOL APIENTRY DllMain( HANDLE hModule,
                        DWORD  ul_reason_for_call,
@@ -1029,6 +1030,28 @@ VizServer::~VizServer() {
 }
 
 void
+VizServer::DoFFFF(const char* pipeset) {
+	try {
+		CATCH_NULL_POINTERS;
+
+		FFFF* F = new FFFF();
+		F->StartStuff();
+		F->LoadPipeset(pipeset);
+		F->RunStuff();
+		F->StopStuff();
+
+	} catch (NosuchException& e) {
+		NosuchErrorOutput("NosuchException!! - %s",e.message());
+		exit(EXIT_FAILURE);
+	} catch (...) {
+		// This doesn't seem to work - it doesn't seem to catch other exceptions...
+		NosuchErrorOutput("Some other kind of exception occured in main!?");
+		exit(EXIT_FAILURE);
+	}
+
+}
+
+void
 VizServer::SetErrorCallback(ErrorCallbackFuncType cb, void* data) {
 	m_errorCallback = cb;
 	m_errorCallbackData = data;
@@ -1611,7 +1634,11 @@ VizServer::_processServerConfig(cJSON* json) {
 }
 
 VizServer*
-VizServer::GetServer() {
+VizServer::GetServer(const char* vizpath) {
+
+	if (vizpath != NULL && vizpath[0] != '\0') {
+		SetVizPath(vizpath);
+	}
 	if (OneServer == NULL) {
 		OneServer = new VizServer();
 		DEBUGPRINT1(("NEW VizServer!  Setting OneServer"));

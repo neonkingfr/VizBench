@@ -67,6 +67,18 @@
     <Filter Include="Header Files\params">
       <UniqueIdentifier>{b305661c-72b7-4266-91c4-7d0054cf2007}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\freeframe">
+      <UniqueIdentifier>{6d56064b-10d8-45e7-8e34-14978ff9fc74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\freeframe">
+      <UniqueIdentifier>{b3dab993-6fd1-4dd6-9b4a-dfa981ebd851}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\libdrawtext">
+      <UniqueIdentifier>{f35a2cac-6b03-4c8a-8f40-1bdef0f51e14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\libdrawtext">
+      <UniqueIdentifier>{51b3279a-69ee-435b-8643-4852a0c8d735}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -125,6 +137,39 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\nosuch\SchedEventList.h">
       <Filter>Header Files\nosuch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\FFFF.h">
+      <Filter>Header Files\Viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\AudioHost.h">
+      <Filter>Header Files\Viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizUtil.h">
+      <Filter>Header Files\Viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\FFGLPipeline.h">
+      <Filter>Header Files\Viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\Timer.h">
+      <Filter>Header Files\Viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\other\freeframe\FF10Plugin.h">
+      <Filter>Header Files\freeframe</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\other\freeframe\FFGLPlugin.h">
+      <Filter>Header Files\freeframe</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\other\freeframe\FFGLExtensions.h">
+      <Filter>Header Files\freeframe</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\other\freeframe\FFGLFBO.h">
+      <Filter>Header Files\freeframe</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\other\libdrawtext\src\drawtext.h">
+      <Filter>Header Files\libdrawtext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\other\libdrawtext\src\drawtext_impl.h">
+      <Filter>Header Files\libdrawtext</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -250,6 +295,42 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\nosuch\SchedEventList.cpp">
       <Filter>Source Files\nosuch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\FFFF.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\AudioHost.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizUtil.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FF10Plugin.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FFGLPlugin.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FFGLFBO.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\freeframe\FFGLExtensions.cpp">
+      <Filter>Source Files\freeframe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\libdrawtext\src\draw.c">
+      <Filter>Source Files\libdrawtext</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\libdrawtext\src\drawgl.c">
+      <Filter>Source Files\libdrawtext</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\libdrawtext\src\drawrast.c">
+      <Filter>Source Files\libdrawtext</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\libdrawtext\src\font.c">
+      <Filter>Source Files\libdrawtext</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\other\libdrawtext\src\utf8.c">
+      <Filter>Source Files\libdrawtext</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

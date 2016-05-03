@@ -19,7 +19,7 @@
 #include "windows.h"
 #include <string>
 #include "stdio.h"
-#include "ffffutil.h"
+#include "VizUtil.h"
 #include "FF10Plugin.h"
 #include "NosuchUtil.h"
 #include "NosuchException.h"

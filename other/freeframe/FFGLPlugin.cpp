@@ -2,7 +2,7 @@
 #include "NosuchException.h"
 #include "NosuchJson.h"
 
-#include <ffffutil.h>
+#include <VizUtil.h>
 #include "FFGLPlugin.h"
 
 #include <stdio.h>

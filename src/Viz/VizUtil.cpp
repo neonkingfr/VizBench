@@ -46,7 +46,7 @@
 #include "FFFF.h"
 #include "FFGLPipeline.h"
 
-#include "ffffutil.h"
+#include "VizUtil.h"
 
 #include "FF10Plugin.h"
 
