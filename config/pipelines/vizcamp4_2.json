@@ -14,7 +14,7 @@
 			}, {
 				"method":	"set_midi",
 				"params":	{
-					"paramfile":	"port1_pad1"
+					"paramfile":	"port2_pad1"
 				}
 			}, {
 				"method":	"set_looping",
@@ -29,7 +29,7 @@
 	{
 		"vtag": "twisted",
 		"ffglplugin": "Twisted",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"Twirl", "value":0.270000 }, 
@@ -55,7 +55,7 @@
 	{
 		"vtag": "kaleidoscope",
 		"ffglplugin": "Kaleidoscope",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"Angles", "value":0.350000 }, 
@@ -80,7 +80,7 @@
 	{
 		"vtag": "goo",
 		"ffglplugin": "Goo",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"Speed", "value":0.250000 }, 

@@ -664,23 +664,8 @@ void
 FFFF::clearPipeline(int pipenum)
 {
 	// Are we locked, here?
-
-	m_ffglpipeline[pipenum].m_name = "";
-
-	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline[pipenum].begin(); it != m_ff10pipeline[pipenum].end(); it++) {
-		 DEBUGPRINT1(("--- deleting FF10PluginInstance *it=%ld", (long)(*it)));
-		delete *it;
-	}
-
-	m_ff10pipeline[pipenum].clear();
 	m_ffglpipeline[pipenum].clear();
-
-	// Forget all the callbacks
-
-	// m_vizserver->ClearJsonCallbacks();
-	m_vizserver->ClearJsonCallbacksOfPipeline(pipenum);
-
-	// m_vizserver->AddJsonCallback((void*)this,"ffff",FFFF_json,(void*)this);
+	m_ff10pipeline[pipenum].clear();
 }
 
 void
@@ -1161,13 +1146,22 @@ FFGLPipeline::setEnableInput(bool onoff) {
 
 void
 FFGLPipeline::setSidrange(int sidmin, int sidmax) {
-
 	m_sidmin = sidmin;
 	m_sidmax = sidmax;
+	std::string jsonstr = NosuchSnprintf("{ \"sidrange\": \"%d-%d\" }", m_sidmin, m_sidmax);
+	cJSON* params = cJSON_Parse(jsonstr.c_str());
+	if (!params) {
+		throw NosuchException("Internal error in parsing sidrange json!?");
+	}
+	applyAllPlugins("set_sidrange", params);
+}
+
+void
+FFGLPipeline::applyAllPlugins(std::string meth, cJSON* params) {
 
 	// Now go through all the vizlets in the pipeline, and set the sidrange within them
 
-	DEBUGPRINT1(("setSidrange sidmin=%d sidmax=%d",m_sidmin,m_sidmax));
+	DEBUGPRINT1(("applyAllPlugins meth=%s", meth.c_str()));
 
 	VizServer* viz = VizServer::GetServer();
 	FFGLPluginList& ffglplugins = m_pluginlist;
@@ -1177,18 +1171,12 @@ FFGLPipeline::setSidrange(int sidmin, int sidmax) {
 		if (!isvizlet) {
 			continue;
 		}
+		// This code just blindly calls the method on every vizlet.
 
-		// This code just blindly calls a set_sidrange method on every vizlet.
-
-		std::string fullmethod = NosuchSnprintf("%s.set_sidrange",p->viztag().c_str());
-		std::string jsonstr = NosuchSnprintf("{ \"sidrange\": \"%d-%d\" }", m_sidmin, m_sidmax);
-		cJSON* params = cJSON_Parse(jsonstr.c_str());
-		if (!params) {
-			throw NosuchException("Internal error in parsing sidrange json!?");
-		}
+		std::string fullmethod = p->viztag() + "." + meth;
 		std::string s = viz->ProcessJson(fullmethod.c_str(), params, "12345");
-		DEBUGPRINT1(("result of set_sidrange=%s",s.c_str()));
-		// XXX - should really check the result for success (or missing api), here.
+		DEBUGPRINT1(("result of meth=%s",s.c_str()));
+		// XXX - should really check the result for success (or missing api), here
 		cJSON_free(params);
 	}
 }
@@ -1825,6 +1813,10 @@ FFFF::loadPipesetJson(cJSON* json)
 		std::string name = jsonNeedString(p, "pipeline");
 		bool enabled = jsonNeedBool(p, "enabled");
 		std::string sidrange = jsonNeedString(p, "sidrange");
+		std::string spriteparams = jsonNeedString(p, "spriteparams", "");
+		if (spriteparams == "") {
+			spriteparams = name;
+		}
 
 		int sidmin, sidmax;
 		if (sscanf(sidrange.c_str(), "%d-%d", &sidmin, &sidmax) != 2) {
@@ -1833,6 +1825,7 @@ FFFF::loadPipesetJson(cJSON* json)
 
 		pipeline.m_name = name;
 		pipeline.m_pipeline_enabled = enabled;
+		pipeline.m_spriteparams = spriteparams;
 
 		std::string fpath = pipelinePath(name);
 		if (name != "") {
@@ -2381,6 +2374,14 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		// ppipeline->m_sidmin = sidmin;
 		// ppipeline->m_sidmax = sidmax;
 		ppipeline->setSidrange(sidmin,sidmax);
+		return jsonOK(id);
+	}
+	if (meth == "get_spriteparams") {
+		NosuchAssert(pipenum >= 0);
+		return jsonStringResult(ppipeline->m_spriteparams, id);
+	}
+	if (meth == "set_spriteparams") {
+		ppipeline->m_spriteparams = jsonNeedString(params, "name");
 		return jsonOK(id);
 	}
 

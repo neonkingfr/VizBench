@@ -9,12 +9,12 @@
 		"vizletdump": [{
 				"method":	"set_sprite",
 				"params":	{
-					"paramfile":	"vizcamp1_3"
+					"paramfile":	"vizcamp2_1"
 				}
 			}, {
 				"method":	"set_midi",
 				"params":	{
-					"paramfile":	"port1_pad4"
+					"paramfile":	"port1_pad1"
 				}
 			}, {
 				"method":	"set_looping",
@@ -23,7 +23,7 @@
 				}
 			}],
 		"params": [
-			{"name":"viztag", "value":"3:vizbrush", "type":"text" }
+			{"name":"viztag", "value":"1:vizbrush", "type":"text" }
 			]
 	},
 	{
@@ -68,10 +68,10 @@
 	{
 		"vtag": "blur",
 		"ffglplugin": "Blur",
-		"enabled": 1,
+		"enabled": 0,
 		"moveable": 1,
 		"params": [
-			{"name":"Blur X Distance", "value":0.000000 }, 
+			{"name":"Blur X Distance", "value":0.090000 }, 
 			{"name":"Blur Y Distance", "value":0.110000 }, 
 			{"name":"Quality", "value":0.280000 }, 
 			{"name":"Gaussian", "value":0.370000 }
@@ -164,8 +164,8 @@
 		"enabled": 0,
 		"moveable": 1,
 		"params": [
-			{"name":"Mode", "value":0.920000 }, 
-			{"name":"Multiplier", "value":0.240000 }
+			{"name":"Mode", "value":1.000000 }, 
+			{"name":"Multiplier", "value":1.000000 }
 			]
 	},
 	{
@@ -181,11 +181,11 @@
 	{
 		"vtag": "mirror",
 		"ffglplugin": "Mirror",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
-			{"name":"X", "value":0.500000 }, 
-			{"name":"Y", "value":0.500000 }, 
+			{"name":"X", "value":0.420000 }, 
+			{"name":"Y", "value":0.420000 }, 
 			{"name":"In / Out", "value":0.500000 }, 
 			{"name":"Flip X", "value":0.000000 }, 
 			{"name":"Flip Y", "value":0.000000 }, 
@@ -198,7 +198,7 @@
 		"enabled": 1,
 		"moveable": 0,
 		"params": [
-			{"name":"Feedback", "value":0.580000 }, 
+			{"name":"Feedback", "value":0.830000 }, 
 			{"name":"Mode", "value":0.000000 }
 			]
 	}

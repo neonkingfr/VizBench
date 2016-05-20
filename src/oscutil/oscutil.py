@@ -23,6 +23,7 @@ SLIP_ESC2 = chr(221)
 global Showalive,Showfseq
 Showalive = False
 Showfseq = False
+Showsource = False
 
 def nextSLIPMsg(data):
 	first = data[0]
@@ -323,6 +324,8 @@ def handleonemessage(m):
 		return
 	if Showfseq==False and len(m) >= 3 and m[2] == "fseq":
 		return
+	if Showsource==False and len(m) >= 3 and m[2] == "source":
+		return
 	# global time0
 	# print ("%8.3f " % (time.time()-time0)) + m.__str__()
 	print m
@@ -389,6 +392,7 @@ if __name__ == '__main__':
 			usage()
 		Showalive = False
 		Showfseq = False
+		Showsource = False
 		dolisten(sys.argv[2])
 
 	elif command == "listenall":
@@ -396,6 +400,7 @@ if __name__ == '__main__':
 			usage()
 		Showalive = True
 		Showfseq = True
+		Showsource = True
 		dolisten(sys.argv[2])
 
 	elif command == "record":

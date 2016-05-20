@@ -16,5 +16,6 @@ cd libraryzipdir
 %zip% a -r ..\library.zip *.* >nul
 cd ..
 rmdir /s /q libraryzipdir
-copy %VIZBENCH%\bin\library.zip %VIZLETS%\bin
+
+@if not x%VIZLETS% == x copy %VIZBENCH%\bin\library.zip %VIZLETS%\bin
 rem ----------------------------------------------------------------------

@@ -485,6 +485,17 @@ NosuchEndsWith(std::string s, std::string suff)
 	return suff == suffix;
 }
 
+bool
+NosuchBeginsWith(std::string s, std::string prefix)
+{
+	unsigned int presize = prefix.size();
+	if (s.size() < presize) {
+		return false;
+	}
+	std::string pre = s.substr(0, presize);
+	return pre == prefix;
+}
+
 void NosuchLockInit(pthread_mutex_t* mutex, char *tag) {
 
 	*mutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER;

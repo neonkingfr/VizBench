@@ -14,7 +14,7 @@
 			}, {
 				"method":	"set_midi",
 				"params":	{
-					"paramfile":	"port1_pad1"
+					"paramfile":	"port2_pad1"
 				}
 			}, {
 				"method":	"set_looping",

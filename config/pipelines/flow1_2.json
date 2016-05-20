@@ -9,12 +9,12 @@
 		"vizletdump": [{
 				"method":	"set_sprite",
 				"params":	{
-					"paramfile":	"vizcamp1_3"
+					"paramfile":	"squares_rotate_3"
 				}
 			}, {
 				"method":	"set_midi",
 				"params":	{
-					"paramfile":	"port1_pad4"
+					"paramfile":	"port1_pad1"
 				}
 			}, {
 				"method":	"set_looping",
@@ -23,7 +23,7 @@
 				}
 			}],
 		"params": [
-			{"name":"viztag", "value":"3:vizbrush", "type":"text" }
+			{"name":"viztag", "value":"2:vizbrush", "type":"text" }
 			]
 	},
 	{
@@ -68,10 +68,10 @@
 	{
 		"vtag": "blur",
 		"ffglplugin": "Blur",
-		"enabled": 1,
+		"enabled": 0,
 		"moveable": 1,
 		"params": [
-			{"name":"Blur X Distance", "value":0.000000 }, 
+			{"name":"Blur X Distance", "value":0.090000 }, 
 			{"name":"Blur Y Distance", "value":0.110000 }, 
 			{"name":"Quality", "value":0.280000 }, 
 			{"name":"Gaussian", "value":0.370000 }
@@ -93,7 +93,7 @@
 	{
 		"vtag": "fragment",
 		"ffglplugin": "Fragment",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"Fragments", "value":0.300000 }, 
@@ -161,11 +161,11 @@
 	{
 		"vtag": "edge detection",
 		"ffglplugin": "Edge Detection",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
-			{"name":"Mode", "value":0.920000 }, 
-			{"name":"Multiplier", "value":0.240000 }
+			{"name":"Mode", "value":1.000000 }, 
+			{"name":"Multiplier", "value":1.000000 }
 			]
 	},
 	{
@@ -181,12 +181,12 @@
 	{
 		"vtag": "mirror",
 		"ffglplugin": "Mirror",
-		"enabled": 0,
+		"enabled": 1,
 		"moveable": 1,
 		"params": [
 			{"name":"X", "value":0.500000 }, 
-			{"name":"Y", "value":0.500000 }, 
-			{"name":"In / Out", "value":0.500000 }, 
+			{"name":"Y", "value":0.280000 }, 
+			{"name":"In / Out", "value":0.480000 }, 
 			{"name":"Flip X", "value":0.000000 }, 
 			{"name":"Flip Y", "value":0.000000 }, 
 			{"name":"Black BG", "value":0.000000 }
@@ -198,8 +198,8 @@
 		"enabled": 1,
 		"moveable": 0,
 		"params": [
-			{"name":"Feedback", "value":0.580000 }, 
-			{"name":"Mode", "value":0.000000 }
+			{"name":"Feedback", "value":0.700000 }, 
+			{"name":"Mode", "value":0.250000 }
 			]
 	}
 	]

@@ -87,6 +87,7 @@ public:
 	VizServerApiCallback(const char* viztag, void* cb, void* data) {
 		m_cb = cb;
 		m_data = data;
+		m_viztag = NULL;
 		setViztag(viztag);
 		DEBUGPRINT1(("NEW VIZSERVER API CALLBACK"));
 	}
@@ -95,6 +96,9 @@ public:
 		free((void*)m_viztag);
 	}
 	void setViztag(const char* viztag) {
+		if (m_viztag != NULL) {
+			DEBUGPRINT(("Should be freeing m_viztag = %s",m_viztag));
+		}
 		m_viztag = _strdup(viztag);
 		for (char* s = m_viztag; *s; s++) {
 			*s = tolower(*s);
@@ -160,13 +164,13 @@ public:
 	void ClearCallbacksWithPrefix(std::string prefix) {
 		DEBUGPRINT1(("ClearCallbacksWithPrefix prefix=%s", prefix.c_str()));
 		VizServerApiCallback* cb;
-		while ((cb = findprefix(prefix)) != NULL) {
+		while ((cb = findprefixcallback(prefix)) != NULL) {
 			removecallback(cb->m_cb);
 		}
 		// this->clear();
 	}
 	void addcallback(void* handle, const char* apiprefix, void* cb, void* data) {
-		DEBUGPRINT1(("VizServerApiCallbackMap addcallback handle=%ld prefix=%s", (long)handle, apiprefix));
+		DEBUGPRINT(("VizServerApiCallbackMap addcallback handle=%ld prefix=%s", (long)handle, apiprefix));
 		if (count(handle) > 0) {
 			if (strcmp((*this)[handle]->m_viztag, apiprefix) != 0) {
 				DEBUGPRINT(("Hey! VizServerApiCallbackMap::addcallback finds existing callback for handle=%ld with different prefix=%s", (long)handle, apiprefix));
@@ -177,16 +181,20 @@ public:
 			}
 			return;
 		}
-		void* findhandle = NULL;
-		VizServerApiCallback* findcb = findprefix(apiprefix,&findhandle);
-		if (findcb != NULL) {
-			if (findhandle != handle) {
-				DEBUGPRINT(("Hey!? VizServerApiCallbackMap::addcallback finds existing apiprefix for handle=%ld prefix=%s", (long)handle, apiprefix));
+		// Special case - if apiprefix is "", we're adding an API callback for a Vizlet (or something)
+		// that hasn't set its viztag explicitly, yet.
+		if (std::string(apiprefix) != "") {
+			void* findhandle = NULL;
+			VizServerApiCallback* findcb = findprefixcallback(apiprefix, &findhandle);
+			if (findcb != NULL) {
+				if (findhandle != handle) {
+					DEBUGPRINT(("Hey!? VizServerApiCallbackMap::addcallback finds existing apiprefix for handle=%ld prefix=%s", (long)handle, apiprefix));
+				}
+				else {
+					DEBUGPRINT(("Hey! VizServerApiCallbackMap alread has apiprefix for handle=%ld prefix=%s", (long)handle, apiprefix));
+				}
+				return;
 			}
-			else {
-				DEBUGPRINT(("Hey! VizServerApiCallbackMap alread has apiprefix for handle=%ld prefix=%s", (long)handle, apiprefix));
-			}
-			return;
 		}
 		VizServerApiCallback* sscb = new VizServerApiCallback(apiprefix, cb, data);
 		(*this)[handle] = sscb;
@@ -200,13 +208,29 @@ public:
 		}
 		erase(handle);
 	}
-	VizServerApiCallback* findprefix(std::string prefix, void** phandle = NULL) {
+	VizServerApiCallback* findprefixcallback(std::string prefix, void** phandle = NULL) {
 		std::map<void*, VizServerApiCallback*>::iterator it;
 		// All comparisons here are case-insensitive
 		prefix = NosuchToLower(prefix);
 		for (it = this->begin(); it != this->end(); it++) {
 			VizServerApiCallback* sscb = it->second;
-			if (NosuchToLower(std::string(sscb->m_viztag)) == prefix) {
+			std::string s = NosuchToLower(std::string(sscb->m_viztag));
+			if (NosuchBeginsWith(s,prefix)) {
+				if (phandle) {
+					*phandle = it->first;
+				}
+				return sscb;
+			}
+		}
+		return NULL;
+	}
+	VizServerApiCallback* findviztagcallback(std::string viztag, void** phandle = NULL) {
+		std::map<void*, VizServerApiCallback*>::iterator it;
+		// All comparisons here are case-insensitive
+		viztag = NosuchToLower(viztag);
+		for (it = this->begin(); it != this->end(); it++) {
+			VizServerApiCallback* sscb = it->second;
+			if (NosuchToLower(std::string(sscb->m_viztag)) == viztag) {
 				if (phandle) {
 					*phandle = it->first;
 				}
@@ -313,7 +337,7 @@ public:
 	}
 	void addcallback(void* handle, MidiFilter mf, void* cb, void* data) {
 		if (count(handle) > 0) {
-			DEBUGPRINT(("Hey! VizServercallbackMap::addcallback finds existing callback for handle=%d", (long)handle));
+			DEBUGPRINT(("Hey! VizServerMidicallbackMap::addcallback finds existing callback for handle=%d", (long)handle));
 			return;
 		}
 		VizServerMidiCallback* sscb = new VizServerMidiCallback(mf, cb, data);
@@ -321,7 +345,7 @@ public:
 	}
 	void removecallback(void* handle) {
 		if (count(handle) == 0) {
-			DEBUGPRINT(("Hey! VizServercallbackMap::removecallback didn't find existing callback for handle=%d", (long)handle));
+			DEBUGPRINT(("Hey! VizServerMidicallbackMap::removecallback didn't find existing callback for handle=%d", (long)handle));
 			return;
 		}
 		erase(handle);
@@ -363,7 +387,7 @@ public:
 	int numCallbacks() { return m_callbacks.size(); }
 	const char* VizTags() { return m_callbacks.VizTags(); }
 	bool HasApiPrefix(std::string nm) {
-		return (m_callbacks.findprefix(nm) != NULL);
+		return (m_callbacks.findprefixcallback(nm) != NULL);
 	}
 
 private:
@@ -658,7 +682,7 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 		return jsonError(-32000, err, id);
 	}
 
-	VizServerApiCallback* cb = m_callbacks.findprefix(prefix);
+	VizServerApiCallback* cb = m_callbacks.findprefixcallback(prefix);
 	if (cb == NULL) {
 		std::string err = NosuchSnprintf("Unable to find Json API match for prefix=%s", prefix.c_str());
 		return jsonError(-32000, err, id);
@@ -1686,8 +1710,7 @@ VizServer::ClearJsonCallbacks() {
 }
 
 void
-VizServer::ClearJsonCallbacksOfPipeline(int pipenum) {
-	std::string prefix = NosuchSnprintf("%d:", pipenum);
+VizServer::ClearJsonCallbacksWithPrefix(std::string prefix) {
 	m_jsonprocessor->ClearCallbacksWithPrefix(prefix);
 	_setMaxCallbacks();
 }

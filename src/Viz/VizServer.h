@@ -199,7 +199,7 @@ public:
 	void SetErrorCallback(ErrorCallbackFuncType cb, void* data);
 
 	void ClearJsonCallbacks();
-	void ClearJsonCallbacksOfPipeline(int pipenum);
+	void ClearJsonCallbacksWithPrefix(std::string pipenum);
 	void AddJsonCallback(void* handle, const char* apiprefix, jsoncallback_t cb, void* data);
 	void AddMidiInputCallback(void* handle, MidiFilter mf, midicallback_t cb, void* data);
 	void AddMidiOutputCallback(void* handle, MidiFilter mf, midicallback_t cb, void* data);

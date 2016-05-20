@@ -190,6 +190,10 @@ Vizlet::Vizlet() {
 		_startApiCallbacks(m_viztag, (void*)this);
 	}
 
+	// Note that when the Vizlet is initially created, the m_viztag is "", meaning that it
+	// can't be accessed from the outside.  Internally, FFFF can refer to it directly,
+	// and eventually sets the viztag to a unique value for the plugin, allowing it to be
+	// called from the outside.
 	SetParamInfo(0, "viztag", FF_TYPE_TEXT, m_viztag);
 }
 
