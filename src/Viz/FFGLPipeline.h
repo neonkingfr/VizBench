@@ -69,10 +69,10 @@ public:
 	void randomize() {
 		size_t sz = m_pluginlist.size();
 		// Just swap things randomly
-		for (size_t n = 1; n<sz; n++ ) {
+		for (size_t n = 1; n < sz; n++) {
 			int n1 = rand() % sz;
 			int n2 = rand() % sz;
-			if ( n1 != n2 ) {
+			if (n1 != n2) {
 				if (m_pluginlist[n1]->isMoveable() && m_pluginlist[n2]->isMoveable()) {
 					FFGLPluginInstance* t = m_pluginlist[n1];
 					m_pluginlist[n1] = m_pluginlist[n2];
@@ -86,7 +86,7 @@ public:
 		m_pluginlist[n1] = m_pluginlist[n2];
 		m_pluginlist[n2] = t;
 	}
-	void moveplugin(std::string viztag,int places) {
+	void moveplugin(std::string viztag, int places) {
 		size_t sz = m_pluginlist.size();
 		bool up = places < 0;
 		if (up) {
@@ -121,7 +121,7 @@ public:
 		return np;
 	}
 
-	FFGLPluginInstance* addToPipeline(std::string pluginName, std::string viztag, bool autoenable, cJSON* params) {
+	FFGLPluginInstance* addToPipeline(std::string pluginName, std::string viztag, bool enable, cJSON* params) {
 
 		// See if this viztag is already used in the pipeline
 		if (find_plugin(viztag) != NULL) {
@@ -172,15 +172,12 @@ public:
 					np->setparam(nm, (float)(t->valuedouble));
 				}
 				else {
-					throw NosuchException("FFGLAddToPipeline unable to handle type=%d", t->type);
+					throw NosuchException("addToPipeline unable to handle type=%d", t->type);
 				}
 			}
 		}
-
-		if (autoenable) {
-			np->setEnable(true);
-		}
-
+		np->setEnable(enable);
+		DEBUGPRINT1(("setEnable plugin=%s enable=%d", viztag.c_str(), enable));
 		return np;
 	}
 
@@ -196,7 +193,33 @@ public:
 		}
 	}
 
-	void load(std::string piname, std::string name, std::string fpath, int sidmin, int sidmax) {
+	void FFGLPipeline::CheckAutoload() {
+
+		std::time_t throttle = 1;  // don't check more often than this number of seconds
+		std::time_t tm = time(0);
+		if ((tm - m_file_lastcheck) < throttle) {
+			return;
+		}
+
+		std::string fpath = m_filepath;
+
+		struct _stat statbuff;
+		int e = _stat(fpath.c_str(), &statbuff);
+		if (e != 0) {
+			throw NosuchException("Error in _stat fpath=%s - e=%d", fpath.c_str(), e);
+		}
+		if (statbuff.st_mtime > m_file_lastupdate) {
+
+			DEBUGPRINT(("Pipeline file %s was updated!  Reloading!", m_filepath.c_str()));
+
+			// Keep the same sidmin/sidmax and other values
+			load(m_piname, m_name, m_filepath,
+				m_sidmin, m_sidmax,
+				m_pipeline_enabled);
+		}
+	}
+
+	void load(std::string piname, std::string name, std::string fpath, int sidmin, int sidmax, bool enabled) {
 		std::string current_name = m_name;
 
 		DEBUGPRINT(("Pipeline.load name=%s", name.c_str(), fpath.c_str()));
@@ -232,7 +255,9 @@ public:
 		m_file_lastupdate = statbuff.st_mtime;
 		m_file_lastcheck = statbuff.st_mtime;
 		setSidrange(sidmin, sidmax);
-		setEnableInput(m_pipeline_enabled);
+
+		m_pipeline_enabled = enabled;
+		setEnableInput(enabled);
 	}
 
 	void loadJson(std::string piname, std::string name, cJSON* json) {

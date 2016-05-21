@@ -89,12 +89,10 @@ public:
 	FFGLPluginInstance* FFGLFindPluginInstance(int pipenum, std::string viztag);
 	FFGLPluginInstance* FFGLNeedPluginInstance(int pipenum, std::string viztag);
 	std::string			FFGLParamList(std::string nm, const char* id);
-	FFGLPluginInstance* FFGLAddToPipeline(int pipenum, std::string nm, std::string viztag, bool autoenable, cJSON* params);
 
 	std::string savePipeline(int pipenum, std::string nm, const char* id);
-	void loadPipeline(int pipenum, std::string name, std::string fpath, int sidmin, int sidmax);
-	void loadPipelineJson(int pipenum, std::string name, cJSON* json);
 	void clearPipeline(int pipenum);
+
 	void doPipeline(int pipenum, int width, int height);
 	bool isPipelineEnabled(int pipenum);
 
