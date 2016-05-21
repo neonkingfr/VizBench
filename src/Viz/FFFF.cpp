@@ -739,11 +739,6 @@ FFFF::ErrorPopup(const char* msg) {
 }
 
 void
-doCameraFrame(IplImage* frame)
-{
-}
-
-void
 do_ff10pipeline(std::vector<FF10PluginInstance*> pipeline, unsigned char* pixels) {
 	for (std::vector<FF10PluginInstance*>::iterator it = pipeline.begin(); it != pipeline.end(); it++) {
 		FF10PluginInstance* p = *it;
@@ -769,6 +764,14 @@ FFFF::doCameraAndFF10Pipeline(int pipenum, GLuint texturehandle) {
 
 	CvSize fbosz = cvSize(m_window_width, m_window_height);
 
+	if (m_img_into_pipeline == NULL) {
+		m_img_into_pipeline = cvCreateImage(fbosz, IPL_DEPTH_8U, 3);
+		if (m_img_into_pipeline == NULL) {
+			DEBUGPRINT(("UNABLE TO CREATE m_img_into_pipeline!???"));
+			return false;
+		}
+	}
+
 	if (camframe != NULL) {
 		unsigned char* pixels = (unsigned char *)(camframe->imageData);
 
@@ -785,15 +788,6 @@ FFFF::doCameraAndFF10Pipeline(int pipenum, GLuint texturehandle) {
 
 		if (m_img2 == NULL) {
 			m_img2 = cvCreateImage(ffsz, IPL_DEPTH_8U, 3);
-		}
-
-		if (m_img_into_pipeline == NULL) {
-			m_img_into_pipeline = cvCreateImage(fbosz, IPL_DEPTH_8U, 3);
-			if (m_img_into_pipeline == NULL) {
-				DEBUGPRINT(("UNABLE TO CREATE m_img_into_pipeline!???"));
-				return false;
-			}
-			// DEBUGPRINT(("----- MALLOC m_img_into_pipeline = %d", (long)m_img_into_pipeline));
 		}
 
 
@@ -821,14 +815,6 @@ FFFF::doCameraAndFF10Pipeline(int pipenum, GLuint texturehandle) {
 #endif
 	}
 	else {
-		if (m_img_into_pipeline == NULL) {
-			m_img_into_pipeline = cvCreateImage(fbosz, IPL_DEPTH_8U, 3);
-			if (m_img_into_pipeline == NULL) {
-				DEBUGPRINT(("UNABLE TO CREATE m_img_into_pipeline!???"));
-				return false;
-			}
-		}
-
 		pixels_into_pipeline = (unsigned char *)(m_img_into_pipeline->imageData);
 		cvZero(m_img_into_pipeline);
 
@@ -1162,12 +1148,6 @@ std::string FFFF::FFGLList() {
 	return r;
 }
 
-#if 0
-std::string FFFF::FFGLPipelineList(int pipenum, bool only_enabled) {
-	return m_ffglpipeline[pipenum].pipelineList(only_enabled);
-}
-#endif
-
 std::string FFFF::FF10PipelineList(int pipenum, bool only_enabled) {
 	std::string r = "[";
 	std::string sep = "";
@@ -1316,18 +1296,6 @@ needFFGLPlugin(std::string name)
 		}
 		return p;
 }
-
-#if 0
-FFGLPluginInstance*
-FFFF::FFGLNeedPluginInstance(int pipenum, std::string viztag)
-{
-		FFGLPluginInstance* p = m_ffglpipeline[pipenum].find_plugin(viztag);
-		if ( p == NULL ) {
-			throw NosuchException("There is no viztag '%s' in pipeline %d",viztag.c_str(),pipenum);
-		}
-		return p;
-}
-#endif
 
 FF10PluginInstance*
 FFFF::FF10NeedPluginInstance(int pipenum, std::string viztag)
