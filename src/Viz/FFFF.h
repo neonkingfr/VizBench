@@ -82,19 +82,13 @@ public:
 	std::string FFGLParamVals(FFGLPluginInstance* pi, std::string linebreak);
 	std::string FFGLParamInfo(std::string plugin, std::string param, const char* id);
 
-	FFGLPipeline& Pipeline(int pipenum);
-
 	// XXX - all the methods here should eventually go into FFGLPipeline
-	std::string FFGLPipelineList(int pipenum, bool only_enabled);
-	FFGLPluginInstance* FFGLFindPluginInstance(int pipenum, std::string viztag);
-	FFGLPluginInstance* FFGLNeedPluginInstance(int pipenum, std::string viztag);
 	std::string			FFGLParamList(std::string nm, const char* id);
 
 	std::string savePipeline(int pipenum, std::string nm, const char* id);
 	void clearPipeline(int pipenum);
 
 	void doPipeline(int pipenum, int width, int height);
-	bool isPipelineEnabled(int pipenum);
 
 	///////////////////////// FF10 stuff
 

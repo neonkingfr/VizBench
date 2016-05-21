@@ -29,12 +29,15 @@ public:
 		}
 		m_pluginlist.clear();
 	}
-	FFGLPluginInstance* find_plugin(std::string viztag) {
+	FFGLPluginInstance* find_plugin(std::string viztag, bool required = false) {
 		for (FFGLPluginList::iterator it = m_pluginlist.begin(); it != m_pluginlist.end(); it++) {
 			FFGLPluginInstance* p = *it;
 			if (viztag == p->viztag()) {
 				return *it;
 			}
+		}
+		if (required) {
+			throw NosuchException("There is no viztag '%s' in pipeline %s",viztag.c_str(),m_piname.c_str());
 		}
 		return NULL;
 	}
@@ -179,6 +182,38 @@ public:
 		np->setEnable(enable);
 		DEBUGPRINT1(("setEnable plugin=%s enable=%d", viztag.c_str(), enable));
 		return np;
+	}
+
+	bool isEnabled() {
+		return m_pipeline_enabled;
+	}
+
+	std::string pipelineList(bool only_enabled) {
+		std::string r = "[";
+		std::string sep = "";
+
+		for (FFGLPluginList::iterator it = m_pluginlist.begin(); it != m_pluginlist.end(); it++) {
+			FFGLPluginInstance* p = *it;
+
+			bool isvizlet = m_vizserver->IsVizlet(p->viztag().c_str());
+
+			std::string isviz;
+			if (isvizlet) {
+				isviz = std::string(" \"vizlet\": ") + (isvizlet ? "1" : "0") + ", ";
+			}
+			bool enabled = p->isEnabled();
+			if (only_enabled == false || enabled == true) {
+				r += (sep + "{ \"plugin\":\"" + p->plugindef()->GetPluginName() + "\","
+					+ " \"viztag\":\"" + p->viztag() + "\", "
+					+ isviz
+					+ " \"moveable\": " + (p->isMoveable() ? "1" : "0") + ","
+					+ " \"enabled\": " + (p->isEnabled() ? "1" : "0")
+					+ "  }");
+				sep = ", ";
+			}
+		}
+		r = r + "]";
+		return r;
 	}
 
 	void clear() {
