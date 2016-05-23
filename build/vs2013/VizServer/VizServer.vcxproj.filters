@@ -153,9 +153,6 @@
     <ClInclude Include="..\..\..\src\Viz\Timer.h">
       <Filter>Header Files\Viz</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\other\freeframe\FF10Plugin.h">
-      <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\other\freeframe\FFGLPlugin.h">
       <Filter>Header Files\freeframe</Filter>
     </ClInclude>
@@ -304,9 +301,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\Viz\VizUtil.cpp">
       <Filter>Source Files\Viz</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\other\freeframe\FF10Plugin.cpp">
-      <Filter>Source Files\freeframe</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\other\freeframe\FFGLPlugin.cpp">
       <Filter>Source Files\freeframe</Filter>

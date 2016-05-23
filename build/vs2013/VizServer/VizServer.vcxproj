@@ -180,7 +180,6 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\other\freeframe\FF10Plugin.h" />
     <ClInclude Include="..\..\..\other\freeframe\FFGLExtensions.h" />
     <ClInclude Include="..\..\..\other\freeframe\FFGLFBO.h" />
     <ClInclude Include="..\..\..\other\freeframe\FFGLPlugin.h" />
@@ -212,7 +211,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\other\cJSON\cJSON.cpp" />
-    <ClCompile Include="..\..\..\other\freeframe\FF10Plugin.cpp" />
     <ClCompile Include="..\..\..\other\freeframe\FFGLExtensions.cpp" />
     <ClCompile Include="..\..\..\other\freeframe\FFGLFBO.cpp" />
     <ClCompile Include="..\..\..\other\freeframe\FFGLPlugin.cpp" />

@@ -31,25 +31,16 @@
 #include "FFGL.h"
 #include "FFGLPlugin.h"
 #include "FFGLLib.h"
-#include "FF10Plugin.h"
 #include "FreeFrame.h"
 
 #include <FFGLFBO.h>
 
 #define MAXPLUGINS 512
 
-class FF10PluginDef;
 class FFGLPluginDef;
 
 typedef std::vector < FFGLPluginInstance* > FFGLPluginList;
 typedef std::string(*PathGenerator)(std::string f);
-
-// XXX - someday, either the FF10 stuff will be deleted, or
-// an FF10Pipeline class to match FFGLPipeline should be created.
-typedef std::vector < FF10PluginInstance* > FF10Pipeline;
-
-extern int nff10plugindefs;
-extern FF10PluginDef *ff10plugindefs[MAXPLUGINS];
 
 extern int nffglplugindefs;
 extern FFGLPluginDef *ffglplugindefs[MAXPLUGINS];
@@ -70,9 +61,6 @@ std::string CopyFFString16(const char *src);
 bool ff_passthru(ProcessOpenGLStruct *pGL);
 
 std::string &trim(std::string &s);
-
-FF10PluginDef* findff10plugindef(std::string nm);
-FF10ParameterDef* findff10param(FF10PluginDef* ff, std::string nm);
 
 FFGLPluginDef * findffglplugindef(std::string nm);
 FFGLParameterDef* findffglparam(FFGLPluginDef* ff, std::string nm);

@@ -36,7 +36,6 @@
 #include "drawtext.h"
 
 #include "FFGLPlugin.h"
-#include "FF10Plugin.h"
 
 #include "FFFF.h"
 #include "FFGLPipeline.h"
@@ -105,20 +104,19 @@ FFFF::FFFF() {
 	m_output_framenum = 0;
 	m_spoutsender = NULL;
 
-	m_img1 = NULL;
-	m_img2 = NULL;
+	m_camera_image_raw = NULL;
+	m_camera_image_flipped = NULL;
 	m_img_into_pipeline = NULL;
 	m_record = false;
 	m_capture = NULL;
 	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
-		m_ffglpipeline[pipenum].m_name = "";
 		m_ffglpipeline[pipenum].clear();
-		m_ff10pipeline[pipenum].clear();
+		m_pipeline_enabled[pipenum] = false;
+		m_pipeline_camera_enabled[pipenum] = false;
 	}
 	hidden = false;
 
 	// Allow the config to override the default paths for these
-	m_ff10path = jsonNeedString(config, "ff10path", "ff10plugins");
 	m_ffglpath = jsonNeedString(config, "ffglpath", "ffglplugins");
 
 	m_window_width = jsonNeedInt(config, "window_width", 800);
@@ -137,6 +135,8 @@ FFFF::FFFF() {
 	m_fontsize = jsonNeedInt(config, "fontsize", 24);
 
 	m_camera_index = jsonNeedInt(config, "camera", -1);  // -1 for no camera, 0+ for camera
+	m_camera_flipx = jsonNeedBool(config, "camera_flipx", false);
+	m_camera_flipy = jsonNeedBool(config, "camera_flipy", false);
 
 	m_showfps = jsonNeedInt(config, "showfps", 0) ? true : false;
 	m_autoload = jsonNeedInt(config, "autoload", 1) ? true : false;
@@ -231,6 +231,15 @@ FFFF::CreateWindows() {
 	if (m_font == NULL) {
 		throw NosuchException("Unable to load font '%s'!?",fontpath.c_str());
 	}
+
+	if (m_img_into_pipeline == NULL) {
+		CvSize fbosz = cvSize(m_window_width, m_window_height);
+		m_img_into_pipeline = cvCreateImage(fbosz, IPL_DEPTH_8U, 3);
+		if (m_img_into_pipeline == NULL) {
+			throw NosuchException("Unable to create image for img_into_pipeline!???");
+		}
+	}
+
 }
 
 void FFFF::drawWindowPipelines() {
@@ -240,9 +249,15 @@ void FFFF::drawWindowPipelines() {
 
 	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
 		FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
-		if (pipeline.isEnabled()) {
-			doCameraAndFF10Pipeline(pipenum, mapTexture.Handle);
-			doPipeline(pipenum, m_window_width, m_window_height);
+		if (m_pipeline_enabled[pipenum]) {
+			if (m_pipeline_camera_enabled[pipenum]) {
+				IplImage* camframe = getCameraFrame();
+				paintInitialTexture(camframe,mapTexture.Handle,m_camera_flipx,m_camera_flipy);
+			}
+			else {
+
+			}
+			pipeline.doPipeline(m_window_width, m_window_height);
 		}
 	}
 	glClearColor(0, 0, 0, 0);
@@ -251,7 +266,7 @@ void FFFF::drawWindowPipelines() {
 
 	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
 		FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
-		if (pipeline.isEnabled()) {
+		if (m_pipeline_enabled[pipenum]) {
 			pipeline.paintTexture();
 		}
 	}
@@ -287,7 +302,7 @@ FFFF::drawWindowFinish() {
 }
 
 void
-FFFF::drawPrefixPipelines() {
+FFFF::drawPreviewPipelines() {
 
 	glfwMakeContextCurrent(preview);
 
@@ -297,7 +312,7 @@ FFFF::drawPrefixPipelines() {
 
 	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
 		FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
-		if (pipeline.isEnabled()) {
+		if (m_pipeline_enabled[pipenum]) {
 			m_ffglpipeline[pipenum].paintTexture();
 		}
 	}
@@ -380,7 +395,7 @@ FFFF::RunStuff() {
 			drawWindowPipelines();
 			drawWindowFinish();
 
-			drawPrefixPipelines();
+			drawPreviewPipelines();
 			drawPrefixFinish();
 		}
 
@@ -395,7 +410,8 @@ void
 FFFF::StopStuff() {
 
 	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
-		clearPipeline(pipenum);
+		FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
+		pipeline.clear();
 	}
 
 	m_vizserver->Stop();
@@ -619,118 +635,15 @@ FFGLPipeline::FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string viztag)
 	return np;
 }
 
-FF10PluginInstance*
-FFFF::FF10NewPluginInstance(FF10PluginDef* plugdef, std::string viztag)
-{
-	FF10PluginInstance* np = new FF10PluginInstance(plugdef,viztag);
-	// DEBUGPRINT(("--- MALLOC new FF10PluginInstance = %d",(long)np));
-
-	const PluginInfoStruct *pi = plugdef->GetInfo();
-	char nm[17];
-	memcpy(nm, pi->PluginName, 16);
-	nm[16] = 0;
-	VideoInfoStruct vis = { m_window_width, m_window_height, FF_DEPTH_24, FF_ORIENTATION_TL };
-
-	if ( np->Instantiate(&vis)!=FF_SUCCESS ) {
-		delete np;
-		throw NosuchException("Unable to Instantiate !?");
-	}
-	return np;
-}
-
-void
-FFFF::clearPipeline(int pipenum)
-{
-	// Are we locked, here?
-	m_ffglpipeline[pipenum].clear();
-	m_ff10pipeline[pipenum].clear();
-}
-
 void
 FFFF::loadAllPluginDefs()
 {
-    nff10plugindefs = 0;
     nffglplugindefs = 0;
 
     loadffglpath(m_ffglpath);
 	FFGLinit2();
-    loadff10path(m_ff10path);
 
-    DEBUGPRINT(("%d FF plugins, %d FFGL plugins\n",nff10plugindefs,nffglplugindefs));
-}
-
-FF10PluginInstance*
-FFFF::FF10FindPluginInstance(int pipenum, std::string viztag) {
-	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline[pipenum].begin(); it != m_ff10pipeline[pipenum].end(); it++) {
-		if ( viztag == (*it)->viztag() ) {
-			return *it;
-		}
-	}
-	return NULL;
-}
-
-FF10PluginInstance*
-FFFF::FF10AddToPipeline(int pipenum, std::string pluginName, std::string viztag, bool autoenable, cJSON* params) {
-
-	// First scan existing pipeline to see if this viztag is already used
-	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline[pipenum].begin(); it != m_ff10pipeline[pipenum].end(); it++) {
-		if ( viztag == (*it)->viztag() ) {
-			DEBUGPRINT(("Plugin with viztag '%s' already exists",viztag.c_str()));
-			return NULL;
-		}
-	}
-
-    FF10PluginDef* plugin = findff10plugindef(pluginName);
-	if ( plugin == NULL ) {
-		DEBUGPRINT(("There is no plugin named '%s'",pluginName.c_str()));
-		return NULL;
-	}
-
-	FF10PluginInstance* np = FF10NewPluginInstance(plugin,viztag);
-
-	// If the plugin's first parameter is "viztag", set it
-	int pnum = np->plugindef()->getParamNum("viztag");
-	if ( pnum >= 0 ) {
-		DEBUGPRINT1(("In FF10AddToPipeline of %s, setting viztag to %s",pluginName.c_str(),viztag.c_str()));
-		np->setparam("viztag",viztag);
-	}
-
-	m_ff10pipeline[pipenum].insert(m_ff10pipeline[pipenum].end(),np);
-
-	if (params) {
-		for (cJSON* pn = params->child; pn != NULL; pn = pn->next) {
-			NosuchAssert(pn->type == cJSON_Object);
-			std::string nm = jsonNeedString(pn, "name", "");
-			if (nm == "") {
-				throw NosuchException("Missing parameter name");
-			}
-			double v = jsonNeedDouble(pn, "value", -1.0);
-			if (v < 0) {
-				throw NosuchException("Missing parameter value");
-			}
-			np->setparam(nm, (float)v);
-		}
-	}
-
-	if ( autoenable ) {
-		np->enable();
-	}
-
-	return np;
-}
-
-void
-FFFF::FF10DeleteFromPipeline(int pipenum, std::string viztag) {
-
-	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline[pipenum].begin(); it != m_ff10pipeline[pipenum].end(); ) {
-		if (viztag == (*it)->viztag()) {
-			delete *it;
-			it = m_ff10pipeline[pipenum].erase(it);
-		}
-		else {
-			it++;
-		}
-	}
+    DEBUGPRINT(("%d FFGL plugins\n",nffglplugindefs));
 }
 
 void
@@ -738,87 +651,74 @@ FFFF::ErrorPopup(const char* msg) {
 	MessageBoxA(NULL, msg, "FFFF", MB_OK);
 }
 
-void
-do_ff10pipeline(std::vector<FF10PluginInstance*> pipeline, unsigned char* pixels) {
-	for (std::vector<FF10PluginInstance*>::iterator it = pipeline.begin(); it != pipeline.end(); it++) {
-		FF10PluginInstance* p = *it;
-		if (p->isEnabled()) {
-			p->plugindef()->Process(p->instanceid(), pixels);
+#define FLIP_X 1
+#define FLIP_Y 0
+#define FLIP_XY -1
+#define FLIP_NONE -2
+
+// Something is strange here - the values for horizonta
+int flipMode(bool flipx, bool flipy) {
+	if (flipx) {
+		if (flipy) {
+			return FLIP_XY;
+		}
+		else {
+			return FLIP_X;
+		}
+	}
+	else {
+		if (flipy) {
+			return FLIP_Y;
+		}
+		else {
+			return FLIP_NONE;
 		}
 	}
 }
 
 bool
-FFFF::doCameraAndFF10Pipeline(int pipenum, GLuint texturehandle) {
+FFFF::paintInitialTexture(IplImage* camframe, GLuint texturehandle, bool flipx, bool flipy) {
 
 	int interp;
 	unsigned char *pixels_into_pipeline;
-	IplImage* camframe = NULL;
 
-	//bind the gl texture so we can upload the next video frame
 	glBindTexture(GL_TEXTURE_2D, texturehandle);
 
-	if (m_use_camera) {
-		camframe = getCameraFrame();
-	}
-
-	CvSize fbosz = cvSize(m_window_width, m_window_height);
-
-	if (m_img_into_pipeline == NULL) {
-		m_img_into_pipeline = cvCreateImage(fbosz, IPL_DEPTH_8U, 3);
-		if (m_img_into_pipeline == NULL) {
-			DEBUGPRINT(("UNABLE TO CREATE m_img_into_pipeline!???"));
-			return false;
-		}
-	}
-
 	if (camframe != NULL) {
+
 		unsigned char* pixels = (unsigned char *)(camframe->imageData);
+		CvSize camsz = cvSize(m_camWidth, m_camHeight);
 
-		CvSize camsz;
-		CvSize ffsz;
-
-		camsz = cvSize(m_camWidth, m_camHeight);
-		ffsz = cvSize(m_window_width, m_window_height);
-
-		if (m_img1 == NULL) {
-			m_img1 = cvCreateImageHeader(camsz, IPL_DEPTH_8U, 3);
-		}
-		cvSetImageData(m_img1, pixels, m_camWidth * 3);
-
-		if (m_img2 == NULL) {
-			m_img2 = cvCreateImage(ffsz, IPL_DEPTH_8U, 3);
+		// The image header is static, it's only created once.
+		if (m_camera_image_raw == NULL) {
+			m_camera_image_raw = cvCreateImageHeader(camsz, IPL_DEPTH_8U, 3);
 		}
 
+		cvSetImageData(m_camera_image_raw, pixels, m_camWidth * 3);
 
 		interp = CV_INTER_LINEAR;  // or CV_INTER_NN
 		interp = CV_INTER_NN;  // This produces some artifacts compared to CV_INTER_LINEAR, but is faster
 
 		// XXX - If the camera size is the same as the ff (ffgl) size,
 		// we shouldn't have to do this resize
-		cvResize(m_img1, m_img2, interp);
-
-		unsigned char *resizedpixels = NULL;
-		cvGetImageRawData(m_img2, &resizedpixels, NULL, NULL);
-		if (resizedpixels != 0) {
-			do_ff10pipeline(m_ff10pipeline[pipenum], resizedpixels);
+		int flipmode = flipMode(m_camera_flipx, m_camera_flipy);
+		if (flipmode != FLIP_NONE) {
+			// Flip the camera image first - it's typically low-rez, like 640x480
+			// Ideally, we'd 
+			if (m_camera_image_flipped == NULL) {
+				m_camera_image_flipped = cvCreateImage(camsz, IPL_DEPTH_8U, 3);
+			}
+			cvFlip(m_camera_image_raw, m_camera_image_flipped, flipmode);
+			cvResize(m_camera_image_flipped, m_img_into_pipeline, interp);
 		}
-
-		cvResize(m_img2, m_img_into_pipeline, interp);
+		else {
+			cvResize(m_camera_image_raw, m_img_into_pipeline, interp);
+		}
 		cvGetImageRawData(m_img_into_pipeline, &pixels_into_pipeline, NULL, NULL);
-
-#ifdef NOMORERELEASE
-		DEBUGPRINT(("---- RELEASE m_img1 %d", (long)m_img1));
-		cvReleaseImageHeader(&m_img1);
-		DEBUGPRINT(("---- RELEASE img2 %d", (long)img2));
-		cvReleaseImage(&img2);
-#endif
 	}
 	else {
-		pixels_into_pipeline = (unsigned char *)(m_img_into_pipeline->imageData);
 		cvZero(m_img_into_pipeline);
-
-		do_ff10pipeline(m_ff10pipeline[pipenum], pixels_into_pipeline);
+		pixels_into_pipeline = (unsigned char *)(m_img_into_pipeline->imageData);
 	}
 
 	//upload it to the gl texture. use subimage because
@@ -838,11 +738,13 @@ FFFF::doCameraAndFF10Pipeline(int pipenum, GLuint texturehandle) {
 	return true;
 }
 
+#if 0
 void
 FFFF::doPipeline(int pipenum, int width, int height)
 {
 	m_ffglpipeline[pipenum].doPipeline(width, height);
 }
+#endif
 
 void
 FFGLPipeline::setEnableInput(bool onoff) {
@@ -993,9 +895,6 @@ FFFF::sendSpout() {
 void
 FFGLPipeline::doPipeline(int window_width, int window_height)
 {
-	if ( ! m_pipeline_enabled ) {
-		return;
-	}
 	FFGLPluginInstance* lastplugin = NULL;
 	FFGLPluginInstance* firstplugin = NULL;
 	int num_ffgl_active = 0;
@@ -1126,17 +1025,6 @@ FFGLPipeline::doPipeline(int window_width, int window_height)
 	return;
 }
 
-std::string FFFF::FF10List() {
-	std::string r = "[";
-	std::string sep = "";
-    for ( int n=0; n<nff10plugindefs; n++ ) {
-		r += (sep + "\"" + ff10plugindefs[n]->name + "\"");
-		sep = ", ";
-	}
-	r = r + "]";
-	return r;
-}
-
 std::string FFFF::FFGLList() {
 	std::string r = "[";
 	std::string sep = "";
@@ -1146,55 +1034,6 @@ std::string FFFF::FFGLList() {
 	}
 	r = r + "]";
 	return r;
-}
-
-std::string FFFF::FF10PipelineList(int pipenum, bool only_enabled) {
-	std::string r = "[";
-	std::string sep = "";
-	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline[pipenum].begin(); it != m_ff10pipeline[pipenum].end(); it++) {
-		FF10PluginInstance* p = *it;
-		bool enabled = p->isEnabled();
-		if ( only_enabled==false || enabled==true ) {
-			r += (sep + "{ \"plugin\":\""+p->plugindef()->GetPluginName()+"\", \"viztag\":\"" + p->viztag() + "\", "
-				+ " \"moveable\": " + (p->isMoveable() ? "1" : "0") + ","
-				+ " \"enabled\": " + (p->isEnabled()?"1":"0")
-				+ "  }");
-			sep = ", ";
-		}
-	}
-	r = r + "]";
-	return r;
-}
-
-std::string FFFF::FF10ParamList(std::string plugin, const char* id) {
-    FF10PluginDef* p = findff10plugindef(plugin);
-	if ( !p ) {
-		return jsonError(-32000,"No plugin by that name",id);
-	}
-	std::string r = "[";
-	std::string sep = "";
-    for ( int n=0; n<p->m_numparams; n++ ) {
-		FF10ParameterDef* ps = &(p->m_paramdefs[n]);
-		const char* nm = ps->name.c_str();
-		switch(ps->type){
-		case -1: // 
-		case FF_TYPE_STANDARD:
-			r += sep+NosuchSnprintf("{\"name\":\"%s\", \"type\":\"standard\", \"default\":%f}",nm,ps->default_float_val);
-			break;
-		case FF_TYPE_BOOLEAN:
-			r += sep+NosuchSnprintf("{\"name\":\"%s\", \"type\":\"boolean\", \"default\":%f}",nm,ps->default_float_val);
-			break;
-		case FF_TYPE_TEXT:
-			r += sep+NosuchSnprintf("{\"name\":\"%s\", \"type\":\"text\", \"default\":%s}",nm,ps->default_string_val.c_str());
-			break;
-		default:
-			r += sep+NosuchSnprintf("{\"name\":\"%s\", \"type\":\"%d\", \"default\":%f}",nm,ps->type,ps->default_float_val);
-			break;
-		}
-		sep = ", ";
-	}
-	r = r + "]";
-	return jsonResult(r,id);
 }
 
 std::string FFFF::FFGLParamList(std::string pluginx, const char* id) {
@@ -1258,51 +1097,12 @@ std::string FFFF::FFGLParamVals(FFGLPluginInstance* pi, std::string linebreak = 
 	return r;
 }
 
-std::string FFFF::FF10ParamVals(FF10PluginInstance* pi, std::string linebreak = "") {
-	FF10PluginDef* p = pi->plugindef();
-	int numparams = p->m_numparams;
-	std::string r = "[";
-	std::string sep = "";
-    for ( int n=0; n<p->m_numparams; n++ ) {
-		FF10ParameterDef* pd = &(p->m_paramdefs[n]);
-		const char* nm = pd->name.c_str();
-		float v;
-		switch(pd->type){
-		case -1: // 
-		case FF_TYPE_STANDARD:
-		case FF_TYPE_BOOLEAN:
-			v = pi->GetFloatParameter(pd->num);
-			r += sep+linebreak+NosuchSnprintf("{\"name\":\"%s\", \"value\":%f }",nm,v);
-			break;
-		case FF_TYPE_TEXT:
-			r += sep+linebreak+NosuchSnprintf("{\"name\":\"%s\", \"value\":\"%s\" }",nm,pi->GetParameterDisplay(pd->num).c_str());
-			break;
-		default:
-			r += sep+linebreak+NosuchSnprintf("{\"name\":\"%s\", \"value\":\"???\" }",nm);
-			break;
-		}
-		sep = ", ";
-	}
-	r += linebreak + "]";
-	return r;
-}
-
 FFGLPluginDef*
 needFFGLPlugin(std::string name)
 {
 		FFGLPluginDef* p = findffglplugindef(name);
 		if ( p == NULL ) {
 			throw NosuchSnprintf("No plugin named '%s'",name.c_str());
-		}
-		return p;
-}
-
-FF10PluginInstance*
-FFFF::FF10NeedPluginInstance(int pipenum, std::string viztag)
-{
-		FF10PluginInstance* p = FF10FindPluginInstance(pipenum, viztag);
-		if ( p == NULL ) {
-			throw NosuchException("There is no viztag '%s' in pipeline %d",viztag.c_str(),pipenum);
 		}
 		return p;
 }
@@ -1322,16 +1122,6 @@ std::string FFFF::savePipeline(int pipenum, std::string fname, const char* id)
 	}
 	f << "{\n\"pipeline\": [\n";
 	std::string sep = "";
-	for (std::vector<FF10PluginInstance*>::iterator it = m_ff10pipeline[pipenum].begin(); it != m_ff10pipeline[pipenum].end(); it++) {
-		f << sep;
-		f << "\t{\n";
-		f << "\t\t\"ff10plugin\": \"" + (*it)->viztag() + "\",\n";
-		f << "\t\t\"enabled\": " + std::string((*it)->isEnabled()?"1":"0") + ",\n";
-		f << "\t\t\"moveable\": " + std::string((*it)->isMoveable()?"1":"0") + ",\n";
-		f << "\t\t\"params\": " + FF10ParamVals(*it,"\n\t\t\t") + "\n";
-		f << "\t}";
-		sep = ",\n";
-	}
 	FFGLPluginList& ffglplugins = m_ffglpipeline[pipenum].m_pluginlist;
 	for (FFGLPluginList::iterator it = ffglplugins.begin(); it != ffglplugins.end(); it++) {
 		FFGLPluginInstance* p = *it;
@@ -1397,12 +1187,13 @@ void FFFF::savePipeset(std::string fname)
 	}
 	f << "{\n\"pipeset\": [\n";
 	std::string sep = "";
-	for (int n = 0; n < NPIPELINES; n++) {
-		FFGLPipeline& pipeline = m_ffglpipeline[n];
+	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
+		FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
 		f << sep;
 		f << "\t{\n";
 		f << "\t\t\"pipeline\": \"" << pipeline.m_name << "\",\n";
-		f << "\t\t\"enabled\": " << pipeline.m_pipeline_enabled << ",\n";
+		f << "\t\t\"enabled\": " << m_pipeline_enabled[pipenum] << ",\n";
+		f << "\t\t\"camera_enabled\": " << m_pipeline_camera_enabled[pipenum] << ",\n";
 		f << "\t\t\"sidrange\": \"" << pipeline.m_sidmin << "-" << pipeline.m_sidmax << "\"\n";
 		f << "\t}";
 		sep = ",\n";
@@ -1484,7 +1275,7 @@ FFFF::loadPipesetJson(cJSON* json)
 
 		FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
 
-		clearPipeline(pipenum);
+		pipeline.clear();
 
 		cJSON *p = cJSON_GetArrayItem(pipeset, pipenum);
 		NosuchAssert(p);
@@ -1494,6 +1285,7 @@ FFFF::loadPipesetJson(cJSON* json)
 
 		std::string name = jsonNeedString(p, "pipeline");
 		bool enabled = jsonNeedBool(p, "enabled");
+		bool camera_enabled = jsonNeedBool(p, "camera_enabled", false);
 		std::string sidrange = jsonNeedString(p, "sidrange");
 		std::string spriteparams = jsonNeedString(p, "spriteparams", "");
 		if (spriteparams == "") {
@@ -1510,7 +1302,12 @@ FFFF::loadPipesetJson(cJSON* json)
 		// The default instance name of a pipe is the pipenum
 		std::string piname = NosuchSnprintf("%d", pipenum);
 
-		pipeline.load(piname, name, fpath, sidmin, sidmax, enabled);
+		pipeline.load(piname, name, fpath, sidmin, sidmax);
+
+		m_pipeline_enabled[pipenum] = enabled;
+		m_pipeline_camera_enabled[pipenum] = camera_enabled;
+
+		pipeline.setEnableInput(enabled);
 	}
 }
 
@@ -1553,19 +1350,12 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		return jsonStringResult("time;clicknow;show;hide;echo;"
 			"enable(viztag,onoff);delete(viztag);"
 			"ffgladd(plugin,viztag,autoenable,params);"
-			"ff10add(plugin,viztag,autoenable,params);"
 			"ffglparamset(viztag,param,val);"
-			"ff10paramset(viztag,param,val);"
 			"ffglparamget(viztag,param);"
-			"ff10paramget(viztag,param);"
-			"ff10paramlist(plugin);"
 			"ffglparamlist(plugin);"
-			"ff10paramvals(viztag);"
 			"ffglparamvals(viztag);"
 			"ffglpipeline;"
-			"ff10pipeline;"
 			"ffglplugins;"
-			"ff10plugins;"
 			"record(onoff);"
 			"audio(onoff);"
 			"moveup(viztag);"
@@ -1710,248 +1500,6 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	}
 	}
 
-	// Many of the methods below take pipenum, so grab it up front if it's there
-	int pipenum = jsonNeedInt(params, "pipenum", -1);
-
-	// viztags consist of a pipeline number and a unique (within the pipeline) vtag
-	std::string viztag = jsonNeedString(params, "viztag","");
-
-	// viztags are case-insensitive, always converted to lower case
-	viztag = NosuchToLower(viztag);
-
-	std::string vtag;
-	if (viztag != "") {
-		int pipenum2;
-		parseVizTag(viztag, pipenum2, vtag);
-		if (pipenum >= 0 && pipenum2 != pipenum) {
-			throw NosuchException("Inconsistency between pipenum and viztag parameters!?");
-		}
-		pipenum = pipenum2;
-	}
-
-	// At this point, if pipenum is -1, it means it wasn't specified,
-	// either in an explicit parameter or in a viztag value.
-	// Any method that uses pipenum should make sure it's non-negative.
-
-	FFGLPipeline* ppipeline = NULL;
-	if (pipenum >= 0){
-		ppipeline = &m_ffglpipeline[pipenum];
-	}
-
-	if (meth == "add" || meth == "ffgladd") {
-		std::string plugin = jsonNeedString(params, "plugin");
-		bool autoenable = jsonNeedBool(params, "autoenable", true);
-		bool moveable = jsonNeedBool(params, "moveable", true);
-		cJSON* pparams = jsonGetArray(params, "params");
-		NosuchAssert(ppipeline);
-		FFGLPluginInstance* pi = ppipeline->addToPipeline(plugin, viztag, autoenable, pparams);
-		if (!pi) {
-			throw NosuchException("Unable to add plugin '%s'", plugin.c_str());
-		}
-		pi->setMoveable(moveable);
-		return jsonStringResult(viztag, id);
-	}
-
-	if (meth == "ff10add") {
-		std::string plugin = jsonNeedString(params, "plugin");
-		bool autoenable = jsonNeedBool(params, "autoenable", true);
-		cJSON* pparams = jsonGetArray(params, "params");
-		NosuchAssert(ppipeline);
-		FF10PluginInstance* pi = FF10AddToPipeline(pipenum, plugin, viztag, autoenable, pparams);
-		if (!pi) {
-			throw NosuchException("Unable to add plugin '%s'", plugin.c_str());
-		}
-		return jsonStringResult(viztag, id);
-	}
-	if (meth == "ffglenable" || meth == "enable" ) {
-		// std::string viztag = jsonNeedString(params, "viztag");
-		bool onoff = jsonNeedBool(params, "onoff");
-		NosuchAssert(ppipeline);
-		FFGLPluginInstance* pi = ppipeline->find_plugin(viztag,true);   // throws an exception if it doesn't exist
-		pi->setEnable(onoff);
-		if (!onoff) {
-			pi->ProcessDisconnect();
-		} else {
-			pi->ProcessConnect();
-		}
-		return jsonOK(id);
-	}
-	if (meth == "ffglmoveable" ) {
-		// std::string viztag = jsonNeedString(params, "viztag");
-		bool onoff = jsonNeedBool(params, "onoff");
-		NosuchAssert(ppipeline);
-		FFGLPluginInstance* pi = ppipeline->find_plugin(viztag,true);   // throws an exception if it doesn't exist
-		pi->setMoveable(onoff);
-		return jsonOK(id);
-	}
-	if (meth == "about") {
-		// std::string inst = jsonNeedString(params, "viztag");
-		NosuchAssert(ppipeline);
-		FFGLPluginInstance* pgl = m_ffglpipeline[pipenum].find_plugin(viztag);
-		if (pgl != NULL) {
-			FFGLPluginDef* def = pgl->plugindef();
-			return jsonStringResult(def->GetExtendedInfo()->About, id);
-		}
-		FF10PluginInstance* p10 = FF10NeedPluginInstance(pipenum,viztag);
-		if (p10 != NULL) {
-			FF10PluginDef* def = p10->plugindef();
-			return jsonStringResult(def->GetExtendedInfo()->About, id);
-		}
-		throw NosuchException("No such viztag: %s",viztag.c_str());
-	}
-	if (meth == "description") {
-		// std::string viztag = jsonNeedString(params, "viztag");
-		NosuchAssert(ppipeline);
-		FFGLPluginInstance* pgl = m_ffglpipeline[pipenum].find_plugin(viztag);
-		if (pgl != NULL) {
-			FFGLPluginDef* def = pgl->plugindef();
-			return jsonStringResult(def->GetExtendedInfo()->Description, id);
-		}
-		FF10PluginInstance* p10 = FF10NeedPluginInstance(pipenum,viztag);
-		if (p10 != NULL) {
-			FF10PluginDef* def = p10->plugindef();
-			return jsonStringResult(def->GetExtendedInfo()->Description, id);
-		}
-		throw NosuchException("No such viztag: %s",viztag.c_str());
-	}
-	if ( meth == "delete" ) {
-		// It's okay if it doesn't exist
-		ppipeline->delete_plugin(viztag);
-		return jsonOK(id);
-	}
-	if ( meth == "moveplugin" ) {
-		// It's okay if it doesn't exist
-		int n = jsonNeedInt(params, "n", 1);
-		ppipeline->moveplugin(viztag,n);
-		return jsonOK(id);
-	}
-	if (meth == "shufflepipeline") {
-		ppipeline->shuffle();
-		return jsonOK(id);
-	}
-	if (meth == "randomizepipeline") {
-		ppipeline->randomize();
-		return jsonOK(id);
-	}
-	if ( meth == "clearpipeline" ) {
-		NosuchAssert(ppipeline);
-		clearPipeline(pipenum);
-		return jsonOK(id);
-	}
-	if (meth == "ffglparamset" || meth == "set") {
-
-		// std::string viztag = jsonNeedString(params, "viztag");
-		std::string param = jsonNeedString(params, "param");
-		cJSON *jv = cJSON_GetObjectItem(params, "val");
-
-		NosuchAssert(ppipeline);
-		FFGLPluginInstance* pi = m_ffglpipeline[pipenum].find_plugin(viztag);
-		if (pi == NULL) {
-			throw NosuchException("Unable find find plugin with viztag='%s'", viztag.c_str());
-		}
-		if (jv == NULL) {
-			throw NosuchException("Missing 'val' parameter in ffglparamset call");
-		}
-		if (jv->type == cJSON_Number) {
-			float val = (float)jsonNeedDouble(params, "val");
-			if (!pi->setparam(param, val)) {
-				throw NosuchException("Unable to find or set parameter '%s' in viztag '%s'", param.c_str(), viztag.c_str());
-			}
-		}
-		else if (jv->type == cJSON_String) {
-			std::string val = jsonNeedString(params,"val");
-			if ( ! pi->setparam(param,val) ) {
-				throw NosuchException("Unable to find or set parameter '%s' in viztag '%s'",param.c_str(),viztag.c_str());
-			}
-		}
-		else {
-			throw NosuchException("Unable to handle jv->type=%d", jv->type);
-		}
-		return jsonOK(id);
-	}
-	if ( meth == "ffglparamget" || meth == "get" ) {
-		// std::string viztag = jsonNeedString(params,"viztag");
-		std::string param = jsonNeedString(params,"param");
-		NosuchAssert(ppipeline);
-		FFGLPluginInstance* pi = m_ffglpipeline[pipenum].find_plugin(viztag);
-		FFGLParameterDef* pd = pi->plugindef()->findparamdef(param);
-		if ( pd == NULL ) {
-			throw NosuchException("No parameter '%s' in viztag '%s'",param.c_str(),viztag.c_str());
-		}
-		return pi->getParamJsonResult(pd, pi, id);
-	}
-	if ( meth == "ff10paramset" ) {
-		// std::string viztag = jsonNeedString(params,"viztag");
-		std::string param = jsonNeedString(params,"param");
-		float val = (float) jsonNeedDouble(params,"val");
-		NosuchAssert(ppipeline);
-		FF10PluginInstance* pi = FF10NeedPluginInstance(pipenum,viztag);
-		if ( ! pi->setparam(param,val) ) {
-			throw NosuchException("Unable to find or set parameter '%s' in viztag '%s'",param.c_str(),viztag.c_str());
-		}
-		return jsonOK(id);
-	}
-	if ( meth == "ff10paramget" ) {
-		// std::string viztag = jsonNeedString(params,"viztag");
-		std::string param = jsonNeedString(params,"param");
-		NosuchAssert(ppipeline);
-		FF10PluginInstance* pi = FF10NeedPluginInstance(pipenum,viztag);
-		FF10ParameterDef* pd = pi->plugindef()->findparamdef(param);
-		if ( pd == NULL ) {
-			throw NosuchException("No parameter '%s' in plugin '%s'",param.c_str(),viztag.c_str());
-		}
-		return pi->getParamJsonResult(pd, pi, id);
-	}
-	if ( meth == "ff10plugins" ) {
-		return jsonResult(FF10List().c_str(),id);
-	}
-	if ( meth == "ffglplugins" ) {
-		return jsonResult(FFGLList().c_str(),id);
-	}
-	if ( meth == "ffglpipeline" ) {
-		bool only_enabled = jsonNeedBool(params,"only_enabled",false);  // default is to list everything
-		return jsonResult(ppipeline->pipelineList(only_enabled).c_str(),id);
-	}
-	if ( meth == "ff10pipeline" ) {
-		bool only_enabled = jsonNeedBool(params,"only_enabled",false);  // default is to list everything
-		NosuchAssert(ppipeline);
-		return jsonResult(FF10PipelineList(pipenum,only_enabled).c_str(),id);
-	}
-	if ( meth == "ffglparamlist" ) {
-		return FFGLParamList(jsonNeedString(params,"plugin"),id);
-	}
-	if ( meth == "ff10paramlist" ) {
-		return FF10ParamList(jsonNeedString(params,"plugin"),id);
-	}
-	if ( meth == "ffglparamvals" ) {
-		// std::string viztag = jsonNeedString(params,"viztag","");
-		NosuchAssert(ppipeline);
-		FFGLPluginInstance* pi = ppipeline->find_plugin(viztag,true);   // throws an exception if it doesn't exist
-		std::string r = FFGLParamVals(pi);
-		return jsonResult(r,id);
-	}
-	if ( meth == "ff10paramvals" ) {
-		// std::string viztag = jsonNeedString(params,"viztag","");
-		NosuchAssert(ppipeline);
-		FF10PluginInstance* pi = FF10NeedPluginInstance(pipenum,viztag);   // throws an exception if it doesn't exist
-		std::string r = FF10ParamVals(pi);
-		return jsonResult(r,id);
-	}
-	if ( meth == "save_pipeline" ) {
-		std::string fname =  jsonNeedString(params,"name");
-		NosuchAssert(ppipeline);
-		return savePipeline(pipenum,fname,id);
-	}
-	if ( meth == "set_enablepipeline" ) {
-		NosuchAssert(ppipeline);
-		ppipeline->m_pipeline_enabled = jsonNeedBool(params, "onoff", true);
-		ppipeline->setEnableInput(ppipeline->m_pipeline_enabled);
-		return jsonOK(id);
-	}
-	if ( meth == "get_enablepipeline" ) {
-		NosuchAssert(ppipeline);
-		return jsonIntResult(ppipeline->m_pipeline_enabled, id);
-	}
 	if (meth == "get_pipeset") {
 		return jsonStringResult(m_pipesetname, id);
 	}
@@ -1988,8 +1536,191 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	if ( meth == "get_showfps" ) {
 		return jsonIntResult(m_showfps,id);
 	}
+
+	// Many of the methods below take pipenum, so grab it up front if it's there
+	int pipenum = jsonNeedInt(params, "pipenum", -1);
+
+	// viztags consist of a pipeline number and a unique (within the pipeline) vtag
+	std::string viztag = jsonNeedString(params, "viztag","");
+
+	// viztags are case-insensitive, always converted to lower case
+	viztag = NosuchToLower(viztag);
+
+	std::string vtag;
+	if (viztag != "") {
+		int pipenum2;
+		parseVizTag(viztag, pipenum2, vtag);
+		if (pipenum >= 0 && pipenum2 != pipenum) {
+			throw NosuchException("Inconsistency between pipenum and viztag parameters!?");
+		}
+		pipenum = pipenum2;
+	}
+
+	// At this point, if pipenum is -1, it means it wasn't specified,
+	// either in an explicit parameter or in a viztag value.
+
+	if (pipenum < 0) {
+		throw NosuchException("No pipenum parameter provided");
+	}
+	if (pipenum >= NPIPELINES) {
+		throw NosuchException("pipenum value is too large");
+	}
+
+	// ALL apis from here on down can assume that pipenum is >=0
+	// and that ppipeline is non-NULL
+
+	FFGLPipeline* ppipeline = &m_ffglpipeline[pipenum];
+
+	if (meth == "add" || meth == "ffgladd") {
+		std::string plugin = jsonNeedString(params, "plugin");
+		bool autoenable = jsonNeedBool(params, "autoenable", true);
+		bool moveable = jsonNeedBool(params, "moveable", true);
+		cJSON* pparams = jsonGetArray(params, "params");
+		FFGLPluginInstance* pi = ppipeline->addToPipeline(plugin, viztag, autoenable, pparams);
+		if (!pi) {
+			throw NosuchException("Unable to add plugin '%s'", plugin.c_str());
+		}
+		pi->setMoveable(moveable);
+		return jsonStringResult(viztag, id);
+	}
+
+	if (meth == "ffglenable" || meth == "enable" ) {
+		// std::string viztag = jsonNeedString(params, "viztag");
+		bool onoff = jsonNeedBool(params, "onoff");
+		FFGLPluginInstance* pi = ppipeline->find_plugin(viztag,true);   // throws an exception if it doesn't exist
+		pi->setEnable(onoff);
+		if (!onoff) {
+			pi->ProcessDisconnect();
+		} else {
+			pi->ProcessConnect();
+		}
+		return jsonOK(id);
+	}
+	if (meth == "ffglmoveable" ) {
+		// std::string viztag = jsonNeedString(params, "viztag");
+		bool onoff = jsonNeedBool(params, "onoff");
+		FFGLPluginInstance* pi = ppipeline->find_plugin(viztag,true);   // throws an exception if it doesn't exist
+		pi->setMoveable(onoff);
+		return jsonOK(id);
+	}
+	if (meth == "about") {
+		// std::string inst = jsonNeedString(params, "viztag");
+		FFGLPluginInstance* pgl = m_ffglpipeline[pipenum].find_plugin(viztag);
+		if (pgl != NULL) {
+			FFGLPluginDef* def = pgl->plugindef();
+			return jsonStringResult(def->GetExtendedInfo()->About, id);
+		}
+		throw NosuchException("No such viztag: %s",viztag.c_str());
+	}
+	if (meth == "description") {
+		// std::string viztag = jsonNeedString(params, "viztag");
+		FFGLPluginInstance* pgl = m_ffglpipeline[pipenum].find_plugin(viztag);
+		if (pgl != NULL) {
+			FFGLPluginDef* def = pgl->plugindef();
+			return jsonStringResult(def->GetExtendedInfo()->Description, id);
+		}
+		throw NosuchException("No such viztag: %s",viztag.c_str());
+	}
+	if ( meth == "delete" ) {
+		// It's okay if it doesn't exist
+		ppipeline->delete_plugin(viztag);
+		return jsonOK(id);
+	}
+	if ( meth == "moveplugin" ) {
+		// It's okay if it doesn't exist
+		int n = jsonNeedInt(params, "n", 1);
+		ppipeline->moveplugin(viztag,n);
+		return jsonOK(id);
+	}
+	if (meth == "shufflepipeline") {
+		ppipeline->shuffle();
+		return jsonOK(id);
+	}
+	if (meth == "randomizepipeline") {
+		ppipeline->randomize();
+		return jsonOK(id);
+	}
+	if ( meth == "clearpipeline" ) {
+		ppipeline->clear();
+		return jsonOK(id);
+	}
+	if (meth == "ffglparamset" || meth == "set") {
+
+		// std::string viztag = jsonNeedString(params, "viztag");
+		std::string param = jsonNeedString(params, "param");
+		cJSON *jv = cJSON_GetObjectItem(params, "val");
+
+		FFGLPluginInstance* pi = m_ffglpipeline[pipenum].find_plugin(viztag);
+		if (pi == NULL) {
+			throw NosuchException("Unable find find plugin with viztag='%s'", viztag.c_str());
+		}
+		if (jv == NULL) {
+			throw NosuchException("Missing 'val' parameter in ffglparamset call");
+		}
+		if (jv->type == cJSON_Number) {
+			float val = (float)jsonNeedDouble(params, "val");
+			if (!pi->setparam(param, val)) {
+				throw NosuchException("Unable to find or set parameter '%s' in viztag '%s'", param.c_str(), viztag.c_str());
+			}
+		}
+		else if (jv->type == cJSON_String) {
+			std::string val = jsonNeedString(params,"val");
+			if ( ! pi->setparam(param,val) ) {
+				throw NosuchException("Unable to find or set parameter '%s' in viztag '%s'",param.c_str(),viztag.c_str());
+			}
+		}
+		else {
+			throw NosuchException("Unable to handle jv->type=%d", jv->type);
+		}
+		return jsonOK(id);
+	}
+	if ( meth == "ffglparamget" || meth == "get" ) {
+		// std::string viztag = jsonNeedString(params,"viztag");
+		std::string param = jsonNeedString(params,"param");
+		FFGLPluginInstance* pi = m_ffglpipeline[pipenum].find_plugin(viztag);
+		FFGLParameterDef* pd = pi->plugindef()->findparamdef(param);
+		if ( pd == NULL ) {
+			throw NosuchException("No parameter '%s' in viztag '%s'",param.c_str(),viztag.c_str());
+		}
+		return pi->getParamJsonResult(pd, pi, id);
+	}
+	if ( meth == "ffglplugins" ) {
+		return jsonResult(FFGLList().c_str(),id);
+	}
+	if ( meth == "ffglpipeline" ) {
+		bool only_enabled = jsonNeedBool(params,"only_enabled",false);  // default is to list everything
+		return jsonResult(ppipeline->pipelineList(only_enabled).c_str(),id);
+	}
+	if ( meth == "ffglparamlist" ) {
+		return FFGLParamList(jsonNeedString(params,"plugin"),id);
+	}
+	if ( meth == "ffglparamvals" ) {
+		// std::string viztag = jsonNeedString(params,"viztag","");
+		FFGLPluginInstance* pi = ppipeline->find_plugin(viztag,true);   // throws an exception if it doesn't exist
+		std::string r = FFGLParamVals(pi);
+		return jsonResult(r,id);
+	}
+	if ( meth == "save_pipeline" ) {
+		std::string fname =  jsonNeedString(params,"name");
+		return savePipeline(pipenum,fname,id);
+	}
+	if ( meth == "set_enablepipeline" ) {
+		bool enabled = jsonNeedBool(params, "onoff", true);
+		m_pipeline_enabled[pipenum] = enabled;
+		ppipeline->setEnableInput(enabled);
+		return jsonOK(id);
+	}
+	if ( meth == "get_enablepipeline" ) {
+		return jsonIntResult(m_pipeline_enabled[pipenum], id);
+	}
+	if ( meth == "set_enablecamera" ) {
+		m_pipeline_camera_enabled[pipenum] = jsonNeedBool(params, "onoff", true);
+		return jsonOK(id);
+	}
+	if ( meth == "get_enablecamera" ) {
+		return jsonIntResult(m_pipeline_camera_enabled[pipenum], id);
+	}
 	if (meth == "pipelinename") {
-		NosuchAssert(ppipeline);
 		return jsonStringResult(ppipeline->m_name, id);
 	}
 	if (meth == "pipesetname") {
@@ -1997,22 +1728,18 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	}
 	if ( meth == "load_pipeline" ) {
 		std::string fname =  jsonNeedString(params,"name");
-		NosuchAssert(ppipeline);
 		// Keep the same sidmin/sidmax
 		std::string fpath = pipelinePath(fname);
 		ppipeline->load(ppipeline->m_piname, fname, fpath,
-				ppipeline->m_sidmin, ppipeline->m_sidmax,
-				ppipeline->m_pipeline_enabled);
-
+			ppipeline->m_sidmin, ppipeline->m_sidmax);
+		ppipeline->setEnableInput(m_pipeline_enabled[pipenum]);
 		return jsonOK(id);
 	}
 
 	if ( meth == "copy_sprite" ) {
-		NosuchAssert(ppipeline);
 		return copyFile(params, SpriteVizParamsPath, id);
 	}
 	if ( meth == "copy_midi" ) {
-		NosuchAssert(ppipeline);
 		return copyFile(params, MidiVizParamsPath, id);
 	}
 	if ( meth == "copy_pipeline" ) {
@@ -2022,7 +1749,6 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		return copyFile(params, pipesetPath, id);
 	}
 	if (meth == "get_sidrange") {
-		NosuchAssert(ppipeline);
 		std::string s = NosuchSnprintf("%d-%d", ppipeline->m_sidmin, ppipeline->m_sidmax);
 		return jsonStringResult(s, id);
 	}
@@ -2032,14 +1758,12 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		if (sscanf(range.c_str(), "%d-%d", &sidmin, &sidmax) != 2) {
 			return jsonError(-32000,"Bad format of sidrange value",id);
 		}
-		NosuchAssert(ppipeline);
 		// ppipeline->m_sidmin = sidmin;
 		// ppipeline->m_sidmax = sidmax;
 		ppipeline->setSidrange(sidmin,sidmax);
 		return jsonOK(id);
 	}
 	if (meth == "get_spriteparams") {
-		NosuchAssert(ppipeline);
 		return jsonStringResult(ppipeline->m_spriteparams, id);
 	}
 	if (meth == "set_spriteparams") {

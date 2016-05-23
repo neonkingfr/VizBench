@@ -6,7 +6,10 @@
 class FFGLPipeline {
 public:
 	FFGLPipeline() {
+#if 0
 		m_pipeline_enabled = false;
+		m_camera_enabled = false;
+#endif
 		m_sidmin = 0;
 		m_sidmax = MAX_SESSIONID;
 		m_vizserver = VizServer::GetServer();
@@ -184,9 +187,11 @@ public:
 		return np;
 	}
 
+#if 0
 	bool isEnabled() {
 		return m_pipeline_enabled;
 	}
+#endif
 
 	std::string pipelineList(bool only_enabled) {
 		std::string r = "[";
@@ -248,13 +253,13 @@ public:
 			DEBUGPRINT(("Pipeline file %s was updated!  Reloading!", m_filepath.c_str()));
 
 			// Keep the same sidmin/sidmax and other values
-			load(m_piname, m_name, m_filepath,
-				m_sidmin, m_sidmax,
-				m_pipeline_enabled);
+			load(m_piname, m_name, m_filepath, m_sidmin, m_sidmax);
 		}
 	}
 
-	void load(std::string piname, std::string name, std::string fpath, int sidmin, int sidmax, bool enabled) {
+	void load(std::string piname, std::string name, std::string fpath,
+				int sidmin, int sidmax) {
+
 		std::string current_name = m_name;
 
 		DEBUGPRINT(("Pipeline.load name=%s", name.c_str(), fpath.c_str()));
@@ -291,8 +296,11 @@ public:
 		m_file_lastcheck = statbuff.st_mtime;
 		setSidrange(sidmin, sidmax);
 
-		m_pipeline_enabled = enabled;
-		setEnableInput(enabled);
+		// m_pipeline_enabled = enabled;
+		// m_camera_enabled = camera_enabled;
+		// setEnableInput(enabled);
+
+		DEBUGPRINT(("Is input being enabled in the pipeline???"));
 	}
 
 	void loadJson(std::string piname, std::string name, cJSON* json) {
@@ -373,7 +381,9 @@ public:
 
 	VizServer* m_vizserver;
 	FFGLPluginList m_pluginlist;
-	bool m_pipeline_enabled;
+
+	// bool m_pipeline_enabled;
+	// bool m_camera_enabled;
 
 	std::string m_piname;
 	std::string m_name;

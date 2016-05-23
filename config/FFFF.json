@@ -46,6 +46,8 @@
 # The camera value is the index given to cvCreateCameraCapture.
 # A value of -1 disables the camera input.
   "camera": -1,
+  "camera_flipx": 1,
+  "camera_flipy": 1,
 
   "foo": 0  # silly, make sure the last entry doesn't have a comma
 }

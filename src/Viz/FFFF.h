@@ -86,25 +86,8 @@ public:
 	std::string			FFGLParamList(std::string nm, const char* id);
 
 	std::string savePipeline(int pipenum, std::string nm, const char* id);
-	void clearPipeline(int pipenum);
 
-	void doPipeline(int pipenum, int width, int height);
-
-	///////////////////////// FF10 stuff
-
-	std::string FF10List();
-	std::string FF10PipelineList(int pipenum, bool only_enabled);
-	std::string FF10ParamVals(FF10PluginInstance* pi, std::string linebreak);
-	std::string FF10ParamInfo(std::string plugin, std::string param, const char* id);
-
-	bool doCameraAndFF10Pipeline(int pipenum, GLuint texturehandle);
-
-	FF10PluginInstance* FF10NewPluginInstance(FF10PluginDef* plugin, std::string viztag);
-	FF10PluginInstance* FF10FindPluginInstance(int pipenum, std::string viztag);
-	FF10PluginInstance* FF10NeedPluginInstance(int pipenum, std::string viztag);
-	std::string			FF10ParamList(std::string nm, const char* id);
-	FF10PluginInstance* FF10AddToPipeline(int pipenum, std::string pluginName, std::string viztag, bool autoenable, cJSON* params);
-	void				FF10DeleteFromPipeline(int pipenum, std::string viztag);
+	bool paintInitialTexture(IplImage* camframe, GLuint texturehandle, bool flipx, bool flipy);
 
 	void loadAllPluginDefs();
 
@@ -118,7 +101,7 @@ public:
 	void drawWindowFinish();
 	void drawPrefixFinish();
 	void drawWindowPipelines();
-	void drawPrefixPipelines();
+	void drawPreviewPipelines();
 	// void setWidthHeight(int w, int h) { _width = w; _height = h; }
 	IplImage* getCameraFrame();
 	void sendSpout();
@@ -149,8 +132,10 @@ private:
 
 	bool m_use_camera;
 	int m_camera_index;
-	IplImage* m_img1;
-	IplImage* m_img2;
+	bool m_camera_flipx;
+	bool m_camera_flipy;
+	IplImage* m_camera_image_raw;
+	IplImage* m_camera_image_flipped;
 	IplImage* m_img_into_pipeline;
 	CvCapture* m_capture;
 	bool m_showfps;
@@ -190,7 +175,6 @@ private:
 	int m_camHeight;
 
     std::string m_ffglpath;
-    std::string m_ff10path;
 
 	std::string m_pipesetname;
 	std::string m_pipesetpath;
@@ -198,7 +182,9 @@ private:
 #define NPIPELINES 4
 
 	FFGLPipeline m_ffglpipeline[NPIPELINES];
-	FF10Pipeline m_ff10pipeline[NPIPELINES];
+	bool m_pipeline_enabled[NPIPELINES];
+	bool m_pipeline_camera_enabled[NPIPELINES];
+
 	bool m_autoload;
 	bool m_autosave;
 
@@ -207,7 +193,6 @@ private:
 #endif
 };
 
-void loadff10path(std::string ffpath);
 void loadffglpath(std::string ffglpath);
 
 #endif

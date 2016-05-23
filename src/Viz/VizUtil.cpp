@@ -48,19 +48,13 @@
 
 #include "VizUtil.h"
 
-#include "FF10Plugin.h"
-
 #include <sys/types.h>
 #include <sys/stat.h>
 
 double curFrameTime = 0.0;
 
-int nff10plugindefs;
-FF10PluginDef *ff10plugindefs[MAXPLUGINS];
 int nffglplugindefs;
 FFGLPluginDef *ffglplugindefs[MAXPLUGINS];
-
-// FF10PluginDef *preplugins[NPREPLUGINS];
 
 int	ffWidth;
 int	ffHeight;
@@ -86,16 +80,6 @@ CopyFFString16(const char *src)
 	}
     buff[16] = 0;
     return std::string(buff);
-}
-
-FF10PluginDef *
-findff10plugindef(std::string nm) {
-    for ( int n=0; n<nff10plugindefs; n++ ) {
-        if ( ff10plugindefs[n]->name == nm ) {
-            return ff10plugindefs[n];
-        }
-    }
-    return NULL;
 }
 
 FFGLPluginDef *

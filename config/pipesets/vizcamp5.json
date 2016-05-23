@@ -3,21 +3,25 @@
 	{
 		"pipeline": "vizcamp5_0",
 		"enabled": 1,
+		"camera_enabled": 0,
 		"sidrange": "11000-11999"
 	},
 	{
 		"pipeline": "vizcamp5_1",
 		"enabled": 1,
+		"camera_enabled": 0,
 		"sidrange": "12000-12999"
 	},
 	{
 		"pipeline": "vizcamp5_2",
 		"enabled": 1,
+		"camera_enabled": 0,
 		"sidrange": "13000-13999"
 	},
 	{
 		"pipeline": "vizcamp5_3",
 		"enabled": 1,
+		"camera_enabled": 0,
 		"sidrange": "14000-14999"
 	}
 	]
