@@ -6,10 +6,6 @@
 class FFGLPipeline {
 public:
 	FFGLPipeline() {
-#if 0
-		m_pipeline_enabled = false;
-		m_camera_enabled = false;
-#endif
 		m_sidmin = 0;
 		m_sidmax = MAX_SESSIONID;
 		m_vizserver = VizServer::GetServer();
@@ -187,13 +183,7 @@ public:
 		return np;
 	}
 
-#if 0
-	bool isEnabled() {
-		return m_pipeline_enabled;
-	}
-#endif
-
-	std::string pipelineList(bool only_enabled) {
+	std::string pipelineList(bool only_list_enabled_plugins) {
 		std::string r = "[";
 		std::string sep = "";
 
@@ -207,7 +197,7 @@ public:
 				isviz = std::string(" \"vizlet\": ") + (isvizlet ? "1" : "0") + ", ";
 			}
 			bool enabled = p->isEnabled();
-			if (only_enabled == false || enabled == true) {
+			if (only_list_enabled_plugins == false || enabled == true) {
 				r += (sep + "{ \"plugin\":\"" + p->plugindef()->GetPluginName() + "\","
 					+ " \"viztag\":\"" + p->viztag() + "\", "
 					+ isviz
@@ -252,13 +242,12 @@ public:
 
 			DEBUGPRINT(("Pipeline file %s was updated!  Reloading!", m_filepath.c_str()));
 
-			// Keep the same sidmin/sidmax and other values
-			load(m_piname, m_name, m_filepath, m_sidmin, m_sidmax);
+			load(m_piname, m_name, m_filepath);
+			// Note: sidmin/sidmax remain unchanged
 		}
 	}
 
-	void load(std::string piname, std::string name, std::string fpath,
-				int sidmin, int sidmax) {
+	void load(std::string piname, std::string name, std::string fpath) {
 
 		std::string current_name = m_name;
 
@@ -294,13 +283,7 @@ public:
 		m_filepath = fpath;
 		m_file_lastupdate = statbuff.st_mtime;
 		m_file_lastcheck = statbuff.st_mtime;
-		setSidrange(sidmin, sidmax);
-
-		// m_pipeline_enabled = enabled;
-		// m_camera_enabled = camera_enabled;
-		// setEnableInput(enabled);
-
-		DEBUGPRINT(("Is input being enabled in the pipeline???"));
+		// setSidrange(sidmin, sidmax);
 	}
 
 	void loadJson(std::string piname, std::string name, cJSON* json) {
@@ -381,9 +364,6 @@ public:
 
 	VizServer* m_vizserver;
 	FFGLPluginList m_pluginlist;
-
-	// bool m_pipeline_enabled;
-	// bool m_camera_enabled;
 
 	std::string m_piname;
 	std::string m_name;

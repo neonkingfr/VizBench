@@ -38,8 +38,6 @@
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "glu32.lib")
 
-#include <GLFW/glfw3.h>
-
 #include "NosuchDebug.h"
 #include "NosuchUtil.h"
 

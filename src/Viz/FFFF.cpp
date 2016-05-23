@@ -108,7 +108,7 @@ FFFF::FFFF() {
 	m_camera_image_flipped = NULL;
 	m_img_into_pipeline = NULL;
 	m_record = false;
-	m_capture = NULL;
+	m_camera_capture = NULL;
 	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
 		m_ffglpipeline[pipenum].clear();
 		m_pipeline_enabled[pipenum] = false;
@@ -242,24 +242,37 @@ FFFF::CreateWindows() {
 
 }
 
-void FFFF::drawWindowPipelines() {
-	// MAIN WINDOW
+void FFFF::computePipelineTextures() {
+
+	// yes, this is needed, some scaling (if nothing else) is
+	// done in the main window.
 	glfwMakeContextCurrent(window);
-	// glfwGetFramebufferSize(window, &width, &height);
+
+	// We only want to capture the camera frame once
+	IplImage* shared_camframe = NULL;
 
 	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
 		FFGLPipeline& pipeline = m_ffglpipeline[pipenum];
 		if (m_pipeline_enabled[pipenum]) {
-			if (m_pipeline_camera_enabled[pipenum]) {
-				IplImage* camframe = getCameraFrame();
-				paintInitialTexture(camframe,mapTexture.Handle,m_camera_flipx,m_camera_flipy);
+			IplImage* this_camframe = NULL;
+			if (m_camera_capture != NULL && m_pipeline_camera_enabled[pipenum]) {
+				if (shared_camframe == NULL) {
+					// Only do it once, shared by all pipelines
+					shared_camframe = cvQueryFrame(m_camera_capture);
+				}
+				this_camframe = shared_camframe;
 			}
-			else {
-
-			}
+			paintInitialTexture(this_camframe,mapTexture.Handle,m_camera_flipx,m_camera_flipy);
 			pipeline.doPipeline(m_window_width, m_window_height);
 		}
 	}
+}
+
+void FFFF::drawWindowPipelines() {
+
+	// MAIN WINDOW
+	glfwMakeContextCurrent(window);
+
 	glClearColor(0, 0, 0, 0);
 	glClearDepth(1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -319,7 +332,7 @@ FFFF::drawPreviewPipelines() {
 }
 
 void
-FFFF::drawPrefixFinish() {
+FFFF::drawPreviewFinish() {
 
 #if 0
 	// Draw a rectangle just to show that we're alive.
@@ -392,11 +405,13 @@ FFFF::RunStuff() {
 
 		if (hidden == false) {
 
+			computePipelineTextures();
+
 			drawWindowPipelines();
 			drawWindowFinish();
 
 			drawPreviewPipelines();
-			drawPrefixFinish();
+			drawPreviewFinish();
 		}
 
 		glfwPollEvents();
@@ -555,40 +570,28 @@ std::string FFFF::executeJsonAndCatchExceptions(const std::string meth, cJSON *p
 	return r;
 }
 
-IplImage*
-FFFF::getCameraFrame()
-{
-	if ( m_capture == NULL ) {
-		return NULL;
-	}
-	return cvQueryFrame(m_capture);
-}
-
 void
 FFFF::InitCamera() {
 
-	m_use_camera = FALSE;
 	if (m_camera_index < 0) {
 		DEBUGPRINT(("Camera is disabled (camera < 0)"));
-		m_capture = NULL;
+		m_camera_capture = NULL;
 		return;
 	}
 
-	m_capture = cvCreateCameraCapture(m_camera_index);
-	if ( !m_capture ) {
+	m_camera_capture = cvCreateCameraCapture(m_camera_index);
+	if ( !m_camera_capture ) {
 	    DEBUGPRINT(("Unable to initialize capture from camera index=%d\n",m_camera_index));
 		return;
 	}
 
-	m_use_camera = TRUE;
-
 	DEBUGPRINT(("CAMERA detail FPS=%f wid=%f hgt=%f msec=%f ratio=%f fourcc=%f",
-		cvGetCaptureProperty(m_capture,CV_CAP_PROP_FPS),
-		cvGetCaptureProperty(m_capture,CV_CAP_PROP_FRAME_WIDTH),
-		cvGetCaptureProperty(m_capture,CV_CAP_PROP_FRAME_HEIGHT),
-		cvGetCaptureProperty(m_capture,CV_CAP_PROP_POS_MSEC),
-		cvGetCaptureProperty(m_capture,CV_CAP_PROP_POS_AVI_RATIO),
-		cvGetCaptureProperty(m_capture,CV_CAP_PROP_FOURCC)));
+		cvGetCaptureProperty(m_camera_capture,CV_CAP_PROP_FPS),
+		cvGetCaptureProperty(m_camera_capture,CV_CAP_PROP_FRAME_WIDTH),
+		cvGetCaptureProperty(m_camera_capture,CV_CAP_PROP_FRAME_HEIGHT),
+		cvGetCaptureProperty(m_camera_capture,CV_CAP_PROP_POS_MSEC),
+		cvGetCaptureProperty(m_camera_capture,CV_CAP_PROP_POS_AVI_RATIO),
+		cvGetCaptureProperty(m_camera_capture,CV_CAP_PROP_FOURCC)));
 
 	// This code is an attempt to figure out when the camera is way too slow - on
 	// my laptop, for example, if you try to use camera index 1 (when there's only
@@ -598,13 +601,13 @@ FFFF::InitCamera() {
 	// quickly, but if not, this will cause a 2-second delay and
 	// then the camera will be disabled and we'll continue on.
 	double t1 = glfwGetTime();
-	IplImage* cami = cvQueryFrame(m_capture);
+	IplImage* cami = cvQueryFrame(m_camera_capture);
 	double t2 = glfwGetTime();
-	cami = cvQueryFrame(m_capture);
+	cami = cvQueryFrame(m_camera_capture);
 	double t3 = glfwGetTime();
 	if ( (t2-t1) > 0.75 && (t3-t2) > 0.75 ) {
-		cvReleaseCapture(&m_capture);
-		m_capture = NULL;
+		cvReleaseCapture(&m_camera_capture);
+		m_camera_capture = NULL;
 		DEBUGPRINT(("Getting Camera Frames is too slow!  Disabling camera! (times=%lf %lf %lf",t1,t2,t3));
 		return;
 	}
@@ -613,8 +616,8 @@ FFFF::InitCamera() {
 #define CV_CAP_PROP_FRAME_HEIGHT   4
 
     /* retrieve or set capture properties */
-    double fwidth = cvGetCaptureProperty( m_capture, CV_CAP_PROP_FRAME_WIDTH );
-    double fheight = cvGetCaptureProperty( m_capture, CV_CAP_PROP_FRAME_HEIGHT );
+    double fwidth = cvGetCaptureProperty( m_camera_capture, CV_CAP_PROP_FRAME_WIDTH );
+    double fheight = cvGetCaptureProperty( m_camera_capture, CV_CAP_PROP_FRAME_HEIGHT );
 
     m_camWidth = (int)fwidth;
     m_camHeight = (int)fheight;
@@ -1302,11 +1305,12 @@ FFFF::loadPipesetJson(cJSON* json)
 		// The default instance name of a pipe is the pipenum
 		std::string piname = NosuchSnprintf("%d", pipenum);
 
-		pipeline.load(piname, name, fpath, sidmin, sidmax);
+		pipeline.load(piname, name, fpath);
 
 		m_pipeline_enabled[pipenum] = enabled;
 		m_pipeline_camera_enabled[pipenum] = camera_enabled;
 
+		pipeline.setSidrange(sidmin, sidmax);
 		pipeline.setEnableInput(enabled);
 	}
 }
@@ -1730,9 +1734,12 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		std::string fname =  jsonNeedString(params,"name");
 		// Keep the same sidmin/sidmax
 		std::string fpath = pipelinePath(fname);
-		ppipeline->load(ppipeline->m_piname, fname, fpath,
-			ppipeline->m_sidmin, ppipeline->m_sidmax);
+		ppipeline->load(ppipeline->m_piname, fname, fpath);
+#if 0
+		ppipeline->setSidrange(sidmin, sidmax);
 		ppipeline->setEnableInput(m_pipeline_enabled[pipenum]);
+#endif
+
 		return jsonOK(id);
 	}
 

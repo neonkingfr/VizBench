@@ -98,12 +98,11 @@ public:
 	std::string copyFile(cJSON *params, PathGenerator pathgen, const char* id);
 
 	void CreateWindows();
+	void computePipelineTextures();
 	void drawWindowFinish();
-	void drawPrefixFinish();
+	void drawPreviewFinish();
 	void drawWindowPipelines();
 	void drawPreviewPipelines();
-	// void setWidthHeight(int w, int h) { _width = w; _height = h; }
-	IplImage* getCameraFrame();
 	void sendSpout();
 	void CheckFPS();
 	void CheckAutoload();
@@ -130,14 +129,13 @@ public:
 private:
 	static VizServer* m_vizserver;
 
-	bool m_use_camera;
 	int m_camera_index;
 	bool m_camera_flipx;
 	bool m_camera_flipy;
 	IplImage* m_camera_image_raw;
 	IplImage* m_camera_image_flipped;
 	IplImage* m_img_into_pipeline;
-	CvCapture* m_capture;
+	CvCapture* m_camera_capture;
 	bool m_showfps;
 	bool m_record;
 	AudioHost* m_audiohost;
