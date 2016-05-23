@@ -97,7 +97,10 @@ public:
 	}
 	void setViztag(const char* viztag) {
 		if (m_viztag != NULL) {
-			DEBUGPRINT(("Should be freeing m_viztag = %s",m_viztag));
+			DEBUGPRINT1(("Freeing m_viztag = %s",m_viztag));
+			// There used to be a crash here, usually due to
+			// to some cross VizServer API confusion/bug with std::string memory
+			free((void*)m_viztag);
 		}
 		m_viztag = _strdup(viztag);
 		for (char* s = m_viztag; *s; s++) {
@@ -170,7 +173,7 @@ public:
 		// this->clear();
 	}
 	void addcallback(void* handle, const char* apiprefix, void* cb, void* data) {
-		DEBUGPRINT(("VizServerApiCallbackMap addcallback handle=%ld prefix=%s", (long)handle, apiprefix));
+		DEBUGPRINT1(("VizServerApiCallbackMap addcallback handle=%ld prefix=%s", (long)handle, apiprefix));
 		if (count(handle) > 0) {
 			if (strcmp((*this)[handle]->m_viztag, apiprefix) != 0) {
 				DEBUGPRINT(("Hey! VizServerApiCallbackMap::addcallback finds existing callback for handle=%ld with different prefix=%s", (long)handle, apiprefix));
@@ -1818,9 +1821,6 @@ VizCursor::VizCursor(VizServer* ss, int sid_, std::string source_, int cursorid_
 	curr_speed = 0;
 	curr_degrees = 0;
 	m_target_depth = 0;
-	m_last_depth = 0;
-	m_last_channel = 0;
-	m_last_click = 0;
 	m_last_tm = 0;
 	m_target_degrees = 0;
 	m_g_firstdir = true;

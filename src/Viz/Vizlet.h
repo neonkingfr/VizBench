@@ -3,6 +3,9 @@
 
 #define VIZLET
 
+#include <set>
+#include <ctime>
+
 #include "FFGL.h"
 #include "FFGLPluginSDK.h"
 
@@ -12,15 +15,16 @@
 #include "NosuchOscInput.h"
 #include "NosuchColor.h"
 #include "NosuchJSON.h"
+#include "NosuchMidi.h"
 #include "NosuchHttpServer.h"
 
 #include "VizParams.h"
 #include "SpriteVizParams.h"
 #include "MidiVizParams.h"
 
+#include "CursorBehaviour.h"
 #include "VizSprite.h"
 #include "VizServer.h"
-#include <ctime>
 
 class Vizlet;
 class VizletHttpServer;
@@ -32,6 +36,8 @@ struct OutlineMem;
 
 #define MAGIC_VAL_FOR_OVERRIDE_PARAMS -2
 #define MAGIC_VAL_FOR_PALETTE_PARAMS -1
+
+std::string dll_pathname();
 
 class Vizlet : public NosuchOscListener,
 					public NosuchJsonListener,
@@ -61,7 +67,8 @@ public:
 
 	void SetPassthru(bool b) { m_passthru = b; }
 
-	VizServer* vizserver() { return m_vizserver; }
+	VizServer* vizserver() { return m_vizserver; };
+	CursorBehaviour* getCursorBehaviour();
 	void StartVizServer();
 	void InitCallbacks();
 	void ChangeVizTag(const char* newtag);
@@ -278,8 +285,9 @@ private:
 
 #define DISPLEN 128
 	char m_disp[DISPLEN];
+
+	CursorBehaviour* m_cursorbehaviour;
 };
 
-std::string dll_pathname();
 
 #endif

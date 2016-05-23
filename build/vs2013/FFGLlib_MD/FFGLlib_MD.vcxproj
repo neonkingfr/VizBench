@@ -220,6 +220,7 @@
     <ClCompile Include="..\..\..\src\params\MidiVizParams.cpp" />
     <ClCompile Include="..\..\..\src\params\SpriteVizParams.cpp" />
     <ClCompile Include="..\..\..\src\params\VizParams.cpp" />
+    <ClCompile Include="..\..\..\src\Viz\CursorBehaviour.cpp" />
     <ClCompile Include="..\..\..\src\Viz\Vizlet.cpp" />
     <ClCompile Include="..\..\..\src\Viz\vizletutil.cpp" />
     <ClCompile Include="..\..\..\src\Viz\VizSprite.cpp" />
@@ -260,6 +261,7 @@
     <ClInclude Include="..\..\..\src\params\MidiVizParams.h" />
     <ClInclude Include="..\..\..\src\params\SpriteVizParams.h" />
     <ClInclude Include="..\..\..\src\params\VizParams.h" />
+    <ClInclude Include="..\..\..\src\Viz\CursorBehaviour.h" />
     <ClInclude Include="..\..\..\src\Viz\Vizlet.h" />
     <ClInclude Include="..\..\..\src\Viz\vizletutil.h" />
     <ClInclude Include="..\..\..\src\Viz\VizServer.h" />

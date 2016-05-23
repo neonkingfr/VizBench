@@ -5,6 +5,8 @@
 #include "NosuchScheduler.h"
 #include "NosuchException.h"
 
+#define MAX_MIDI_PORTS 64
+
 #define MIDI_CLOCK      0xf8
 #define MIDI_ACTIVE     0xfe
 #define MIDI_STATUS_MASK 0x80

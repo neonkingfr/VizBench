@@ -17,6 +17,7 @@ public:
 	FFGLPluginInstance* FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string viztag);
 	void paintTexture();
 	void setSidrange(int sidmin, int sidmax);
+	void setSpriteParams(std::string name);
 	void applyAllPlugins(std::string meth, cJSON* params);
 	void setEnableInput(bool onoff);
 
@@ -215,10 +216,7 @@ public:
 		// Are we locked, here?
 		m_name = "";
 		clearPluginlist();
-		if (m_piname == "") {
-			DEBUGPRINT(("No m_piname in pipeline.clear()!?"));
-		}
-		else {
+		if (m_piname != "") {
 			m_vizserver->ClearJsonCallbacksWithPrefix(m_piname);
 		}
 	}

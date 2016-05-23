@@ -109,10 +109,6 @@ public:
 	double target_depth() { return m_target_depth; }
 	void set_target_depth(double d) { m_target_depth = d; }
 
-	NosuchPos previous_musicpos() { return _previous_musicpos; }
-	double last_depth() { return m_last_depth; }
-	void set_previous_musicpos(NosuchPos p) { _previous_musicpos = p; }
-	void set_last_depth(double f) { m_last_depth = f; }
 	void advanceTo(double tm);
 
 	double radian2degree(double r) {
@@ -120,13 +116,9 @@ public:
 	}
 
 	std::vector<int>& lastpitches() { return m_last_pitches; }
-	int lastchannel() { return m_last_channel; }
-	int lastclick() { return m_last_click; }
 
 	void add_last_note(int clk, MidiMsg* m) {
 		// NosuchDebug(2,"ADD_LAST_NOTE clk=%d m=%s",clk,m->DebugString().c_str());
-		m_last_click = clk;
-		m_last_channel = m->Channel();
 		m_last_pitches.push_back(m->Pitch());
 	}
 	int last_pitch() {
@@ -137,8 +129,6 @@ public:
 	}
 	void clear_last_note() {
 		NosuchDebug(2,"CLEAR_LAST_NOTE!");
-		m_last_click = -1;
-		m_last_channel = -1;
 		m_last_pitches.clear();
 	}
 
@@ -164,14 +154,11 @@ public:
 
 private:
 	double m_target_depth;
-	double m_last_depth;
 	std::vector<int> m_last_pitches;
-	int m_last_channel;
-	int m_last_click;
 	NosuchPos _previous_musicpos;
-	double m_last_tm;
 	NosuchPos m_last_pos;
 	double m_target_degrees;
+	double m_last_tm;
 	bool m_g_firstdir;
 	double m_smooth_degrees_factor;
 

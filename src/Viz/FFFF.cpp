@@ -781,6 +781,16 @@ FFGLPipeline::setEnableInput(bool onoff) {
 }
 
 void
+FFGLPipeline::setSpriteParams(std::string name) {
+	std::string jsonstr = NosuchSnprintf("{ \"name\": \"%s\" }", name.c_str());
+	cJSON* params = cJSON_Parse(jsonstr.c_str());
+	if (!params) {
+		throw NosuchException("Internal error in parsing sidrange json!?");
+	}
+	applyAllPlugins("set_spriteparams", params);
+}
+
+void
 FFGLPipeline::setSidrange(int sidmin, int sidmax) {
 	m_sidmin = sidmin;
 	m_sidmax = sidmax;

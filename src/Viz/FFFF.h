@@ -177,11 +177,14 @@ private:
 	std::string m_pipesetname;
 	std::string m_pipesetpath;
 
+	// At some point, a Pipeset class would be nice
 #define NPIPELINES 4
 
 	FFGLPipeline m_ffglpipeline[NPIPELINES];
 	bool m_pipeline_enabled[NPIPELINES];
 	bool m_pipeline_camera_enabled[NPIPELINES];
+	std::string m_pipeline_spriteparams[NPIPELINES];
+	std::string m_pipeline_midiparams[NPIPELINES];
 
 	bool m_autoload;
 	bool m_autosave;

@@ -42,6 +42,7 @@
 #include "Vizlet.h"
 #include "Vizletutil.h"
 #include "NosuchJSON.h"
+#include "CursorBehaviour.h"
 
 #include "FFGLLib.h"
 #include "osc/OscOutboundPacketStream.h"
@@ -118,7 +119,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserv
 
 Vizlet::Vizlet() {
 
-	DEBUGPRINT(("=== Vizlet constructor, dll_pathname=%s", dll_pathname().c_str()));
+	DEBUGPRINT1(("=== Vizlet constructor, dll_pathname=%s", dll_pathname().c_str()));
 
 	VizParams::Initialize();
 
@@ -195,6 +196,12 @@ Vizlet::Vizlet() {
 	// and eventually sets the viztag to a unique value for the plugin, allowing it to be
 	// called from the outside.
 	SetParamInfo(0, "viztag", FF_TYPE_TEXT, m_viztag);
+
+	m_cursorbehaviour = new CursorBehaviour(this);
+}
+
+CursorBehaviour* Vizlet::getCursorBehaviour() {
+	return m_cursorbehaviour;
 }
 
 Vizlet::~Vizlet()

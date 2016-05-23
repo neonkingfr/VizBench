@@ -2,7 +2,7 @@
 "pipeset": [
 	{
 		"pipeline": "vizcamp4_0",
-		"enabled": 0,
+		"enabled": 1,
 		"camera_enabled": 0,
 		"sidrange": "11000-11999"
 	},
@@ -14,13 +14,13 @@
 	},
 	{
 		"pipeline": "vizcamp4_2",
-		"enabled": 0,
+		"enabled": 1,
 		"camera_enabled": 0,
 		"sidrange": "13000-13999"
 	},
 	{
 		"pipeline": "vizcamp4_3",
-		"enabled": 0,
+		"enabled": 1,
 		"camera_enabled": 0,
 		"sidrange": "14000-14999"
 	}
