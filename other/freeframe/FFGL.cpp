@@ -261,9 +261,14 @@ DWORD instantiateGL(const FFGLViewportStruct *pGLViewport)
 
 	// Initializing instance with default values
 	int nparams = s_pPrototype->GetNumParams();
+	DEBUGPRINT(("Initializing default values"));
 	for (int i = 0; i < nparams; ++i) {
 		//DWORD dwType = s_pPrototype->GetParamType(DWORD(i));
 		void* pValue = s_pPrototype->GetParamDefault(DWORD(i));
+		if (pValue == NULL) {
+			DEBUGPRINT(("Unable to GetParamDefault on i=%d nm=%s", i, s_pPrototype->GetParamName(DWORD(i))));
+			continue;
+		}
 		SetParameterStruct ParamStruct;
 		ParamStruct.ParameterNumber = DWORD(i);
 		memcpy(&ParamStruct.u.NewParameterValue, pValue, 4);

@@ -1,26 +1,26 @@
 {
 "pipeset": [
 	{
-		"pipeline": "vizcamp3_0",
+		"pipeline": "patch_4",
 		"enabled": 1,
 		"camera_enabled": 0,
 		"sidrange": "11000-11999"
 	},
 	{
-		"pipeline": "vizcamp3_1",
-		"enabled": 1,
+		"pipeline": "unilooper",
+		"enabled": 0,
 		"camera_enabled": 0,
 		"sidrange": "12000-12999"
 	},
 	{
-		"pipeline": "vizcamp3_2",
-		"enabled": 1,
+		"pipeline": "unilooper",
+		"enabled": 0,
 		"camera_enabled": 0,
 		"sidrange": "13000-13999"
 	},
 	{
-		"pipeline": "vizcamp3_3",
-		"enabled": 1,
+		"pipeline": "unilooper",
+		"enabled": 0,
 		"camera_enabled": 0,
 		"sidrange": "14000-14999"
 	}

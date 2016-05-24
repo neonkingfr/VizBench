@@ -1,25 +1,25 @@
 {
 "pipeset": [
 	{
-		"pipeline": "vizcamp3_0",
+		"pipeline": "empty.json",
 		"enabled": 1,
 		"camera_enabled": 0,
 		"sidrange": "11000-11999"
 	},
 	{
-		"pipeline": "vizcamp3_1",
+		"pipeline": "empty.json",
 		"enabled": 1,
 		"camera_enabled": 0,
 		"sidrange": "12000-12999"
 	},
 	{
-		"pipeline": "vizcamp3_2",
+		"pipeline": "empty.json",
 		"enabled": 1,
 		"camera_enabled": 0,
 		"sidrange": "13000-13999"
 	},
 	{
-		"pipeline": "vizcamp3_3",
+		"pipeline": "empty.json",
 		"enabled": 1,
 		"camera_enabled": 0,
 		"sidrange": "14000-14999"

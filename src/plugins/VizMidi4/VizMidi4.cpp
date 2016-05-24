@@ -128,6 +128,14 @@ std::string VizMidi4::processJson(std::string meth, cJSON *json, const char *id)
 		return jsonStringResult(dump,id);
 	}
 
+	CursorBehaviour* cb = getCursorBehaviour();
+	if (meth == "set_sidrange") {
+		return cb->_set_sidrange(json, id);
+	}
+	if (meth == "get_sidrange") {
+		return jsonStringResult(NosuchSnprintf("%d-%d", cb->sid_min, cb->sid_max), id);
+	}
+
 	if (meth == "set_channel_A") { m_sprite_on[0].channel = jsonNeedInt(json, "channel"); return jsonOK(id); }
 	if (meth == "get_channel_A") { return jsonIntResult(m_sprite_on[0].channel,id); }
 	if (meth == "set_channel_B") { m_sprite_on[1].channel = jsonNeedInt(json, "channel"); return jsonOK(id); }
@@ -137,7 +145,9 @@ std::string VizMidi4::processJson(std::string meth, cJSON *json, const char *id)
 	if (meth == "set_channel_D") { m_sprite_on[3].channel = jsonNeedInt(json, "channel"); return jsonOK(id); }
 	if (meth == "get_channel_D") { return jsonIntResult(m_sprite_on[3].channel,id); }
 
-	if (meth == "set_sprite_on_A") { return _set_params_on(0, json,id); }
+	if (meth == "set_sprite_on_A") {
+		return _set_params_on(0, json,id);
+	}
 	if (meth == "get_sprite_on_A") { return jsonStringResult(m_sprite_on[0].paramsfname, id); }
 	if (meth == "set_sprite_on_B") { return _set_params_on(1, json,id); }
 	if (meth == "get_sprite_on_B") { return jsonStringResult(m_sprite_on[1].paramsfname, id); }

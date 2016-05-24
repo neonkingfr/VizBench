@@ -1740,7 +1740,8 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	if (meth == "pipesetname") {
 		return jsonStringResult(m_pipesetname, id);
 	}
-	if ( meth == "load_pipeline" ) {
+	// The loadpipeline alias is for compatibility with unilooper
+	if ( meth == "load_pipeline" || meth == "loadpipeline") {
 		std::string fname =  jsonNeedString(params,"name");
 		// Keep the same sidmin/sidmax
 		std::string fpath = pipelinePath(fname);
