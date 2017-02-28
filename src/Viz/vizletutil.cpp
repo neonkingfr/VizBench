@@ -29,8 +29,8 @@
 #include <cctype>
 #include <algorithm>
 
-#include "NosuchDebug.h"
-#include "NosuchUtil.h"
+#include "VizDebug.h"
+#include "VizUtil.h"
 #include "vizletutil.h"
 
 #include <sys/types.h>
@@ -40,7 +40,7 @@ extern "C" {
 bool
 vizlet_setdll(std::string dllpath)
 {
-	dllpath = NosuchToLower(dllpath);
+	dllpath = VizToLower(dllpath);
 
 	size_t pos = dllpath.find_last_of("/\\");
 	if ( pos != dllpath.npos && pos > 0 ) {

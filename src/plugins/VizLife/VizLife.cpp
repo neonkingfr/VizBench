@@ -43,7 +43,7 @@ VizLife::SetSize(int rows, int cols) {
 	m_ncols = cols;
 
 	// Should probably delete m_life if it's non-NULL
-	m_life = new NosuchLife(*this,rows,cols);
+	m_life = new VizLifeImpl(*this,rows,cols);
 
 	int ncells = rows * cols;
 	m_data = new LifeCellData[ncells];
@@ -150,7 +150,7 @@ VizLife::addCellSprite(int r, int c)
 
 	float x = col2x(c);
 	float y = row2y(r);
-	NosuchPos pos = NosuchPos(x, y, 0.5);
+	VizPos pos = VizPos(x, y, 0.5);
 	makeAndAddVizSprite(m_cellparams, pos);
 }
 
@@ -476,7 +476,7 @@ std::string VizLife::processJson(std::string meth, cJSON *json, const char *id) 
 		return jsonOK(id);
 	}
 	if (meth == "get_sparseness") {
-		std::string val = NosuchSnprintf("%d",m_sparseness);
+		std::string val = VizSnprintf("%d",m_sparseness);
 		return jsonStringResult(val,id);
 	}
 
@@ -504,11 +504,11 @@ std::string VizLife::processJson(std::string meth, cJSON *json, const char *id) 
 		return jsonOK(id);
 	}
 	if (meth == "get_size") {
-		std::string val = NosuchSnprintf("%dx%d", m_nrows, m_ncols);
+		std::string val = VizSnprintf("%dx%d", m_nrows, m_ncols);
 		return jsonStringResult(val, id);
 	}
 
-	throw NosuchException("VizLife - Unrecognized method '%s'",meth.c_str());
+	throw VizException("VizLife - Unrecognized method '%s'",meth.c_str());
 }
 
 void VizLife::processMidiInput(MidiMsg* m) {

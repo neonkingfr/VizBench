@@ -36,18 +36,18 @@
 #include <sys/stat.h>
 
 #include "UT_SharedMem.h"
-#include "NosuchUtil.h"
-#include "NosuchMidi.h"
-#include "NosuchScheduler.h"
+#include "VizUtil.h"
+#include "VizMidi.h"
+#include "VizScheduler.h"
 #include "Vizlet.h"
 #include "Vizletutil.h"
-#include "NosuchJSON.h"
+#include "VizJSON.h"
 #include "CursorBehaviour.h"
 
 #include "FFGLLib.h"
 #include "osc/OscOutboundPacketStream.h"
 #include "osc/OscReceivedElements.h"
-#include "NosuchOsc.h"
+#include "VizOsc.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Plugin information
@@ -92,7 +92,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserv
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH ) {
 		// Initialize once for each new process.
 		// Return FALSE if we fail to load DLL.
-		dllpathstr = NosuchToLower(dllpathstr);
+		dllpathstr = VizToLower(dllpathstr);
 		if ( ! vizlet_setdll(dllpathstr) ) {
 			DEBUGPRINT(("vizlet_setdll failed"));
 			return FALSE;
@@ -156,11 +156,11 @@ Vizlet::Vizlet() {
 	_recompileFunc = NULL;
 	_python_enabled = FALSE;
 	m_python_events_disabled = TRUE;
-	NosuchLockInit(&python_mutex, "python");
+	VizLockInit(&python_mutex, "python");
 #endif
 
-	NosuchLockInit(&vizlet_mutex, "vizlet");
-	NosuchLockInit(&json_mutex, "json");
+	VizLockInit(&vizlet_mutex, "vizlet");
+	VizLockInit(&json_mutex, "json");
 	json_cond = PTHREAD_COND_INITIALIZER;
 	// json_pending = false;
 
@@ -298,7 +298,7 @@ const char* vizlet_json(void* data,const char *method, cJSON* params, const char
 
 void vizlet_osc(void* data,const char *source, const osc::ReceivedMessage& m) {
 	Vizlet* v = (Vizlet*)data;
-	NosuchAssert(v);
+	VizAssert(v);
 	if (v->IsConnected()) {
 		v->processOsc(source, m);
 	}
@@ -306,7 +306,7 @@ void vizlet_osc(void* data,const char *source, const osc::ReceivedMessage& m) {
 
 void vizlet_midiinput(void* data,MidiMsg* m) {
 	Vizlet* v = (Vizlet*)data;
-	NosuchAssert(v);
+	VizAssert(v);
 	if (v->IsConnected() && v->InputEnabled()) {
 		v->processMidiInput(m);
 	}
@@ -314,7 +314,7 @@ void vizlet_midiinput(void* data,MidiMsg* m) {
 
 void vizlet_midioutput(void* data,MidiMsg* m) {
 	Vizlet* v = (Vizlet*)data;
-	NosuchAssert(v);
+	VizAssert(v);
 	if (v->IsConnected()) {
 		v->processMidiOutput(m);
 	}
@@ -322,7 +322,7 @@ void vizlet_midioutput(void* data,MidiMsg* m) {
 
 void vizlet_cursor(void* data,VizCursor* c, int downdragup) {
 	Vizlet* v = (Vizlet*)data;
-	NosuchAssert(v);
+	VizAssert(v);
 	if (v->IsConnected() && v->InputEnabled()) {
 		v->processCursor(c, downdragup);
 	}
@@ -330,7 +330,7 @@ void vizlet_cursor(void* data,VizCursor* c, int downdragup) {
 
 void vizlet_keystroke(void* data,int key, int downup) {
 	Vizlet* v = (Vizlet*)data;
-	NosuchAssert(v);
+	VizAssert(v);
 	if (v->InputEnabled()) {
 		v->processKeystroke(key, downup);
 	}
@@ -339,7 +339,7 @@ void vizlet_keystroke(void* data,int key, int downup) {
 #if 0
 void vizlet_click(void* data,int click) {
 	Vizlet* v = (Vizlet*)data;
-	NosuchAssert(v);
+	VizAssert(v);
 	v->processAdvanceClickTo(click);
 }
 #endif
@@ -353,55 +353,55 @@ void Vizlet::ChangeVizTag(const char* p) {
 }
 
 void Vizlet::_startApiCallbacks(const char* apiprefix, void* data) {
-	NosuchAssert(m_vizserver);
+	VizAssert(m_vizserver);
 	m_vizserver->AddJsonCallback(Handle(),apiprefix,vizlet_json,data);
 }
 
 void Vizlet::_startMidiCallbacks(MidiFilter mf, void* data) {
-	NosuchAssert(m_vizserver);
+	VizAssert(m_vizserver);
 	m_vizserver->AddMidiInputCallback(Handle(),mf,vizlet_midiinput,data);
 	m_vizserver->AddMidiOutputCallback(Handle(),mf,vizlet_midioutput,data);
 }
 
 void Vizlet::_startCursorCallbacks(CursorFilter cf, void* data) {
-	NosuchAssert(m_vizserver);
+	VizAssert(m_vizserver);
 	m_vizserver->AddCursorCallback(Handle(),cf,vizlet_cursor,data);
 }
 
 void Vizlet::_startKeystrokeCallbacks(void* data) {
-	NosuchAssert(m_vizserver);
+	VizAssert(m_vizserver);
 	m_vizserver->AddKeystrokeCallback(Handle(),vizlet_keystroke,data);
 }
 
 void Vizlet::_stopApiCallbacks() {
-	NosuchAssert(m_vizserver);
+	VizAssert(m_vizserver);
 	m_vizserver->RemoveJsonCallback(Handle());
 }
 
 void Vizlet::_stopMidiCallbacks() {
-	NosuchAssert(m_vizserver);
+	VizAssert(m_vizserver);
 	m_vizserver->RemoveMidiInputCallback(Handle());
 	m_vizserver->RemoveMidiOutputCallback(Handle());
 }
 
 void Vizlet::_stopCursorCallbacks() {
-	NosuchAssert(m_vizserver);
+	VizAssert(m_vizserver);
 	m_vizserver->RemoveCursorCallback(Handle());
 }
 
 void Vizlet::_stopKeystrokeCallbacks() {
-	NosuchAssert(m_vizserver);
+	VizAssert(m_vizserver);
 	m_vizserver->RemoveKeystrokeCallback(Handle());
 }
 
 #if 0
 void Vizlet::_startClickCallbacks(void* data) {
-	NosuchAssert(m_vizserver);
+	VizAssert(m_vizserver);
 	m_vizserver->AddClickCallback(Handle(),vizlet_click,data);
 }
 
 void Vizlet::_stopClickCallbacks() {
-	NosuchAssert(m_vizserver);
+	VizAssert(m_vizserver);
 	m_vizserver->RemoveClickCallback(Handle());
 }
 #endif
@@ -656,8 +656,8 @@ DWORD Vizlet::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 			DEBUGPRINT(("Palette::draw returned failure? (r=%d)\n",r));
 			gotexception = true;
 		}
-	} catch (NosuchException& e ) {
-		DEBUGPRINT(("NosuchException in Palette::draw : %s",e.message()));
+	} catch (VizException& e ) {
+		DEBUGPRINT(("VizException in Palette::draw : %s",e.message()));
 		gotexception = true;
 	} catch (...) {
 		DEBUGPRINT(("UNKNOWN Exception in Palette::draw!"));
@@ -710,8 +710,8 @@ void Vizlet::DrawNotesDown() {
 	try {
 		CATCH_NULL_POINTERS;
 		_drawnotes(m_vizserver->NotesDown());
-	} catch (NosuchException& e) {
-		DEBUGPRINT(("NosuchException while drawing notes: %s",e.message()));
+	} catch (VizException& e) {
+		DEBUGPRINT(("VizException while drawing notes: %s",e.message()));
 	} catch (...) {
 		DEBUGPRINT(("Some other kind of exception occured while drawing notes!?"));
 	}
@@ -719,26 +719,26 @@ void Vizlet::DrawNotesDown() {
 }
 
 void Vizlet::LockVizlet() {
-	NosuchLock(&vizlet_mutex,"Vizlet");
+	VizLock(&vizlet_mutex,"Vizlet");
 }
 
 void Vizlet::UnlockVizlet() {
-	NosuchUnlock(&vizlet_mutex,"Vizlet");
+	VizUnlock(&vizlet_mutex,"Vizlet");
 }
 
 void
 Vizlet::ExecuteDump(std::string dump) {
 	cJSON* arr = cJSON_Parse(dump.c_str());
 	if (arr == NULL) {
-		throw NosuchException("Unable to parse dump JSON!?");
+		throw VizException("Unable to parse dump JSON!?");
 	}
 	if (arr->type != cJSON_Array) {
-		throw NosuchException("dump JSON isn't an array!?");
+		throw VizException("dump JSON isn't an array!?");
 	}
 	int nplugins = cJSON_GetArraySize(arr);
 	for (int n = 0; n < nplugins; n++) {
 		cJSON *p = cJSON_GetArrayItem(arr, n);
-		NosuchAssert(p);
+		VizAssert(p);
 		DEBUGPRINT(("n=%d type=%d", n, p->type));
 	}
 }
@@ -748,19 +748,19 @@ std::string Vizlet::DumpVals() {
 	std::string r = processJson("apis",NULL,"98765");
 	cJSON* j = cJSON_Parse(r.c_str());
 	if (j == NULL) {
-		throw NosuchException("Unable to parse internal JSON!?");
+		throw VizException("Unable to parse internal JSON!?");
 	}
 	cJSON* result = jsonGetString(j, "result");
 	if (result == NULL) {
 		jsonFree(j);
-		throw NosuchException("No result in internal JSON!?");
+		throw VizException("No result in internal JSON!?");
 	}
-	std::vector<std::string> apis = NosuchSplitOnString(std::string(result->valuestring), ";");
+	std::vector<std::string> apis = VizSplitOnString(std::string(result->valuestring), ";");
 	jsonFree(j);
 	std::string sep = "";
 	std::string jout = "[";
 	for (size_t i = 0; i<apis.size(); i++) {
-		std::vector<std::string> words = NosuchSplitOnAnyChar(apis[i],"()");
+		std::vector<std::string> words = VizSplitOnAnyChar(apis[i],"()");
 		if (words[0].find("set_") != 0) {
 			continue;
 		}
@@ -768,12 +768,12 @@ std::string Vizlet::DumpVals() {
 		std::string r = processJson("get_"+name,NULL,"98765");
 		j = cJSON_Parse(r.c_str());
 		if (j == NULL) {
-			throw NosuchException("Unable to parse internal JSON!?");
+			throw VizException("Unable to parse internal JSON!?");
 		}
 		std::string val = jsonNeedStringForced(j, "result");
 		if (val == "") {
 			jsonFree(j);
-			throw NosuchException("No result in internal JSON!?");
+			throw VizException("No result in internal JSON!?");
 		}
 
 		jout += sep + "{\"name\":\""+name+"\", \"value\":\""+val+"\"}";
@@ -818,12 +818,12 @@ std::string Vizlet::processJsonLockAndCatchExceptions(std::string meth, cJSON *p
 			// If not one of the standard vizlet APIs, call the vizlet-plugin-specific API processor
 			r = processJson(meth,params,id);
 		}
-	} catch (NosuchException& e) {
-		std::string s = NosuchSnprintf("NosuchException in executeJson!! - %s",e.message());
+	} catch (VizException& e) {
+		std::string s = VizSnprintf("VizException in executeJson!! - %s",e.message());
 		r = error_json(-32000,s.c_str(),id);
 	} catch (...) {
 		// This doesn't seem to work - it doesn't seem to catch other exceptions...
-		std::string s = NosuchSnprintf("Some other kind of exception occured in executeJson!?");
+		std::string s = VizSnprintf("Some other kind of exception occured in executeJson!?");
 		r = error_json(-32000,s.c_str(),id);
 	}
 	UnlockVizlet();
@@ -843,14 +843,14 @@ Vizlet::readSpriteVizParams(std::string fname, std::string default_fname) {
 	else {
 		if (default_fname != "") {
 			std::string default_fpath = SpriteVizParamsPath(default_fname);
-			NosuchFileCopy(default_fpath, fpath);
+			VizFileCopy(default_fpath, fpath);
 		}
 		else {
 			// The file (presumably) doesn't exist, so create it with the default values
 			std::string contents = p->JsonListOfValues();
 			std::string err;
 			if (!jsonWriteFileContents(fpath, contents.c_str(), err)) {
-				throw NosuchException("Unable to write contents of %s", fpath.c_str());
+				throw VizException("Unable to write contents of %s", fpath.c_str());
 			}
 			DEBUGPRINT(("Created spriteparams file with default parameters: %s", fpath.c_str()));
 		}
@@ -885,14 +885,14 @@ Vizlet::checkSpriteVizParamsAndLoadIfModifiedSince(std::string fname, std::time_
 	struct _stat statbuff;
 	int e = _stat(path.c_str(), &statbuff);
 	if (e != 0) {
-		throw NosuchException("Error in checkAndLoad of path=%s - e=%d",path.c_str(), e);
+		throw VizException("Error in checkAndLoad of path=%s - e=%d",path.c_str(), e);
 	}
 	if (lastupdate == statbuff.st_mtime) {
 		return NULL;
 	}
 	SpriteVizParams* p = readSpriteVizParams(fname);
 	if (!p) {
-		throw NosuchException("Bad params file? fname=%s", fname.c_str());
+		throw VizException("Bad params file? fname=%s", fname.c_str());
 	}
 	lastupdate = statbuff.st_mtime;
 	return p;
@@ -904,7 +904,7 @@ Vizlet::readMidiVizParams(std::string fname) {
 	std::string path = MidiVizParamsPath(fname);
 	cJSON* json = jsonReadFile(path, err);
 	if (!json) {
-		throw NosuchException("Unable to load midi params: fname=%s path=%s, err=%s",
+		throw VizException("Unable to load midi params: fname=%s path=%s, err=%s",
 			fname.c_str(), path.c_str(), err.c_str());
 	}
 	MidiVizParams* p = new MidiVizParams();
@@ -927,7 +927,7 @@ Vizlet::checkMidiVizParamsAndLoadIfModifiedSince(std::string fname, std::time_t&
 	struct _stat statbuff;
 	int e = _stat(path.c_str(), &statbuff);
 	if (e != 0) {
-		throw NosuchException("Error in checkAndLoad of path=%s - e=%d",path.c_str(), e);
+		throw VizException("Error in checkAndLoad of path=%s - e=%d",path.c_str(), e);
 	}
 	if (lastupdate == statbuff.st_mtime) {
 		return NULL;
@@ -935,7 +935,7 @@ Vizlet::checkMidiVizParamsAndLoadIfModifiedSince(std::string fname, std::time_t&
 	// DEBUGPRINT(("Check and Load this=%ld", (long)this));
 	MidiVizParams* p = readMidiVizParams(fname);
 	if (!p) {
-		throw NosuchException("Bad params file? fname=%s", fname.c_str());
+		throw VizException("Bad params file? fname=%s", fname.c_str());
 	}
 	lastupdate = statbuff.st_mtime;
 	return p;
@@ -943,24 +943,24 @@ Vizlet::checkMidiVizParamsAndLoadIfModifiedSince(std::string fname, std::time_t&
 
 
 VizSprite*
-Vizlet::makeAndAddVizSprite(SpriteVizParams* p, NosuchPos pos) {
+Vizlet::makeAndAddVizSprite(SpriteVizParams* p, VizPos pos) {
 		VizSprite* s = makeAndInitVizSprite(p,pos);
 		AddVizSprite(s);
 		return s;
 }
 
 VizSprite*
-Vizlet::makeAndInitVizSprite(SpriteVizParams* params, NosuchPos pos) {
+Vizlet::makeAndInitVizSprite(SpriteVizParams* params, VizPos pos) {
 	VizSprite* s = VizSprite::makeVizSprite(params);
 	s->m_framenum = FrameNum();
 	s->initVizSpriteState(SchedulerCurrentTimeInSeconds(),Handle(),pos,params);
 	return s;
 }
 
-NosuchColor
+VizColor
 Vizlet::channelColor(int ch) {
 	double hue = (ch * 360.0f) / 16.0f;
-	return NosuchColor(hue,0.5,1.0);
+	return VizColor(hue,0.5,1.0);
 }
 
 #if 0
@@ -991,7 +991,7 @@ VizSprite* Vizlet::defaultMidiVizSprite(MidiMsg* m) {
 			DEBUGPRINT(("Vizlet1 sees noteon with 0 velocity, ignoring"));
 			return s;
 		}
-		NosuchPos pos;
+		VizPos pos;
 		pos.x = 0.9f;
 		pos.y = (m->Pitch()-minpitch) / float(maxpitch-minpitch);
 		pos.z = (m->Velocity()*m->Velocity()) / (128.0*128.0);
@@ -1008,7 +1008,7 @@ VizSprite* Vizlet::defaultMidiVizSprite(MidiMsg* m) {
 		m_defaultmidiparams->lifetime.set(fadetime);
 
 		// control color with channel
-		NosuchColor clr = channelColor(m->Channel());
+		VizColor clr = channelColor(m->Channel());
 		double hue = clr.hue();
 
 		m_defaultmidiparams->alphainitial.set(1.0);

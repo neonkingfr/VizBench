@@ -69,7 +69,7 @@ def genparamheader(params,classname):
 	writeln("#define _"+uptype+"_H")
 
 	writeln("#include \"VizParams.h\"")
-	writeln("#include \"NosuchJSON.h\"")
+	writeln("#include \"VizJSON.h\"")
 
 	writeln("")
 	### Generate a declaration for the array of parameter names.

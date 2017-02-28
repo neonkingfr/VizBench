@@ -27,7 +27,7 @@
 
 #include <pthread.h>
 
-#include "NosuchUtil.h"
+#include "VizUtil.h"
 
 #include <gl/glew.h>
 
@@ -40,7 +40,7 @@
 #include "FFFF.h"
 #include "FFGLPipeline.h"
 
-#include "NosuchJSON.h"
+#include "VizJSON.h"
 #include "Timer.h"
 #include "AudioHost.h"
 
@@ -94,7 +94,7 @@ FFFF::FFFF() {
 	std::string fname = VizConfigPath("FFFF.json");
 	cJSON* config = jsonReadFile(fname, err);
 	if (!config) {
-		throw NosuchException("Hey!  Error in reading JSON from %s!  err=%s", fname.c_str(), err.c_str());
+		throw VizException("Hey!  Error in reading JSON from %s!  err=%s", fname.c_str(), err.c_str());
 	}
 
 	jsonSetDebugConfig(config);
@@ -154,7 +154,7 @@ FFFF::FFFF() {
 	FfffOutputPrefix = jsonNeedString(config, "outputprefix", "");
 	FfffOutputFPS = jsonNeedInt(config, "outputfps", 30);
 
-	NosuchLockInit(&_json_mutex,"json");
+	VizLockInit(&_json_mutex,"json");
 	m_json_cond = PTHREAD_COND_INITIALIZER;
 	m_json_pending = false;
 	m_timer = Timer::New();
@@ -204,7 +204,7 @@ FFFF::CreateWindows() {
 
 	window = glfwCreateWindow(m_window_width, m_window_height, "FFFF", monitor, NULL);
 	if (window == NULL) {
-		throw NosuchException("Unable to create main window!?");
+		throw VizException("Unable to create main window!?");
 	}
 	glfwSetWindowPos(window, m_window_x, m_window_y);
 	glfwSetWindowSize(window, m_window_width, m_window_height);
@@ -213,7 +213,7 @@ FFFF::CreateWindows() {
 	// MAKE PREVIEW WINDOW, be sure to share resources with main window
 	preview = glfwCreateWindow(m_preview_width, m_preview_height, "Preview", monitor, window);
 	if (preview == NULL) {
-		throw NosuchException("Unable to create preview window!?");
+		throw VizException("Unable to create preview window!?");
 	}
 	glfwSetWindowPos(preview, m_preview_x, m_preview_y);
 	glfwSetWindowSize(preview, m_preview_width, m_preview_height);
@@ -229,14 +229,14 @@ FFFF::CreateWindows() {
 	std::string fontpath = "c:\\windows\\fonts\\" + m_fontname;
 	m_font = dtx_open_font(fontpath.c_str(), m_fontsize);
 	if (m_font == NULL) {
-		throw NosuchException("Unable to load font '%s'!?",fontpath.c_str());
+		throw VizException("Unable to load font '%s'!?",fontpath.c_str());
 	}
 
 	if (m_img_into_pipeline == NULL) {
 		CvSize fbosz = cvSize(m_window_width, m_window_height);
 		m_img_into_pipeline = cvCreateImage(fbosz, IPL_DEPTH_8U, 3);
 		if (m_img_into_pipeline == NULL) {
-			throw NosuchException("Unable to create image for img_into_pipeline!???");
+			throw VizException("Unable to create image for img_into_pipeline!???");
 		}
 	}
 
@@ -368,11 +368,11 @@ FFFF::StartStuff() {
 	glfwSetErrorCallback(error_callback);
 
 	if (!glfwInit()) {
-		throw NosuchException("glfwInit failed!?");
+		throw VizException("glfwInit failed!?");
 	}
 
 	if (!m_vizserver->Start()) {
-		throw NosuchException("Unable to start VizServer!?");
+		throw VizException("Unable to start VizServer!?");
 	}
 
 	m_vizserver->AddJsonCallback((void*)this,"ffff",FFFF_json,(void*)this);
@@ -506,7 +506,7 @@ FFFF::submitJson(std::string method, cJSON *params, const char* id) {
 	// so we stuff the request into _json_* variables and wait for the main thread to
 	// pick it up (in ProcessOpenGL)
 	DEBUGPRINT1(("FFFF::submitJson A meth=%s",method.c_str()));
-	NosuchLock(&_json_mutex,"json");
+	VizLock(&_json_mutex,"json");
 
 	DEBUGPRINT1(("FFFF::submitJson B meth=%s",method.c_str()));
 	m_json_pending = true;
@@ -531,14 +531,14 @@ FFFF::submitJson(std::string method, cJSON *params, const char* id) {
 		result = m_json_result;
 	}
 
-	NosuchUnlock(&_json_mutex,"json");
+	VizUnlock(&_json_mutex,"json");
 
 	return result;
 }
 
 void
 FFFF::checkAndExecuteJSON() {
-	NosuchLock(&_json_mutex,"json");
+	VizLock(&_json_mutex,"json");
 	if (m_json_pending) {
 		// Execute json stuff and generate response
 		DEBUGPRINT1(("FFFF:executing JSON method=%s",m_json_method.c_str()));
@@ -549,7 +549,7 @@ FFFF::checkAndExecuteJSON() {
 			DEBUGPRINT(("ERROR from pthread_cond_signal e=%d\n",e));
 		}
 	}
-	NosuchUnlock(&_json_mutex,"json");
+	VizUnlock(&_json_mutex,"json");
 
 }
 
@@ -559,12 +559,12 @@ std::string FFFF::executeJsonAndCatchExceptions(const std::string meth, cJSON *p
 		CATCH_NULL_POINTERS;
 
 		r = executeJson(meth,params,id);
-	} catch (NosuchException& e) {
-		std::string s = NosuchSnprintf("Exception in '%s' API - %s",meth.c_str(),e.message());
+	} catch (VizException& e) {
+		std::string s = VizSnprintf("Exception in '%s' API - %s",meth.c_str(),e.message());
 		r = jsonError(-32000,s,id);
 	} catch (...) {
 		// This doesn't seem to work - it doesn't seem to catch other exceptions...
-		std::string s = NosuchSnprintf("Other exception in '%s' API",meth.c_str());
+		std::string s = VizSnprintf("Other exception in '%s' API",meth.c_str());
 		r = jsonError(-32000,s,id);
 	}
 	return r;
@@ -633,7 +633,7 @@ FFGLPipeline::FFGLNewPluginInstance(FFGLPluginDef* plugin, std::string viztag)
 	// DEBUGPRINT(("----- MALLOC new FFGLPluginInstance"));
 	if ( np->InstantiateGL(&fboViewport)!=FF_SUCCESS ) {
 		delete np;
-		throw NosuchException("Unable to InstantiateGL !?");
+		throw VizException("Unable to InstantiateGL !?");
 	}
 	return np;
 }
@@ -767,11 +767,11 @@ FFGLPipeline::setEnableInput(bool onoff) {
 
 		// This code just blindly calls a set_enableinput method on every vizlet.
 
-		std::string fullmethod = NosuchSnprintf("%s.set_enableinput",p->viztag().c_str());
-		std::string jsonstr = NosuchSnprintf("{ \"onoff\": \"%d\" }", onoff);
+		std::string fullmethod = VizSnprintf("%s.set_enableinput",p->viztag().c_str());
+		std::string jsonstr = VizSnprintf("{ \"onoff\": \"%d\" }", onoff);
 		cJSON* params = cJSON_Parse(jsonstr.c_str());
 		if (!params) {
-			throw NosuchException("Internal error in parsing enableinput json!?");
+			throw VizException("Internal error in parsing enableinput json!?");
 		}
 		std::string s = viz->ProcessJson(fullmethod.c_str(), params, "12345");
 		DEBUGPRINT1(("result of set_enableinput=%s",s.c_str()));
@@ -782,10 +782,10 @@ FFGLPipeline::setEnableInput(bool onoff) {
 
 void
 FFGLPipeline::setSpriteParams(std::string name) {
-	std::string jsonstr = NosuchSnprintf("{ \"name\": \"%s\" }", name.c_str());
+	std::string jsonstr = VizSnprintf("{ \"name\": \"%s\" }", name.c_str());
 	cJSON* params = cJSON_Parse(jsonstr.c_str());
 	if (!params) {
-		throw NosuchException("Internal error in parsing sidrange json!?");
+		throw VizException("Internal error in parsing sidrange json!?");
 	}
 	applyAllPlugins("set_spriteparams", params);
 }
@@ -794,10 +794,10 @@ void
 FFGLPipeline::setSidrange(int sidmin, int sidmax) {
 	m_sidmin = sidmin;
 	m_sidmax = sidmax;
-	std::string jsonstr = NosuchSnprintf("{ \"sidrange\": \"%d-%d\" }", m_sidmin, m_sidmax);
+	std::string jsonstr = VizSnprintf("{ \"sidrange\": \"%d-%d\" }", m_sidmin, m_sidmax);
 	cJSON* params = cJSON_Parse(jsonstr.c_str());
 	if (!params) {
-		throw NosuchException("Internal error in parsing sidrange json!?");
+		throw VizException("Internal error in parsing sidrange json!?");
 	}
 	applyAllPlugins("set_sidrange", params);
 }
@@ -880,7 +880,7 @@ FFFF::spoutInit() {
 		bool b = m_spoutsender->CreateSender(m_sendername, m_window_width, m_window_height);
 		if (!b) {
 			DEBUGPRINT(("Unable to CreateSender for Spout!?"));
-			NosuchErrorOutput("Unable to CreateSender for Spout!?");
+			VizErrorOutput("Unable to CreateSender for Spout!?");
 			delete m_spoutsender;
 			m_spoutsender = NULL;
 		}
@@ -971,7 +971,7 @@ FFGLPipeline::doPipeline(int window_width, int window_height)
 	// Now read the pixels back and save them
 	if (m_record && SaveFrames && *SaveFrames!='\0') {
 
-		std::string path = VizPath("recordings") + NosuchSnprintf("/%s_%06d.ppm", SaveFrames, m_output_framenum);
+		std::string path = VizPath("recordings") + VizSnprintf("/%s_%06d.ppm", SaveFrames, m_output_framenum);
 		if (m_output_framedata == NULL) {
 			m_output_framedata = (GLubyte*)malloc(4 * window_width*window_height);  // 4, should work for both 3 and 4 bytes
 			// DEBUGPRINT(("---- MALLOC SaveFrames data %d", data));
@@ -1004,13 +1004,13 @@ FFGLPipeline::doPipeline(int window_width, int window_height)
 
 		glReadPixels(0, 0, window_width, window_height, GL_BGR_EXT, GL_UNSIGNED_BYTE, m_output_framedata);
 
-		double tm = NosuchTimeElapsedInSeconds();
+		double tm = VizTimeElapsedInSeconds();
 		double timePerFrame = 1.0 / FfffOutputFPS;
 		// Pehaps this should be a loop, but handle first one, too
 		if (m_output_framenum == 0) {
 			// First frame of a recording
 			fwrite(m_output_framedata, window_width*window_height, 3, FfffOutputFile);
-			DEBUGPRINT1(("Writing frame %d  time=%lf",m_output_framenum,NosuchTimeElapsedInSeconds()));
+			DEBUGPRINT1(("Writing frame %d  time=%lf",m_output_framenum,VizTimeElapsedInSeconds()));
 			m_output_framenum++;
 			m_output_lastwrite = tm;
 		}
@@ -1024,7 +1024,7 @@ FFGLPipeline::doPipeline(int window_width, int window_height)
 			if (frameswritten > 0) {
 				m_output_framenum += frameswritten;
 				m_output_lastwrite = tm;
-				DEBUGPRINT1(("Wrote %d frames, framenum is now %d  time=%lf", frameswritten, m_output_framenum, NosuchTimeElapsedInSeconds()));
+				DEBUGPRINT1(("Wrote %d frames, framenum is now %d  time=%lf", frameswritten, m_output_framenum, VizTimeElapsedInSeconds()));
 			}
 		}
 	}
@@ -1062,16 +1062,16 @@ std::string FFFF::FFGLParamList(std::string pluginx, const char* id) {
 		switch(ps->type){
 		case -1: // 
 		case FF_TYPE_STANDARD:
-			r += sep+NosuchSnprintf("{\"name\":\"%s\", \"type\":\"standard\", \"default\":%f, \"num\":%d }",nm,ps->default_float_val,ps->num);
+			r += sep+VizSnprintf("{\"name\":\"%s\", \"type\":\"standard\", \"default\":%f, \"num\":%d }",nm,ps->default_float_val,ps->num);
 			break;
 		case FF_TYPE_BOOLEAN:
-			r += sep+NosuchSnprintf("{\"name\":\"%s\", \"type\":\"boolean\", \"default\":%f, \"num\":%d }",nm,ps->default_float_val,ps->num);
+			r += sep+VizSnprintf("{\"name\":\"%s\", \"type\":\"boolean\", \"default\":%f, \"num\":%d }",nm,ps->default_float_val,ps->num);
 			break;
 		case FF_TYPE_TEXT:
-			r += sep+NosuchSnprintf("{\"name\":\"%s\", \"type\":\"text\", \"default\":\"%s\", \"num\":%d}",nm,ps->default_string_val.c_str(),ps->num);
+			r += sep+VizSnprintf("{\"name\":\"%s\", \"type\":\"text\", \"default\":\"%s\", \"num\":%d}",nm,ps->default_string_val.c_str(),ps->num);
 			break;
 		default:
-			r += sep+NosuchSnprintf("{\"name\":\"%s\", \"type\":\"%d\", \"default\":%f, \"num\":%d}",nm,ps->type,ps->default_float_val,ps->num);
+			r += sep+VizSnprintf("{\"name\":\"%s\", \"type\":\"%d\", \"default\":%f, \"num\":%d}",nm,ps->type,ps->default_float_val,ps->num);
 			break;
 		}
 		sep = ", ";
@@ -1094,13 +1094,13 @@ std::string FFFF::FFGLParamVals(FFGLPluginInstance* pi, std::string linebreak = 
 		case FF_TYPE_STANDARD:
 		case FF_TYPE_BOOLEAN:
 			v = pi->GetFloatParameter(pd->num);
-			r += sep+linebreak+NosuchSnprintf("{\"name\":\"%s\", \"value\":%f }",nm,v);
+			r += sep+linebreak+VizSnprintf("{\"name\":\"%s\", \"value\":%f }",nm,v);
 			break;
 		case FF_TYPE_TEXT:
-			r += sep+linebreak+NosuchSnprintf("{\"name\":\"%s\", \"value\":\"%s\", \"type\":\"text\" }",nm,pi->GetParameterDisplay(pd->num).c_str());
+			r += sep+linebreak+VizSnprintf("{\"name\":\"%s\", \"value\":\"%s\", \"type\":\"text\" }",nm,pi->GetParameterDisplay(pd->num).c_str());
 			break;
 		default:
-			r += sep+linebreak+NosuchSnprintf("{\"name\":\"%s\", \"value\":\"???\" }",nm);
+			r += sep+linebreak+VizSnprintf("{\"name\":\"%s\", \"value\":\"???\" }",nm);
 			break;
 		}
 		sep = ", ";
@@ -1115,7 +1115,7 @@ needFFGLPlugin(std::string name)
 {
 		FFGLPluginDef* p = findffglplugindef(name);
 		if ( p == NULL ) {
-			throw NosuchSnprintf("No plugin named '%s'",name.c_str());
+			throw VizSnprintf("No plugin named '%s'",name.c_str());
 		}
 		return p;
 }
@@ -1130,7 +1130,7 @@ std::string FFFF::savePipeline(int pipenum, std::string fname, const char* id)
 	std::ofstream f;
 	f.open(fpath.c_str(),std::ios::trunc);
 	if ( ! f.is_open() ) {
-		err = NosuchSnprintf("Unable to open file - %s",fpath.c_str());
+		err = VizSnprintf("Unable to open file - %s",fpath.c_str());
 		return false;
 	}
 	f << "{\n\"pipeline\": [\n";
@@ -1158,16 +1158,16 @@ std::string FFFF::savePipeline(int pipenum, std::string fname, const char* id)
 			const char* s = m_vizserver->ProcessJson(fullmethod.c_str(), NULL, "12345");
 			cJSON* json = cJSON_Parse(s);
 			if (!json) {
-				throw NosuchException("Unable to parse .dump json in savePipeline!?");
+				throw VizException("Unable to parse .dump json in savePipeline!?");
 			}
 			std::string result = jsonNeedString(json, "result","");
 			// The result should be a big long json value.  We want to pretty-print it.
 			cJSON* prettyj = cJSON_Parse(result.c_str());
 			if (prettyj == NULL) {
-				throw NosuchException("Bad format of json result!? result = %s", result.c_str());
+				throw VizException("Bad format of json result!? result = %s", result.c_str());
 			}
 			const char* prettys = cJSON_Print(prettyj);
-			f << "\t\t\"vizletdump\": " + NosuchReplaceAll(prettys,"\n","\n\t\t") + ",\n";
+			f << "\t\t\"vizletdump\": " + VizReplaceAll(prettys,"\n","\n\t\t") + ",\n";
 			cJSON_free((void*)prettys);
 			jsonFree(json);
 		}
@@ -1183,9 +1183,9 @@ std::string FFFF::savePipeline(int pipenum, std::string fname, const char* id)
 void FFFF::savePipeset(std::string fname)
 {
 	if (fname == "") {
-		throw NosuchException("Pipeset name is blank!?");
+		throw VizException("Pipeset name is blank!?");
 	}
-	if ( ! NosuchEndsWith(fname, ".json") ) {
+	if ( ! VizEndsWith(fname, ".json") ) {
 		fname += ".json";
 	}
 	std::string fpath = VizConfigPath("pipesets",fname);
@@ -1196,7 +1196,7 @@ void FFFF::savePipeset(std::string fname)
 	std::ofstream f;
 	f.open(fpath.c_str(),std::ios::trunc);
 	if ( ! f.is_open() ) {
-		throw NosuchException("Unable to open file - %s",fpath.c_str());
+		throw VizException("Unable to open file - %s",fpath.c_str());
 	}
 	f << "{\n\"pipeset\": [\n";
 	std::string sep = "";
@@ -1232,7 +1232,7 @@ FFFF::LoadPipeset(std::string pipeset)
 	}
 
 	std::string fname = pipeset;
-	if (!NosuchEndsWith(fname, ".json")) {
+	if (!VizEndsWith(fname, ".json")) {
 		fname += ".json";
 	}
 	std::string fpath = VizConfigPath("pipesets",fname);
@@ -1240,22 +1240,22 @@ FFFF::LoadPipeset(std::string pipeset)
 
 	DEBUGPRINT(("LoadPipeset %s path=%s", pipeset.c_str(), fpath.c_str()));
 
-	bool exists = NosuchFileExists(fpath);
+	bool exists = VizFileExists(fpath);
 	cJSON* json;
 	if (!exists) {
 		// make a copy of the current one
-		if (NosuchFileExists(m_pipesetpath)) {
-			NosuchFileCopy(m_pipesetpath, fpath);
+		if (VizFileExists(m_pipesetpath)) {
+			VizFileCopy(m_pipesetpath, fpath);
 		}
 		else {
-			throw NosuchException("No such file: fpath=%s", fpath.c_str());
+			throw VizException("No such file: fpath=%s", fpath.c_str());
 		}
 	}
 
 	json = jsonReadFile(fpath,err);
 	if (!json) {
-		std::string err = NosuchSnprintf("Unable to parse file!? fpath=%s", fpath.c_str());
-		throw NosuchException(err.c_str());
+		std::string err = VizSnprintf("Unable to parse file!? fpath=%s", fpath.c_str());
+		throw VizException(err.c_str());
 	}
 	loadPipesetJson(json);
 	m_pipesetname = pipeset;
@@ -1276,12 +1276,12 @@ FFFF::loadPipesetJson(cJSON* json)
 
 	cJSON* pipeset = jsonGetArray(json,"pipeset");
 	if ( !pipeset ) {
-		throw NosuchException("No 'pipeset' value in config");
+		throw VizException("No 'pipeset' value in config");
 	}
 
 	int npipelines = cJSON_GetArraySize(pipeset);
 	if (npipelines != NPIPELINES) {
-		throw NosuchException("Number of pipelines in pipeset is %d - expected %d", npipelines, NPIPELINES);
+		throw VizException("Number of pipelines in pipeset is %d - expected %d", npipelines, NPIPELINES);
 	}
 
 	for (int pipenum = 0; pipenum < NPIPELINES; pipenum++) {
@@ -1291,9 +1291,9 @@ FFFF::loadPipesetJson(cJSON* json)
 		pipeline.clear();
 
 		cJSON *p = cJSON_GetArrayItem(pipeset, pipenum);
-		NosuchAssert(p);
+		VizAssert(p);
 		if (p->type != cJSON_Object) {
-			throw NosuchException("Hey! Item #%d in pipeset isn't an object?", pipenum);
+			throw VizException("Hey! Item #%d in pipeset isn't an object?", pipenum);
 		}
 
 		std::string name = jsonNeedString(p, "pipeline");
@@ -1307,13 +1307,13 @@ FFFF::loadPipesetJson(cJSON* json)
 
 		int sidmin, sidmax;
 		if (sscanf(sidrange.c_str(), "%d-%d", &sidmin, &sidmax) != 2) {
-			throw NosuchException("Invalid format of sidrange: %s", sidrange.c_str());
+			throw VizException("Invalid format of sidrange: %s", sidrange.c_str());
 		}
 
 		std::string fpath = pipelinePath(name);
 
 		// The default instance name of a pipe is the pipenum
-		std::string piname = NosuchSnprintf("%d", pipenum);
+		std::string piname = VizSnprintf("%d", pipenum);
 
 		pipeline.load(piname, name, fpath);
 
@@ -1330,10 +1330,10 @@ FFFF::parseVizTag(std::string fulltag, int& pipenum, std::string& vtag)
 {
 	const char* p = fulltag.c_str();
 	if (!(*p >= '0' && *p <= '9')) {
-		throw NosuchException("Expected viztag to start with an integer: %s", fulltag.c_str());
+		throw VizException("Expected viztag to start with an integer: %s", fulltag.c_str());
 	}
 	if (fulltag.length() < 3 || *(p + 1) != ':') {
-		throw NosuchException("Unexpected format of viztag: %s", fulltag.c_str());
+		throw VizException("Unexpected format of viztag: %s", fulltag.c_str());
 	}
 	pipenum = *p - '0';
 	vtag = std::string(p + 2);
@@ -1347,7 +1347,7 @@ FFFF::copyFile(cJSON *params, PathGenerator pathgen, const char* id)
 	DEBUGPRINT(("Making copy %s to %s",fromfile.c_str(),tofile.c_str()));
 	std::string frompath = pathgen(fromfile);
 	std::string topath = pathgen(tofile);
-	bool r = NosuchFileCopy(frompath, topath);
+	bool r = VizFileCopy(frompath, topath);
 	if (!r) {
 		return jsonError(-32000,"Unable to copy!?",id);
 	}
@@ -1384,10 +1384,10 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	if (meth == "audio") {
 		bool onoff = jsonNeedBool(params, "onoff",true);
 		if (m_audiohost == NULL) {
-			throw NosuchException("No audio host!?");
+			throw VizException("No audio host!?");
 		}
 		if (!m_audiohost->Playing(onoff)) {
-			throw NosuchException("Unable to control audio playback?!");
+			throw VizException("Unable to control audio playback?!");
 		}
 		return jsonOK(id);
 	}
@@ -1395,7 +1395,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		bool onoff = jsonNeedBool(params, "onoff");
 		if (m_audiohost) {
 			if (!m_audiohost->Recording(onoff)) {
-				throw NosuchException("Unable to %s audio recording?!",onoff?"start":"stop");
+				throw VizException("Unable to %s audio recording?!",onoff?"start":"stop");
 			}
 			DEBUGPRINT(("Audio recording %s",onoff?"started":"stopped"));
 		}
@@ -1427,7 +1427,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 
 			std::string batpath = VizPath("bin\\recordingfinished.bat");
 			std::string cmdexe = "c:\\windows\\system32\\cmd.exe";
-			char* cmdline = _strdup(NosuchSnprintf("%s /c \"%s %s\"",cmdexe.c_str(),batpath.c_str(),FfffOutputPrefix.c_str()).c_str());
+			char* cmdline = _strdup(VizSnprintf("%s /c \"%s %s\"",cmdexe.c_str(),batpath.c_str(),FfffOutputPrefix.c_str()).c_str());
 			// Second argument must be writable
 			if (CreateProcessA(cmdexe.c_str(), cmdline, NULL, NULL, TRUE, 0, NULL, NULL, &info, &processInfo))
 			{
@@ -1444,17 +1444,17 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		else if (m_record == false && onoff == true) {
 			// recording is being turned on.  If we're writing output, open it
 			if (FfffOutputPrefix == "") {
-				throw NosuchException("Recording not turned on - there is no outputprefix value");
+				throw VizException("Recording not turned on - there is no outputprefix value");
 			}
 			if ( FfffOutputFile ) {
 				DEBUGPRINT(("Video recording was already started"));
 			} else {
 				m_output_framenum = 0;
 				// raw video gets saved in this file
-				std::string path = VizPath("recordings") + NosuchSnprintf("\\%s-%dx%d-%ld.rawvideo", FfffOutputPrefix.c_str(), m_window_width, m_window_height, time(NULL));
+				std::string path = VizPath("recordings") + VizSnprintf("\\%s-%dx%d-%ld.rawvideo", FfffOutputPrefix.c_str(), m_window_width, m_window_height, time(NULL));
 				FfffOutputFile = fopen(path.c_str(), "wb");
 				if (FfffOutputFile == NULL) {
-					NosuchErrorOutput("Unable to open output file: %s",path.c_str());
+					VizErrorOutput("Unable to open output file: %s",path.c_str());
 					DEBUGPRINT(("Unable to open output file: %s",path.c_str()));
 				}
 				DEBUGPRINT(("Video recording started, path=%s",path.c_str()));
@@ -1471,7 +1471,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	}
 	if (meth == "show") {
 		if (!window) {
-			throw NosuchException("No window?!");
+			throw VizException("No window?!");
 		}
 		hidden = false;
 		// For some reason, it doesn't work without
@@ -1483,7 +1483,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	}
 	if (meth == "hide") {
 		if (!window) {
-			throw NosuchException("No window?!");
+			throw VizException("No window?!");
 		}
 		hidden = true;
 		glfwIconifyWindow(window);
@@ -1558,14 +1558,14 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	std::string viztag = jsonNeedString(params, "viztag","");
 
 	// viztags are case-insensitive, always converted to lower case
-	viztag = NosuchToLower(viztag);
+	viztag = VizToLower(viztag);
 
 	std::string vtag;
 	if (viztag != "") {
 		int pipenum2;
 		parseVizTag(viztag, pipenum2, vtag);
 		if (pipenum >= 0 && pipenum2 != pipenum) {
-			throw NosuchException("Inconsistency between pipenum and viztag parameters!?");
+			throw VizException("Inconsistency between pipenum and viztag parameters!?");
 		}
 		pipenum = pipenum2;
 	}
@@ -1574,10 +1574,10 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 	// either in an explicit parameter or in a viztag value.
 
 	if (pipenum < 0) {
-		throw NosuchException("No pipenum parameter provided");
+		throw VizException("No pipenum parameter provided");
 	}
 	if (pipenum >= NPIPELINES) {
-		throw NosuchException("pipenum value is too large");
+		throw VizException("pipenum value is too large");
 	}
 
 	// ALL apis from here on down can assume that pipenum is >=0
@@ -1592,7 +1592,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		cJSON* pparams = jsonGetArray(params, "params");
 		FFGLPluginInstance* pi = ppipeline->addToPipeline(plugin, viztag, autoenable, pparams);
 		if (!pi) {
-			throw NosuchException("Unable to add plugin '%s'", plugin.c_str());
+			throw VizException("Unable to add plugin '%s'", plugin.c_str());
 		}
 		pi->setMoveable(moveable);
 		return jsonStringResult(viztag, id);
@@ -1624,7 +1624,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 			FFGLPluginDef* def = pgl->plugindef();
 			return jsonStringResult(def->GetExtendedInfo()->About, id);
 		}
-		throw NosuchException("No such viztag: %s",viztag.c_str());
+		throw VizException("No such viztag: %s",viztag.c_str());
 	}
 	if (meth == "description") {
 		// std::string viztag = jsonNeedString(params, "viztag");
@@ -1633,7 +1633,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 			FFGLPluginDef* def = pgl->plugindef();
 			return jsonStringResult(def->GetExtendedInfo()->Description, id);
 		}
-		throw NosuchException("No such viztag: %s",viztag.c_str());
+		throw VizException("No such viztag: %s",viztag.c_str());
 	}
 	if ( meth == "delete" ) {
 		// It's okay if it doesn't exist
@@ -1666,25 +1666,25 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 
 		FFGLPluginInstance* pi = m_ffglpipeline[pipenum].find_plugin(viztag);
 		if (pi == NULL) {
-			throw NosuchException("Unable find find plugin with viztag='%s'", viztag.c_str());
+			throw VizException("Unable find find plugin with viztag='%s'", viztag.c_str());
 		}
 		if (jv == NULL) {
-			throw NosuchException("Missing 'val' parameter in ffglparamset call");
+			throw VizException("Missing 'val' parameter in ffglparamset call");
 		}
 		if (jv->type == cJSON_Number) {
 			float val = (float)jsonNeedDouble(params, "val");
 			if (!pi->setparam(param, val)) {
-				throw NosuchException("Unable to find or set parameter '%s' in viztag '%s'", param.c_str(), viztag.c_str());
+				throw VizException("Unable to find or set parameter '%s' in viztag '%s'", param.c_str(), viztag.c_str());
 			}
 		}
 		else if (jv->type == cJSON_String) {
 			std::string val = jsonNeedString(params,"val");
 			if ( ! pi->setparam(param,val) ) {
-				throw NosuchException("Unable to find or set parameter '%s' in viztag '%s'",param.c_str(),viztag.c_str());
+				throw VizException("Unable to find or set parameter '%s' in viztag '%s'",param.c_str(),viztag.c_str());
 			}
 		}
 		else {
-			throw NosuchException("Unable to handle jv->type=%d", jv->type);
+			throw VizException("Unable to handle jv->type=%d", jv->type);
 		}
 		return jsonOK(id);
 	}
@@ -1694,7 +1694,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		FFGLPluginInstance* pi = m_ffglpipeline[pipenum].find_plugin(viztag);
 		FFGLParameterDef* pd = pi->plugindef()->findparamdef(param);
 		if ( pd == NULL ) {
-			throw NosuchException("No parameter '%s' in viztag '%s'",param.c_str(),viztag.c_str());
+			throw VizException("No parameter '%s' in viztag '%s'",param.c_str(),viztag.c_str());
 		}
 		return pi->getParamJsonResult(pd, pi, id);
 	}
@@ -1767,7 +1767,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		return copyFile(params, pipesetPath, id);
 	}
 	if (meth == "get_sidrange") {
-		std::string s = NosuchSnprintf("%d-%d", ppipeline->m_sidmin, ppipeline->m_sidmax);
+		std::string s = VizSnprintf("%d-%d", ppipeline->m_sidmin, ppipeline->m_sidmax);
 		return jsonStringResult(s, id);
 	}
 	if (meth == "set_sidrange") {
@@ -1789,7 +1789,7 @@ std::string FFFF::executeJson(std::string meth, cJSON *params, const char* id)
 		return jsonOK(id);
 	}
 
-	throw NosuchException("Unrecognized method '%s'",meth.c_str());
+	throw VizException("Unrecognized method '%s'",meth.c_str());
 
 // 	return jsonError(-32000,err.c_str(),id);
 }

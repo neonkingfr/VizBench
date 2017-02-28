@@ -1,4 +1,4 @@
-#include "NosuchUtil.h"
+#include "VizUtil.h"
 
 #include "FFGLPluginInstance.h"
 
@@ -20,7 +20,7 @@ FFGLPluginInstance::~FFGLPluginInstance()
 {
     if (m_ffPluginMain!=NULL || m_ffInstanceID!=INVALIDINSTANCE)
     {
-        NosuchDebug("FFGLPluginInstance deleted without calling Unload()");
+        VizDebug("FFGLPluginInstance deleted without calling Unload()");
     }
 }
 
@@ -70,7 +70,7 @@ bool FFGLPluginInstance::setparam(std::string pnm, float v)
 			return true;
 		}
 	}
-    NosuchDebug("Didn't find FFGL parameter pnm=%s\n",pnm.c_str());
+    VizDebug("Didn't find FFGL parameter pnm=%s\n",pnm.c_str());
     return false;
 }
 
@@ -80,7 +80,7 @@ void FFGLPluginInstance::SetFloatParameter(int paramNum, float value)
             m_ffInstanceID==INVALIDINSTANCE || m_ffPluginMain==NULL)
     {
         //the parameter or the plugin doesn't exist
-		NosuchDebug("Hey, paramNum=%d value=%f doesn't exist?\n",paramNum,value);
+		VizDebug("Hey, paramNum=%d value=%f doesn't exist?\n",paramNum,value);
         return;
     }
 
@@ -106,7 +106,7 @@ void FFGLPluginInstance::SetTime(double curTime)
 {
     if (m_ffInstanceID==INVALIDINSTANCE || m_ffPluginMain==NULL)
     {
-        NosuchDebug("Invalid SetTime call");
+        VizDebug("Invalid SetTime call");
         return;
     }
 
@@ -118,7 +118,7 @@ float FFGLPluginInstance::GetFloatParameter(int paramNum)
     if (paramNum<0 || paramNum>=m_numParameters ||
             m_ffInstanceID==INVALIDINSTANCE || m_ffPluginMain==NULL)
     {
-        NosuchDebug("Invalid GetFloatParameter call");
+        VizDebug("Invalid GetFloatParameter call");
         return 0.f;
     }
 
@@ -144,7 +144,7 @@ DWORD FFGLPluginInstance::CallProcessOpenGL(ProcessOpenGLStructTag &t)
     //make sure we have code to call otherwise return the unprocessed input
     if (m_ffPluginMain==NULL || m_ffInstanceID==INVALIDINSTANCE)
     {
-        NosuchDebug("Invalid CallProcessOpenGL call");
+        VizDebug("Invalid CallProcessOpenGL call");
         return FF_FAIL;
     }
 
@@ -156,7 +156,7 @@ DWORD FFGLPluginInstance::CallProcessOpenGL(ProcessOpenGLStructTag &t)
     }
     catch (...)
     {
-        NosuchDebug("Error on call to FreeFrame::ProcessFrame");
+        VizDebug("Error on call to FreeFrame::ProcessFrame");
         retVal = FF_FAIL;
     }
 
@@ -295,7 +295,7 @@ DWORD FFGLPluginInstance::DeInstantiateGL()
     }
     catch (...)
     {
-        NosuchDebug("FreeFrame Exception on DEINSTANTIATE");
+        VizDebug("FreeFrame Exception on DEINSTANTIATE");
     }
 
     m_ffInstanceID = INVALIDINSTANCE;
@@ -325,7 +325,7 @@ DWORD FFGLPluginInstance::DeinitPluginLibrary()
     {
         //we can't call DeInstantiate because we must
         //guarantee an active OpenGL context
-        NosuchDebug("Failed to call DeInstantiateGL() before calling DeinitPluginLibrary()");
+        VizDebug("Failed to call DeInstantiateGL() before calling DeinitPluginLibrary()");
         return FF_FAIL;
     }
 
@@ -338,7 +338,7 @@ DWORD FFGLPluginInstance::DeinitPluginLibrary()
         rval = m_ffPluginMain(FF_DEINITIALISE,0,0).ivalue;
         if (rval != FF_SUCCESS)
         {
-            NosuchDebug("FreeFrame DeInit failed");
+            VizDebug("FreeFrame DeInit failed");
         }
         m_ffPluginMain=NULL;
     }

@@ -31,7 +31,7 @@
 #include <limits.h>
 #include <ctype.h>
 #include "cJSON.h"
-#include "NosuchDebug.h"
+#include "VizDebug.h"
 
 static int cJSON_strcasecmp(const char *s1,const char *s2)
 {

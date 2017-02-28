@@ -29,8 +29,8 @@
 #include <cctype>
 #include <algorithm>
 
-#include "NosuchDebug.h"
-#include "NosuchUtil.h"
+#include "VizDebug.h"
+#include "VizUtil.h"
 #include "FFGL.h"
 #include "FFGLLib.h"
 #include "ffglutil.h"

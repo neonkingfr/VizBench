@@ -66,7 +66,7 @@
 
 #include "FFGLPluginSDK.h"
 #include <memory.h>
-#include "NosuchDebug.h"
+#include "VizDebug.h"
 #include "VizServer.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -481,9 +481,9 @@ plugMainUnion plugMain(DWORD functionCode, DWORD inputValue, DWORD instanceID)
 			break;
 		}
 	}
-	catch (NosuchException& e) {
+	catch (VizException& e) {
 		retval.ivalue = FF_FAIL;
-		DEBUGPRINT(("NosuchException in plugmain: %s", e.message()));
+		DEBUGPRINT(("VizException in plugmain: %s", e.message()));
 	}
 	catch (...) {
 		// Does this really work?  Not sure

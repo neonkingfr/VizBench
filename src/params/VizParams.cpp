@@ -1,5 +1,5 @@
-#include "NosuchDebug.h"
-#include "NosuchJson.h"
+#include "VizDebug.h"
+#include "VizJson.h"
 #include "VizParams.h"
 
 bool VizParams::Initialized = false;
@@ -122,7 +122,7 @@ void VizParams::Initialize() {
 
 std::string
 PluginParamsPath(std::string f) {
-	if (!NosuchEndsWith(f, ".json")) {
+	if (!VizEndsWith(f, ".json")) {
 		f += ".json";
 	}
 	return VizConfigPath("plugins", f);
@@ -130,7 +130,7 @@ PluginParamsPath(std::string f) {
 
 std::string
 VizParamsPath(std::string f, std::string paramtype) {
-	if (!NosuchEndsWith(f, ".json")) {
+	if (!VizEndsWith(f, ".json")) {
 		f += ".json";
 	}
 	return VizConfigPath(paramtype, f);
@@ -151,9 +151,9 @@ MidiVizParamsPath(std::string f)
 std::string
 configJsonPath(std::string subdir, std::string name) {
 	if (name == "") {
-		throw NosuchException("config name is blank!?");
+		throw VizException("config name is blank!?");
 	}
-	if (!NosuchEndsWith(name, ".json")) {
+	if (!VizEndsWith(name, ".json")) {
 		name += ".json";
 	}
 	return VizConfigPath(subdir, name);

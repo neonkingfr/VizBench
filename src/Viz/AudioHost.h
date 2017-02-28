@@ -1,7 +1,7 @@
 #ifndef _AUDIOHOST_H
 #define _AUDIOHOST_H
 
-#include "NosuchJSON.h"
+#include "VizJSON.h"
 
 #include <string>
 

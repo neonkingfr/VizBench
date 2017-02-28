@@ -3,7 +3,7 @@
 
 #include <list>
 #include <pthread.h>
-#include "NosuchGraphics.h"
+#include "VizGraphics.h"
 
 class VizSprite;
 struct OutlineMem;
@@ -17,7 +17,7 @@ public:
 	void lock_read();
 	void lock_write();
 	void unlock();
-	void draw(NosuchGraphics* g);
+	void draw(VizGraphics* g);
 	void advanceTo(double tm);
 	void computeForces();
 	void hit();
@@ -36,7 +36,7 @@ public:
 		// direction = 0.0;
 		hue = 0.0f;
 		huefill = 0.0f;
-		pos = NosuchPos(0.0f, 0.0f, 0.0f);
+		pos = VizPos(0.0f, 0.0f, 0.0f);
 		size = 0.5;
 		alpha = 1.0;
 
@@ -58,7 +58,7 @@ public:
 	bool visible;
 	double hue;
 	double huefill;
-	NosuchPos pos;
+	VizPos pos;
 	double size;
 	double alpha;
 
@@ -91,21 +91,21 @@ public:
 	virtual ~VizSprite();
 
 	static VizSprite* makeVizSprite(SpriteVizParams* sp);
-	void initVizSpriteState(double tm, void* handle, NosuchPos& pos, SpriteVizParams* params, bool doinitial=true);
+	void initVizSpriteState(double tm, void* handle, VizPos& pos, SpriteVizParams* params, bool doinitial=true);
 
 	static double degree2radian(double deg);
-	virtual void drawShape(NosuchGraphics* graphics, int xdir, int ydir) = 0;
+	virtual void drawShape(VizGraphics* graphics, int xdir, int ydir) = 0;
 	virtual bool fixedScale() { return false; }
 
 	// Screen space is 2.0x2.0, while cursor space is 1.0x1.0
-	void scaleCursorSpaceToScreenSpace(NosuchVector& pos) {
+	void scaleCursorSpaceToScreenSpace(VizVector& pos) {
 		m_state.pos.x *= 2.0f;
 		m_state.pos.y *= 2.0f;
 	}
 
-	void draw(NosuchGraphics* graphics);
-	void drawAt(NosuchGraphics* app, double x, double y, double w, double h, int xdir, int ydir);
-	NosuchPos deltaInDirection(double dt, double dir, double speed);
+	void draw(VizGraphics* graphics);
+	void drawAt(VizGraphics* app, double x, double y, double w, double h, int xdir, int ydir);
+	VizPos deltaInDirection(double dt, double dir, double speed);
 	void advanceTo(double tm);
 
 #ifdef CURVE_STUFF
@@ -122,14 +122,14 @@ protected:
 	double vertexNoise();
 
 private:
-	void draw(NosuchGraphics* app, double scaled_z);
+	void draw(VizGraphics* app, double scaled_z);
 };
 
 class VizSpriteSquare : public VizSprite {
 
 public:
 	VizSpriteSquare(SpriteVizParams* sp);
-	void drawShape(NosuchGraphics* app, int xdir, int ydir);
+	void drawShape(VizGraphics* app, int xdir, int ydir);
 
 private:
 	double m_noise_x0;
@@ -146,7 +146,7 @@ class VizSpriteHbar : public VizSprite {
 
 public:
 	VizSpriteHbar(SpriteVizParams* sp);
-	void drawShape(NosuchGraphics* app, int xdir, int ydir);
+	void drawShape(VizGraphics* app, int xdir, int ydir);
 
 private:
 	double m_noise_x0;
@@ -163,7 +163,7 @@ class VizSpriteVbar : public VizSprite {
 
 public:
 	VizSpriteVbar(SpriteVizParams* sp);
-	void drawShape(NosuchGraphics* app, int xdir, int ydir);
+	void drawShape(VizGraphics* app, int xdir, int ydir);
 
 private:
 	double m_noise_x0;
@@ -180,7 +180,7 @@ class VizSpriteTriangle : public VizSprite {
 
 public:
 	VizSpriteTriangle(SpriteVizParams* sp);
-	void drawShape(NosuchGraphics* app, int xdir, int ydir);
+	void drawShape(VizGraphics* app, int xdir, int ydir);
 
 private:
 	double m_noise_x0;
@@ -195,7 +195,7 @@ class VizSpriteCircle : public VizSprite {
 
 public:
 	VizSpriteCircle(SpriteVizParams* sp);
-	void drawShape(NosuchGraphics* app, int xdir, int ydir);
+	void drawShape(VizGraphics* app, int xdir, int ydir);
 };
 
 class VizSpriteOutline : public VizSprite {
@@ -203,7 +203,7 @@ class VizSpriteOutline : public VizSprite {
 public:
 	VizSpriteOutline(SpriteVizParams* sp);
 	~VizSpriteOutline();
-	void drawShape(NosuchGraphics* app, int xdir, int ydir);
+	void drawShape(VizGraphics* app, int xdir, int ydir);
 	void setOutline(OutlineMem* om, MMTT_SharedMemHeader* hdr);
 	int Npoints() { return m_npoints; }
 	PointMem* Points() { return m_points; }
@@ -217,7 +217,7 @@ class VizSpriteLine : public VizSprite {
 
 public:
 	VizSpriteLine(SpriteVizParams* sp);
-	void drawShape(NosuchGraphics* app, int xdir, int ydir);
+	void drawShape(VizGraphics* app, int xdir, int ydir);
 
 private:
 	double m_noise_x0;
@@ -230,7 +230,7 @@ class VizSpriteNothing : public VizSprite {
 
 public:
 	VizSpriteNothing(SpriteVizParams* sp);
-	void drawShape(NosuchGraphics* app, int xdir, int ydir);
+	void drawShape(VizGraphics* app, int xdir, int ydir);
 };
 
 #endif

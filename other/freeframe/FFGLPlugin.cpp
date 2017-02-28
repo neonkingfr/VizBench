@@ -1,8 +1,8 @@
-#include "NosuchUtil.h"
-#include "NosuchException.h"
-#include "NosuchJson.h"
+#include "VizUtil.h"
+#include "VizException.h"
+#include "VizJson.h"
 
-#include <VizUtil.h>
+#include "VizFFUtil.h"
 #include "FFGLPlugin.h"
 
 #include <stdio.h>
@@ -68,7 +68,7 @@ FFGLPluginInstance::FFGLPluginInstance(FFGLPluginDef* d, std::string viztag) :
 	m_plugindef(d), m_params(NULL), m_viztag(viztag), m_enabled(false),
 	m_moveable(true), m_instanceid(INVALIDINSTANCE) {
 
-	NosuchAssert ( d->m_mainfunc );
+	VizAssert ( d->m_mainfunc );
 	m_main = d->m_mainfunc;
 }
 
@@ -91,7 +91,7 @@ bool FFGLPluginInstance::setparam(std::string pnm, std::string v)
 		SetStringParameter(pnum, v);
 	    return true;
 	} else {
-	    NosuchErrorOutput("Didn't find FFGL parameter pnm=%s in plugin=%s\n",pnm.c_str(),m_plugindef->GetPluginName().c_str());
+	    VizErrorOutput("Didn't find FFGL parameter pnm=%s in plugin=%s\n",pnm.c_str(),m_plugindef->GetPluginName().c_str());
 	    return false;
 	}
 }
@@ -123,7 +123,7 @@ std::string FFGLPluginInstance::getParamJsonResult(FFGLParameterDef* pd, FFGLPlu
 		v = pi->GetFloatParameter(pd->num);
 		return jsonDoubleResult(v, id);
 	}
-	throw NosuchException("UNIMPLEMENTED parameter type (%d) in get API!", pd->type);
+	throw VizException("UNIMPLEMENTED parameter type (%d) in get API!", pd->type);
 }
 
 void FFGLPluginInstance::SetFloatParameter(int paramNum, float value)
@@ -169,11 +169,11 @@ void FFGLPluginInstance::SetStringParameter(int paramNum, std::string value)
 		}
 		ArgStruct.u.NewParameterValue = jsonIsTrueValue(value.c_str());
     } else {
-		throw NosuchException("HEY! SetStringParameter called on non-TEXT/STANDARD parameter (paramnum=%d)",paramNum);
+		throw VizException("HEY! SetStringParameter called on non-TEXT/STANDARD parameter (paramnum=%d)",paramNum);
 	}
 	DWORD rval = m_main(FF_SETPARAMETER, (DWORD)(&ArgStruct), m_instanceid).ivalue;
 	if (rval != FF_SUCCESS) {
-		throw NosuchException("FF_SETPARAMETER failed!? (paramnum=%d)",paramNum);
+		throw VizException("FF_SETPARAMETER failed!? (paramnum=%d)",paramNum);
 	}
 	return;
 }
@@ -467,10 +467,10 @@ void loadffgldir(std::string ffgldir)
 			filesize.HighPart = ffd.nFileSizeHigh;
 
 			std::wstring wcfname = ffd.cFileName;
-			std::string cfname = NosuchToLower(ws2s(wcfname));
-			// std::string cfname = NosuchToLower(ffd.cFileName);
+			std::string cfname = VizToLower(ws2s(wcfname));
+			// std::string cfname = VizToLower(ffd.cFileName);
 
-			if (NosuchEndsWith(cfname, ".dll")) {
+			if (VizEndsWith(cfname, ".dll")) {
 				loadffglplugindef(ffgldir, cfname.c_str());
 			}
 		}
@@ -485,7 +485,7 @@ void loadffgldir(std::string ffgldir)
 }
 
 void loadffglpath(std::string path) {
-	std::vector<std::string> dirs = NosuchSplitOnString(path, ";");
+	std::vector<std::string> dirs = VizSplitOnString(path, ";");
 	for (size_t i = 0; i<dirs.size(); i++) {
 		loadffgldir(VizPath(dirs[i]));
 	}

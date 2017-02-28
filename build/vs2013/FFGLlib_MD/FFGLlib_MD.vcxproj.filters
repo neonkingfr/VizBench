@@ -4,36 +4,6 @@
     <ClCompile Include="..\..\..\other\cJSON\cJSON.cpp">
       <Filter>Source Files\cJSON</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\misclib\UT_SharedMem.cpp">
-      <Filter>Source Files\misclib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\misclib\sha1.c">
-      <Filter>Source Files\misclib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\misclib\UT_Mutex.cpp">
-      <Filter>Source Files\misclib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\midifile.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchDebug.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchException.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchGraphics.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchJSON.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchOsc.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchUtil.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\other\osc\src\OscBundle.cpp">
       <Filter>Source Files\osc</Filter>
     </ClCompile>
@@ -85,12 +55,6 @@
     <ClCompile Include="..\..\..\src\params\VizParams.cpp">
       <Filter>Source Files\params</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchMidi.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchLife.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\other\freeframe\FFGLShader.cpp">
       <Filter>Source Files\freeframe</Filter>
     </ClCompile>
@@ -106,19 +70,46 @@
     <ClCompile Include="..\..\..\src\Viz\vizletutil.cpp">
       <Filter>Source Files\viz</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchMaze.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\params\SpriteVizParams.cpp">
       <Filter>Source Files\params</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\params\MidiVizParams.cpp">
       <Filter>Source Files\params</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\Scale.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\Viz\CursorBehaviour.cpp">
+      <Filter>Source Files\viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\midifile.cpp">
+      <Filter>Source Files\viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizUtil.cpp">
+      <Filter>Source Files\viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizDebug.cpp">
+      <Filter>Source Files\viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizJSON.cpp">
+      <Filter>Source Files\viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizException.cpp">
+      <Filter>Source Files\viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizGraphics.cpp">
+      <Filter>Source Files\viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizOsc.cpp">
+      <Filter>Source Files\viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizMazeImpl.cpp">
+      <Filter>Source Files\viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\Scale.cpp">
+      <Filter>Source Files\viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizMidi.cpp">
+      <Filter>Source Files\viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizLifeImpl.cpp">
       <Filter>Source Files\viz</Filter>
     </ClCompile>
   </ItemGroup>
@@ -128,12 +119,6 @@
     </Filter>
     <Filter Include="Source Files\cJSON">
       <UniqueIdentifier>{65ee8ba4-5c63-4cf3-96a6-6ee47488be6b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\misclib">
-      <UniqueIdentifier>{ce12c45c-4732-49f9-8328-927b005ec27c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\nosuch">
-      <UniqueIdentifier>{a781d6b1-07c9-4de5-9b32-3fbb2cca7d20}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\osc">
       <UniqueIdentifier>{c94c305d-95df-4b6b-81c7-e9d44d5ed839}</UniqueIdentifier>
@@ -164,9 +149,6 @@
     </Filter>
     <Filter Include="Header Files\freeframe">
       <UniqueIdentifier>{89814e34-4b8c-434d-bad5-b33a5b69e5b8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\nosuch">
-      <UniqueIdentifier>{f57a1a45-7602-42a1-a7df-2e7b51c1e739}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\params">
       <UniqueIdentifier>{b927d1a4-287b-473c-98a4-67bce2839e31}</UniqueIdentifier>
@@ -208,56 +190,11 @@
     <ClInclude Include="..\..\..\other\freeframe\FFGLPluginSDK.h">
       <Filter>Header Files\freeframe</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchSocket.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchDaemon.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchOscInput.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchOscManager.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchOscTcpInput.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchOscUdpInput.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\midifile.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchColor.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchDebug.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchException.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchGraphics.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\params\VizParams.h">
       <Filter>Header Files\params</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchMidi.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchLife.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\other\freeframe\FFGLShader.h">
       <Filter>Header Files\freeframe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\Viz\Vizlet.h">
-      <Filter>Header Files\viz</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\Viz\VizServer.h">
-      <Filter>Header Files\viz</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\other\freeframe\FFGLPluginManager_inl.h">
       <Filter>Header Files\freeframe</Filter>
@@ -265,31 +202,46 @@
     <ClInclude Include="..\..\..\other\cJSON\cJSON.h">
       <Filter>Header Files\cJSON</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\Viz\vizletutil.h">
-      <Filter>Header Files\viz</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\Viz\VizSprite.h">
-      <Filter>Header Files\viz</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchMaze.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\params\SpriteVizParams.h">
       <Filter>Header Files\params</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\params\MidiVizParams.h">
       <Filter>Header Files\params</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchJSON.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\other\freeframe\FreeFrame.h">
       <Filter>Header Files\freeframe</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\Scale.h">
-      <Filter>Header Files\nosuch</Filter>
+    <ClInclude Include="..\..\..\src\Viz\Scale.h">
+      <Filter>Header Files\viz</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\Viz\CursorBehaviour.h">
+    <ClInclude Include="..\..\..\src\Viz\VizColor.h">
+      <Filter>Header Files\viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizDaemon.h">
+      <Filter>Header Files\viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizDebug.h">
+      <Filter>Header Files\viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizException.h">
+      <Filter>Header Files\viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizGraphics.h">
+      <Filter>Header Files\viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizOscInput.h">
+      <Filter>Header Files\viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizOscManager.h">
+      <Filter>Header Files\viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizOscTcpInput.h">
+      <Filter>Header Files\viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizSchedEvent.h">
+      <Filter>Header Files\viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizSocket.h">
       <Filter>Header Files\viz</Filter>
     </ClInclude>
   </ItemGroup>

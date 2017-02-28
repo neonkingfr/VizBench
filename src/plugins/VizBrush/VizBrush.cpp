@@ -68,12 +68,12 @@ std::string VizBrush::processJson(std::string meth, cJSON *json, const char *id)
 	if (meth == "dump") {
 		std::string dump = "[";
 
-		dump += NosuchSnprintf("{\"method\":\"set_sprite\",\"params\":{\"paramfile\":\"%s\"}}", cb->spriteparamfile.c_str());
-		dump += NosuchSnprintf(",{\"method\":\"set_midi\",\"params\":{\"paramfile\":\"%s\"}}", cb->midiparamfile.c_str());
-		dump += NosuchSnprintf(",{\"method\":\"set_looping\",\"params\":{\"onoff\":\"%d\"}}", cb->m_looping);
+		dump += VizSnprintf("{\"method\":\"set_sprite\",\"params\":{\"paramfile\":\"%s\"}}", cb->spriteparamfile.c_str());
+		dump += VizSnprintf(",{\"method\":\"set_midi\",\"params\":{\"paramfile\":\"%s\"}}", cb->midiparamfile.c_str());
+		dump += VizSnprintf(",{\"method\":\"set_looping\",\"params\":{\"onoff\":\"%d\"}}", cb->m_looping);
 
 		// Don't dump the sidrange value - it's set from FFF via API
-		// dump += NosuchSnprintf(",{\"method\":\"set_sidrange\",\"params\":{\"sidrange\":\"%d-%d\"}}", cb->sid_min, cb->sid_max);
+		// dump += VizSnprintf(",{\"method\":\"set_sidrange\",\"params\":{\"sidrange\":\"%d-%d\"}}", cb->sid_min, cb->sid_max);
 
 		dump += "]";
 		return jsonStringResult(dump, id);
@@ -86,7 +86,7 @@ std::string VizBrush::processJson(std::string meth, cJSON *json, const char *id)
 		result = cb->_set_sidrange(json, id);
 	}
 	if (meth == "get_sidrange") {
-		result = jsonStringResult(NosuchSnprintf("%d-%d", cb->sid_min, cb->sid_max), id);
+		result = jsonStringResult(VizSnprintf("%d-%d", cb->sid_min, cb->sid_max), id);
 	}
 
 	if (meth == "set_sprite") {
@@ -119,7 +119,7 @@ std::string VizBrush::processJson(std::string meth, cJSON *json, const char *id)
 		return jsonIntResult(cb->m_autoloadparams ? 1 : 0, id);
 	}
 
-	throw NosuchException("VizBrush - Unrecognized method '%s'",meth.c_str());
+	throw VizException("VizBrush - Unrecognized method '%s'",meth.c_str());
 }
 
 

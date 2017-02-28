@@ -13,10 +13,10 @@
 #define VIZSERVER_API __declspec(dllimport)
 #endif
 
-#include "NosuchJSON.h"
-#include "NosuchOsc.h"
-#include "NosuchMidi.h"
-#include "NosuchGraphics.h"
+#include "VizJSON.h"
+#include "VizOsc.h"
+#include "VizMidi.h"
+#include "VizGraphics.h"
 #include "mmtt_sharedmem.h"
 // typedef int click_t;
 
@@ -29,8 +29,8 @@ class VizServerOscProcessor;
 class VizServerMidiProcessor;
 class VizServerCursorProcessor;
 class VizServerKeystrokeProcessor;
-class NosuchDaemon;
-class NosuchScheduler;
+class VizDaemon;
+class VizScheduler;
 class MidiPhrase;
 class UT_SharedMem;
 class MMTT_SharedMemHeader;
@@ -68,7 +68,7 @@ public:
 class CursorListener {
 public:
 	virtual void processCursor(VizCursor* c, int downdragup) {
-		DEBUGPRINT(("HEY!  processCursor in NosuchCursorProcess called!?"));
+		DEBUGPRINT(("HEY!  processCursor in VizCursorProcess called!?"));
 	}
 };
 
@@ -90,7 +90,7 @@ class VizCursor {
 public:
 	// methods
 	VizCursor(VizServer* ss, int sid_, std::string source_, int cursorid_,
-		NosuchPos pos_, double area_, OutlineMem* om_, MMTT_SharedMemHeader* hdr_);
+		VizPos pos_, double area_, OutlineMem* om_, MMTT_SharedMemHeader* hdr_);
 	virtual ~VizCursor();
 
 	void touch(double tm) {
@@ -118,7 +118,7 @@ public:
 	std::vector<int>& lastpitches() { return m_last_pitches; }
 
 	void add_last_note(int clk, MidiMsg* m) {
-		// NosuchDebug(2,"ADD_LAST_NOTE clk=%d m=%s",clk,m->DebugString().c_str());
+		// VizDebug(2,"ADD_LAST_NOTE clk=%d m=%s",clk,m->DebugString().c_str());
 		m_last_pitches.push_back(m->Pitch());
 	}
 	int last_pitch() {
@@ -128,13 +128,13 @@ public:
 		return m_last_pitches.front();
 	}
 	void clear_last_note() {
-		NosuchDebug(2,"CLEAR_LAST_NOTE!");
+		VizDebug(2,"CLEAR_LAST_NOTE!");
 		m_last_pitches.clear();
 	}
 
 	// members
-	NosuchPos pos;
-	NosuchPos target_pos;
+	VizPos pos;
+	VizPos target_pos;
 	VizServer* m_vizserver;
 	double m_lasttouchedInSeconds;
 	int sid;
@@ -155,8 +155,8 @@ public:
 private:
 	double m_target_depth;
 	std::vector<int> m_last_pitches;
-	NosuchPos _previous_musicpos;
-	NosuchPos m_last_pos;
+	VizPos _previous_musicpos;
+	VizPos m_last_pos;
 	double m_target_degrees;
 	double m_last_tm;
 	bool m_g_firstdir;
@@ -258,20 +258,20 @@ private:
 	void* m_errorCallbackData;
 
 	void LockCursors() {
-		NosuchLock(&_cursors_mutex,"cursors");
+		VizLock(&_cursors_mutex,"cursors");
 	}
 	int TryLockCursors() {
-		return NosuchTryLock(&_cursors_mutex,"cursors");
+		return VizTryLock(&_cursors_mutex,"cursors");
 	}
 	void UnlockCursors() {
-		NosuchUnlock(&_cursors_mutex,"cursors");
+		VizUnlock(&_cursors_mutex,"cursors");
 	}
 
 	void LockVizServer() {
-		NosuchLock(&_vizserver_mutex,"vizserver");
+		VizLock(&_vizserver_mutex,"vizserver");
 	}
 	void UnlockVizServer() {
-		NosuchUnlock(&_vizserver_mutex,"vizserver");
+		VizUnlock(&_vizserver_mutex,"vizserver");
 	}
 	
 	friend class VizServerOscProcessor;	// so it can access _touchCursorSid, _checkCursorUp, _setCursor
@@ -302,7 +302,7 @@ private:
 	void _checkCursorUp();
 	VizCursor* _getCursor(int sidnum, std::string sidsource, bool lockit);
 	void _touchCursorSid(int sidnum, std::string sidsource);
-	void _setCursor(int sidnum, std::string sidsource, NosuchPos pos, double area, OutlineMem* om, MMTT_SharedMemHeader* hdr);
+	void _setCursor(int sidnum, std::string sidsource, VizPos pos, double area, OutlineMem* om, MMTT_SharedMemHeader* hdr);
 	void _setCursorSid(int sidnum, const char* source, double x, double y, double z, double tuio_f, OutlineMem* om, MMTT_SharedMemHeader* hdr );
 	void _processCursorsFromBuff(MMTT_SharedMemHeader* hdr);
 
@@ -345,7 +345,7 @@ private:
 
 	int m_httpport;
 	const char* m_htmlpath;
-	NosuchDaemon* m_daemon;
+	VizDaemon* m_daemon;
 
 	// Processors are Listeners that broadcast things to Callbacks
 	VizServerJsonProcessor* m_jsonprocessor;
@@ -355,7 +355,7 @@ private:
 	VizServerCursorProcessor* m_cursorprocessor;
 	VizServerKeystrokeProcessor* m_keystrokeprocessor;
 	VizServerClickProcessor* m_clickprocessor;
-	NosuchScheduler* m_scheduler;
+	VizScheduler* m_scheduler;
 
 };
 

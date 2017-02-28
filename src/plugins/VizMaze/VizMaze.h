@@ -1,7 +1,7 @@
 #ifndef _VizMaze_H
 #define _VizMaze_H
 
-#include "NosuchMaze.h"
+#include "VizMazeImpl.h"
 
 class VizMazeCellData {
 public:
@@ -38,7 +38,7 @@ private:
 	MazePoint randDelta();
 
 	VizMazeCellData* m_celldata;
-	NosuchMaze* m_maze;
+	VizMazeImpl* m_maze;
 };
 
 #endif

@@ -152,12 +152,12 @@ VizShader::VizShader():Vizlet()
 bool VizShader::ReadAndLoadShader(std::string filename) {
 	std::string err = "";
 	std::string path = VizConfigPath("shaders",filename);
-	if ( ! NosuchEndsWith(path,".shader") ) {
+	if ( ! VizEndsWith(path,".shader") ) {
 		path += ".shader";
 	}
-	// The arguments to NosuchReadFile here will 1) treat // as comments,
+	// The arguments to VizReadFile here will 1) treat // as comments,
 	// 2) ignore blank lines, and 3) replace EOL with " "
-	std::string shaderString = NosuchReadFile(path,err,"//",true," ");
+	std::string shaderString = VizReadFile(path,err,"//",true," ");
 	if ( err != "" ) {
 		DEBUGPRINT(("VizShader::ReadAndLoadShader - err=%s",err.c_str()));
 		return false;
@@ -1135,5 +1135,5 @@ std::string VizShader::processJson(std::string meth, cJSON *json, const char *id
 		m_newshaderfile = m_shaderfile;
 		return jsonOK(id);
 	}
-	throw NosuchException("VizShader - Unrecognized method '%s'",meth.c_str());
+	throw VizException("VizShader - Unrecognized method '%s'",meth.c_str());
 }

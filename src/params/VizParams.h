@@ -3,13 +3,13 @@
 
 #include <vector>
 #include <map>
-#include "NosuchException.h"
-#include "NosuchJson.h"
+#include "VizException.h"
+#include "VizJson.h"
 #include "Scale.h"
 
-#define IntString(x) NosuchSnprintf("%d",x)
-#define DoubleString(x) NosuchSnprintf("%f",x)
-#define BoolString(x) NosuchSnprintf("%s",x?"on":"off")
+#define IntString(x) VizSnprintf("%d",x)
+#define DoubleString(x) VizSnprintf("%f",x)
+#define BoolString(x) VizSnprintf("%s",x?"on":"off")
 
 typedef std::vector<std::string> StringList;
 
@@ -37,7 +37,7 @@ public:
 			set(j->valuedouble);
 		}
 		else {
-			throw NosuchException("Unable to set DoubleParam from j->type=%d", j->type);
+			throw VizException("Unable to set DoubleParam from j->type=%d", j->type);
 		}
 	}
 	void unset() { enabled = false; }
@@ -60,7 +60,7 @@ public:
 		case cJSON_String: set(jsonIsTrueValue(j->valuestring)); break;
 		case cJSON_Number: set(j->valueint != 0); break;
 		default:
-			throw NosuchException("Unable to set BoolParam from j->type=%d", j->type);
+			throw VizException("Unable to set BoolParam from j->type=%d", j->type);
 		}
 	}
 	operator bool() { return value; }
@@ -78,17 +78,17 @@ public:
 	void set(cJSON* j) {
 		if (j->type == cJSON_Number) {
 			if ((j->valuedouble - j->valueint) != 0.0) {
-				set(NosuchSnprintf("%f", j->valuedouble));
+				set(VizSnprintf("%f", j->valuedouble));
 			}
 			else {
-				set(NosuchSnprintf("%d", j->valueint));
+				set(VizSnprintf("%d", j->valueint));
 			}
 		}
 		else if (j->type == cJSON_String) {
 			set(j->valuestring);
 		}
 		else {
-			throw NosuchException("Unable to set StringParam from j->type=%d", j->type);
+			throw VizException("Unable to set StringParam from j->type=%d", j->type);
 		}
 	}
 	operator std::string() { return value; }
@@ -111,7 +111,7 @@ public:
 			set(atoi(j->valuestring));
 		}
 		else {
-			throw NosuchException("Unable to set IntParam from j->type=%d", j->type);
+			throw VizException("Unable to set IntParam from j->type=%d", j->type);
 		}
 	}
 	operator int() { return value; }
@@ -170,7 +170,7 @@ public:
 		int existing = -1;
 		int sz = vals.size();
 		if (sz == 0) {
-			throw NosuchException("vals array is empty!?");
+			throw VizException("vals array is empty!?");
 		}
 		for (int ei = 0; ei < sz; ei++) {
 			if (v == vals[ei]) {

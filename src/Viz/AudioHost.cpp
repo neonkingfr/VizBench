@@ -1,12 +1,12 @@
-#include "NosuchUtil.h"
-#include "NosuchOsc.h"
+#include "VizUtil.h"
+#include "VizOsc.h"
 #include "osc/OscOutboundPacketStream.h"
 #include "AudioHost.h"
 
 AudioHost::AudioHost(std::string hosttype, cJSON* config)
 {
 	if (hosttype != "bidule") {
-		throw NosuchException("unsupported audiohost_type value: %s", hosttype.c_str());
+		throw VizException("unsupported audiohost_type value: %s", hosttype.c_str());
 	}
 	m_hosttype = hosttype;
 	m_executable = jsonNeedString(config, "executable", "");
@@ -34,7 +34,7 @@ bool AudioHost::Execute() {
 	info.dwFlags = STARTF_USESHOWWINDOW;
 	info.wShowWindow = TRUE;
 
-	char* cmdline = _strdup(NosuchSnprintf("\"%s\" \"%s\"",m_executable.c_str(),VizConfigPath(m_patch).c_str()).c_str());
+	char* cmdline = _strdup(VizSnprintf("\"%s\" \"%s\"",m_executable.c_str(),VizConfigPath(m_patch).c_str()).c_str());
 	DEBUGPRINT(("AudioHost::Start %s",m_executable.c_str()));
 	if (CreateProcessA(m_executable.c_str(), cmdline, NULL, NULL, TRUE, 0, NULL, NULL, &info, &processInfo))
 	{

@@ -19,9 +19,9 @@
 */
 
 
-#include "NosuchDebug.h"
-#include "NosuchJSON.h"
-#include "NosuchMidi.h"
+#include "VizDebug.h"
+#include "VizJSON.h"
+#include "VizMidi.h"
 
 #include <windows.h>
 #include <stdio.h>

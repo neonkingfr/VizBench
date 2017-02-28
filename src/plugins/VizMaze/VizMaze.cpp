@@ -86,7 +86,7 @@ void
 VizMaze::setSize(int nrows, int ncols, int cellxsize, int cellysize) {
 
 	// Should probably delete m_maze if it's non-NULL
-	m_maze = new NosuchMaze(*this, nrows, ncols, cellxsize, cellysize);
+	m_maze = new VizMazeImpl(*this, nrows, ncols, cellxsize, cellysize);
 
 	int ncells = nrows * ncols;
 	m_celldata = new VizMazeCellData[ncells];
@@ -144,7 +144,7 @@ void VizMaze::processAdvanceClickTo(int click) {
 
 std::string VizMaze::processJson(std::string meth, cJSON *json, const char *id) {
 	// NO OpenGL calls here
-	throw NosuchException("VizMaze - Unrecognized method '%s'",meth.c_str());
+	throw VizException("VizMaze - Unrecognized method '%s'",meth.c_str());
 }
 
 void VizMaze::processMidiInput(MidiMsg* m) {

@@ -57,7 +57,7 @@ std::string VizExample3::processJson(std::string meth, cJSON *json, const char *
 		return jsonStringResult(m_spriteparams, id);
 	}
 
-	throw NosuchException("VizExample3 - Unrecognized method '%s'", meth.c_str());
+	throw VizException("VizExample3 - Unrecognized method '%s'", meth.c_str());
 }
 
 bool VizExample3::processDraw() {

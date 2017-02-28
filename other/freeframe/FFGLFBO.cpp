@@ -1,4 +1,4 @@
-#include "NosuchDebug.h"
+#include "VizDebug.h"
 #include "FFGLFBO.h"
 
 int FFGLFBO::Create(int ffgl_width,

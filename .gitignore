@@ -107,4 +107,5 @@ other/Box2d_Contributions
 config_backup/
 config_backup2/
 config_puddle_port1/
+*.db
 

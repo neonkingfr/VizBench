@@ -8,7 +8,7 @@
 #ifndef _MIDIVIZPARAMS_H
 #define _MIDIVIZPARAMS_H
 #include "VizParams.h"
-#include "NosuchJSON.h"
+#include "VizJSON.h"
 
 extern char* MidiVizParamsNames[];
 

@@ -13,18 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\nosuch">
-      <UniqueIdentifier>{9f4273c3-50c8-4018-9b86-d129fd0380be}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\nosuch">
-      <UniqueIdentifier>{68ea747d-8cc5-4967-aff6-d1079d4a8796}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\misclib">
-      <UniqueIdentifier>{20932e79-bb46-410f-881a-deb8dcabbb28}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\misclib">
-      <UniqueIdentifier>{3738acdb-70a9-4a67-b129-d1cd338d83e7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\osc">
       <UniqueIdentifier>{23a6b6eb-617f-4043-874e-d5acb61ac129}</UniqueIdentifier>
     </Filter>
@@ -84,59 +72,14 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchDaemon.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchSocket.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchHttpServer.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchOscInput.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchOscManager.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchOscTcpInput.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchOscUdpInput.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchScheduler.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\misclib\UT_Mutex.h">
-      <Filter>Header Files\misclib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\misclib\UT_SharedMem.h">
-      <Filter>Header Files\misclib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\misclib\sha1.h">
-      <Filter>Header Files\misclib</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\Viz\VizServer.h">
       <Filter>Header Files\Viz</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\params\VizParams.h">
       <Filter>Header Files\params</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\NosuchUtil.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\params\SpriteVizParams.h">
       <Filter>Header Files\params</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\Scale.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\SchedEvent.h">
-      <Filter>Header Files\nosuch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\nosuch\SchedEventList.h">
-      <Filter>Header Files\nosuch</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\Viz\FFFF.h">
       <Filter>Header Files\Viz</Filter>
@@ -168,59 +111,41 @@
     <ClInclude Include="..\..\..\other\libdrawtext\src\drawtext_impl.h">
       <Filter>Header Files\libdrawtext</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\Scale.h">
+      <Filter>Header Files\Viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizDaemon.h">
+      <Filter>Header Files\Viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizHttpServer.h">
+      <Filter>Header Files\Viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizOscInput.h">
+      <Filter>Header Files\Viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizOscManager.h">
+      <Filter>Header Files\Viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizOscTcpInput.h">
+      <Filter>Header Files\Viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizOscUdpInput.h">
+      <Filter>Header Files\Viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizSchedEvent.h">
+      <Filter>Header Files\Viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizSchedEventList.h">
+      <Filter>Header Files\Viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizScheduler.h">
+      <Filter>Header Files\Viz</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Viz\VizSocket.h">
+      <Filter>Header Files\Viz</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchScheduler.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchDaemon.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchDebug.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchException.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchHttpServer.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchOscInput.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchOscManager.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchOscTcpInput.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchOscUdpInput.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchSocket.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchJSON.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchOsc.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchMidi.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\midifile.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\misclib\sha1.c">
-      <Filter>Source Files\misclib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\misclib\UT_SharedMem.cpp">
-      <Filter>Source Files\misclib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\misclib\UT_Mutex.cpp">
-      <Filter>Source Files\misclib</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\other\osc\src\OscBundle.cpp">
       <Filter>Source Files\osc</Filter>
     </ClCompile>
@@ -275,23 +200,11 @@
     <ClCompile Include="..\..\..\src\params\VizParams.cpp">
       <Filter>Source Files\params</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\NosuchUtil.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\params\SpriteVizParams.cpp">
       <Filter>Source Files\params</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\params\MidiVizParams.cpp">
       <Filter>Source Files\params</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\Scale.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\SchedEvent.cpp">
-      <Filter>Source Files\nosuch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\nosuch\SchedEventList.cpp">
-      <Filter>Source Files\nosuch</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\Viz\FFFF.cpp">
       <Filter>Source Files\Viz</Filter>
@@ -325,6 +238,69 @@
     </ClCompile>
     <ClCompile Include="..\..\..\other\libdrawtext\src\utf8.c">
       <Filter>Source Files\libdrawtext</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizDaemon.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizDebug.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizException.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizHttpServer.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizJSON.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizOsc.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizOscInput.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizOscManager.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizOscTcpInput.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizOscUdpInput.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizScheduler.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizSocket.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizSchedEvent.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VIzSchedEventList.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizFFUtil.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\sha1.c">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\UT_Mutex.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\UT_SharedMem.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\Scale.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\midifile.cpp">
+      <Filter>Source Files\Viz</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Viz\VizMidi.cpp">
+      <Filter>Source Files\Viz</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

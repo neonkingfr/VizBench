@@ -34,7 +34,7 @@ void VizletGLTemplate::processCursor(VizCursor* c, int downdragup) {
 
 std::string VizletGLTemplate::processJson(std::string meth, cJSON *json, const char *id) {
 	// NO OpenGL calls here
-	throw NosuchException("VizletGLTemplate - Unrecognized method '%s'",meth.c_str());
+	throw VizException("VizletGLTemplate - Unrecognized method '%s'",meth.c_str());
 }
 
 void VizletGLTemplate::processMidiInput(MidiMsg* m) {

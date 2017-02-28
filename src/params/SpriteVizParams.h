@@ -8,7 +8,7 @@
 #ifndef _SPRITEVIZPARAMS_H
 #define _SPRITEVIZPARAMS_H
 #include "VizParams.h"
-#include "NosuchJSON.h"
+#include "VizJSON.h"
 
 extern char* SpriteVizParamsNames[];
 

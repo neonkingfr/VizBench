@@ -27,8 +27,8 @@
 
 #include <cstdlib> // for srand, rand
 
-#include "NosuchUtil.h"
-#include "NosuchGraphics.h"
+#include "VizUtil.h"
+#include "VizGraphics.h"
 #include "Vizlet.h"
 #include "VizSprite.h"
 #include "coxdeboor.h"
@@ -67,7 +67,7 @@ double scale_z(double z, double zexp) {
 	return 1.0f - pow((1.0 - z), zexp);
 }
 
-void VizSprite::draw(NosuchGraphics* p) {
+void VizSprite::draw(VizGraphics* p) {
 	if (m_params->zable && m_state.pos.z != CURSOR_Z_UNSET) {
 		double zpreoffset = m_params->zpreoffset.get();
 		double zpremultiply = m_params->zpremultiply.get();
@@ -93,7 +93,7 @@ void VizSprite::draw(NosuchGraphics* p) {
 	}
 }
 
-void VizSprite::draw(NosuchGraphics* graphics, double scaled_z) {
+void VizSprite::draw(VizGraphics* graphics, double scaled_z) {
 	if (!m_state.visible) {
 		DEBUGPRINT(("VizSprite.draw NOT DRAWING, !visible"));
 		return;
@@ -101,8 +101,8 @@ void VizSprite::draw(NosuchGraphics* graphics, double scaled_z) {
 	// double hue = state.hueoffset + params->hueinitial;
 	// double huefill = state.hueoffset + params->huefillinitial;
 
-	NosuchColor color = NosuchColor(m_state.hue, m_params->luminance, m_params->saturation);
-	NosuchColor colorfill = NosuchColor(m_state.huefill, m_params->luminance, m_params->saturation);
+	VizColor color = VizColor(m_state.hue, m_params->luminance, m_params->saturation);
+	VizColor colorfill = VizColor(m_state.huefill, m_params->luminance, m_params->saturation);
 
 	if (m_state.alpha <= 0.0f || m_state.size <= 0.0) {
 		m_state.killme = true;
@@ -177,7 +177,7 @@ void VizSprite::draw(NosuchGraphics* graphics, double scaled_z) {
 	}
 }
 
-void VizSprite::drawAt(NosuchGraphics* graphics, double x, double y, double scalex, double scaley, int xdir, int ydir) {
+void VizSprite::drawAt(VizGraphics* graphics, double x, double y, double scalex, double scaley, int xdir, int ydir) {
 	DEBUGPRINT1(("VizSprite::drawAt xy=   %.4lf   %.4lf", x, y));
 	graphics->pushMatrix();
 	graphics->translate(x, y);
@@ -193,8 +193,8 @@ void VizSprite::drawAt(NosuchGraphics* graphics, double x, double y, double scal
 	graphics->popMatrix();
 }
 
-NosuchPos VizSprite::deltaInDirection(double dt, double dir, double speed) {
-	NosuchPos delta((double)cos(degree2radian(dir)), (double)sin(degree2radian(dir)), 0.0f);
+VizPos VizSprite::deltaInDirection(double dt, double dir, double speed) {
+	VizPos delta((double)cos(degree2radian(dir)), (double)sin(degree2radian(dir)), 0.0f);
 	delta = delta.normalize();
 	delta = delta.mult(dt * speed);
 	return delta;
@@ -259,7 +259,7 @@ void VizSprite::advanceTo(double tm) {
 
 	if (m_state.speedX != 0.0 || m_state.speedY != 0.0) {
 
-		NosuchPos npos = m_state.pos;
+		VizPos npos = m_state.pos;
 		npos.x += dt * m_state.speedX;
 		npos.y += dt * m_state.speedY;
 		if (_isnan(npos.x)) {
@@ -338,7 +338,7 @@ void VizSpriteList::hit() {
 	lock_write();
 	for (std::list<VizSprite*>::iterator i = m_sprites.begin(); i != m_sprites.end(); i++) {
 		VizSprite* s = *i;
-		NosuchAssert(s);
+		VizAssert(s);
 		s->m_state.alpha = 1.0;
 	}
 	unlock();
@@ -359,13 +359,13 @@ void VizSpriteList::computeForces() {
 	}
 	for (std::list<VizSprite*>::iterator i1 = m_sprites.begin(); i1 != m_sprites.end(); i1++) {
 		VizSprite* s1 = *i1;
-		NosuchAssert(s1);
+		VizAssert(s1);
 		if (!s1->m_params->gravity) {
 			continue;
 		}
 		for (std::list<VizSprite*>::iterator i2 = m_sprites.begin(); i2 != m_sprites.end(); i2++) {
 			VizSprite* s2 = *i2;
-			NosuchAssert(s2);
+			VizAssert(s2);
 			if (s2 == s1) {   // this assumes the iterators use the same order
 				break;
 			}
@@ -408,7 +408,7 @@ VizSpriteList::add(VizSprite* s, int limit)
 {
 	lock_write();
 	m_sprites.push_front(s);
-	NosuchAssert(limit >= 1);
+	VizAssert(limit >= 1);
 	while ((int)m_sprites.size() > limit) {
 		VizSprite* ps = m_sprites.back();
 		m_sprites.pop_back();
@@ -419,11 +419,11 @@ VizSpriteList::add(VizSprite* s, int limit)
 }
 
 void
-VizSpriteList::draw(NosuchGraphics* b) {
+VizSpriteList::draw(VizGraphics* b) {
 	lock_read();
 	for (std::list<VizSprite*>::iterator i = m_sprites.begin(); i != m_sprites.end(); i++) {
 		VizSprite* s = *i;
-		NosuchAssert(s);
+		VizAssert(s);
 		s->draw(b);
 	}
 	unlock();
@@ -438,7 +438,7 @@ VizSpriteList::advanceTo(double tm) {
 	computeForces();
 	for (std::list<VizSprite*>::iterator i = m_sprites.begin(); i != m_sprites.end();) {
 		VizSprite* s = *i;
-		NosuchAssert(s);
+		VizAssert(s);
 		s->advanceTo(tm);
 		if (s->m_state.killme) {
 			i = m_sprites.erase(i);
@@ -462,7 +462,7 @@ VizSpriteSquare::VizSpriteSquare(SpriteVizParams* sp) : VizSprite(sp) {
 	m_noise_y3 = vertexNoise();
 }
 
-void VizSpriteSquare::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
+void VizSpriteSquare::drawShape(VizGraphics* graphics, int xdir, int ydir) {
 	double halfw = 0.2f;
 	double halfh = 0.2f;
 
@@ -489,7 +489,7 @@ VizSpriteHbar::VizSpriteHbar(SpriteVizParams* sp) : VizSprite(sp) {
 	m_noise_y3 = vertexNoise();
 }
 
-void VizSpriteHbar::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
+void VizSpriteHbar::drawShape(VizGraphics* graphics, int xdir, int ydir) {
 	double halfw = 1.0f;
 	double halfh = 0.1f;
 
@@ -516,7 +516,7 @@ VizSpriteVbar::VizSpriteVbar(SpriteVizParams* sp) : VizSprite(sp) {
 	m_noise_y3 = vertexNoise();
 }
 
-void VizSpriteVbar::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
+void VizSpriteVbar::drawShape(VizGraphics* graphics, int xdir, int ydir) {
 	double halfw = 0.1f;
 	double halfh = 1.0f;
 
@@ -540,14 +540,14 @@ VizSpriteTriangle::VizSpriteTriangle(SpriteVizParams* sp) : VizSprite(sp) {
 	m_noise_y2 = vertexNoise();
 }
 
-void VizSpriteTriangle::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
+void VizSpriteTriangle::drawShape(VizGraphics* graphics, int xdir, int ydir) {
 	// double halfw = w / 2.0f;
 	// double halfh = h / 2.0f;
 	double sz = 0.2f;
-	NosuchVector p1 = NosuchVector(sz, 0.0f);
-	NosuchVector p2 = p1;
+	VizVector p1 = VizVector(sz, 0.0f);
+	VizVector p2 = p1;
 	p2 = p2.rotate(VizSprite::degree2radian(120));
-	NosuchVector p3 = p1;
+	VizVector p3 = p1;
 	p3 = p3.rotate(VizSprite::degree2radian(-120));
 
 	graphics->triangle(p1.x + m_noise_x0*sz, p1.y + m_noise_y0*sz,
@@ -562,7 +562,7 @@ VizSpriteLine::VizSpriteLine(SpriteVizParams* sp) : VizSprite(sp) {
 	m_noise_y1 = vertexNoise();
 }
 
-void VizSpriteLine::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
+void VizSpriteLine::drawShape(VizGraphics* graphics, int xdir, int ydir) {
 	double halfw = 0.2f;
 	double halfh = 0.2f;
 	double x0 = -0.2f;
@@ -575,14 +575,14 @@ void VizSpriteLine::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
 VizSpriteCircle::VizSpriteCircle(SpriteVizParams* sp) : VizSprite(sp) {
 }
 
-void VizSpriteCircle::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
+void VizSpriteCircle::drawShape(VizGraphics* graphics, int xdir, int ydir) {
 	graphics->ellipse(0, 0, 0.2f, 0.2f);
 }
 
 VizSpriteNothing::VizSpriteNothing(SpriteVizParams* sp) : VizSprite(sp) {
 }
 
-void VizSpriteNothing::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
+void VizSpriteNothing::drawShape(VizGraphics* graphics, int xdir, int ydir) {
 }
 
 VizSpriteOutline::VizSpriteOutline(SpriteVizParams* sp) : VizSprite(sp) {
@@ -591,7 +591,7 @@ VizSpriteOutline::VizSpriteOutline(SpriteVizParams* sp) : VizSprite(sp) {
 }
 
 void
-VizSpriteOutline::drawShape(NosuchGraphics* graphics, int xdir, int ydir) {
+VizSpriteOutline::drawShape(VizGraphics* graphics, int xdir, int ydir) {
 	// app->ellipse(0, 0, 0.2f, 0.2f);
 	graphics->polygon(m_points, m_npoints, xdir, ydir);
 	return;
@@ -671,7 +671,7 @@ int rotangdirOf(std::string s) {
 	return dir;
 }
 
-void VizSprite::initVizSpriteState(double tm, void* handle, NosuchPos& pos, SpriteVizParams* p, bool doinitial) {
+void VizSprite::initVizSpriteState(double tm, void* handle, VizPos& pos, SpriteVizParams* p, bool doinitial) {
 
 	double movedir;
 	if (p->movedirrandom.get()) {

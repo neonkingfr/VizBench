@@ -10,13 +10,13 @@
 #include "FFGLPluginSDK.h"
 
 #include "osc/OscOutboundPacketStream.h"
-#include "NosuchOscInput.h"
-#include "NosuchOscManager.h"
-#include "NosuchOscInput.h"
-#include "NosuchColor.h"
-#include "NosuchJSON.h"
-#include "NosuchMidi.h"
-#include "NosuchHttpServer.h"
+#include "VizOscInput.h"
+#include "VizOscManager.h"
+#include "VizOscInput.h"
+#include "VizColor.h"
+#include "VizJSON.h"
+#include "VizMidi.h"
+#include "VizHttpServer.h"
 
 #include "VizParams.h"
 #include "SpriteVizParams.h"
@@ -39,10 +39,10 @@ struct OutlineMem;
 
 std::string dll_pathname();
 
-class Vizlet : public NosuchOscListener,
-					public NosuchJsonListener,
-					public NosuchMidiInputListener,
-					public NosuchMidiOutputListener,
+class Vizlet : public VizOscListener,
+					public VizJsonListener,
+					public VizMidiInputListener,
+					public VizMidiOutputListener,
 					// public ClickListener,
 					public CursorListener,
 					public KeystrokeListener,
@@ -62,8 +62,8 @@ public:
 		}
 		DEBUGPRINT1(("Vizlet::SetVizTag m_viztag is now %s",m_viztag));
 	}
-	VizSprite* makeAndInitVizSprite(SpriteVizParams* sp, NosuchPos pos);
-	VizSprite* makeAndAddVizSprite(SpriteVizParams* sp, NosuchPos pos);
+	VizSprite* makeAndInitVizSprite(SpriteVizParams* sp, VizPos pos);
+	VizSprite* makeAndAddVizSprite(SpriteVizParams* sp, VizPos pos);
 
 	void SetPassthru(bool b) { m_passthru = b; }
 
@@ -159,26 +159,26 @@ public:
 	/////////////////////////////////////////////////////
 
 	/////////////////////////////////////////////////////
-	// methods for NosuchJsonListener
+	// methods for VizJsonListener
 	virtual std::string processJson(std::string meth, cJSON *params, const char *id) {
-		std::string err = NosuchSnprintf("Vizlet - Unrecognized method '%s'",meth.c_str());
+		std::string err = VizSnprintf("Vizlet - Unrecognized method '%s'",meth.c_str());
 		return jsonError(-32000, err.c_str(), id);
 	}
 	/////////////////////////////////////////////////////
 
 	/////////////////////////////////////////////////////
-	// methods for NosuchOscListener
+	// methods for VizOscListener
 	virtual void processOsc(const char *source, const osc::ReceivedMessage& m) { }
 	/////////////////////////////////////////////////////
 
 	/////////////////////////////////////////////////////
-	// methods for NosuchMidiInputListener
+	// methods for VizMidiInputListener
 	// called from low-level things, NO OpenGL or time-intensive calls should be made
 	virtual void processMidiInput(MidiMsg* mm) { }
 	/////////////////////////////////////////////////////
 
 	/////////////////////////////////////////////////////
-	// methods for NosuchMidiInputListener
+	// methods for VizMidiInputListener
 	// called from low-level things, NO OpenGL or time-intensive calls should be made
 	virtual void processMidiOutput(MidiMsg* mm) { }
 	/////////////////////////////////////////////////////
@@ -200,7 +200,7 @@ public:
 	// virtual void processAdvanceClickTo(int click) { }
 	// virtual void processAdvanceTimeTo(double tm) { }
 
-	NosuchGraphics graphics;
+	VizGraphics graphics;
 
 	///////////////////////////////////////////////////
 	// Factory method
@@ -234,7 +234,7 @@ protected:
 	double defaultMovedir();
 
 	// double movedirDegrees(SpriteVizParams* p);
-	NosuchColor channelColor(int ch);
+	VizColor channelColor(int ch);
 
 private:
 

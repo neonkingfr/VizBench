@@ -1,8 +1,8 @@
 #include <string>
 #include <set>
 #include <ctime>
-#include "NosuchMidi.h"
-#include "NosuchJson.h"
+#include "VizMidi.h"
+#include "VizJson.h"
 #include "CursorBehaviour.h"
 #include "Vizlet.h"
 
@@ -32,7 +32,7 @@ void CursorBehaviour::_trackCursors(VizCursor* c, int downdragup) {
 			auto fc = m_cursors.find(c);
 			if (fc != m_cursors.end()) {
 				const VizCursor* vc = *fc;
-				NosuchAssert(vc == c);
+				VizAssert(vc == c);
 				DEBUGPRINT1(("track region cursors DRAG ncursors=%d", m_cursors.size()));
 			}
 			else {
@@ -378,7 +378,7 @@ void CursorBehaviour::_genControllerReset(VizCursor* c) {
 int CursorBehaviour::_outputPort(MidiVizParams* mp) {
 	int outport = mp->port.get();
 	if (outport >= MAX_MIDI_PORTS) {
-		throw NosuchException("port value (%d) is too large!?", outport);
+		throw VizException("port value (%d) is too large!?", outport);
 	}
 	return outport;
 }
@@ -510,7 +510,7 @@ void CursorBehaviour::_cursorSprite(VizCursor* c, int downdragup) {
 	}
 	DEBUGPRINT1(("cursorSprite! sid=%d xyz = %.5f %.5f %.5f", c->sid, c->pos.x, c->pos.y, c->pos.z));
 
-	NosuchPos pos = c->pos;
+	VizPos pos = c->pos;
 	double movedir = 0.0;
 	bool randpos = false;
 	if (randpos) {

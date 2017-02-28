@@ -37,7 +37,7 @@ public:
 			}
 		}
 		if (required) {
-			throw NosuchException("There is no viztag '%s' in pipeline %s",viztag.c_str(),m_piname.c_str());
+			throw VizException("There is no viztag '%s' in pipeline %s",viztag.c_str(),m_piname.c_str());
 		}
 		return NULL;
 	}
@@ -119,7 +119,7 @@ public:
 		// DEBUGPRINT(("----- MALLOC new FFGLPluginInstance"));
 		if (np->InstantiateGL(&fboViewport) != FF_SUCCESS) {
 			delete np;
-			throw NosuchException("Unable to InstantiateGL !?");
+			throw VizException("Unable to InstantiateGL !?");
 		}
 		return np;
 	}
@@ -134,7 +134,7 @@ public:
 
 		FFGLPluginDef* plugindef = findffglplugindef(pluginName);
 		if (plugindef == NULL) {
-			throw NosuchException("There is no plugin named '%s'", pluginName.c_str());
+			throw VizException("There is no plugin named '%s'", pluginName.c_str());
 			// DEBUGPRINT(("There is no plugin named '%s'",pluginName.c_str()));
 			// return NULL;
 		}
@@ -152,14 +152,14 @@ public:
 
 		if (params) {
 			for (cJSON* pn = params->child; pn != NULL; pn = pn->next) {
-				NosuchAssert(pn->type == cJSON_Object);
+				VizAssert(pn->type == cJSON_Object);
 				std::string nm = jsonNeedString(pn, "name", "");
 				if (nm == "") {
-					throw NosuchException("Missing parameter name");
+					throw VizException("Missing parameter name");
 				}
 				cJSON *t = cJSON_GetObjectItem(pn, "value");
 				if (t == NULL) {
-					throw NosuchException("Missing parameter value");
+					throw VizException("Missing parameter value");
 				}
 				if (t->type == cJSON_String) {
 					// In the saved pipeline json, it saves a "vtag" value which
@@ -175,7 +175,7 @@ public:
 					np->setparam(nm, (float)(t->valuedouble));
 				}
 				else {
-					throw NosuchException("addToPipeline unable to handle type=%d", t->type);
+					throw VizException("addToPipeline unable to handle type=%d", t->type);
 				}
 			}
 		}
@@ -234,7 +234,7 @@ public:
 		struct _stat statbuff;
 		int e = _stat(fpath.c_str(), &statbuff);
 		if (e != 0) {
-			throw NosuchException("Error in _stat fpath=%s - e=%d", fpath.c_str(), e);
+			throw VizException("Error in _stat fpath=%s - e=%d", fpath.c_str(), e);
 		}
 		if (statbuff.st_mtime > m_file_lastupdate) {
 
@@ -250,22 +250,22 @@ public:
 		std::string current_name = m_name;
 
 		DEBUGPRINT(("Pipeline.load name=%s", name.c_str(), fpath.c_str()));
-		bool exists = NosuchFileExists(fpath);
+		bool exists = VizFileExists(fpath);
 		cJSON* json;
 		if (!exists) {
 			// If it's a pipeline that doesn't exist,
 			// make a copy of the current one
-			if (NosuchFileExists(m_filepath)) {
-				NosuchFileCopy(m_filepath, fpath);
+			if (VizFileExists(m_filepath)) {
+				VizFileCopy(m_filepath, fpath);
 			}
 			else {
-				throw NosuchException("No such file: fpath=%s", fpath.c_str());
+				throw VizException("No such file: fpath=%s", fpath.c_str());
 			}
 		}
 		std::string err;
 		json = jsonReadFile(fpath, err);
 		if (!json) {
-			throw NosuchException(err.c_str());
+			throw VizException(err.c_str());
 		}
 		loadJson(piname, name, json);
 		jsonFree(json);
@@ -273,7 +273,7 @@ public:
 		struct _stat statbuff;
 		int e = _stat(fpath.c_str(), &statbuff);
 		if (e != 0) {
-			throw NosuchException("Error in _stat fpath=%s - e=%d", fpath.c_str(), e);
+			throw VizException("Error in _stat fpath=%s - e=%d", fpath.c_str(), e);
 		}
 
 		m_name = name;
@@ -292,15 +292,15 @@ public:
 
 		cJSON* plugins = jsonGetArray(json, "pipeline");
 		if (!plugins) {
-			throw NosuchException("No 'pipeline' value in config");
+			throw VizException("No 'pipeline' value in config");
 		}
 
 		int nplugins = cJSON_GetArraySize(plugins);
 		for (int n = 0; n < nplugins; n++) {
 			cJSON *p = cJSON_GetArrayItem(plugins, n);
-			NosuchAssert(p);
+			VizAssert(p);
 			if (p->type != cJSON_Object) {
-				throw NosuchException("Hey! Item #%d in pipeline isn't an object?", n);
+				throw VizException("Hey! Item #%d in pipeline isn't an object?", n);
 			}
 
 			std::string plugintype = "ffgl";
@@ -312,13 +312,13 @@ public:
 			}
 
 			if (plugin == NULL) {
-				throw NosuchException("Hey! Item #%d in pipeline doesn't specify plugin?", n);
+				throw VizException("Hey! Item #%d in pipeline doesn't specify plugin?", n);
 			}
 
 			// If an explicit vtag (note, not viztag) isn't given, use plugin name
 			const char* name = plugin->valuestring;
-			std::string vtag = NosuchToLower(jsonNeedString(p, "vtag", name));
-			std::string viztag = NosuchSnprintf("%s:%s", piname.c_str(), vtag.c_str());
+			std::string vtag = VizToLower(jsonNeedString(p, "vtag", name));
+			std::string viztag = VizSnprintf("%s:%s", piname.c_str(), vtag.c_str());
 
 			bool enabled = jsonNeedBool(p, "enabled", true);  // optional, default is 1 (true)
 			bool moveable = jsonNeedBool(p, "moveable", true);  // optional, default is 1 (true)
@@ -341,7 +341,7 @@ public:
 				int nvals = cJSON_GetArraySize(vizletdump);
 				for (int n = 0; n < nvals; n++) {
 					cJSON *p = cJSON_GetArrayItem(vizletdump, n);
-					NosuchAssert(p);
+					VizAssert(p);
 					if (p->type != cJSON_Object) {
 						DEBUGPRINT(("non-Object in vizletdump array!?"));
 						continue;
@@ -349,10 +349,10 @@ public:
 					std::string meth = jsonNeedString(p, "method", "");
 					cJSON* params = jsonGetObject(p, "params");
 					if (!params) {
-						throw NosuchException("No params value in vizletdump?");
+						throw VizException("No params value in vizletdump?");
 					}
 					DEBUGPRINT1(("Pipeline load meth=%s params=%s", meth.c_str(), cJSON_PrintUnformatted(params)));
-					std::string fullmethod = NosuchSnprintf("%s:%s.%s", piname.c_str(), name, meth.c_str());
+					std::string fullmethod = VizSnprintf("%s:%s.%s", piname.c_str(), name, meth.c_str());
 					const char* s = m_vizserver->ProcessJson(fullmethod.c_str(), params, "12345");
 				}
 			}

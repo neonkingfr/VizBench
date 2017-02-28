@@ -21,9 +21,9 @@ VizMidi4::VizMidi4() : Vizlet() {
 
 	for (int n = 0; n < 4; n++) {
 		m_sprite_on[n].channel = n + 1;
-		_loadSpriteVizParamsFile(NosuchSnprintf("patch_1_%c_on","ABCD"[n]), m_sprite_on[n]);
+		_loadSpriteVizParamsFile(VizSnprintf("patch_1_%c_on","ABCD"[n]), m_sprite_on[n]);
 		m_sprite_off[n].channel = n + 1;
-		_loadSpriteVizParamsFile(NosuchSnprintf("patch_1_%c_off","ABCD"[n]), m_sprite_off[n]);
+		_loadSpriteVizParamsFile(VizSnprintf("patch_1_%c_off","ABCD"[n]), m_sprite_off[n]);
 	}
 	m_autoloadparams = true;
 }
@@ -111,18 +111,18 @@ std::string VizMidi4::processJson(std::string meth, cJSON *json, const char *id)
 	if (meth == "dump") {
 		std::string dump =
 			"["
-			+NosuchSnprintf("{\"method\":\"set_sprite_on_A\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[0].paramsfname.c_str())
-			+NosuchSnprintf(",{\"method\":\"set_sprite_on_B\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[1].paramsfname.c_str())
-			+NosuchSnprintf(",{\"method\":\"set_sprite_on_C\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[2].paramsfname.c_str())
-			+NosuchSnprintf(",{\"method\":\"set_sprite_on_D\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[3].paramsfname.c_str())
-			+NosuchSnprintf(",{\"method\":\"set_sprite_off_A\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[0].paramsfname.c_str())
-			+NosuchSnprintf(",{\"method\":\"set_sprite_off_B\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[1].paramsfname.c_str())
-			+NosuchSnprintf(",{\"method\":\"set_sprite_off_C\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[2].paramsfname.c_str())
-			+NosuchSnprintf(",{\"method\":\"set_sprite_off_D\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[3].paramsfname.c_str())
-			+NosuchSnprintf(",{\"method\":\"set_channel_A\",\"params\":{\"channel\":%d}}", m_sprite_off[0].channel)
-			+NosuchSnprintf(",{\"method\":\"set_channel_B\",\"params\":{\"channel\":%d}}", m_sprite_off[1].channel)
-			+NosuchSnprintf(",{\"method\":\"set_channel_C\",\"params\":{\"channel\":%d}}", m_sprite_off[2].channel)
-			+NosuchSnprintf(",{\"method\":\"set_channel_D\",\"params\":{\"channel\":%d}}", m_sprite_off[3].channel)
+			+VizSnprintf("{\"method\":\"set_sprite_on_A\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[0].paramsfname.c_str())
+			+VizSnprintf(",{\"method\":\"set_sprite_on_B\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[1].paramsfname.c_str())
+			+VizSnprintf(",{\"method\":\"set_sprite_on_C\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[2].paramsfname.c_str())
+			+VizSnprintf(",{\"method\":\"set_sprite_on_D\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_on[3].paramsfname.c_str())
+			+VizSnprintf(",{\"method\":\"set_sprite_off_A\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[0].paramsfname.c_str())
+			+VizSnprintf(",{\"method\":\"set_sprite_off_B\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[1].paramsfname.c_str())
+			+VizSnprintf(",{\"method\":\"set_sprite_off_C\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[2].paramsfname.c_str())
+			+VizSnprintf(",{\"method\":\"set_sprite_off_D\",\"params\":{\"paramfile\":\"%s\"}}", m_sprite_off[3].paramsfname.c_str())
+			+VizSnprintf(",{\"method\":\"set_channel_A\",\"params\":{\"channel\":%d}}", m_sprite_off[0].channel)
+			+VizSnprintf(",{\"method\":\"set_channel_B\",\"params\":{\"channel\":%d}}", m_sprite_off[1].channel)
+			+VizSnprintf(",{\"method\":\"set_channel_C\",\"params\":{\"channel\":%d}}", m_sprite_off[2].channel)
+			+VizSnprintf(",{\"method\":\"set_channel_D\",\"params\":{\"channel\":%d}}", m_sprite_off[3].channel)
 			+"]"
 			;
 		return jsonStringResult(dump,id);
@@ -133,7 +133,7 @@ std::string VizMidi4::processJson(std::string meth, cJSON *json, const char *id)
 		return cb->_set_sidrange(json, id);
 	}
 	if (meth == "get_sidrange") {
-		return jsonStringResult(NosuchSnprintf("%d-%d", cb->sid_min, cb->sid_max), id);
+		return jsonStringResult(VizSnprintf("%d-%d", cb->sid_min, cb->sid_max), id);
 	}
 
 	if (meth == "set_channel_A") { m_sprite_on[0].channel = jsonNeedInt(json, "channel"); return jsonOK(id); }
@@ -174,7 +174,7 @@ std::string VizMidi4::processJson(std::string meth, cJSON *json, const char *id)
 		return jsonIntResult(m_autoloadparams?1:0, id);
 	}
 
-	throw NosuchException("VizMidi4 - Unrecognized method '%s'",meth.c_str());
+	throw VizException("VizMidi4 - Unrecognized method '%s'",meth.c_str());
 }
 
 #if 0
@@ -203,7 +203,7 @@ void VizMidi4::processMidiInput(MidiMsg* m) {
 		sl->lock_read();
 		for (std::list<VizSprite*>::iterator i = sl->m_sprites.begin(); i != sl->m_sprites.end(); i++) {
 			VizSprite* s = *i;
-			NosuchAssert(s);
+			VizAssert(s);
 			sprite_info* si = (sprite_info*)(s->m_data);
 			if (si!=NULL && si->channel == m->Channel() && si->pitch == m->Pitch()) {
 				s->m_data = NULL;
@@ -286,8 +286,8 @@ bool VizMidi4::processDraw() {
 	return true;
 }
 
-NosuchPos posAlongLine(double amount, NosuchPos frompos, NosuchPos topos) {
-	NosuchPos pos;
+VizPos posAlongLine(double amount, VizPos frompos, VizPos topos) {
+	VizPos pos;
 	pos.x = frompos.x + amount * (topos.x - frompos.x);
 	pos.y = frompos.y + amount * (topos.y - frompos.y);
 	pos.z = frompos.z + amount * (topos.z - frompos.z);
@@ -345,9 +345,9 @@ VizSprite* VizMidi4::_midiVizNoteOnSprite(MidiMsg* m) {
 		DEBUGPRINT(("HEY! VizMidi4 amount isn't 0.0 to 1.0!?"));
 		return NULL;
 	}
-	NosuchPos pos;
-	NosuchPos linefrom;
-	NosuchPos lineto;
+	VizPos pos;
+	VizPos linefrom;
+	VizPos lineto;
 	bool useline = true;
 
 	if (place == "nowhere") {
@@ -359,20 +359,20 @@ VizSprite* VizMidi4::_midiVizNoteOnSprite(MidiMsg* m) {
 		useline = false;
 	}
 	else if (place == "bottom") {
-		linefrom = NosuchPos(0.0, 0.1, 0.0);
-		lineto = NosuchPos(1.0, 0.1, 0.0);
+		linefrom = VizPos(0.0, 0.1, 0.0);
+		lineto = VizPos(1.0, 0.1, 0.0);
 	}
 	else if (place == "left") {
-		linefrom = NosuchPos(0.1, 0.0, 0.0);
-		lineto = NosuchPos(0.1, 1.0, 0.0);
+		linefrom = VizPos(0.1, 0.0, 0.0);
+		lineto = VizPos(0.1, 1.0, 0.0);
 	}
 	else if (place == "right") {
-		linefrom = NosuchPos(0.9, 0.0, 0.0);
-		lineto = NosuchPos(0.9, 1.0, 0.0);
+		linefrom = VizPos(0.9, 0.0, 0.0);
+		lineto = VizPos(0.9, 1.0, 0.0);
 	}
 	else if (place == "top") {
-		linefrom = NosuchPos(0.0, 0.9, 0.0);
-		lineto = NosuchPos(1.0, 0.9, 0.0);
+		linefrom = VizPos(0.0, 0.9, 0.0);
+		lineto = VizPos(1.0, 0.9, 0.0);
 	}
 	else if (place == "center") {
 		pos.x = 0.5;

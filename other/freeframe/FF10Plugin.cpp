@@ -21,9 +21,9 @@
 #include "stdio.h"
 #include "VizUtil.h"
 #include "FF10Plugin.h"
-#include "NosuchUtil.h"
-#include "NosuchException.h"
-#include "NosuchJson.h"
+#include "VizUtil.h"
+#include "VizException.h"
+#include "VizJson.h"
 
 // #define VERBOSE 1
 
@@ -229,7 +229,7 @@ FF10PluginInstance::FF10PluginInstance(FF10PluginDef* d, std::string viztag) :
 	m_plugindef(d), m_params(NULL), m_viztag(viztag), m_enabled(false),
 	m_moveable(true), m_instanceid(INVALIDINSTANCE) {
 
-	NosuchAssert ( d->m_mainfunc );
+	VizAssert ( d->m_mainfunc );
 	m_mainfunc = d->m_mainfunc;
 }
 
@@ -316,7 +316,7 @@ std::string FF10PluginInstance::getParamJsonResult(FF10ParameterDef* pd, FF10Plu
 		v = pi->GetFloatParameter(pd->num);
 		return jsonDoubleResult(v, id);
 	}
-	throw NosuchException("UNIMPLEMENTED parameter type (%d) in get API!", pd->type);
+	throw VizException("UNIMPLEMENTED parameter type (%d) in get API!", pd->type);
 }
 
 void FF10PluginInstance::SetFloatParameter(int paramNum, float value)
@@ -352,7 +352,7 @@ void FF10PluginInstance::SetStringParameter(int paramNum, std::string value)
 		m_mainfunc(FF_SETPARAMETER, (DWORD)(&ArgStruct), m_instanceid);
 	}
 	else {
-		throw NosuchException("HEY! SetStringParameter called on non-TEXT parameter (paramnum=%d)", paramNum);
+		throw VizException("HEY! SetStringParameter called on non-TEXT parameter (paramnum=%d)", paramNum);
 	}
 }
 
@@ -445,10 +445,10 @@ void loadffdir(std::string ffdir)
 			filesize.HighPart = ffd.nFileSizeHigh;
 
 			std::wstring wcfname = ffd.cFileName;
-			std::string cfname = NosuchToLower(ws2s(wcfname));
-			// std::string cfname = NosuchToLower(ffd.cFileName);
+			std::string cfname = VizToLower(ws2s(wcfname));
+			// std::string cfname = VizToLower(ffd.cFileName);
 
-			if (NosuchEndsWith(cfname, ".dll")) {
+			if (VizEndsWith(cfname, ".dll")) {
 				loadff10plugindef(ffdir, cfname.c_str());
 			}
 			else {
@@ -466,7 +466,7 @@ void loadffdir(std::string ffdir)
 }
 
 void loadff10path(std::string path) {
-	std::vector<std::string> dirs = NosuchSplitOnString(path, ";");
+	std::vector<std::string> dirs = VizSplitOnString(path, ";");
 	for (size_t i = 0; i<dirs.size(); i++) {
 		loadffdir(VizPath(dirs[i]));
 	}

@@ -1,8 +1,7 @@
 #ifndef TOP_SHARED_MEM_HEADER_H
 #define TOP_SHARED_MEM_HEADER_H
 
-// #include "NosuchDebug.h"
-#include "NosuchGraphics.h"
+#include "VizGraphics.h"
 
 #define TOP_SHM_MAGIC_NUMBER 	0xe95df673
 #define TOP_SHM_VERSION_NUMBER 	2

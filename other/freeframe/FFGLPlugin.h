@@ -1,7 +1,7 @@
 #ifndef FFGLPlugin_H
 #define FFGLPlugin_H
 
-#include "NosuchDebug.h"
+#include "VizDebug.h"
 #include <FFGL.h>
 #include <string>
 

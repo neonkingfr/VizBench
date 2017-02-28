@@ -177,7 +177,7 @@ void VizMaze2::processKeystroke(int key, int downup) {
 		sl->lock_read();
 		for (std::list<VizSprite*>::iterator i = sl->m_sprites.begin(); i != sl->m_sprites.end(); i++) {
 			VizSprite* s = *i;
-			NosuchAssert(s);
+			VizAssert(s);
 			VizSpriteOutline* so = (VizSpriteOutline*)s;
 			if (so) {
 				if (newest_framenum < 0) {
@@ -236,7 +236,7 @@ void VizMaze2::processCursor(VizCursor* c, int downdragup) {
 
 std::string VizMaze2::processJson(std::string meth, cJSON *json, const char *id) {
 	// NO OpenGL calls here
-	throw NosuchException("VizMaze2 - Unrecognized method '%s'",meth.c_str());
+	throw VizException("VizMaze2 - Unrecognized method '%s'",meth.c_str());
 }
 
 void VizMaze2::processMidiInput(MidiMsg* m) {

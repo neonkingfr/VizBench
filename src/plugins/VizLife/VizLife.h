@@ -1,7 +1,7 @@
 #ifndef _VizLife_H
 #define _VizLife_H
 
-#include "NosuchLife.h"
+#include "VizLifeImpl.h"
 
 class LifeCellData {
 public:
@@ -61,7 +61,7 @@ private:
 	// Put private things here.
 	SpriteVizParams* m_params;
 	SpriteVizParams* m_cellparams;
-	NosuchLife* m_life;
+	VizLifeImpl* m_life;
 	LifeCellData* m_data;
 	float m_deepestdepth;
 	LifeCell* m_deepestcell;

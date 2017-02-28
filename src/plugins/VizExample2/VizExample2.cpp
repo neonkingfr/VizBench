@@ -96,11 +96,11 @@ std::string VizExample2::processJson(std::string meth, cJSON *json, const char *
 		double x = 0.1 + 0.8*((double)rand())/RAND_MAX;   // 0.1-0.9
 		double y = 0.1 + 0.8*((double)rand())/RAND_MAX;   // 0.1-0.9
 		double z = 0.5;
-		makeAndAddVizSprite(m_apiparams,NosuchPos(x,y,z));
+		makeAndAddVizSprite(m_apiparams,VizPos(x,y,z));
 		return jsonOK(id);
 	}
 
-	throw NosuchException("VizExample2 - Unrecognized method '%s'",meth.c_str());
+	throw VizException("VizExample2 - Unrecognized method '%s'",meth.c_str());
 }
 
 void VizExample2::processMidiInput(MidiMsg* m) {
@@ -111,13 +111,13 @@ void VizExample2::processMidiInput(MidiMsg* m) {
 	}
 
 	// The sprite position is based on the MIDI pitch and velocity
-	NosuchPos pos;
+	VizPos pos;
 	pos.x = 0.5f;
 	pos.y = (m->Pitch()) / float(127);
 	pos.z = (m->Velocity()*m->Velocity()) / (128.0*128.0);
 
 	// Sprite color is controlled by the MIDI channel
-	NosuchColor clr = channelColor(m->Channel());
+	VizColor clr = channelColor(m->Channel());
 	double hue = clr.hue();
 
 	if ((rand() % 2) == 0) {

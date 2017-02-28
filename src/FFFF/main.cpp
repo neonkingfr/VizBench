@@ -25,13 +25,13 @@
 	WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "NosuchDebug.h"
+#include "VizDebug.h"
 #include <windows.h>
 #include <stdio.h>
 #include "VizServer.h"
 #include "XGetopt.h"
 
-std::vector<std::string> NosuchSplitOnAnyChar(std::string s, std::string sepchars)
+std::vector<std::string> VizSplitOnAnyChar(std::string s, std::string sepchars)
 {
 	std::vector<std::string> result;
 	const char *seps = sepchars.c_str();
@@ -77,7 +77,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLin
 	}
 
 	std::string cmdline = std::string(szCmdLine);
-	std::vector<std::string> args = NosuchSplitOnAnyChar(cmdline, " \t\n");
+	std::vector<std::string> args = VizSplitOnAnyChar(cmdline, " \t\n");
 
 	std::string pipeset = "";
 

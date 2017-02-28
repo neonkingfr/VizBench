@@ -25,17 +25,17 @@
 	WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	*/
 
-#include "NosuchUtil.h"
+#include "VizUtil.h"
 #include <VizServer.h>
 #include <VizParams.h>
 #include <MidiVizParams.h>
 #include <SpriteVizParams.h>
-#include <NosuchUtil.h>
-#include <NosuchJSON.h>
-#include <NosuchException.h>
-#include <NosuchOscManager.h>
-#include <NosuchDaemon.h>
-#include <NosuchScheduler.h>
+#include <VizUtil.h>
+#include <VizJSON.h>
+#include <VizException.h>
+#include <VizOscManager.h>
+#include <VizDaemon.h>
+#include <VizScheduler.h>
 #include "UT_SharedMem.h"
 #include "FFFF.h"
 
@@ -214,11 +214,11 @@ public:
 	VizServerApiCallback* findprefixcallback(std::string prefix, void** phandle = NULL) {
 		std::map<void*, VizServerApiCallback*>::iterator it;
 		// All comparisons here are case-insensitive
-		prefix = NosuchToLower(prefix);
+		prefix = VizToLower(prefix);
 		for (it = this->begin(); it != this->end(); it++) {
 			VizServerApiCallback* sscb = it->second;
-			std::string s = NosuchToLower(std::string(sscb->m_viztag));
-			if (NosuchBeginsWith(s,prefix)) {
+			std::string s = VizToLower(std::string(sscb->m_viztag));
+			if (VizBeginsWith(s,prefix)) {
 				if (phandle) {
 					*phandle = it->first;
 				}
@@ -230,10 +230,10 @@ public:
 	VizServerApiCallback* findviztagcallback(std::string viztag, void** phandle = NULL) {
 		std::map<void*, VizServerApiCallback*>::iterator it;
 		// All comparisons here are case-insensitive
-		viztag = NosuchToLower(viztag);
+		viztag = VizToLower(viztag);
 		for (it = this->begin(); it != this->end(); it++) {
 			VizServerApiCallback* sscb = it->second;
-			if (NosuchToLower(std::string(sscb->m_viztag)) == viztag) {
+			if (VizToLower(std::string(sscb->m_viztag)) == viztag) {
 				if (phandle) {
 					*phandle = it->first;
 				}
@@ -357,17 +357,17 @@ public:
 
 //////////// VizServerJsonProcessor
 
-class VizServerJsonProcessor : public NosuchJsonListener {
+class VizServerJsonProcessor : public VizJsonListener {
 
 public:
 	VizServerJsonProcessor() {
-		NosuchLockInit(&_mutex, "vizserverjsonprocessor");
+		VizLockInit(&_mutex, "vizserverjsonprocessor");
 	}
 	void LockJsonProcessor() {
-		NosuchLock(&_mutex,"jsonprocessor");
+		VizLock(&_mutex,"jsonprocessor");
 	}
 	void UnlockJsonProcessor() {
-		NosuchUnlock(&_mutex,"jsonprocessor");
+		VizUnlock(&_mutex,"jsonprocessor");
 	}
 	void ClearCallbacks() {
 		m_callbacks.ClearCallbacks();
@@ -410,7 +410,7 @@ methodPrefixProcess(std::string method, std::string& prefix, std::string& suffix
 		prefix = "";
 		suffix = method;
 	}
-	prefix = NosuchToLower(prefix);
+	prefix = VizToLower(prefix);
 }
 
 static std::string
@@ -557,16 +557,16 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 				return jsonError(-32000, "No paramfile parameter specified on *param_readfile?", id);
 			}
 			std::string fpath = ApiSpecificVizParamsPath(api,file);
-			bool exists = NosuchFileExists(fpath);
+			bool exists = VizFileExists(fpath);
 			if (!exists) {
 				// If it's a file that doesn't exist,
 				// make a copy of the current one
-				throw NosuchException("File doesn't exist - fpath=%s", fpath.c_str());
+				throw VizException("File doesn't exist - fpath=%s", fpath.c_str());
 			}
 			std::string err;
 			cJSON* json = jsonReadFile(fpath, err);
 			if (!json){
-				throw NosuchException("Unable to read json from fpath=%s err=%s", fpath.c_str(), err.c_str());
+				throw VizException("Unable to read json from fpath=%s err=%s", fpath.c_str(), err.c_str());
 			}
 			// std::string r = cJSON_escapestring(cJSON_PrintUnformatted(json));
 			std::string r = cJSON_PrintUnformatted(json);
@@ -584,7 +584,7 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 				return jsonOK(id);
 			}
 			else {
-				std::string msg = NosuchSnprintf("Unable to write file %s, err=%s",
+				std::string msg = VizSnprintf("Unable to write file %s, err=%s",
 					fpath.c_str(), err.c_str());
 				return jsonError(-32000, msg.c_str(), id);
 			}
@@ -592,13 +592,13 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 		if (api == "play_midifile") {
 			std::string filename = ss->_getMidiFile();
 			if (filename == "") {
-				std::string err = NosuchSnprintf("play_midifile called with no midifile set, use set_midifile first");
+				std::string err = VizSnprintf("play_midifile called with no midifile set, use set_midifile first");
 				return jsonError(-32000, err, id);
 			}
 			std::string fpath = VizPath("midifiles\\" + filename);
 			MidiPhrase* ph = newMidiPhraseFromFile(fpath);
 			if (ph == NULL) {
-				std::string err = NosuchSnprintf("Error reading phrase from file: %s", fpath.c_str());
+				std::string err = VizSnprintf("Error reading phrase from file: %s", fpath.c_str());
 				return jsonError(-32000, err, id);
 			}
 			ss->_scheduleMidiPhrase(ph, ss->SchedulerCurrentClick(), 0, false, NULL);
@@ -655,17 +655,17 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 			return jsonIntResult(ss->m_debugApi,id);
 		}
 		if (api == "get_debugmidinotes" ) {
-			return jsonIntResult(NosuchDebugMidiNotes,id);
+			return jsonIntResult(VizDebugMidiNotes,id);
 		}
 		if (api == "set_debugmidinotes" ) {
-			NosuchDebugMidiNotes = jsonNeedBool(params, "onoff");
+			VizDebugMidiNotes = jsonNeedBool(params, "onoff");
 			return jsonOK(id);
 		}
 		if (api == "get_debugmidiall" ) {
-			return jsonIntResult(NosuchDebugMidiAll,id);
+			return jsonIntResult(VizDebugMidiAll,id);
 		}
 		if (api == "set_debugmidiall" ) {
-			NosuchDebugMidiAll = jsonNeedBool(params, "onoff");
+			VizDebugMidiAll = jsonNeedBool(params, "onoff");
 			return jsonOK(id);
 		}
 		if (api == "set_debughttp" ) {
@@ -681,13 +681,13 @@ VizServerJsonProcessor::processJsonReal(std::string fullmethod, cJSON *params, c
 			return jsonOK(id);
 		}
 
-		std::string err = NosuchSnprintf("VizServer - Unrecognized method '%s'", api.c_str());
+		std::string err = VizSnprintf("VizServer - Unrecognized method '%s'", api.c_str());
 		return jsonError(-32000, err, id);
 	}
 
 	VizServerApiCallback* cb = m_callbacks.findprefixcallback(prefix);
 	if (cb == NULL) {
-		std::string err = NosuchSnprintf("Unable to find Json API match for prefix=%s", prefix.c_str());
+		std::string err = VizSnprintf("Unable to find Json API match for prefix=%s", prefix.c_str());
 		return jsonError(-32000, err, id);
 	}
 
@@ -723,7 +723,7 @@ checkAddrPattern(const char *addr, char *patt)
 	return (strncmp(addr, patt, strlen(patt)) == 0);
 }
 
-class VizServerOscProcessor : public NosuchOscListener {
+class VizServerOscProcessor : public VizOscListener {
 
 public:
 	VizServerOscProcessor() {
@@ -734,7 +734,7 @@ public:
 	}
 	void processOsc(const char* source, const osc::ReceivedMessage& m) {
 		if ( m_vizserver == NULL ) {
-			throw NosuchException("VizServerOscProcessor::processOsc called before VizServer is set!?");
+			throw VizException("VizServerOscProcessor::processOsc called before VizServer is set!?");
 			return;
 		}
 		const char *types = m.TypeTags();
@@ -783,7 +783,7 @@ public:
 					area = z;
 				}
 				// y = 1.0f - y;
-				m_vizserver->_setCursor(sidnum, source, NosuchPos(x, y, z), area, NULL, NULL);
+				m_vizserver->_setCursor(sidnum, source, VizPos(x, y, z), area, NULL, NULL);
 			}
 			return;
 
@@ -817,7 +817,7 @@ public:
 
 				DEBUGPRINT1(("/tuio/2Dcur xy=%.3f,%.3f", x, y));
 
-				m_vizserver->_setCursor(sidnum, source, NosuchPos(x, y, z), tuio_f, NULL, NULL);
+				m_vizserver->_setCursor(sidnum, source, VizPos(x, y, z), tuio_f, NULL, NULL);
 			}
 			return;
 		}
@@ -838,7 +838,7 @@ public:
 			}
 			cJSON* params = cJSON_Parse(jsonstr.c_str());
 			if (!params) {
-				NosuchErrorOutput("Unable to parse json in OSC /api: %s", jsonstr.c_str());
+				VizErrorOutput("Unable to parse json in OSC /api: %s", jsonstr.c_str());
 				return;
 			}
 			std::string s = m_vizserver->_processJson(fullmethod, params, "12345");
@@ -852,7 +852,7 @@ private:
 
 //////////// VizServerMidiProcessor
 
-class VizServerMidiProcessor : public NosuchMidiListener {
+class VizServerMidiProcessor : public VizMidiListener {
 public:
 	VizServerMidiProcessor() {
 	}
@@ -901,8 +901,8 @@ public:
 			}
 			DEBUGPRINT1(("processCursor D"));
 		}
-		catch (NosuchException& e) {
-			DEBUGPRINT(("NosuchException in processCursor: %s", e.message()));
+		catch (VizException& e) {
+			DEBUGPRINT(("VizException in processCursor: %s", e.message()));
 		}
 		catch (...) {
 			DEBUGPRINT(("Some other kind of exception in processCursor occured!?"));
@@ -934,8 +934,8 @@ public:
 				cb(sscb->m_data, key, downup);
 			}
 		}
-		catch (NosuchException& e) {
-			DEBUGPRINT(("NosuchException in processKeystroke: %s", e.message()));
+		catch (VizException& e) {
+			DEBUGPRINT(("VizException in processKeystroke: %s", e.message()));
 		}
 		catch (...) {
 			// Does this really work?  Not sure
@@ -978,8 +978,8 @@ public:
 				cb(sscb->m_data, click);
 			}
 		}
-		catch (NosuchException& e) {
-			DEBUGPRINT(("NosuchException in processAdvanceClickTo: %s", e.message()));
+		catch (VizException& e) {
+			DEBUGPRINT(("VizException in processAdvanceClickTo: %s", e.message()));
 		}
 		catch (...) {
 			// Does this really work?  Not sure
@@ -1029,12 +1029,12 @@ VizServer::VizServer() {
 	m_midioutputprocessor = new VizServerMidiProcessor();
 	m_cursorprocessor = new VizServerCursorProcessor();
 	m_keystrokeprocessor = new VizServerKeystrokeProcessor();
-	m_scheduler = new NosuchScheduler();
+	m_scheduler = new VizScheduler();
 
 	m_daemon = NULL;
 	m_cursors = new std::list<VizCursor*>();
-	NosuchLockInit(&_cursors_mutex, "cursors");
-	NosuchLockInit(&_vizserver_mutex, "vizserver");
+	VizLockInit(&_cursors_mutex, "cursors");
+	VizLockInit(&_vizserver_mutex, "vizserver");
 
 	// m_midi_input_list = "";
 	// m_midi_output_list = "";
@@ -1048,7 +1048,7 @@ VizServer::VizServer() {
 	m_osc_input_port = -1;
 	m_osc_input_host = "";
 
-	NosuchTimeInit();
+	VizTimeInit();
 }
 
 VizServer::~VizServer() {
@@ -1067,12 +1067,12 @@ VizServer::DoFFFF(const char* pipeset) {
 		F->RunStuff();
 		F->StopStuff();
 
-	} catch (NosuchException& e) {
-		NosuchErrorOutput("NosuchException!! - %s",e.message());
+	} catch (VizException& e) {
+		VizErrorOutput("VizException!! - %s",e.message());
 		exit(EXIT_FAILURE);
 	} catch (...) {
 		// This doesn't seem to work - it doesn't seem to catch other exceptions...
-		NosuchErrorOutput("Some other kind of exception occured in main!?");
+		VizErrorOutput("Some other kind of exception occured in main!?");
 		exit(EXIT_FAILURE);
 	}
 
@@ -1099,7 +1099,7 @@ VizServer::_getCursor(int sidnum, std::string sidsource, bool lockit) {
 	}
 	for (std::list<VizCursor*>::iterator i = m_cursors->begin(); i != m_cursors->end(); i++) {
 		VizCursor* c = *i;
-		NosuchAssert(c);
+		VizAssert(c);
 		if (c->sid == sidnum && c->source == sidsource) {
 			retc = c;
 			break;
@@ -1115,7 +1115,7 @@ void VizServer::_checkCursorUp() {
 
 	for (std::list<VizCursor*>::iterator i = m_cursors->begin(); i != m_cursors->end();) {
 		VizCursor* c = *i;
-		NosuchAssert(c);
+		VizAssert(c);
 		double now = SchedulerCurrentTimeInSeconds();
 		double dt = SchedulerCurrentTimeInSeconds() - c->m_lasttouchedInSeconds;
 		// This timeout used to be 4ms, but when camera input
@@ -1141,7 +1141,7 @@ VizServer::AdvanceCursorTo(VizCursor* c, double tm) {
 }
 
 void
-VizServer::_setCursor(int sidnum, std::string sidsource, NosuchPos pos, double area, OutlineMem* om, MMTT_SharedMemHeader* hdr)
+VizServer::_setCursor(int sidnum, std::string sidsource, VizPos pos, double area, OutlineMem* om, MMTT_SharedMemHeader* hdr)
 {
 	LockCursors();
 	VizCursor* c = _getCursor(sidnum, sidsource, false);
@@ -1168,7 +1168,7 @@ VizServer::_setCursor(int sidnum, std::string sidsource, NosuchPos pos, double a
 }
 
 void VizServer::_setCursorSid(int sidnum, const char* source, double x, double y, double z, double tuio_f, OutlineMem* om, MMTT_SharedMemHeader* hdr) {
-	_setCursor(sidnum, source, NosuchPos(x, y, z), tuio_f, om, hdr);
+	_setCursor(sidnum, source, VizPos(x, y, z), tuio_f, om, hdr);
 }
 
 void VizServer::_processCursorsFromBuff(MMTT_SharedMemHeader* hdr) {
@@ -1189,7 +1189,7 @@ void VizServer::_errorPopup(const char* msg) {
 }
 
 double VizServer::SchedulerCurrentTimeInSeconds() {
-	return NosuchTimeElapsedInSeconds();
+	return VizTimeElapsedInSeconds();
 }
 
 click_t VizServer::SchedulerCurrentClick() {
@@ -1238,7 +1238,7 @@ VizServer::_readconfig(const char* fn) {
 
 	cJSON* json = jsonReadFile(fname, err);
 	if (!json) {
-		NosuchErrorOutput("Unable to read/parse config file (name=%s, err=%s), disabling Freeframe plugin!\n", fname.c_str(), err.c_str());
+		VizErrorOutput("Unable to read/parse config file (name=%s, err=%s), disabling Freeframe plugin!\n", fname.c_str(), err.c_str());
 	}
 	return json;
 }
@@ -1279,31 +1279,31 @@ VizServer::IncomingMidiMsg(MidiMsg* m, click_t clk, const char* handle) {
 
 void
 VizServer::_scheduleMidiPhrase(MidiPhrase* ph, click_t clk, int cursorid, bool looping, MidiVizParams* mp) {
-	NosuchAssert(m_scheduler);
+	VizAssert(m_scheduler);
 	m_scheduler->ScheduleMidiPhrase(ph, clk, cursorid, looping, mp);
 }
 
 void
 VizServer::_scheduleMidiMsg(MidiMsg* m, click_t clk, int cursorid, bool looping, MidiVizParams* mp) {
-	NosuchAssert(m_scheduler);
+	VizAssert(m_scheduler);
 	m_scheduler->ScheduleMidiMsg(m, clk, cursorid, looping, mp);
 }
 
 void
 VizServer::_scheduleClearAll() {
-	NosuchAssert(m_scheduler);
+	VizAssert(m_scheduler);
 	m_scheduler->ScheduleClear(SCHEDID_ALL);
 }
 
 void
 VizServer::QueueMidiPhrase(MidiPhrase* ph, click_t clk, int cursorid, bool looping, MidiVizParams* mp) {
-	NosuchAssert(m_scheduler);
+	VizAssert(m_scheduler);
 	m_scheduler->QueueMidiPhrase(ph, clk, cursorid, looping, mp);
 }
 
 void
 VizServer::QueueMidiMsg(MidiMsg* m, click_t clk, int cursorid, bool looping, MidiVizParams* mp) {
-	NosuchAssert(m_scheduler);
+	VizAssert(m_scheduler);
 	m_scheduler->QueueMidiMsg(m, clk, cursorid, looping, mp);
 	DEBUGPRINT1(("After VizServer::QueueMidiMsg clk=%d type=%s",clk,m->MidiTypeName(),m_scheduler->NumEventsOfSid(cursorid)));
 }
@@ -1326,19 +1326,19 @@ VizServer::NumScheduledOfId(int id) {
 
 void
 VizServer::QueueClear() {
-	NosuchAssert(m_scheduler);
+	VizAssert(m_scheduler);
 	m_scheduler->QueueClear();
 }
 
 void
 VizServer::ScheduleClear(int cursorid) {
-	NosuchAssert(m_scheduler);
+	VizAssert(m_scheduler);
 	m_scheduler->ScheduleClear(cursorid);
 }
 
 void
 VizServer::SetClicksPerSecond(int clicks) {
-	NosuchAssert(m_scheduler);
+	VizAssert(m_scheduler);
 	m_scheduler->SetClicksPerSecond(clicks);
 }
 
@@ -1349,7 +1349,7 @@ VizServer::SetTempoFactor(float f) {
 
 void
 VizServer::ANO(int channel) {
-	NosuchAssert(m_scheduler);
+	VizAssert(m_scheduler);
 	m_scheduler->ANO(channel);
 }
 
@@ -1392,7 +1392,7 @@ VizServer::Start() {
 
 		m_oscprocessor->setVizServer(this);
 
-		m_daemon = new NosuchDaemon(m_osc_input_port, m_osc_input_host, m_oscprocessor,
+		m_daemon = new VizDaemon(m_osc_input_port, m_osc_input_host, m_oscprocessor,
 			m_httpport, m_htmlpath, m_jsonprocessor);
 
 		m_started = true;
@@ -1404,8 +1404,8 @@ VizServer::Start() {
 
 		m_scheduler->StartMidi(config);
 	}
-	catch (NosuchException& e) {
-		DEBUGPRINT(("NosuchException: %s", e.message()));
+	catch (VizException& e) {
+		DEBUGPRINT(("VizException: %s", e.message()));
 		r = false;
 	}
 	catch (...) {
@@ -1428,7 +1428,7 @@ void VizServer::_advanceClickTo(int current_click) {
 
 	for (std::list<VizCursor*>::iterator i = m_cursors->begin(); i != m_cursors->end(); i++) {
 		VizCursor* c = *i;
-		NosuchAssert(c);
+		VizAssert(c);
 		c->advanceTo(SchedulerCurrentTimeInSeconds());
 	}
 
@@ -1455,7 +1455,7 @@ void VizServer::_checkSharedMem() {
 	}
 
 	mem = (MMTT_SharedMemHeader*)data;
-	NosuchAssert(mem);
+	VizAssert(mem);
 
 	if (mem->version != MMTT_SHM_VERSION_NUMBER) {
 		DEBUGPRINT(("VizServer, MMTT sharedmem is the wrong version!  Expected %d, got %d", MMTT_SHM_VERSION_NUMBER, mem->version));
@@ -1638,25 +1638,25 @@ VizServer::_processServerConfig(cJSON* json) {
 		}
 	}
 	if ((j = jsonGetNumber(json, "debugtoconsole")) != NULL) {
-		NosuchDebugToConsole = j->valueint ? TRUE : FALSE;
+		VizDebugToConsole = j->valueint ? TRUE : FALSE;
 	}
 	if ((j = jsonGetNumber(json, "debugmidinotes")) != NULL) {
-		NosuchDebugMidiNotes = j->valueint ? TRUE : FALSE;
+		VizDebugMidiNotes = j->valueint ? TRUE : FALSE;
 	}
 	if ((j = jsonGetNumber(json, "debugmidiall")) != NULL) {
-		NosuchDebugMidiAll = j->valueint ? TRUE : FALSE;
+		VizDebugMidiAll = j->valueint ? TRUE : FALSE;
 	}
 	if ((j = jsonGetNumber(json, "debugtolog")) != NULL) {
 		bool b = j->valueint ? TRUE : FALSE;
 		// If we're turning debugtolog off, put a final
 		// message out so we know that!
-		if (NosuchDebugToLog && !b) {
-			DEBUGPRINT(("ALERT: NosuchDebugToLog is being set to false!"));
+		if (VizDebugToLog && !b) {
+			DEBUGPRINT(("ALERT: VizDebugToLog is being set to false!"));
 		}
-		NosuchDebugToLog = b;
+		VizDebugToLog = b;
 	}
 	if ((j = jsonGetNumber(json, "debugautoflush")) != NULL) {
-		NosuchDebugAutoFlush = j->valueint ? TRUE : FALSE;
+		VizDebugAutoFlush = j->valueint ? TRUE : FALSE;
 	}
 }
 
@@ -1805,7 +1805,7 @@ VizServer::_touchCursorSid(int sid, std::string source) {
 }
 
 VizCursor::VizCursor(VizServer* ss, int sid_, std::string source_, int cursorid_,
-	NosuchPos pos_, double area_, OutlineMem* om_, MMTT_SharedMemHeader* hdr_) {
+	VizPos pos_, double area_, OutlineMem* om_, MMTT_SharedMemHeader* hdr_) {
 
 	sid = sid_;
 	source = source_;
@@ -1862,7 +1862,7 @@ VizCursor::advanceTo(double tm) {
 		return;
 	}
 
-	NosuchPos dpos = target_pos.sub(pos);
+	VizPos dpos = target_pos.sub(pos);
 	double raw_distance = dpos.mag();
 	if (raw_distance > 1.0f) {
 		DEBUGPRINT(("VizCursor::advanceTo, raw_distance>1.0 !?"));
@@ -1907,7 +1907,7 @@ VizCursor::advanceTo(double tm) {
 
 	DEBUGPRINT1(("   Cursor advance end pos= %.3f %.3f", pos.x, pos.y));
 
-	NosuchPos finaldpos = pos.sub(m_last_pos);
+	VizPos finaldpos = pos.sub(m_last_pos);
 	double final_distance = finaldpos.mag();
 
 	/////////////// smooth the depth
@@ -1919,11 +1919,11 @@ VizCursor::advanceTo(double tm) {
 	/////////////// smooth the degrees
 	double tooshort = 0.01f; // 0.05f;
 	if (raw_distance < tooshort) {
-		// NosuchDebug("   raw_distance=%.3f too small %s\n",
+		// VizDebug("   raw_distance=%.3f too small %s\n",
 		// 	raw_distance,DebugString().c_str());
 	}
 	else {
-		NosuchPos dp = pos.sub(m_last_pos);
+		VizPos dp = pos.sub(m_last_pos);
 		double heading = dp.heading();
 		m_target_degrees = radian2degree(heading);
 		m_target_degrees += 90.0;

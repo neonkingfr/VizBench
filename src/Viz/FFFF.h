@@ -4,7 +4,7 @@
 #include <opencv/cv.h>
 #include "VizServer.h"
 #include "AudioHost.h"
-#include "VizUtil.h"
+#include "VizFFUtil.h"
 #include "FFGLPipeline.h"
 #include <GLFW/glfw3.h>
 
@@ -18,23 +18,23 @@ public:
 	FFFFState() {
 		statepath = VizConfigPath("state.json");
 		state = NULL;
-		if (NosuchFileExists(statepath)) {
+		if (VizFileExists(statepath)) {
 			std::string err;
 			state = jsonReadFile(statepath, err);
 			if (!state) {
-				NosuchErrorOutput("Unable to parse state file!? path=%s", statepath.c_str());
+				VizErrorOutput("Unable to parse state file!? path=%s", statepath.c_str());
 			}
 		}
 		if (!state) {
 			state = cJSON_Parse("{ }");
-			NosuchAssert(state);
+			VizAssert(state);
 		}
 	};
 	void save() {
 		std::string err;
 		if (!jsonWriteFile(statepath, state, err)) {
-			std::string err = NosuchSnprintf("Unable to write state file!? path=%s", statepath.c_str());
-			throw NosuchException(err.c_str());
+			std::string err = VizSnprintf("Unable to write state file!? path=%s", statepath.c_str());
+			throw VizException(err.c_str());
 		}
 	}
 	void set_pipeset(std::string pipeset) {
@@ -49,7 +49,7 @@ private:
 	std::string statepath;
 };
 
-class FFFF : public NosuchJsonListener, NosuchOscListener {
+class FFFF : public VizJsonListener, VizOscListener {
 
 public:
 	FFFF();
